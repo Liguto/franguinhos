@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Memory Training Neon</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: #0b0c10;
+      color: #66fcf1;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.5rem;
+      text-shadow: 0 0 10px #66fcf1;
+      margin-bottom: 5px;
+    }
+    #game-container {
+      position: relative;
+      background: rgba(31, 40, 51, 0.4);
+      border: 4px solid #1f2833;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(102, 252, 241, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      width: 320px;
+    }
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 15px;
+      font-weight: bold;
+    }
+    .neon-text {
+      color: #66fcf1;
+      text-shadow: 0 0 5px #66fcf1;
+    }
+    .neon-text-pink {
+      color: #ff007f;
+      text-shadow: 0 0 5px #ff007f;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+      width: 100%;
+    }
+    .card {
+      aspect-ratio: 1;
+      background-color: #12131c;
+      border: 2px solid #1f2833;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .card.flipped {
+      transform: rotateY(180deg);
+      border-color: #66fcf1;
+      box-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+    }
+    .card.matched {
+      border-color: #45f3ff;
+      opacity: 0.6;
+      cursor: default;
+    }
+    .card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #1f2833;
+      border-radius: 6px;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card .back::after {
+      content: '?';
+      color: #66fcf1;
+      font-weight: bold;
+      text-shadow: 0 0 5px #66fcf1;
+    }
+    .card .front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #12131c;
+      border-radius: 6px;
+      backface-visibility: hidden;
+      transform: rotateY(180deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 12, 16, 0.95);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #start-btn {
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-family: inherit;
+      background: transparent;
+      border: 3px solid #66fcf1;
+      border-radius: 30px;
+      color: #66fcf1;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+    }
+    #start-btn:hover {
+      background: #66fcf1;
+      color: #0b0c10;
+      box-shadow: 0 0 20px #66fcf1;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MEMORY NEON MATCH</h1>
+
+  <div id="game-container">
+    <div id="hud">
+      <div>JOGADAS: <span id="moves" class="neon-text">0</span></div>
+      <div>ACERTOS: <span id="matches" class="neon-text">0/8</span></div>
+    </div>
+    
+    <div id="grid"></div>
+
+    <div id="overlay">
+      <h2 id="overlay-title" class="neon-text">TREINO DE MEMÓRIA</h2>
+      <p id="overlay-desc" style="font-size: 0.8rem; text-align: center; padding: 10px 20px; color: #c5a1ff;">
+        Vire as cartas e encontre as combinações de símbolos neon idênticos com o menor número de jogadas possível!
+      </p>
+      <button id="start-btn">JOGAR</button>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const movesEl = document.getElementById('moves');
+    const matchesEl = document.getElementById('matches');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const startBtn = document.getElementById('start-btn');
+
+    function sendEvent(type, data = {}) {
+      window.parent.postMessage({ type, gameSlug: 'memory-match', ...data }, '*');
+    }
+
+    sendEvent('game_loaded');
+
+    const symbols = ['⚛', '⚡', '☄', '★', '☯', '♫', '♥', '☀'];
+    let cards = [];
+    let flippedCards = [];
+    let moves = 0;
+    let matches = 0;
+    let lockBoard = false;
+
+    function initGame() {
+      grid.innerHTML = '';
+      flippedCards = [];
+      moves = 0;
+      matches = 0;
+      lockBoard = false;
+      movesEl.innerText = moves;
+      matchesEl.innerText = `0/${symbols.length}`;
+
+      // Duplicar e embaralhar símbolos
+      const deck = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+
+      deck.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.symbol = symbol;
+        card.dataset.index = index;
+
+        const back = document.createElement('div');
+        back.classList.add('back');
+
+        const front = document.createElement('div');
+        front.classList.add('front');
+        front.innerText = symbol;
+
+        card.appendChild(back);
+        card.appendChild(front);
+        card.addEventListener('click', flipCard);
+        grid.appendChild(card);
+      });
+    }
+
+    function flipCard() {
+      if (lockBoard) return;
+      if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+      this.classList.add('flipped');
+      flippedCards.push(this);
+
+      if (flippedCards.length === 2) {
+        moves++;
+        movesEl.innerText = moves;
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      const isMatch = card1.dataset.symbol === card2.dataset.symbol;
+
+      if (isMatch) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matches++;
+        matchesEl.innerText = `${matches}/${symbols.length}`;
+        flippedCards = [];
+
+        if (matches === symbols.length) {
+          setTimeout(gameOver, 600);
+        }
+      } else {
+        lockBoard = true;
+        setTimeout(() => {
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+          flippedCards = [];
+          lockBoard = false;
+        }, 1000);
+      }
+    }
+
+    function startGame() {
+      initGame();
+      overlay.style.display = 'none';
+      sendEvent('game_start');
+    }
+
+    function gameOver() {
+      overlay.style.display = 'flex';
+      overlayTitle.innerText = 'PARABÉNS!';
+      overlayTitle.className = 'neon-text-pink';
+      document.getElementById('overlay-desc').innerText = `Você completou o circuito de memória neon com ${moves} jogadas!`;
+      startBtn.innerText = 'REJOGAR';
+      sendEvent('game_completed', { moves, score: 1000 - moves * 20 });
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String     @id @default(uuid())
+  username      String     @unique
+  passwordHash  String
+  role          String     @default("user") // 'super_admin' | 'editor' | 'moderador' | 'analista' | 'marketing' | 'suporte' | 'financeiro' | 'user'
+  status        String     @default("ativo") // 'ativo' | 'suspenso'
+  agePreference String?    // 'infantil' | 'terceira_idade' | 'sem_preferencia'
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  favorites     Favorite[]
+}
+
+model Game {
+  id                    String     @id @default(uuid())
+  slug                  String     @unique
+  title                 String
+  description           String
+  category              String
+  subcategories         String     // Armazenado como JSON string ou texto separado por vírgulas para SQLite
+  tags                  String     // Armazenado como texto separado por vírgulas
+  ageRating             String     @default("Livre")
+  bannerUrl             String
+  iconUrl               String
+  prefixUrl             String
+  version               String     @default("1.0.0")
+  
+  // Controles
+  mouse                 Boolean    @default(true)
+  teclado               Boolean    @default(true)
+  toque                 Boolean    @default(true)
+  gamepad               Boolean    @default(false)
+  orientation           String     @default("both") // 'portrait' | 'landscape' | 'both'
+  
+  // Statuses
+  statusTechnical       String     @default("pendente_teste") // 'aprovado' | 'pendente_teste' | 'rejeitado'
+  statusEditorial       String     @default("rascunho") // 'rascunho' | 'em_análise' | 'aprovado' | 'publicado' | 'suspenso' | 'arquivado'
+  statusDoc             String     @default("documentacao_pendente") // 'aprovado' | 'documentacao_pendente' | 'rejeitado'
+  
+  author                String
+  licenseName           String
+  publishedAt           DateTime?
+  revisedAt             DateTime?
+  accessibilityMetadata String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  
+  contract              Contract?
+  favorites             Favorite[]
+}
+
+model Contract {
+  id                       String   @id @default(uuid())
+  gameId                   String   @unique
+  contractNumber           String   @unique
+  signatoryCreator         String
+  signatoryRepresentative  String?
+  termsAccepted            Boolean  @default(false)
+  licenseType              String
+  exclusivityScope         String
+  durationMonths           Int      @default(12)
+  revenueSharePercent      Float    @default(0.0)
+  fixedPaymentAmount       Float    @default(0.0)
+  auditLog                 String   @default("")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  game                     Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  gameId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model AnalyticsEvent {
+  id              String   @id @default(uuid())
+  eventType       String
+  sessionId       String
+  userId          String?
+  deviceType      String
+  browser         String
+  timestamp       DateTime @default(now())
+  consentGiven    Boolean  @default(true)
+  
+  // Opcional para eventos de Jogo
+  gameId          String?
+  gameSlug        String?
+  durationSeconds Int?
+  
+  // Opcional para eventos de Publicidade
+  placementId     String?
+  adType          String?
+  campaignId      String?
+}

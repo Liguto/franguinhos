@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Super Math Run</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: #030a16;
+      color: #39ff14;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.4rem;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+      margin-bottom: 5px;
+      letter-spacing: 0.1em;
+      color: #fff;
+    }
+    #game-container {
+      position: relative;
+      background: rgba(18, 38, 22, 0.4);
+      border: 2px solid #39ff14;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(57, 255, 20, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      width: 320px;
+    }
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 10px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #9f9cb5;
+    }
+    canvas {
+      background-color: #050a12;
+      border: 2px solid #39ff14;
+      border-radius: 8px;
+      display: block;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+    }
+    #question-box {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+    }
+    /* Botões de Escolha */
+    #choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .choice-btn {
+      height: 48px;
+      background: rgba(57, 255, 20, 0.1);
+      border: 2px solid #39ff14;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .choice-btn:active, .choice-btn:hover {
+      background: #39ff14;
+      color: #030a16;
+      box-shadow: 0 0 15px #39ff14;
+    }
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 10, 22, 0.95);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 20px;
+    }
+    #start-btn {
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-family: inherit;
+      background: transparent;
+      border: 3px solid #39ff14;
+      border-radius: 30px;
+      color: #39ff14;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+    }
+    #start-btn:hover {
+      background: #39ff14;
+      color: #030a16;
+      box-shadow: 0 0 20px #39ff14;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SUPER MATH RUN</h1>
+
+  <div id="game-container">
+    <div id="hud">
+      <div>VIDAS: <span id="lives" style="color: #ff0055;">❤❤❤</span></div>
+      <div>PONTOS: <span id="score" style="color: #39ff14;">0</span></div>
+    </div>
+
+    <div id="question-box">REDUZINDO VELOCIDADE...</div>
+    
+    <canvas id="canvas" width="300" height="150"></canvas>
+    
+    <div id="choices">
+      <button class="choice-btn" id="btn-left">?</button>
+      <button class="choice-btn" id="btn-right">?</button>
+    </div>
+
+    <div id="overlay">
+      <h2 id="overlay-title" style="color: #39ff14; text-shadow: 0 0 10px #39ff14;">MATH RUN KIDS</h2>
+      <p id="overlay-desc" style="font-size: 0.8rem; text-align: center; padding: 10px 20px; color: #a49fc5; line-height: 1.5;">
+        Corra, pule obstáculos e responda rápido às contas matemáticas clicando nas opções certas para continuar avançando em hiper-velocidade!
+      </p>
+      <button id="start-btn">INICIAR CORRIDA</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const livesEl = document.getElementById('lives');
+    const questionEl = document.getElementById('question-box');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const startBtn = document.getElementById('start-btn');
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+
+    function sendEvent(type, data = {}) {
+      window.parent.postMessage({ type, gameSlug: 'math-run', ...data }, '*');
+    }
+
+    sendEvent('game_loaded');
+
+    // Estado do Jogo
+    let score = 0;
+    let lives = 3;
+    let isPlaying = false;
+    let runnerY = 100;
+    let isJumping = false;
+    let jumpTime = 0;
+    let obstacles = [];
+    let currentQuestion = { q: '1+1', a: 2 };
+    let currentChoices = [2, 3];
+    let gameInterval = null;
+    let stepCount = 0;
+
+    function resetGame() {
+      score = 0;
+      lives = 3;
+      runnerY = 100;
+      isJumping = false;
+      jumpTime = 0;
+      obstacles = [];
+      scoreEl.innerText = score;
+      updateLivesHUD();
+      generateQuestion();
+    }
+
+    function updateLivesHUD() {
+      livesEl.innerText = '❤'.repeat(lives);
+    }
+
+    function generateQuestion() {
+      // Gerar contas simples de soma/subtração de 1 a 10 (perfeito para crianças)
+      const isAdd = Math.random() > 0.5;
+      const n1 = Math.floor(1 + Math.random() * 8);
+      const n2 = Math.floor(1 + Math.random() * 8);
+      
+      let q = '';
+      let a = 0;
+
+      if (isAdd) {
+        q = `${n1} + ${n2}`;
+        a = n1 + n2;
+      } else {
+        const max = Math.max(n1, n2);
+        const min = Math.min(n1, n2);
+        q = `${max} - ${min}`;
+        a = max - min;
+      }
+
+      currentQuestion = { q, a };
+      
+      // Opção errada
+      let wrong = a + (Math.random() > 0.5 ? 1 : -1);
+      if (wrong === a || wrong < 0) wrong = a + 2;
+
+      // Misturar
+      if (Math.random() > 0.5) {
+        currentChoices = [a, wrong];
+      } else {
+        currentChoices = [wrong, a];
+      }
+
+      questionEl.innerText = `Calcule: ${q}`;
+      btnLeft.innerText = currentChoices[0];
+      btnRight.innerText = currentChoices[1];
+    }
+
+    function startGame() {
+      resetGame();
+      isPlaying = true;
+      overlay.style.display = 'none';
+      sendEvent('game_start');
+      gameInterval = setInterval(gameLoop, 1000 / 60);
+    }
+
+    function gameOver(won) {
+      isPlaying = false;
+      clearInterval(gameInterval);
+      overlay.style.display = 'flex';
+      
+      if (won) {
+        overlayTitle.innerText = 'SUPER CORREDOR!';
+        overlayTitle.style.color = '#39ff14';
+        document.getElementById('overlay-desc').innerText = `Uau! Você correu muito e resolveu todos os cálculos! Pontuação de Matemática: ${score} pontos.`;
+        sendEvent('game_completed', { score });
+      } else {
+        overlayTitle.innerText = 'BATERIA ESGOTADA';
+        overlayTitle.style.color = '#ff0055';
+        document.getElementById('overlay-desc').innerText = 'Mais foco e cálculo mental na próxima! Você consegue!';
+        sendEvent('game_completed', { score: 0 });
+      }
+      startBtn.innerText = 'REJOGAR';
+    }
+
+    function makePlayerJump() {
+      if (isJumping) return;
+      isJumping = true;
+      jumpTime = 0;
+    }
+
+    function chooseAnswer(selectedVal) {
+      if (!isPlaying) return;
+
+      if (selectedVal === currentQuestion.a) {
+        // Acertou! Ativa o pulo do herói sobre a barreira
+        score += 50;
+        scoreEl.innerText = score;
+        makePlayerJump();
+        generateQuestion();
+        
+        // Vitória opcional ao chegar em 500 pontos
+        if (score >= 500) {
+          gameOver(true);
+        }
+      } else {
+        // Errou
+        lives--;
+        updateLivesHUD();
+        generateQuestion();
+
+        if (lives <= 0) {
+          gameOver(false);
+        }
+      }
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+    }
+
+    function update() {
+      stepCount++;
+
+      // Efeito de Pulo
+      if (isJumping) {
+        jumpTime += 0.08;
+        // Equação parabólica do pulo
+        runnerY = 100 - 60 * Math.sin(jumpTime * Math.PI);
+        if (jumpTime >= 1) {
+          isJumping = false;
+          runnerY = 100;
+        }
+      }
+
+      // Movimentação do Chão de Neon
+      if (stepCount % 60 === 0) {
+        score += 5; // ganha pontos por correr
+        scoreEl.innerText = score;
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#050a12';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Desenhar Chão Neon
+      ctx.strokeStyle = '#39ff14';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#39ff14';
+      ctx.beginPath();
+      ctx.moveTo(0, 120);
+      ctx.lineTo(canvas.width, 120);
+      ctx.stroke();
+
+      // Linhas do chão passando (perspectiva de velocidade)
+      ctx.lineWidth = 1;
+      const offset = (stepCount * 4) % 60;
+      for (let x = -offset; x < canvas.width; x += 60) {
+        ctx.beginPath();
+        ctx.moveTo(x, 120);
+        ctx.lineTo(x - 20, canvas.height);
+        ctx.stroke();
+      }
+
+      // Desenhar Obstáculo de Neon Vermelho (Barreira de Energia)
+      ctx.fillStyle = '#ff0055';
+      ctx.shadowColor = '#ff0055';
+      const obsX = 220;
+      ctx.fillRect(obsX, 90, 15, 30);
+
+      // Desenhar Herói Pixel Run (Cubo Verde Ciano de Óculos Escuros)
+      ctx.fillStyle = '#39ff14';
+      ctx.shadowColor = '#39ff14';
+      ctx.fillRect(40, runnerY, 20, 20);
+      
+      // Óculos Neon do Herói
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(52, runnerY + 4, 8, 3);
+
+      ctx.shadowBlur = 0; // reset
+    }
+
+    // Clique nas opções
+    btnLeft.addEventListener('click', () => chooseAnswer(currentChoices[0]));
+    btnRight.addEventListener('click', () => chooseAnswer(currentChoices[1]));
+
+    // Suporte ao Teclado (Setas Esquerda/Direita ou A/D para responder!)
+    document.addEventListener('keydown', (e) => {
+      if (!isPlaying) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        chooseAnswer(currentChoices[0]);
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        chooseAnswer(currentChoices[1]);
+      }
+    });
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

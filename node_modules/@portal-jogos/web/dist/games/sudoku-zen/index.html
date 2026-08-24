@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sudoku Zen Master</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background-color: #05060f;
+      color: #b3a4ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.4rem;
+      text-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+      margin-bottom: 10px;
+      letter-spacing: 0.1em;
+      color: #fff;
+    }
+    #game-container {
+      position: relative;
+      background: rgba(18, 22, 38, 0.6);
+      border: 2px solid #8a2be2;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(138, 43, 226, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      width: 320px;
+    }
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #9f9cb5;
+    }
+    /* Sudoku Board Grid */
+    #board {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-gap: 1px;
+      background-color: #444;
+      border: 3px solid #8a2be2;
+      width: 100%;
+      aspect-ratio: 1;
+      margin-bottom: 15px;
+      background-color: #21133f;
+    }
+    .cell {
+      background-color: #0f101d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #66fcf1;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+    /* Estilo de bordas grossas 3x3 do Sudoku */
+    .cell:nth-child(3n) { border-right: 2px solid #8a2be2; }
+    .cell:nth-child(9n) { border-right: none; }
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+      border-bottom: 2px solid #8a2be2;
+    }
+    .cell.selected {
+      background-color: rgba(102, 252, 241, 0.2);
+    }
+    .cell.given {
+      color: #c5a1ff;
+      background-color: rgba(255, 255, 255, 0.02);
+      cursor: not-allowed;
+    }
+    .cell.wrong {
+      color: #ff0055 !important;
+      background-color: rgba(255, 0, 85, 0.1);
+    }
+    /* Teclado numérico */
+    #keypad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-gap: 5px;
+      width: 100%;
+    }
+    .key {
+      height: 40px;
+      background: rgba(138, 43, 226, 0.15);
+      border: 1px solid #8a2be2;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .key:active, .key:hover {
+      background: #8a2be2;
+      color: #000;
+      box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    }
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 6, 15, 0.95);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 20px;
+    }
+    #start-btn {
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-family: inherit;
+      background: transparent;
+      border: 3px solid #8a2be2;
+      border-radius: 30px;
+      color: #8a2be2;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+    }
+    #start-btn:hover {
+      background: #8a2be2;
+      color: #000;
+      box-shadow: 0 0 20px #8a2be2;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SUDOKU ZEN MASTER</h1>
+
+  <div id="game-container">
+    <div id="hud">
+      <div>ERROS: <span id="errors" style="color: #ff0055;">0/3</span></div>
+      <div>PONTOS: <span id="score" style="color: #66fcf1;">0</span></div>
+    </div>
+    
+    <div id="board"></div>
+
+    <div id="keypad">
+      <div class="key" data-num="1">1</div>
+      <div class="key" data-num="2">2</div>
+      <div class="key" data-num="3">3</div>
+      <div class="key" data-num="4">4</div>
+      <div class="key" data-num="5">5</div>
+      <div class="key" data-num="6">6</div>
+      <div class="key" data-num="7">7</div>
+      <div class="key" data-num="8">8</div>
+      <div class="key" data-num="9">9</div>
+      <div class="key" data-num="clear" style="font-size: 0.8rem; background: rgba(255, 0, 85, 0.15); border-color: #ff0055;">LIMPAR</div>
+    </div>
+
+    <div id="overlay">
+      <h2 id="overlay-title" style="color: #8a2be2; text-shadow: 0 0 10px #8a2be2;">SUDOKU ZEN</h2>
+      <p id="overlay-desc" style="font-size: 0.8rem; text-align: center; padding: 10px 20px; color: #a49fc5; line-height: 1.5;">
+        Complete o clássico grid matemático preenchendo os espaços vazios com números de 1 a 9 sem repetir na mesma linha, coluna ou bloco 3x3!
+      </p>
+      <button id="start-btn">INICIAR SESSÃO</button>
+    </div>
+  </div>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const errorsEl = document.getElementById('errors');
+    const scoreEl = document.getElementById('score');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const startBtn = document.getElementById('start-btn');
+
+    function sendEvent(type, data = {}) {
+      window.parent.postMessage({ type, gameSlug: 'sudoku-zen', ...data }, '*');
+    }
+
+    sendEvent('game_loaded');
+
+    // Tabuleiro Sudoku Zen inicial simplificado e divertido (Preset)
+    // 0 representa espaços em branco
+    const solution = [
+      5,3,4, 6,7,8, 9,1,2,
+      6,7,2, 1,9,5, 3,4,8,
+      1,9,8, 3,4,2, 5,6,7,
+      8,5,9, 7,6,1, 4,2,3,
+      4,2,6, 8,5,3, 7,9,1,
+      7,1,3, 9,2,4, 8,5,6,
+      9,6,1, 5,3,7, 2,8,4,
+      2,8,7, 4,1,9, 6,3,5,
+      3,4,5, 2,8,6, 1,7,9
+    ];
+
+    const initial = [
+      5,3,0, 0,7,0, 0,0,0,
+      6,0,0, 1,9,5, 0,0,0,
+      0,9,8, 0,0,0, 0,6,0,
+      8,0,0, 0,6,0, 0,0,3,
+      4,0,0, 8,0,3, 0,0,1,
+      7,0,0, 0,2,0, 0,0,6,
+      0,6,0, 0,0,0, 2,8,0,
+      0,0,0, 4,1,9, 0,0,5,
+      0,0,0, 0,8,0, 0,7,9
+    ];
+
+    let currentBoard = [];
+    let selectedIndex = -1;
+    let errors = 0;
+    let score = 0;
+
+    function initBoard() {
+      boardEl.innerHTML = '';
+      currentBoard = [...initial];
+      errors = 0;
+      score = 0;
+      selectedIndex = -1;
+      errorsEl.innerText = `${errors}/3`;
+      scoreEl.innerText = score;
+
+      for (let i = 0; i < 81; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+
+        if (initial[i] !== 0) {
+          cell.innerText = initial[i];
+          cell.classList.add('given');
+        } else {
+          cell.innerText = '';
+        }
+
+        cell.addEventListener('click', () => selectCell(i));
+        boardEl.appendChild(cell);
+      }
+    }
+
+    function selectCell(index) {
+      if (initial[index] !== 0) return; // Não selecionar os fixos do mapa
+
+      // Remover seleção anterior
+      const cells = document.querySelectorAll('.cell');
+      if (selectedIndex !== -1) {
+        cells[selectedIndex].classList.remove('selected');
+      }
+
+      selectedIndex = index;
+      cells[selectedIndex].classList.add('selected');
+    }
+
+    function inputNumber(num) {
+      if (selectedIndex === -1) return;
+      const cells = document.querySelectorAll('.cell');
+      const cell = cells[selectedIndex];
+
+      if (num === 'clear') {
+        currentBoard[selectedIndex] = 0;
+        cell.innerText = '';
+        cell.classList.remove('wrong');
+        return;
+      }
+
+      const val = parseInt(num);
+      if (solution[selectedIndex] === val) {
+        // Acertou
+        currentBoard[selectedIndex] = val;
+        cell.innerText = val;
+        cell.classList.remove('wrong');
+        cell.classList.remove('selected');
+        cell.classList.add('given'); // marcar como fixado/correto
+        selectedIndex = -1;
+        score += 50;
+        scoreEl.innerText = score;
+
+        // Ganhou o jogo? (Verificar se não existem mais 0s)
+        if (!currentBoard.includes(0)) {
+          gameOver(true);
+        }
+      } else {
+        // Errou
+        errors++;
+        errorsEl.innerText = `${errors}/3`;
+        cell.innerText = val;
+        cell.classList.add('wrong');
+        score = Math.max(0, score - 15);
+        scoreEl.innerText = score;
+
+        if (errors >= 3) {
+          gameOver(false);
+        }
+      }
+    }
+
+    function gameOver(won) {
+      overlay.style.display = 'flex';
+      if (won) {
+        overlayTitle.innerText = 'VITÓRIA ZEN!';
+        overlayTitle.style.color = '#66fcf1';
+        document.getElementById('overlay-desc').innerText = `Parabéns, você completou o grid com foco impecável! Pontuação: ${score} pontos.`;
+        sendEvent('game_completed', { score });
+      } else {
+        overlayTitle.innerText = 'SESSÃO REINICIADA';
+        overlayTitle.style.color = '#ff0055';
+        document.getElementById('overlay-desc').innerText = 'Mais atenção na próxima! O Sudoku exige paciência e calma.';
+        sendEvent('game_completed', { score: 0 });
+      }
+      startBtn.innerText = 'REJOGAR';
+    }
+
+    function startGame() {
+      initBoard();
+      overlay.style.display = 'none';
+      sendEvent('game_start');
+    }
+
+    // Teclado físico
+    document.addEventListener('keydown', (e) => {
+      if (selectedIndex === -1) return;
+      if (e.key >= '1' && e.key <= '9') {
+        inputNumber(e.key);
+      } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        inputNumber('clear');
+      }
+    });
+
+    // Teclado virtual
+    document.querySelectorAll('.key').forEach(key => {
+      key.addEventListener('click', () => {
+        inputNumber(key.dataset.num);
+      });
+    });
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

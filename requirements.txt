@@ -1,0 +1,84 @@
+==========================================================================
+FRANGUINHOS GAMES & BACKOFFICE MONOREPO — REQUISITOS & INICIALIZAÇÃO LOCAL
+==========================================================================
+
+Este arquivo descreve as dependências de sistema, softwares e etapas técnicas 
+necessárias para rodar este monorepo localmente na sua máquina para testes e 
+desenvolvimento offline antes da divulgação pública no GitHub.
+
+--------------------------------------------------------------------------
+1. REQUISITOS DE SISTEMA (SOFTWARE E AMBIENTE)
+--------------------------------------------------------------------------
+
+* Node.js LTS (Versão recomendada: v18.x ou v20.x+)
+  - O motor de execução JavaScript backend do portal e ferramentas de build do Vite.
+  - Baixar em: https://nodejs.org/
+
+* NPM (Versão recomendada: v9.x ou v10.x+)
+  - Gerenciador de pacotes global. Deve ter suporte nativo a "NPM Workspaces".
+  - Já vem pré-instalado junto com o Node.js.
+
+* SQLite (Banco de Dados Local)
+  - Banco relacional portátil embutido em arquivo físico local (dev.db).
+  - Não requer instalação de nenhum serviço de servidor de banco separado! O Prisma ORM cuida do provisionamento físico em disco de forma autônoma.
+
+--------------------------------------------------------------------------
+2. MAPEAMENTO DE PORTAS LOCAIS (SERVIÇOS EM EXECUÇÃO)
+--------------------------------------------------------------------------
+
+Ao inicializar o monorepo em modo de desenvolvimento, os seguintes serviços locais
+serão levantados em paralelo no seu localhost:
+
+* Backend (API Express + Prisma + SQLite): Porta 4000
+  - URL local: http://localhost:4000/
+* Portal Público (React + Vite + TS + Glassmorphic UI): Porta 3000
+  - URL local: http://localhost:3000/
+* Cockpit Administrativo Backoffice (React + Vite + TS + Vertex AI Insight): Porta 3001
+  - URL local: http://localhost:3001/
+
+--------------------------------------------------------------------------
+3. PASSO A PASSO PARA EXECUÇÃO LOCAL (DO ZERO)
+--------------------------------------------------------------------------
+
+Siga estas 4 etapas consecutivas no terminal do seu computador (PowerShell, Bash ou CMD):
+
+Etapa 1: Obter o repositório do GitHub
+----------------------------------------------------
+$ git clone https://github.com/Liguto/franguinhos.git
+$ cd franguinhos
+
+Etapa 2: Instalar todas as dependências do monorepo em paralelo
+----------------------------------------------------
+$ npm install
+
+Etapa 3: Gerar e popular o Banco de Dados Local (SQLite)
+----------------------------------------------------
+Navegue até a pasta da API e execute as migrações e o script de semente (seed):
+$ cd apps/api
+$ npm run prisma:generate
+$ npm run prisma:migrate
+$ cd ../..
+
+Etapa 4: Rodar todas as aplicações em paralelo (Modo Live Reload)
+----------------------------------------------------
+A partir da raiz do monorepo, inicialize o ambiente completo em um único comando:
+$ npm run dev
+
+Pronto! Os três servidores estarão online e ativos para você testar os jogos, curtir, 
+favoritar, jogar Sudoku e Super Math Run e gerenciar contratos de direitos autorais 
+e conformidade LGPD/ECA diretamente no Backoffice Cockpit!
+
+--------------------------------------------------------------------------
+4. CREDENCIAIS DE TESTE (CONTA DE ADMINISTRADOR)
+--------------------------------------------------------------------------
+
+Ao popular o banco de dados local com o script de semente, a seguinte conta administrativa
+com permissões completas de auditoria (super_admin) é gerada para testes no Cockpit:
+
+* URL do Backoffice: http://localhost:3001
+* Usuário: admin
+* Senha provisória: admin123
+
+==========================================================================
+Franguinhos Games Arcade — Desenvolvido com Glassmorphism, Sandbox e LGPD.
+==========================================================================
