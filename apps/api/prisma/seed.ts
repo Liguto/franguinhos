@@ -300,40 +300,6 @@ async function main() {
         fixedPaymentAmount: 0.0,
         auditLog: `[2026-08-24T14:30:00Z] Jogo desenvolvido in-house. Propriedade Intelectual total.\n`
       }
-    },
-    {
-      title: 'Rocket Rise',
-      slug: 'rocket-rise',
-      description: 'Pilote uma nave espacial, desvie de meteoros, gerencie seu combustível e use turbos e escudos para subir o mais alto possível nesse viciante jogo de sobrevivência espacial!',
-      category: 'Arcade',
-      subcategories: 'Espaço,Sobrevivência,Casual',
-      tags: 'foguete,espaco,obstaculos,moedas,rise',
-      ageRating: 'Livre',
-      bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
-      iconUrl: 'rocket',
-      prefixUrl: '/games/rocket-rise/',
-      version: '1.0.0',
-      mouse: false,
-      teclado: true,
-      toque: true,
-      gamepad: false,
-      orientation: 'both',
-      statusTechnical: 'aprovado',
-      statusEditorial: 'publicado',
-      statusDoc: 'aprovado',
-      author: 'Franguinhos Games',
-      licenseName: 'Proprietário',
-      contract: {
-        contractNumber: 'CON-2026-008',
-        signatoryCreator: 'Franguinhos Games',
-        termsAccepted: true,
-        licenseType: 'Proprietário (In-house)',
-        exclusivityScope: 'Exclusivo Total',
-        durationMonths: 120,
-        revenueSharePercent: 0.0,
-        fixedPaymentAmount: 0.0,
-        auditLog: `[2026-08-31T21:00:00Z] Jogo desenvolvido in-house e integrado ao monorepo.\n`
-      }
     }
   ];
 

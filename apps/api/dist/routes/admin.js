@@ -320,56 +320,5 @@ router.get('/ai-insights', async (req, res) => {
         return res.status(500).json({ error: 'Erro ao processar insights do motor de IA.' });
     }
 });
-// GET /api/admin/users - Listar todos os usuários registrados (seguro, sem passwordHash)
-router.get('/users', async (req, res) => {
-    try {
-        const users = await prisma_1.prisma.user.findMany({
-            select: {
-                id: true,
-                username: true,
-                role: true,
-                status: true,
-                agePreference: true,
-                createdAt: true
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        return res.json(users);
-    }
-    catch (error) {
-        console.error('Erro ao listar usuários:', error);
-        return res.status(500).json({ error: 'Erro ao listar usuários.' });
-    }
-});
-// PUT /api/admin/users/:id/role - Alterar papel de permissão de um usuário
-router.put('/users/:id/role', async (req, res) => {
-    const userId = req.params.id;
-    const { role } = req.body;
-    const validRoles = ['user', 'super_admin', 'editor', 'moderador', 'analista', 'marketing', 'suporte', 'financeiro'];
-    if (!role || !validRoles.includes(role)) {
-        return res.status(400).json({ error: 'Papel de permissão inválido ou ausente.' });
-    }
-    // Prevenir auto-alteração para não perder acesso de super_admin acidentalmente
-    if (req.user?.id === userId) {
-        return res.status(400).json({ error: 'Não é permitido alterar as próprias permissões de acesso.' });
-    }
-    try {
-        const updatedUser = await prisma_1.prisma.user.update({
-            where: { id: userId },
-            data: { role },
-            select: {
-                id: true,
-                username: true,
-                role: true,
-                status: true
-            }
-        });
-        return res.json(updatedUser);
-    }
-    catch (error) {
-        console.error('Erro ao atualizar permissão:', error);
-        return res.status(500).json({ error: 'Erro ao atualizar permissão do usuário.' });
-    }
-});
 exports.default = router;
 //# sourceMappingURL=admin.js.map
