@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Gamepad2, Search, Heart, User, LogIn, LogOut, Info, Shield, 
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, 
-  Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize
+  Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
+  FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight
 } from 'lucide-react';
 
 // Interfaces internas
@@ -43,7 +44,7 @@ interface UserProfile {
 
 export default function App() {
   // --- Estados do Portal ---
-  const [view, setView] = useState<'home' | 'playing' | 'favorites' | 'privacy' | 'terms' | 'contact' | 'report'>('home');
+  const [view, setView] = useState<'home' | 'playing' | 'favorites' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação']);
@@ -81,6 +82,28 @@ export default function App() {
 
   // Favoritos
   const [favorites, setFavorites] = useState<string[]>([]); // Array de IDs de jogos
+
+  // --- Estados do Painel Administrativo Integrado ---
+  const [adminTab, setAdminTab] = useState<'catalog' | 'contracts' | 'dashboard'>('catalog');
+  const [adminCatalog, setAdminCatalog] = useState<any[]>([]);
+  const [adminViewMode, setAdminViewMode] = useState<'list' | 'add' | 'edit'>('list');
+  const [adminSelectedGame, setAdminSelectedGame] = useState<any | null>(null);
+  const [adminSelectedContract, setAdminSelectedContract] = useState<any | null>(null);
+  const [adminSelectedDossier, setAdminSelectedDossier] = useState<any | null>(null);
+
+  const [formGame, setFormGame] = useState({
+    title: '', slug: '', description: '', category: 'Arcade', subcategories: '', tags: '',
+    ageRating: 'Livre', bannerUrl: '', iconUrl: 'gamepad', prefixUrl: '', version: '1.0.0',
+    mouse: true, teclado: true, toque: true, gamepad: false, orientation: 'both',
+    statusTechnical: 'pendente_teste', statusEditorial: 'rascunho', statusDoc: 'documentacao_pendente',
+    author: '', licenseName: '',
+    contractNumber: '', signatoryCreator: '', signatoryRepresentative: '', termsAccepted: false,
+    licenseType: 'Licença de Uso Comercial', exclusivityScope: 'Não Exclusivo',
+    durationMonths: 12, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0
+  });
+
+  const [adminMetrics, setAdminMetrics] = useState<any | null>(null);
+  const [adminInsights, setAdminInsights] = useState<any[]>([]);
 
   // Contador de Likes de cada jogo (curtidas reais persistidas localmente)
   const [likesCount, setLikesCount] = useState<Record<string, number>>(() => {
@@ -363,6 +386,405 @@ export default function App() {
       setGames(mockGames);
     }
   };
+
+  // --- Funções do Painel Administrativo Integrado ---
+  const fetchAdminCatalog = async () => {
+    try {
+      const response = await fetch('/api/admin/games', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminCatalog(data);
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      console.warn('API de administração offline. Usando catálogo simulado.');
+      const mockCatalog = [
+        {
+          game: {
+            id: '1', slug: 'snake-retro', title: 'Snake Retro Arcade', description: 'Jogo da cobrinha neon online grátis para celular e PC!',
+            category: 'Arcade', subcategories: ['Clássico', 'Casual', 'Retrô'], tags: ['cobrinha', 'retro', 'pixel', 'neon', 'casual'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'snake', prefixUrl: '/games/snake-retro/', version: '1.0.0',
+            controls: { mouse: false, teclado: true, toque: true, gamepad: false }, orientation: 'both' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'RetroByte Studios', licenseName: 'Licença Comercial Ampla'
+          },
+          contract: {
+            id: 'c-1', gameId: '1', contractNumber: 'CON-2026-001', signatoryCreator: 'RetroByte Studios LP', termsAccepted: true,
+            licenseType: 'Licença Comercial Exclusiva Digital', exclusivityScope: 'Exclusivo Brasil',
+            durationMonths: 24, revenueSharePercent: 30.0, fixedPaymentAmount: 1200.0,
+            auditLog: '[2026-08-24T10:00:00Z] Contrato assinado eletronicamente por RetroByte LP.\n'
+          }
+        },
+        {
+          game: {
+            id: '2', slug: 'memory-match', title: 'Memory Training Neon', description: 'Exercite sua mente combinando as cartas de neon vibrantes.',
+            category: 'Memória', subcategories: ['Cognitivo', 'Educacional', 'Infantil'], tags: ['memoria', 'educacional', 'mente', 'cartas', 'infantil', 'idoso'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'brain', prefixUrl: '/games/memory-match/', version: '1.0.2',
+            controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'portrait' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'MindCare Software', licenseName: 'Licença Comercial Geral'
+          },
+          contract: {
+            id: 'c-2', gameId: '2', contractNumber: 'CON-2026-002', signatoryCreator: 'MindCare Software SA', termsAccepted: true,
+            licenseType: 'Licença Comercial Não Exclusiva', exclusivityScope: 'Global',
+            durationMonths: 36, revenueSharePercent: 15.0, fixedPaymentAmount: 800.0,
+            auditLog: '[2026-08-24T10:20:00Z] Contrato validado por MindCare SA.\n'
+          }
+        },
+        {
+          game: {
+            id: '3', slug: 'space-defense', title: 'Cyber Space Defense', description: 'Defenda o núcleo central contra invasores cibernéticos do espaço profundo.',
+            category: 'Ação', subcategories: ['Espaço', 'Tiro', 'Sobrevivência'], tags: ['tiro', 'espaco', 'defense', 'arcade', 'invasores'],
+            ageRating: '10+', bannerUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'rocket', prefixUrl: '/games/space-defense/', version: '1.1.0',
+            controls: { mouse: true, teclado: true, toque: true, gamepad: true }, orientation: 'landscape' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'PixelGlitch Labs', licenseName: 'Cessão Total de Direitos'
+          },
+          contract: {
+            id: 'c-3', gameId: '3', contractNumber: 'CON-2026-003', signatoryCreator: 'PixelGlitch Labs', termsAccepted: true,
+            licenseType: 'Cessão de Propriedade Intelectual', exclusivityScope: 'Exclusivo Total',
+            durationMonths: 120, revenueSharePercent: 0.0, fixedPaymentAmount: 3500.0,
+            auditLog: '[2026-08-24T11:00:00Z] Cessão de direitos autorais registrada em cartório digital.\n'
+          }
+        },
+        {
+          game: {
+            id: '4', slug: 'math-run', title: 'Super Math Run', description: 'Corra, pule obstáculos e responda contas e cálculos rápidos mentalmente.',
+            category: 'Educacional', subcategories: ['Corrida', 'Educacional', 'Matemática'], tags: ['educacional', 'infantil', 'matematica', 'corrida', 'kids'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'plus', prefixUrl: '/games/math-run/', version: '1.0.1',
+            controls: { mouse: false, teclado: true, toque: true, gamepad: false }, orientation: 'landscape' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'EduPlay Corp', licenseName: 'Licença Comercial Não Exclusiva'
+          },
+          contract: {
+            id: 'c-4', gameId: '4', contractNumber: 'CON-2026-004', signatoryCreator: 'EduPlay Corp S/A', termsAccepted: true,
+            licenseType: 'Licença Comercial de Uso', exclusivityScope: 'Global',
+            durationMonths: 12, revenueSharePercent: 20.0, fixedPaymentAmount: 500.0,
+            auditLog: '[2026-08-24T11:40:00Z] Contrato assinado. Aprovado editorialmente para portal Kids.\n'
+          }
+        },
+        {
+          game: {
+            id: '5', slug: 'sudoku-zen', title: 'Sudoku Zen Master', description: 'O clássico tabuleiro matemático de lógica com trilha relaxante.',
+            category: 'Terceira Idade', subcategories: ['Puzzle', 'Lógica', 'Cognitivo'], tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'idoso', 'mente'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'hash', prefixUrl: '/games/sudoku-zen/', version: '1.0.0',
+            controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'both' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'ZenPuzzle Co', licenseName: 'Licença Comercial Ampla'
+          },
+          contract: {
+            id: 'c-5', gameId: '5', contractNumber: 'CON-2026-005', signatoryCreator: 'ZenPuzzle LLC', termsAccepted: true,
+            licenseType: 'Licença Ampla Não Exclusiva', exclusivityScope: 'Global',
+            durationMonths: 48, revenueSharePercent: 10.0, fixedPaymentAmount: 600.0,
+            auditLog: '[2026-08-24T12:00:00Z] Contrato Zen assinado. Aprovado para catálogo sênior.\n'
+          }
+        },
+        {
+          game: {
+            id: '6', slug: 'bubble-pop', title: 'Bolhas Mágicas', description: 'Estoure as bolhas coloridas em um ambiente calmo e seguro.',
+            category: 'Bebês', subcategories: ['Lúdico', 'Sensorial', 'Causa e Efeito'], tags: ['bebes', 'bolhas', 'cores', 'sensorial', 'toddler'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'plus', prefixUrl: '/games/bubble-pop/', version: '1.0.0',
+            controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'both' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'Franguinhos Original', licenseName: 'Proprietário'
+          },
+          contract: {
+            id: 'c-6', gameId: '6', contractNumber: 'CON-2026-006', signatoryCreator: 'Franguinhos Games', termsAccepted: true,
+            licenseType: 'Proprietário (In-house)', exclusivityScope: 'Exclusivo Total',
+            durationMonths: 120, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0,
+            auditLog: '[2026-08-24T14:30:00Z] Jogo desenvolvido in-house com validação da curadora Denise. Propriedade Intelectual total.\n'
+          }
+        },
+        {
+          game: {
+            id: '7', slug: 'rocket-climb', title: 'Rocket Climb', description: 'Pilote uma nave espacial, desvie de meteoros, gerencie seu combustível e use turbos e escudos para subir o mais alto possível!',
+            category: 'Arcade', subcategories: ['Espaço', 'Sobrevivência', 'Casual'], tags: ['foguete', 'espaco', 'obstaculos', 'moedas', 'climb'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'rocket', prefixUrl: '/games/rocket-climb/', version: '1.0.0',
+            controls: { mouse: false, teclado: true, toque: true, gamepad: false }, orientation: 'both' as any,
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'Franguinhos Games', licenseName: 'Proprietário'
+          },
+          contract: {
+            id: 'c-7', gameId: '7', contractNumber: 'CON-2026-007', signatoryCreator: 'Franguinhos Games', termsAccepted: true,
+            licenseType: 'Proprietário (In-house)', exclusivityScope: 'Exclusivo Total',
+            durationMonths: 120, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0,
+            auditLog: '[2026-08-31T21:00:00Z] Jogo desenvolvido in-house e integrado ao monorepo.\n'
+          }
+        }
+      ];
+      setAdminCatalog(mockCatalog);
+    }
+  };
+
+  const fetchAdminMetrics = async () => {
+    try {
+      const response = await fetch('/api/admin/metrics', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminMetrics(data);
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      setAdminMetrics({
+        period: 'últimos_30_dias',
+        sessions: 14240,
+        activeUsers: 5980,
+        bounceRate: 0.075,
+        avgPlayTimeMinutes: 12.4,
+        totalPublishedGames: 7,
+        totalDraftGames: 1,
+        favoritesCreated: 42,
+        topCategories: [
+          { name: 'Memória', sessions: 4984 },
+          { name: 'Arcade', sessions: 4272 },
+          { name: 'Ação', sessions: 2136 },
+          { name: 'Puzzle', sessions: 1424 }
+        ],
+        revenue: { gross: 60.52, estimatedNet: 48.85, rpm: 4.25 }
+      });
+    }
+  };
+
+  const fetchAdminInsights = async () => {
+    try {
+      const response = await fetch('/api/admin/ai-insights', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminInsights(data);
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      setAdminInsights([
+        {
+          id: 'ins-1',
+          title: 'Desempenho da Categoria Memória',
+          summary: 'A categoria de jogos de Memória registrou o maior engajamento com cerca de 35% de todas as sessões do portal (4.984 sessões). A retenção da categoria se mostra 18% maior em dispositivos móveis do que em desktop.',
+          period: 'últimos_30_dias',
+          detectedAt: new Date().toISOString(),
+          confidence: 'alta',
+          evidenceData: { category: 'Memória', sessions: 4984, playTimeAvgMin: 14.2 },
+          suggestions: [
+            'Adicionar de 2 a 3 novos jogos de memória para a área infantil na homepage para ampliar a retenção.',
+            'Considerar a inclusão de banners publicitários nativos menos invasivos entre as partidas, aproveitando o tempo de tela prolongado.'
+          ]
+        },
+        {
+          id: 'ins-2',
+          title: 'Otimização de Custos de Banda e Otimização de Imagens',
+          summary: 'Identificamos que 7.5% dos usuários abandonam a partida no carregamento inicial (bounce rate). O tamanho médio das capas dos jogos novos excede 350KB, o que atrasa a renderização em celulares 3G/4G médios do Brasil.',
+          period: 'últimos_30_dias',
+          detectedAt: new Date().toISOString(),
+          confidence: 'alta',
+          evidenceData: { bounceRate: 0.075, avgAssetSizeKB: 380 },
+          suggestions: [
+            'Habilitar compressão de imagem agressiva para formatos WebP ou AVIF de todas as capas cadastradas.',
+            'Implementar carregamento lazy (lazy loading) das capas dos jogos em categorias secundárias que ficam abaixo da dobra de tela.'
+          ]
+        }
+      ]);
+    }
+  };
+
+  const handleAdminDeleteGame = async (gameId: string) => {
+    if (!confirm('Tem certeza que deseja deletar este jogo e seu contrato jurídico em cascata do sistema?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/games/${gameId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        fetchAdminCatalog();
+        fetchGames();
+      }
+    } catch (e) {
+      setAdminCatalog(adminCatalog.filter(item => item.game.id !== gameId));
+    }
+  };
+
+  const handleAdminSaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload = {
+      title: formGame.title,
+      slug: formGame.slug,
+      description: formGame.description,
+      category: formGame.category,
+      subcategories: formGame.subcategories.split(','),
+      tags: formGame.tags.split(','),
+      ageRating: formGame.ageRating,
+      bannerUrl: formGame.bannerUrl,
+      iconUrl: formGame.iconUrl,
+      prefixUrl: formGame.prefixUrl,
+      version: formGame.version,
+      controls: {
+        mouse: formGame.mouse,
+        teclado: formGame.teclado,
+        toque: formGame.toque,
+        gamepad: formGame.gamepad
+      },
+      orientation: formGame.orientation,
+      statusTechnical: formGame.statusTechnical,
+      statusEditorial: formGame.statusEditorial,
+      statusDoc: formGame.statusDoc,
+      author: formGame.author,
+      licenseName: formGame.licenseName,
+      contractNumber: formGame.contractNumber,
+      signatoryCreator: formGame.signatoryCreator,
+      signatoryRepresentative: formGame.signatoryRepresentative,
+      termsAccepted: formGame.termsAccepted,
+      licenseType: formGame.licenseType,
+      exclusivityScope: formGame.exclusivityScope,
+      durationMonths: Number(formGame.durationMonths),
+      revenueSharePercent: Number(formGame.revenueSharePercent),
+      fixedPaymentAmount: Number(formGame.fixedPaymentAmount)
+    };
+
+    try {
+      const method = adminViewMode === 'add' ? 'POST' : 'PUT';
+      const endpoint = adminViewMode === 'add' ? '/api/admin/games' : `/api/admin/games/${adminSelectedGame?.id}`;
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        setAdminViewMode('list');
+        setAdminSelectedGame(null);
+        setAdminSelectedContract(null);
+        fetchAdminCatalog();
+        fetchGames();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erro ao salvar jogo e contrato.');
+      }
+    } catch (err) {
+      if (adminViewMode === 'add') {
+        const fakeId = String(adminCatalog.length + 1);
+        const newItem = {
+          game: {
+            id: fakeId, slug: formGame.slug, title: formGame.title, description: formGame.description,
+            category: formGame.category, subcategories: formGame.subcategories.split(','), tags: formGame.tags.split(','),
+            ageRating: formGame.ageRating, bannerUrl: formGame.bannerUrl || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800',
+            iconUrl: formGame.iconUrl, prefixUrl: formGame.prefixUrl, version: formGame.version,
+            controls: { mouse: formGame.mouse, teclado: formGame.teclado, toque: formGame.toque, gamepad: formGame.gamepad },
+            orientation: formGame.orientation as any, statusTechnical: formGame.statusTechnical,
+            statusEditorial: formGame.statusEditorial, statusDoc: formGame.statusDoc,
+            author: formGame.author, licenseName: formGame.licenseName
+          },
+          contract: {
+            id: 'c-' + fakeId, gameId: fakeId, contractNumber: formGame.contractNumber, signatoryCreator: formGame.signatoryCreator,
+            signatoryRepresentative: formGame.signatoryRepresentative, termsAccepted: formGame.termsAccepted,
+            licenseType: formGame.licenseType, exclusivityScope: formGame.exclusivityScope,
+            durationMonths: formGame.durationMonths, revenueSharePercent: formGame.revenueSharePercent,
+            fixedPaymentAmount: formGame.fixedPaymentAmount,
+            auditLog: `[${new Date().toISOString()}] Criado via formulário integrado offline.\n`
+          }
+        };
+        setAdminCatalog([...adminCatalog, newItem]);
+        setGames([...games, newItem.game]);
+      } else {
+        setAdminCatalog(adminCatalog.map(item => {
+          if (item.game.id === adminSelectedGame?.id) {
+            return {
+              game: { ...item.game, ...payload, subcategories: formGame.subcategories.split(','), tags: formGame.tags.split(',') },
+              contract: item.contract ? { ...item.contract, ...payload, durationMonths: Number(formGame.durationMonths), revenueSharePercent: Number(formGame.revenueSharePercent), fixedPaymentAmount: Number(formGame.fixedPaymentAmount), auditLog: item.contract.auditLog + `[${new Date().toISOString()}] Editado offline.\n` } : null
+            };
+          }
+          return item;
+        }));
+      }
+      setAdminViewMode('list');
+      setAdminSelectedGame(null);
+      setAdminSelectedContract(null);
+    }
+  };
+
+  const handleAdminAddClick = () => {
+    setFormGame({
+      title: '', slug: '', description: '', category: 'Arcade', subcategories: '', tags: '',
+      ageRating: 'Livre', bannerUrl: '', iconUrl: 'gamepad', prefixUrl: '', version: '1.0.0',
+      mouse: true, teclado: true, toque: true, gamepad: false, orientation: 'both',
+      statusTechnical: 'pendente_teste', statusEditorial: 'rascunho', statusDoc: 'documentacao_pendente',
+      author: '', licenseName: '',
+      contractNumber: `CON-2026-00${adminCatalog.length + 1}`, signatoryCreator: '', signatoryRepresentative: '', termsAccepted: false,
+      licenseType: 'Licença Comercial de Uso', exclusivityScope: 'Não Exclusivo',
+      durationMonths: 12, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0
+    });
+    setAdminSelectedGame(null);
+    setAdminSelectedContract(null);
+    setAdminViewMode('add');
+  };
+
+  const handleAdminEditClick = (item: any) => {
+    setAdminSelectedGame(item.game);
+    setAdminSelectedContract(item.contract);
+    setFormGame({
+      title: item.game.title, slug: item.game.slug, description: item.game.description,
+      category: item.game.category, subcategories: item.game.subcategories.join(','), tags: item.game.tags.join(','),
+      ageRating: item.game.ageRating, bannerUrl: item.game.bannerUrl, iconUrl: item.game.iconUrl,
+      prefixUrl: item.game.prefixUrl, version: item.game.version,
+      mouse: item.game.controls.mouse, teclado: item.game.controls.teclado, toque: item.game.controls.toque, gamepad: item.game.controls.gamepad,
+      orientation: item.game.orientation, statusTechnical: item.game.statusTechnical,
+      statusEditorial: item.game.statusEditorial, statusDoc: item.game.statusDoc,
+      author: item.game.author, licenseName: item.game.licenseName,
+      contractNumber: item.contract?.contractNumber || '', signatoryCreator: item.contract?.signatoryCreator || '',
+      signatoryRepresentative: item.contract?.signatoryRepresentative || '', termsAccepted: item.contract?.termsAccepted || false,
+      licenseType: item.contract?.licenseType || 'Licença de Uso Comercial', exclusivityScope: item.contract?.exclusivityScope || 'Não Exclusivo',
+      durationMonths: item.contract?.durationMonths || 12, revenueSharePercent: item.contract?.revenueSharePercent || 0.0,
+      fixedPaymentAmount: item.contract?.fixedPaymentAmount || 0.0
+    });
+    setAdminViewMode('edit');
+  };
+
+  const getTechnicalBadge = (status: string) => {
+    if (status === 'aprovado') return <span className="badge badge-green">Aprovado</span>;
+    if (status === 'pendente_teste') return <span className="badge badge-yellow">Pendente Teste</span>;
+    return <span className="badge badge-red">Rejeitado</span>;
+  };
+
+  const getEditorialBadge = (status: string) => {
+    if (status === 'publicado') return <span className="badge badge-cyan">Publicado</span>;
+    if (status === 'aprovado') return <span className="badge badge-green">Aprovado</span>;
+    if (status === 'em_análise') return <span className="badge badge-yellow">Em Análise</span>;
+    if (status === 'rascunho') return <span className="badge badge-purple">Rascunho</span>;
+    return <span className="badge badge-red">{status}</span>;
+  };
+
+  const getDocBadge = (status: string) => {
+    if (status === 'aprovado') return <span className="badge badge-green">Doc Aprovada</span>;
+    return <span className="badge badge-yellow">Pendência Jurídica</span>;
+  };
+
+  // --- Efeitos de Administração Integrada ---
+  useEffect(() => {
+    if (view === 'admin' && user && user.role !== 'user') {
+      fetchAdminCatalog();
+      fetchAdminMetrics();
+      fetchAdminInsights();
+    }
+  }, [view, user, token]);
 
   const fetchFavorites = async () => {
     try {
@@ -806,15 +1228,13 @@ export default function App() {
                   Olá, {user.username}!
                 </span>
                 {user.role !== 'user' && (
-                  <a 
-                    href="http://localhost:3001" 
-                    target="_blank" 
-                    rel="noreferrer" 
+                  <button 
+                    onClick={() => { setView('admin'); setSelectedGame(null); }}
                     className="admin-badge-glow"
                     title="Painel Administrativo"
                   >
                     ADMIN
-                  </a>
+                  </button>
                 )}
                 <button 
                   className="btn-secondary py-1.5 px-3 text-xs" 
@@ -1305,6 +1725,670 @@ export default function App() {
         )}
 
       {/* STATIC PAGES */}
+        {/* VIEW: ADMIN PANEL */}
+        {view === 'admin' && user && user.role !== 'user' && (
+          <div className="space-y-6 text-left">
+            {/* Admin Header with Navigation Sub-tabs */}
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5 backdrop-blur-md">
+              <button 
+                className="btn-secondary py-2 px-4 flex items-center gap-2" 
+                onClick={() => setView('home')}
+              >
+                <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
+              </button>
+              
+              <h2 className="text-lg font-extrabold text-cyan-300 neon-glow-cyan uppercase tracking-wider">
+                Cockpit Administrativo Integrado
+              </h2>
+              
+              <div className="flex flex-wrap gap-2">
+                <button 
+                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'catalog' ? 'active' : ''}`}
+                  onClick={() => { setAdminTab('catalog'); setAdminViewMode('list'); }}
+                >
+                  <FolderGit2 className="w-4 h-4" /> Catálogo
+                </button>
+                <button 
+                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'contracts' ? 'active' : ''}`}
+                  onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
+                >
+                  <FileSignature className="w-4 h-4" /> Contratos
+                </button>
+                <button 
+                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => { setAdminTab('dashboard'); setAdminViewMode('list'); }}
+                >
+                  <BarChart3 className="w-4 h-4" /> Analytics & IA
+                </button>
+              </div>
+            </div>
+
+            {/* TAB 1: CATALOG MANAGMENT */}
+            {adminTab === 'catalog' && (
+              <div className="space-y-6">
+                {adminViewMode === 'list' ? (
+                  <div className="glass-panel p-6 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
+                      <div>
+                        <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                          Catálogo de Circuitos HTML5
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          Gerencie fichas técnicas de jogos e contratos de licenciamento ativos no portal.
+                        </p>
+                      </div>
+                      <button 
+                        className="btn-primary py-2 px-4 flex items-center gap-1.5"
+                        onClick={handleAdminAddClick}
+                      >
+                        <Plus className="w-4 h-4" /> Adicionar Novo Jogo
+                      </button>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Jogo / ID</th>
+                            <th>Categoria</th>
+                            <th>Versão</th>
+                            <th>Status Técnico</th>
+                            <th>Status Editorial</th>
+                            <th>Dossiê Jurídico</th>
+                            <th className="text-right">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {adminCatalog.map((item) => (
+                            <tr key={item.game.id}>
+                              <td>
+                                <div className="flex items-center gap-3">
+                                  {item.game.bannerUrl ? (
+                                    <img 
+                                      src={item.game.bannerUrl} 
+                                      alt={item.game.title} 
+                                      className="w-10 h-7 object-cover rounded border border-white/5 shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-10 h-7 bg-white/5 rounded border border-white/5 flex items-center justify-center shrink-0">
+                                      <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="font-bold text-white text-xs">{item.game.title}</div>
+                                    <div className="text-[10px] text-gray-400 font-mono">slug: {item.game.slug}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span className="font-semibold text-purple-300">{item.game.category}</span>
+                              </td>
+                              <td className="font-mono text-[11px] text-gray-300">v{item.game.version}</td>
+                              <td>{getTechnicalBadge(item.game.statusTechnical)}</td>
+                              <td>{getEditorialBadge(item.game.statusEditorial)}</td>
+                              <td>{getDocBadge(item.game.statusDoc)}</td>
+                              <td>
+                                <div className="flex items-center justify-end gap-2">
+                                  <button 
+                                    className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
+                                    title="Editar Ficha"
+                                    onClick={() => handleAdminEditClick(item)}
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  {item.contract && (
+                                    <button 
+                                      className="p-1.5 rounded bg-white/5 hover:bg-green-500/20 text-green-400 transition"
+                                      title="Dossiê de Licenciamento"
+                                      onClick={() => setAdminSelectedDossier(item)}
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                  <button 
+                                    className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-red-400 transition"
+                                    title="Deletar Jogo"
+                                    onClick={() => handleAdminDeleteGame(item.game.id)}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="glass-panel p-6 space-y-6">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                      <div>
+                        <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                          {adminViewMode === 'add' ? 'Cadastrar Novo Jogo e Acordo' : 'Editar Ficha Técnica'}
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          Preencha as especificações técnicas, metadados editoriais e as informações do licenciamento em cascata.
+                        </p>
+                      </div>
+                      <button 
+                        className="btn-secondary py-1.5 px-4 text-xs font-bold"
+                        onClick={() => setAdminViewMode('list')}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleAdminSaveSubmit} className="space-y-6 text-left">
+                      {/* Seção 1: Ficha Técnica */}
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-cyan-300 uppercase tracking-widest border-b border-cyan-950 pb-1">
+                          1. Metadados & Ficha Técnica do Jogo
+                        </h4>
+                        
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Título do Jogo:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.title} onChange={(e) => setFormGame({...formGame, title: e.target.value})}
+                              placeholder="Ex: Tetris Neon"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Slug Único do Iframe:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.slug} onChange={(e) => setFormGame({...formGame, slug: e.target.value})}
+                              placeholder="Ex: tetris-neon"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Categoria Principal:</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.category} onChange={(e) => setFormGame({...formGame, category: e.target.value})}
+                            >
+                              <option value="Arcade">Arcade</option>
+                              <option value="Memória">Memória</option>
+                              <option value="Ação">Ação</option>
+                              <option value="Educacional">Educacional</option>
+                              <option value="Terceira Idade">Terceira Idade</option>
+                              <option value="Bebês">Bebês</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Versão:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.version} onChange={(e) => setFormGame({...formGame, version: e.target.value})}
+                              placeholder="Ex: 1.0.0"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">URL de Origem (Capa/Banner):</label>
+                            <input 
+                              type="text" className="form-input"
+                              value={formGame.bannerUrl} onChange={(e) => setFormGame({...formGame, bannerUrl: e.target.value})}
+                              placeholder="Ex: https://images.unsplash.com/..."
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Caminho Relativo Iframe (prefixUrl):</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.prefixUrl} onChange={(e) => setFormGame({...formGame, prefixUrl: e.target.value})}
+                              placeholder="Ex: /games/tetris-neon/"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Subcategorias (separadas por vírgula):</label>
+                            <input 
+                              type="text" className="form-input"
+                              value={formGame.subcategories} onChange={(e) => setFormGame({...formGame, subcategories: e.target.value})}
+                              placeholder="Ex: Puzzle,Lógica,Casual"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Tags de Busca (separadas por vírgula):</label>
+                            <input 
+                              type="text" className="form-input"
+                              value={formGame.tags} onChange={(e) => setFormGame({...formGame, tags: e.target.value})}
+                              placeholder="Ex: blocos,encaixe,neon"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Estúdio Autor / Desenvolvedor:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.author} onChange={(e) => setFormGame({...formGame, author: e.target.value})}
+                              placeholder="Ex: Pixel Games Ltd"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Nome do Acordo de Licença:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.licenseName} onChange={(e) => setFormGame({...formGame, licenseName: e.target.value})}
+                              placeholder="Ex: Licença Comercial Não Exclusiva"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Orientação Física:</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.orientation} onChange={(e) => setFormGame({...formGame, orientation: e.target.value as any})}
+                            >
+                              <option value="both">Ambas (both)</option>
+                              <option value="landscape">Paisagem (landscape)</option>
+                              <option value="portrait">Retrato (portrait)</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Classificação Indicativa (ECA):</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.ageRating} onChange={(e) => setFormGame({...formGame, ageRating: e.target.value})}
+                            >
+                              <option value="Livre">Livre</option>
+                              <option value="10+">10+</option>
+                              <option value="14+">14+</option>
+                              <option value="18+">18+</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Controles de Entrada */}
+                        <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 space-y-2">
+                          <label className="text-xs text-gray-400 font-bold block">Compatibilidade e Controles:</label>
+                          <div className="flex flex-wrap gap-4 text-xs text-white">
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input 
+                                type="checkbox" checked={formGame.mouse}
+                                onChange={(e) => setFormGame({...formGame, mouse: e.target.checked})}
+                              /> Suporta Mouse / Clique
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input 
+                                type="checkbox" checked={formGame.teclado}
+                                onChange={(e) => setFormGame({...formGame, teclado: e.target.checked})}
+                              /> Suporta Teclado (Setas/WASD)
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input 
+                                type="checkbox" checked={formGame.toque}
+                                onChange={(e) => setFormGame({...formGame, toque: e.target.checked})}
+                              /> Suporta Tela de Toque (Mobile Touch)
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer">
+                              <input 
+                                type="checkbox" checked={formGame.gamepad}
+                                onChange={(e) => setFormGame({...formGame, gamepad: e.target.checked})}
+                              /> Suporta Controle Gamepad
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="text-xs text-gray-400 block">Descrição Editorial Comercial:</label>
+                          <textarea 
+                            rows={3} className="form-input resize-none" required
+                            value={formGame.description} onChange={(e) => setFormGame({...formGame, description: e.target.value})}
+                            placeholder="Descrição completa do jogo para SEO..."
+                          />
+                        </div>
+                      </div>
+
+                      {/* Seção 2: Contrato Jurídico */}
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-pink-400 uppercase tracking-widest border-b border-pink-950 pb-1">
+                          2. Dossiê Legal & Acordo de Licenciamento (LGPD/ECA)
+                        </h4>
+
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Código Único do Contrato:</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.contractNumber} onChange={(e) => setFormGame({...formGame, contractNumber: e.target.value})}
+                              placeholder="Ex: CON-2026-008"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Licenciante (Pessoa Física ou Jurídica):</label>
+                            <input 
+                              type="text" className="form-input" required
+                              value={formGame.signatoryCreator} onChange={(e) => setFormGame({...formGame, signatoryCreator: e.target.value})}
+                              placeholder="Razão Social ou Nome Completo do Autor"
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Tipo de Licença:</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.licenseType} onChange={(e) => setFormGame({...formGame, licenseType: e.target.value})}
+                            >
+                              <option value="Proprietário (In-house)">Proprietário (In-house)</option>
+                              <option value="Licença Comercial Exclusiva Digital">Licença Comercial Exclusiva Digital</option>
+                              <option value="Licença Comercial Não Exclusiva">Licença Comercial Não Exclusiva</option>
+                              <option value="Cessão de Propriedade Intelectual">Cessão de Propriedade Intelectual</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Escopo de Exclusividade:</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.exclusivityScope} onChange={(e) => setFormGame({...formGame, exclusivityScope: e.target.value})}
+                            >
+                              <option value="Exclusivo Total">Exclusivo Total</option>
+                              <option value="Exclusivo Brasil">Exclusivo Brasil</option>
+                              <option value="Não Exclusivo">Não Exclusivo / Global</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Duração do Acordo (Meses):</label>
+                            <input 
+                              type="number" className="form-input" required
+                              value={formGame.durationMonths} onChange={(e) => setFormGame({...formGame, durationMonths: Number(e.target.value)})}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Repasse de Receita / Revenue Share (%):</label>
+                            <input 
+                              type="number" step="0.1" className="form-input" required
+                              value={formGame.revenueSharePercent} onChange={(e) => setFormGame({...formGame, revenueSharePercent: Number(e.target.value)})}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Pagamento Fixo Adiantado (R$):</label>
+                            <input 
+                              type="number" className="form-input" required
+                              value={formGame.fixedPaymentAmount} onChange={(e) => setFormGame({...formGame, fixedPaymentAmount: Number(e.target.value)})}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Representante Legal (Signatário):</label>
+                            <input 
+                              type="text" className="form-input"
+                              value={formGame.signatoryRepresentative} onChange={(e) => setFormGame({...formGame, signatoryRepresentative: e.target.value})}
+                              placeholder="Nome do procurador/representante"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 text-xs text-white">
+                          <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                            <input 
+                              type="checkbox" checked={formGame.termsAccepted}
+                              onChange={(e) => setFormGame({...formGame, termsAccepted: e.target.checked})}
+                              required
+                            /> Contrato de cessão e termos de conformidade e auditoria de direitos autorais aceitos formalmente
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Seção 3: Status de Homologação */}
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-bold text-yellow-400 uppercase tracking-widest border-b border-yellow-950 pb-1">
+                          3. Workflow Editorial & Auditoria Técnica
+                        </h4>
+
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Fase de Teste Técnico (Sandbox/Toque):</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.statusTechnical} onChange={(e) => setFormGame({...formGame, statusTechnical: e.target.value})}
+                            >
+                              <option value="aprovado">Aprovado e Homologado (Sem Bugs)</option>
+                              <option value="pendente_teste">Pendente Homologação / Controle de Toque</option>
+                              <option value="rejeitado">Rejeitado (Apresenta Bugs de Sandbox)</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Status Editorial (Exibição Homepage):</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.statusEditorial} onChange={(e) => setFormGame({...formGame, statusEditorial: e.target.value})}
+                            >
+                              <option value="publicado">Publicado (Visível para o Público)</option>
+                              <option value="rascunho">Rascunho Editorial (Oculto)</option>
+                              <option value="em_análise">Em Análise / Avaliação de Curadoria</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label className="text-xs text-gray-400 block">Auditoria Documentação de Direitos:</label>
+                            <select 
+                              className="form-input" required
+                              value={formGame.statusDoc} onChange={(e) => setFormGame({...formGame, statusDoc: e.target.value})}
+                            >
+                              <option value="aprovado">Cadeia de Direitos Aprovada (100% OK)</option>
+                              <option value="documentacao_pendente">Pendência Jurídica / Dossiê Incompleto</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4 pt-4 border-t border-white/5">
+                        <button 
+                          type="button" className="btn-secondary flex-1 py-2.5 justify-center"
+                          onClick={() => setAdminViewMode('list')}
+                        >
+                          Cancelar e Voltar
+                        </button>
+                        <button type="submit" className="btn-primary flex-grow py-2.5 justify-center font-bold">
+                          Salvar Registro e Contrato
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: CONTRACTS LEDGER */}
+            {adminTab === 'contracts' && (
+              <div className="glass-panel p-6 space-y-4">
+                <div>
+                  <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                    Livro de Contratos de Licenciamento
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Cadeia completa de cessão e validade jurídica para auditoria e prestação de contas.
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Jogo / ID</th>
+                        <th>Cód. Contrato</th>
+                        <th>Licenciante / Estúdio</th>
+                        <th>Licença</th>
+                        <th>Vigência</th>
+                        <th>Adiantamento / Rev Share</th>
+                        <th>Termos Aceitos</th>
+                        <th className="text-right">Dossiê</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {adminCatalog.map((item) => (
+                        <tr key={item.game.id}>
+                          <td>
+                            <div className="font-bold text-white text-xs">{item.game.title}</div>
+                            <div className="text-[10px] text-gray-500 font-mono">ID: {item.game.id}</div>
+                          </td>
+                          <td>
+                            <span className="font-mono font-bold text-cyan-400 text-xs">
+                              {item.contract?.contractNumber || 'SEM CONTRATO'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="font-semibold text-gray-300">{item.contract?.signatoryCreator || item.game.author}</span>
+                          </td>
+                          <td>
+                            <span className="text-purple-300 text-[11px]">{item.contract?.licenseType || item.game.licenseName}</span>
+                          </td>
+                          <td>
+                            <span className="text-gray-400 text-[11px]">{item.contract?.durationMonths ? `${item.contract.durationMonths} meses` : 'N/A'}</span>
+                          </td>
+                          <td>
+                            <div className="font-semibold text-white">R$ {item.contract?.fixedPaymentAmount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}</div>
+                            <div className="text-[10px] text-green-400 font-mono">{item.contract?.revenueSharePercent || 0}% de Rev Share</div>
+                          </td>
+                          <td>
+                            {item.contract?.termsAccepted ? (
+                              <span className="badge badge-green">Aceito</span>
+                            ) : (
+                              <span className="badge badge-yellow">Requer Assinatura</span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="flex justify-end">
+                              <button 
+                                className="p-1.5 rounded bg-white/5 hover:bg-green-500/20 text-green-400 transition"
+                                title="Ver Dossiê e Histórico de Auditoria"
+                                onClick={() => setAdminSelectedDossier(item)}
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: ANALYTICS DASHBOARD & AI */}
+            {adminTab === 'dashboard' && adminMetrics && (
+              <div className="space-y-6">
+                {/* KPI Cards Grid */}
+                <div className="kpi-grid">
+                  <div className="glass-panel p-4 kpi-card">
+                    <div className="kpi-icon-wrapper cyan">
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="kpi-title">Sessões Totais</div>
+                      <div className="kpi-value">{adminMetrics.sessions?.toLocaleString('pt-BR')}</div>
+                    </div>
+                  </div>
+
+                  <div className="glass-panel p-4 kpi-card">
+                    <div className="kpi-icon-wrapper purple">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="kpi-title">Usuários Ativos</div>
+                      <div className="kpi-value">{adminMetrics.activeUsers?.toLocaleString('pt-BR')}</div>
+                    </div>
+                  </div>
+
+                  <div className="glass-panel p-4 kpi-card">
+                    <div className="kpi-icon-wrapper green">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="kpi-title">Receita Bruta</div>
+                      <div className="kpi-value">USD {adminMetrics.revenue?.gross?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                    </div>
+                  </div>
+
+                  <div className="glass-panel p-4 kpi-card">
+                    <div className="kpi-icon-wrapper pink">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="kpi-title">Taxa Rejeição (Bounce)</div>
+                      <div className="kpi-value">{(adminMetrics.bounceRate * 100).toFixed(1)}%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Categoria mais Acessada */}
+                  <div className="glass-panel p-5 space-y-4">
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/5 pb-2">
+                      Sessões por Categoria (Profiling-Free)
+                    </h3>
+                    <div className="space-y-3">
+                      {adminMetrics.topCategories?.map((cat: any) => (
+                        <div key={cat.name} className="space-y-1">
+                          <div className="flex justify-between text-xs font-bold">
+                            <span className="text-gray-300">{cat.name}</span>
+                            <span className="text-cyan-400 font-mono">{cat.sessions?.toLocaleString('pt-BR')}</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-cyan-400 rounded-full" 
+                              style={{ width: `${(cat.sessions / adminMetrics.sessions) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Insights & Compliance Recommendations */}
+                  <div className="glass-panel p-5 space-y-4 lg:col-span-2">
+                    <h3 className="text-xs font-bold text-pink-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-white/5 pb-2">
+                      <Cpu className="w-4 h-4 text-pink-500 animate-pulse" /> Agregações Analíticas de IA e Conformidade
+                    </h3>
+                    
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                      {adminInsights.map((insight) => (
+                        <div key={insight.id} className="p-3 bg-black/40 rounded-lg border border-white/5 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-bold text-white text-xs flex items-center gap-1">
+                              <ChevronRight className="w-4 h-4 text-pink-500 shrink-0" /> {insight.title}
+                            </h4>
+                            <span className="badge badge-purple text-[9px]">{insight.confidence} confiança</span>
+                          </div>
+                          <p className="text-[11px] text-gray-400 leading-relaxed pl-4">
+                            {insight.summary}
+                          </p>
+                          <div className="pl-4 space-y-1">
+                            <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Sugestões de Ajuste:</div>
+                            <ul className="list-disc pl-4 text-[10px] text-gray-300 leading-relaxed space-y-1">
+                              {insight.suggestions?.map((sug: string, idx: number) => (
+                                <li key={idx}>{sug}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {view === 'privacy' && (
           <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
             <h2 className="text-2xl font-extrabold text-cyan-300">Política de Privacidade (LGPD)</h2>
@@ -1417,9 +2501,19 @@ export default function App() {
                 </button>
               </li>
               <li>
-                <a href="http://localhost:3001" target="_blank" rel="noreferrer">
+                <button 
+                  onClick={() => { 
+                    if (user && user.role !== 'user') {
+                      setView('admin'); 
+                      setSelectedGame(null); 
+                    } else {
+                      setAuthMode('login');
+                      setShowAuthModal(true);
+                    }
+                  }}
+                >
                   Área Administrativa
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -1670,6 +2764,93 @@ export default function App() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* --- DOSSIÊ JURÍDICO MODAL --- */}
+      {adminSelectedDossier && (
+        <div className="modal-backdrop">
+          <div className="glass-panel modal-content relative text-left space-y-6 max-w-lg">
+            <button 
+              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+              onClick={() => setAdminSelectedDossier(null)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2 border-b border-white/5 pb-3">
+              <Award className="w-6 h-6 text-green-400 shrink-0" />
+              <div>
+                <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                  Dossiê de Licenciamento Técnico-Legal
+                </h3>
+                <p className="text-[11px] text-gray-400">
+                  Validação de autoria e conformidade da Propriedade Intelectual (Lei nº 9.610/98).
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-xs text-white max-h-[350px] overflow-y-auto pr-2">
+              <div className="grid grid-cols-2 gap-3 bg-[#0b0c14] p-3 rounded-lg border border-white/5">
+                <div>
+                  <span className="text-gray-400 block mb-1">Título do Circuito:</span>
+                  <strong className="text-white text-xs">{adminSelectedDossier.game.title}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-1">Código Contrato:</span>
+                  <strong className="text-cyan-400 font-mono text-xs">{adminSelectedDossier.contract?.contractNumber || 'SEM REGISTRO'}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-1">Autor / Licenciante:</span>
+                  <strong className="text-white">{adminSelectedDossier.contract?.signatoryCreator || adminSelectedDossier.game.author}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-1">Tipo de Licença:</span>
+                  <strong className="text-purple-300">{adminSelectedDossier.contract?.licenseType || adminSelectedDossier.game.licenseName}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-1">Vigência Comercial:</span>
+                  <strong className="text-white">{adminSelectedDossier.contract?.durationMonths ? `${adminSelectedDossier.contract.durationMonths} meses` : 'N/A'}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-1">Exclusividade:</span>
+                  <strong className="text-pink-300">{adminSelectedDossier.contract?.exclusivityScope || 'Não Exclusivo'}</strong>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Histórico de Auditoria e Logs:</span>
+                <pre className="p-3 bg-black/60 rounded border border-white/5 font-mono text-[10px] text-gray-300 leading-relaxed whitespace-pre-wrap select-text">
+                  {adminSelectedDossier.contract?.auditLog || '[AUDITOR]: Nenhuma auditoria registrada para este circuito.'}
+                </pre>
+              </div>
+
+              <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 space-y-2">
+                <span className="text-gray-400 font-bold block uppercase tracking-wider text-[10px]">Workflow Status:</span>
+                <div className="flex flex-wrap gap-2">
+                  <div>
+                    <span className="text-[10px] text-gray-400 block">Editorial:</span>
+                    {getEditorialBadge(adminSelectedDossier.game.statusEditorial)}
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 block">Técnico:</span>
+                    {getTechnicalBadge(adminSelectedDossier.game.statusTechnical)}
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 block">Legal / Docs:</span>
+                    {getDocBadge(adminSelectedDossier.game.statusDoc)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              className="btn-primary w-full justify-center bg-green-600 hover:bg-green-700 font-bold py-2.5"
+              onClick={() => setAdminSelectedDossier(null)}
+            >
+              Fechar Dossiê Legal
+            </button>
           </div>
         </div>
       )}

@@ -1139,3 +1139,173 @@ footer {
   color: var(--accent-pink);
   text-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
 }
+
+/* =========================================================
+   INTEGRATED ADMIN COCKPIT CSS
+========================================================= */
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+
+.badge-green {
+  background: rgba(57, 255, 20, 0.1);
+  color: #39ff14;
+  border-color: rgba(57, 255, 20, 0.2);
+}
+
+.badge-yellow {
+  background: rgba(255, 216, 61, 0.1);
+  color: #ffd83d;
+  border-color: rgba(255, 216, 61, 0.2);
+}
+
+.badge-red {
+  background: rgba(255, 69, 101, 0.1);
+  color: #ff4565;
+  border-color: rgba(255, 69, 101, 0.2);
+}
+
+.badge-cyan {
+  background: rgba(0, 240, 255, 0.1);
+  color: #00f0ff;
+  border-color: rgba(0, 240, 255, 0.2);
+}
+
+.badge-purple {
+  background: rgba(157, 78, 221, 0.1);
+  color: #9d4edd;
+  border-color: rgba(157, 78, 221, 0.2);
+}
+
+/* Tabelas Administrativas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+th, td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+th {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  letter-spacing: 0.05em;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Formulário Administrativo */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-col: column;
+  gap: 0.25rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.75rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+/* KPIs Dashboard */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kpi-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 8px;
+}
+
+.kpi-icon-wrapper.cyan {
+  background: rgba(0, 240, 255, 0.1);
+  color: #00f0ff;
+}
+
+.kpi-icon-wrapper.purple {
+  background: rgba(157, 78, 221, 0.1);
+  color: #9d4edd;
+}
+
+.kpi-icon-wrapper.green {
+  background: rgba(57, 255, 20, 0.1);
+  color: #39ff14;
+}
+
+.kpi-icon-wrapper.pink {
+  background: rgba(255, 0, 127, 0.1);
+  color: #ff007f;
+}
+
+.kpi-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8f9cae;
+}
+
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+}
+
