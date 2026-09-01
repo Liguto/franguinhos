@@ -1347,21 +1347,30 @@ export default function App() {
             
             {/* 1. COLUNA DA ESQUERDA: SIDEBAR DE NAVEGAÇÃO COMPACTA */}
             <aside className="bento-sidebar-left">
-              <div className="bento-sidebar-section-title">Navegação</div>
+              {/* Logo Franguinhos Games */}
+              <div className="flex items-center gap-2.5 px-2 pb-5 border-b border-white/5 mb-4 select-none">
+                <img src="/logo_franguinhos.png" alt="Franguinhos Logo" className="w-8 h-8 rounded-lg object-contain filter drop-shadow-[0_0_8px_rgba(102,252,241,0.25)]" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-white leading-none tracking-widest uppercase">Franguinhos</span>
+                  <span className="text-[10px] font-black text-cyan-400 leading-none tracking-widest uppercase mt-1">Games</span>
+                </div>
+              </div>
+
+              <div className="bento-sidebar-section-title">Menu Principal</div>
               <nav className="bento-sidebar-nav">
                 <button 
                   className={`bento-nav-item ${view === 'home' && activeCategory === 'Tudo' ? 'active' : ''}`}
                   onClick={() => { setView('home'); setActiveCategory('Tudo'); setSelectedGame(null); }}
                 >
-                  <Gamepad2 className="w-5 h-5 text-cyan-400" />
+                  <Gamepad2 className="w-4 h-4" />
                   <span>Início</span>
                 </button>
                 
                 <button 
-                  className={`bento-nav-item ${view === 'favorites' ? 'active text-pink-400' : ''}`}
+                  className={`bento-nav-item ${view === 'favorites' ? 'active' : ''}`}
                   onClick={() => { setView('favorites'); setSelectedGame(null); }}
                 >
-                  <Heart className={`w-5 h-5 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : 'text-gray-400'}`} />
+                  <Heart className={`w-4 h-4 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : ''}`} />
                   <span>Biblioteca</span>
                   {favorites.length > 0 && (
                     <span className="bento-nav-badge bg-pink-600 text-white">
@@ -1369,65 +1378,69 @@ export default function App() {
                     </span>
                   )}
                 </button>
+
+                <button 
+                  className="bento-nav-item"
+                  onClick={() => alert("Comunidade: Feed Social em breve!")}
+                >
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>Comunidade</span>
+                </button>
+
+                <button 
+                  className="bento-nav-item"
+                  onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
+                >
+                  <User className="w-4 h-4 text-gray-400" />
+                  <span>Conta</span>
+                </button>
               </nav>
 
-              <div className="bento-sidebar-section-title">Categorias</div>
-              <div className="bento-sidebar-nav">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    className={`bento-nav-item ${view === 'home' && activeCategory === cat ? 'active' : ''}`}
-                    onClick={() => { setView('home'); setActiveCategory(cat); setSelectedGame(null); }}
-                  >
-                    {cat === 'Tudo' ? <Grid className="w-5 h-5 text-cyan-400" /> :
-                     cat === 'Arcade' ? <Zap className="w-5 h-5 text-yellow-400" /> :
-                     cat === 'Memória' ? <Brain className="w-5 h-5 text-pink-400" /> :
-                     <Rocket className="w-5 h-5 text-purple-400" />}
-                    <span>{cat}</span>
-                  </button>
-                ))}
+              <div className="bento-sidebar-section-title flex items-center justify-between">
+                <span>Categorias</span>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-500 transform rotate-90" />
+              </div>
+              <div className="bento-sidebar-nav pl-2 space-y-1">
+                {categories.map((cat) => {
+                  if (cat === 'Tudo') return null;
+                  return (
+                    <button
+                      key={cat}
+                      className={`bento-nav-item-sub ${view === 'home' && activeCategory === cat ? 'active' : ''}`}
+                      onClick={() => { setView('home'); setActiveCategory(cat); setSelectedGame(null); }}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${view === 'home' && activeCategory === cat ? 'bg-cyan-400' : 'bg-gray-600'}`} />
+                      <span>{cat}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              <div className="bento-sidebar-section-title">Configurações</div>
-              <div className="bento-sidebar-nav">
+              {/* Espaçador flexível para empurrar configurações e suporte para o rodapé */}
+              <div className="flex-grow" />
+
+              <div className="bento-sidebar-section-title">Ajustes & Legal</div>
+              <div className="bento-sidebar-nav space-y-1">
                 <button 
-                  className={`bento-nav-item ${teaMode ? 'active bg-green-500/20 text-green-400' : ''}`}
+                  className={`bento-nav-item ${teaMode ? 'active bg-green-500/20 text-green-400 border-green-500/30' : ''}`}
                   onClick={() => setTeaMode(!teaMode)}
                 >
-                  <Brain className="w-5 h-5 text-green-400" />
+                  <Settings className="w-4 h-4 text-green-400" />
                   <span>Modo TEA</span>
                 </button>
-              </div>
-
-              <div className="bento-sidebar-section-title">Suporte & Legal</div>
-              <div className="bento-sidebar-nav">
                 <button 
                   className={`bento-nav-item ${view === 'privacy' ? 'active' : ''}`}
                   onClick={() => { setView('privacy'); setSelectedGame(null); }}
                 >
-                  <Shield className="w-5 h-5 text-blue-400" />
+                  <Shield className="w-4 h-4 text-blue-400" />
                   <span>Privacidade</span>
                 </button>
                 <button 
                   className={`bento-nav-item ${view === 'terms' ? 'active' : ''}`}
                   onClick={() => { setView('terms'); setSelectedGame(null); }}
                 >
-                  <FileText className="w-5 h-5 text-teal-400" />
+                  <FileText className="w-4 h-4 text-teal-400" />
                   <span>Termos</span>
-                </button>
-                <button 
-                  className={`bento-nav-item ${view === 'contact' ? 'active' : ''}`}
-                  onClick={() => { setView('contact'); setSelectedGame(null); }}
-                >
-                  <HelpCircle className="w-5 h-5 text-emerald-400" />
-                  <span>Contato</span>
-                </button>
-                <button 
-                  className={`bento-nav-item ${view === 'report' ? 'active text-pink-400' : ''}`}
-                  onClick={() => { setView('report'); setSelectedGame(null); }}
-                >
-                  <ShieldAlert className="w-5 h-5 text-pink-500" />
-                  <span>Denunciar</span>
                 </button>
               </div>
             </aside>
@@ -1439,6 +1452,17 @@ export default function App() {
               {view === 'home' && (
                 <div className="space-y-8">
                   
+                  {/* Logotipo Centralizado de Alta Fidelidade (Mockup Alignment) */}
+                  {!searchQuery && activeCategory === 'Tudo' && (
+                    <div className="flex flex-col items-center justify-center my-6 text-center select-none">
+                      <img 
+                        src="/logo_franguinhos.png" 
+                        alt="Franguinhos Games Logo" 
+                        className="w-48 h-auto filter drop-shadow-[0_0_30px_rgba(102,252,241,0.25)] animate-[float_4s_ease-in-out_infinite]"
+                      />
+                    </div>
+                  )}
+
                   {/* Barra de Busca Móvel */}
                   <div className="flex md:hidden items-center relative w-full mb-4">
                     <input 
@@ -1488,72 +1512,50 @@ export default function App() {
                     ))}
                   </div>
 
-                  {/* SEÇÃO 'EM DESTAQUE' (Bento Style: 2 ou 3 cartões grandes) */}
+                  {/* SEÇÃO 'EM DESTAQUE' (Bento Style: 2 wide horizontal cards) */}
                   {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
-                    <div className="bento-featured-grid">
-                      {/* Cartão 2: Dashboard/Estatísticas Cognitivas */}
-                      <div className="bento-card-stats glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-purple-950/40 via-[#0f111a]/80 to-pink-950/20 border border-purple-500/20">
-                        <div>
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest bg-pink-950/60 px-2.5 py-1 rounded-full border border-pink-500/20">
-                              ⚡ PERFORMANCE COGNITIVA
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-extrabold text-white tracking-widest uppercase bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/20 w-max">
+                        ⭐ Em Destaque
+                      </h3>
+                      
+                      <div className="bento-featured-grid">
+                        {/* Cartão 1: Bolhas Mágicas (Recomendado do Dia) */}
+                        <div 
+                          className="bento-card-featured-game cursor-pointer group"
+                          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80')` }}
+                          onClick={() => {
+                            const bubblePop = games.find(g => g.slug === 'bubble-pop') || games[0];
+                            handlePlayGame(bubblePop);
+                          }}
+                        >
+                          <div className="bento-featured-overlay">
+                            <span className="bento-card-badge-hot">
+                              🎮 RECOMENDADO DO DIA
                             </span>
-                            <Activity className="w-5 h-5 text-pink-500 animate-pulse" />
-                          </div>
-                          <h3 className="text-base font-extrabold text-white tracking-tight">Atividade do Portal</h3>
-
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5 mt-2">
-                          <div className="text-center p-2 bg-white/5 rounded-lg">
-                            <span className="text-xs text-gray-400 block font-semibold">Ativos Hoje</span>
-                            <span className="text-sm font-extrabold text-cyan-400 font-mono">1.248</span>
-                          </div>
-                          <div className="text-center p-2 bg-white/5 rounded-lg">
-                            <span className="text-xs text-gray-400 block font-semibold">Jogos Totais</span>
-                            <span className="text-sm font-extrabold text-pink-400 font-mono">{games.length}</span>
+                            <h2 className="text-lg font-black text-white tracking-tight uppercase group-hover:text-cyan-400 transition">
+                              Bolhas Mágicas
+                            </h2>
                           </div>
                         </div>
-                      </div>
-
-                      {/* Cartão 3: Filtro de Faixas Etárias Dinâmico */}
-                      <div className="bento-card-age glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-cyan-950/30 via-[#0f111a]/80 to-indigo-950/20 border border-cyan-500/20">
-                        <div>
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/60 px-2.5 py-1 rounded-full border border-cyan-500/20">
-                              👶 ACESSIBILIDADE TOTAL
+                        
+                        {/* Cartão 2: Subway Surfers / Rocket Rise */}
+                        <div 
+                          className="bento-card-featured-game cursor-pointer group"
+                          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80')` }}
+                          onClick={() => {
+                            const rocketRise = games.find(g => g.slug === 'rocket-rise') || games[1];
+                            handlePlayGame(rocketRise);
+                          }}
+                        >
+                          <div className="bento-featured-overlay">
+                            <span className="bento-card-badge-hot bg-purple-950/40 border-purple-500/30 text-purple-400">
+                              🚀 ALTA PERFORMANCE
                             </span>
-                            <Users className="w-5 h-5 text-cyan-400" />
+                            <h2 className="text-lg font-black text-white tracking-tight uppercase group-hover:text-pink-500 transition">
+                              Rocket Rise
+                            </h2>
                           </div>
-                          <h3 className="text-base font-extrabold text-white tracking-tight">Modos Editoriais</h3>
-                          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-                            Filtros curados de acessibilidade para bebês, crianças, adolescentes e idosos.
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-white/5">
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'geral' ? 'bg-cyan-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                            onClick={() => setAgePreference('geral')}
-                          >
-                            Geral
-                          </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'educacional' ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                            onClick={() => setAgePreference('educacional')}
-                          >
-                            Edu
-                          </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'bebes' ? 'bg-pink-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                            onClick={() => setAgePreference('bebes')}
-                          >
-                            Bebês
-                          </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'terceira_idade' ? 'bg-amber-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
-                            onClick={() => setAgePreference('terceira_idade')}
-                          >
-                            Sênior
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -1592,44 +1594,58 @@ export default function App() {
                       <div className="bento-grid-feed">
                         {getFilteredGames().map((game, index) => {
                           let spanClass = 'bento-span-1x1';
+                          const mod = index % 5;
+                          if (mod === 0) spanClass = 'bento-span-2x1';
+                          else if (mod === 2) spanClass = 'bento-span-1x2';
+                          else if (mod === 3) spanClass = 'bento-span-2x2';
                           
                           return (
                             <div 
                               key={game.id}
-                              className={`bento-card glass-card ${spanClass} cursor-pointer group`}
+                              className={`bento-card-wrapper ${spanClass} cursor-pointer group`}
                               onClick={() => handlePlayGame(game)}
                             >
-                              <div className="bento-card-image-wrapper">
-                                {renderGameCover(game)}
-                                
-                                <div 
-                                  className="game-card-like-pill"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                                  <span>{likesCount[game.id] || 0}</span>
+                              <div className="bento-card-body glass-card">
+                                {/* Pílula do Topo "FRANGUINHOS GAMES" */}
+                                <div className="bento-card-top-header">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                                  <span>Franguinhos Games</span>
+                                </div>
+
+                                <div className="bento-card-image-wrapper">
+                                  {renderGameCover(game)}
+                                  
+                                  <div 
+                                    className="game-card-like-pill"
+                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                    title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
+                                  >
+                                    <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
+                                    <span>{likesCount[game.id] || 0}</span>
+                                  </div>
+                                </div>
+
+                                <div className="bento-card-overlay">
+                                  <span className="bento-card-badge">
+                                    {game.category}
+                                  </span>
+                                  <p className="bento-card-desc">
+                                    {game.description}
+                                  </p>
+                                  <div className="bento-card-footer">
+                                    <span className="bento-card-rating">
+                                      Class: {game.ageRating}
+                                    </span>
+                                    <span className="bento-card-play-btn">
+                                      🎮 JOGAR
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
 
-                              <div className="bento-card-overlay">
-                                <span className="bento-card-badge">
-                                  {game.category}
-                                </span>
-                                <h3 className="bento-card-title">
-                                  {game.title}
-                                </h3>
-                                <p className="bento-card-desc">
-                                  {game.description}
-                                </p>
-                                <div className="bento-card-footer">
-                                  <span className="bento-card-rating">
-                                    Class: {game.ageRating}
-                                  </span>
-                                  <span className="bento-card-play-btn">
-                                    🎮 JOGAR
-                                  </span>
-                                </div>
+                              {/* Título de Altíssimo Contraste Debaixo do Card (Mockup Alignment) */}
+                              <div className="bento-card-title-under">
+                                {game.title}
                               </div>
                             </div>
                           );
@@ -1669,6 +1685,10 @@ export default function App() {
                     <div className="bento-grid-feed">
                       {games.filter(g => favorites.includes(g.id)).map((game, index) => {
                         let spanClass = 'bento-span-1x1';
+                        const mod = index % 5;
+                        if (mod === 0) spanClass = 'bento-span-2x1';
+                        else if (mod === 2) spanClass = 'bento-span-1x2';
+                        else if (mod === 3) spanClass = 'bento-span-2x2';
                         
                         return (
                           <div 
@@ -1799,12 +1819,19 @@ export default function App() {
               <div className="bento-profile-card">
                 {user ? (
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-500 flex items-center justify-center text-white font-extrabold text-sm border-2 border-cyan-400/30">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-500 flex items-center justify-center text-white font-extrabold text-sm border-2 border-cyan-400/30 bento-friend-avatar-glow">
                       {user.username.substring(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-grow">
-                      <div className="font-extrabold text-white text-xs leading-none">Olá, {user.username}!</div>
-                      <div className="text-[10px] text-gray-400 font-mono mt-0.5 uppercase tracking-widest">{user.role === 'super_admin' ? 'Super Admin' : 'Jogador'}</div>
+                      <div className="font-extrabold text-white text-sm leading-none">Olá, {user.username}!</div>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="text-[9px] text-cyan-400 bg-cyan-950/50 px-1.5 py-0.5 rounded border border-cyan-500/20 font-mono uppercase tracking-wider">
+                          {user.role === 'super_admin' ? 'Admin' : 'Gamer'}
+                        </span>
+                        <span className="text-[9px] text-pink-400 bg-pink-950/40 px-1.5 py-0.5 rounded border border-pink-500/10 font-mono uppercase tracking-wider">
+                          Nível 12
+                        </span>
+                      </div>
                     </div>
                     <button 
                       onClick={handleLogout} 
@@ -1815,18 +1842,21 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
                         <User className="w-4 h-4" />
                       </div>
-                      <span className="text-xs text-gray-400">Perfil offline</span>
+                      <div>
+                        <div className="font-extrabold text-white text-xs leading-none">Jogador Visitante</div>
+                        <span className="text-[10px] text-gray-500 block mt-0.5">Salve seus recordes online</span>
+                      </div>
                     </div>
                     <button 
-                      className="btn-primary py-1 px-3 text-[10px] font-black"
+                      className="btn-primary py-1.5 px-4 text-[10px] font-black shrink-0 shadow-[0_0_12px_rgba(0,240,255,0.2)]"
                       onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
                     >
-                      Conectar
+                      Entrar
                     </button>
                   </div>
                 )}
@@ -1839,11 +1869,11 @@ export default function App() {
                   <span>Amigos Online ({onlineFriends.filter(f => f.status !== 'ausente').length})</span>
                 </div>
                 
-                <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1">
+                <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1 bento-sidebar-scroll">
                   {onlineFriends.map((friend) => (
-                    <div key={friend.name} className="flex items-center gap-2.5">
+                    <div key={friend.name} className="bento-friend-item">
                       <div className="relative shrink-0">
-                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px]`}>
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px] bento-friend-avatar-glow`}>
                           {friend.name.substring(0, 2).toUpperCase()}
                         </div>
                         <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${
@@ -1853,7 +1883,7 @@ export default function App() {
                       </div>
                       <div className="flex-grow min-w-0">
                         <div className="text-xs font-extrabold text-white truncate leading-none">{friend.name}</div>
-                        <div className="text-[10px] text-gray-400 truncate mt-0.5">
+                        <div className="text-[10px] text-gray-400 truncate mt-1">
                           {friend.status === 'jogando' ? `Jogando ${friend.game}` : 'Disponível'}
                         </div>
                       </div>
@@ -1870,16 +1900,25 @@ export default function App() {
                 </div>
 
                 {/* Lista de Mensagens */}
-                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2 pr-1 mb-2">
-                  {chatMessages.map((msg, index) => (
-                    <div key={index} className="text-left text-xs bg-white/[0.02] p-1.5 rounded border border-white/[0.03]">
-                      <div className="flex justify-between items-center mb-0.5">
-                        <span className="font-extrabold text-cyan-400 text-[10px]">{msg.sender}</span>
-                        <span className="text-[9px] text-gray-500 font-mono">{msg.time}</span>
+                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2 pr-1 mb-2 bento-sidebar-scroll">
+                  {chatMessages.map((msg, index) => {
+                    let bubbleColorClass = 'msg-purple';
+                    if (msg.sender === 'GamerPro') bubbleColorClass = 'msg-cyan';
+                    else if (msg.sender === 'Alice_Logics') bubbleColorClass = 'msg-pink';
+                    else if (msg.sender === 'MatheMágico') bubbleColorClass = 'msg-green';
+                    else if (msg.sender === 'Nerd_HTML5') bubbleColorClass = 'msg-yellow';
+                    else if (user && msg.sender === user.username) bubbleColorClass = 'msg-pink';
+
+                    return (
+                      <div key={index} className={`bento-chat-bubble ${bubbleColorClass}`}>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-extrabold text-white text-[10px] tracking-tight">{msg.sender}</span>
+                          <span className="text-[8px] text-gray-500 font-mono">{msg.time}</span>
+                        </div>
+                        <p className="text-gray-300 text-[11px] leading-relaxed font-semibold">{msg.text}</p>
                       </div>
-                      <p className="text-gray-300 text-[11px] leading-relaxed">{msg.text}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Input de Envio de Chat */}

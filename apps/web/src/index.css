@@ -1398,16 +1398,150 @@ tbody tr:hover {
 }
 
 .bento-nav-item.active {
-  background: rgba(102, 252, 241, 0.08);
-  color: #00f0ff;
-  border-color: rgba(102, 252, 241, 0.25);
-  box-shadow: inset 0 0 12px rgba(102, 252, 241, 0.05);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);
+  color: #ffd700; /* Gold */
+  border-left: 3px solid #d4af37; /* Gold indicator bar */
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .bento-nav-item.active.text-pink-400 {
-  background: rgba(255, 0, 127, 0.08);
+  background: linear-gradient(90deg, rgba(255, 0, 127, 0.08) 0%, transparent 100%);
   color: #ff007f;
-  border-color: rgba(255, 0, 127, 0.25);
+  border-left: 3px solid #ff007f;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Subitens de Categorias com marcadores (Mockup Alignment) */
+.bento-nav-item-sub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.bento-nav-item-sub:hover {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-main);
+}
+
+.bento-nav-item-sub.active {
+  color: #ffd700; /* Gold */
+  font-weight: 800;
+}
+
+.bento-nav-item-sub.active span:first-of-type {
+  background-color: #ffd700 !important; /* Gold bullet */
+  box-shadow: 0 0 8px #ffd700;
+}
+
+/* Animação do Logotipo Central */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Estilos de Cartões de Jogos em formato Squircle (Mockup Alignment) */
+.bento-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  width: 100%;
+}
+
+.bento-card-body {
+  position: relative;
+  flex-grow: 1;
+  height: calc(100% - 22px);
+  border-radius: 28px; /* Squircle altamente arredondado */
+  border: 1px solid var(--border-glass);
+  background: var(--bg-card);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-card-wrapper:hover .bento-card-body {
+  transform: translateY(-4px);
+  border-color: rgba(102, 252, 241, 0.35);
+  box-shadow: 0 12px 30px rgba(102, 252, 241, 0.15);
+}
+
+.bento-card-wrapper:nth-child(even):hover .bento-card-body {
+  border-color: rgba(255, 0, 127, 0.35);
+  box-shadow: 0 12px 30px rgba(255, 0, 127, 0.15);
+}
+
+/* Pílula do Topo "FRANGUINHOS GAMES" nos cartões */
+.bento-card-top-header {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(5, 6, 10, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+  transition: var(--transition);
+}
+
+.bento-card-wrapper:hover .bento-card-top-header {
+  border-color: rgba(102, 252, 241, 0.3);
+  box-shadow: 0 0 10px rgba(102, 252, 241, 0.15);
+}
+
+/* Título de Altíssimo Contraste renderizado abaixo do Card */
+.bento-card-title-under {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #f0f0f0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  padding-left: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: var(--transition);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.bento-card-wrapper:hover .bento-card-title-under {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 6px rgba(102, 252, 241, 0.4);
+}
+
+.bento-card-wrapper:nth-child(even):hover .bento-card-title-under {
+  color: var(--accent-pink);
+  text-shadow: 0 0 6px rgba(255, 0, 127, 0.4);
 }
 
 .bento-nav-badge {
@@ -1432,38 +1566,127 @@ tbody tr:hover {
 }
 
 .bento-profile-card, .bento-social-card, .bento-chat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
+  background: rgba(10, 12, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
   padding: 16px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: var(--transition);
 }
 
-/* Perfil Card */
+/* Card de Perfil - Visual Premium de VIP Gamer Card */
 .bento-profile-card {
-  border-color: rgba(0, 240, 255, 0.1);
+  border-color: rgba(102, 252, 241, 0.15);
+  background: linear-gradient(135deg, rgba(102, 252, 241, 0.02) 0%, rgba(10, 12, 22, 0.7) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-profile-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(102, 252, 241, 0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .bento-profile-card:hover {
-  border-color: rgba(0, 240, 255, 0.25);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.08);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 12px 30px rgba(102, 252, 241, 0.12), inset 0 1px 2px rgba(102, 252, 241, 0.2);
+  transform: translateY(-2px);
 }
 
-/* Social & Amigos */
+/* Card Social & Amigos */
 .bento-social-card {
   border-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Chat Card */
+.bento-social-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* Lista de Itens de Amigos Premium */
+.bento-friend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.bento-friend-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+
+.bento-friend-avatar-glow {
+  box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+}
+
+.bento-friend-item:hover .bento-friend-avatar-glow {
+  transform: scale(1.05);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+/* Card de Chat Premium estilo Discord/Twitch */
 .bento-chat-card {
-  border-color: rgba(255, 0, 127, 0.06);
+  border-color: rgba(255, 0, 127, 0.1);
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.01) 0%, rgba(10, 12, 22, 0.7) 100%);
+  display: flex;
+  flex-direction: column;
 }
 
 .bento-chat-card:hover {
-  border-color: rgba(255, 0, 127, 0.15);
-  box-shadow: 0 0 15px rgba(255, 0, 127, 0.04);
+  border-color: var(--accent-pink);
+  box-shadow: 0 12px 30px rgba(255, 0, 127, 0.1), inset 0 1px 1px rgba(255, 0, 127, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Bolhas de Mensagem de Chat Modernizadas */
+.bento-chat-bubble {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 4px 12px 12px 12px;
+  padding: 8px 12px;
+  transition: var(--transition);
+}
+
+.bento-chat-bubble:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.bento-chat-bubble.msg-pink {
+  border-left-color: var(--accent-pink);
+}
+
+.bento-chat-bubble.msg-purple {
+  border-left-color: var(--accent-purple);
+}
+
+.bento-chat-bubble.msg-yellow {
+  border-left-color: #ffd83d;
+}
+
+.bento-chat-bubble.msg-green {
+  border-left-color: #39ff14;
 }
 
 /* Barra de Busca Flutuante no Rodapé */
@@ -1471,17 +1694,18 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(10, 11, 22, 0.85);
-  border: 1px solid rgba(0, 240, 255, 0.15);
+  background: rgba(5, 6, 10, 0.85);
+  border: 1px solid rgba(102, 252, 241, 0.15);
   border-radius: 50px;
-  padding: 10px 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(0, 240, 255, 0.05);
-  transition: all 0.3s;
+  padding: 10px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(102, 252, 241, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bento-floating-search:focus-within {
-  border-color: #00f0ff;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(102, 252, 241, 0.35), inset 0 0 12px rgba(102, 252, 241, 0.1);
+  transform: translateY(-2px);
 }
 
 .bento-floating-search-input {
@@ -1489,7 +1713,7 @@ tbody tr:hover {
   border: none;
   outline: none;
   font-family: 'Outfit', sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-main);
   width: 100%;
@@ -1497,7 +1721,30 @@ tbody tr:hover {
 
 .bento-floating-search-input::placeholder {
   color: var(--text-muted);
-  opacity: 0.7;
+  opacity: 0.6;
+}
+
+/* Custom Scrollbars para as listas da Sidebar */
+.bento-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.bento-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bento-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bento-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.bento-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* 5. Seção de Destaque Bento (Grid 2x2 ou assimétrico de Destaques) */
@@ -1580,6 +1827,7 @@ tbody tr:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   grid-auto-rows: 210px;
+  grid-auto-flow: dense;
   gap: 20px;
   width: 100%;
 }

@@ -1,0 +1,65 @@
+# ==========================================================================
+# PORTAL DE JOGOS FRANGUINHOS — GITIGNORE CONFIGURATION
+# ==========================================================================
+
+# --- Dependências de Pacotes (NPM) ---
+node_modules/
+package-lock.json.log
+
+# --- Pastas de Build e Artefatos (Vite, TypeScript, etc.) ---
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# --- Configurações Locais e Segredos ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env.local
+.env.*.local
+
+# --- Bancos de Dados Locais ---
+# SQLite local dev DB
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+
+# --- Integração Vercel e Deploy ---
+.vercel/
+
+# --- Arquivos de Sistema e Compiladores ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# --- Logs de Erros e Relatórios ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
