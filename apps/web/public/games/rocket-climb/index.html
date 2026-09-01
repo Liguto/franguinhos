@@ -1,0 +1,6015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rocket Climb</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#02020b;
+    font-family:Arial,sans-serif;
+}
+
+canvas{
+    display:block;
+}
+
+.screen{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    color:white;
+    text-align:center;
+    background:
+        radial-gradient(
+            circle at center,
+            #171750 0%,
+            #08081d 45%,
+            #020208 100%
+        );
+}
+
+.hidden{
+    display:none!important;
+}
+
+h1{
+    font-size:80px;
+    text-shadow:
+        0 0 10px #35ddff,
+        0 0 35px #35ddff;
+}
+
+.subtitle{
+    margin-top:-5px;
+    margin-bottom:35px;
+    opacity:.6;
+    letter-spacing:7px;
+}
+
+.menuButton{
+    width:280px;
+    padding:15px;
+    margin:7px;
+    border:none;
+    border-radius:8px;
+    background:#35ddff;
+    color:#031017;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.menuButton:hover{
+    transform:scale(1.05);
+    background:#76eaff;
+}
+
+.secondary{
+    background:#29294e;
+    color:white;
+}
+
+.secondary:hover{
+    background:#3a3a6b;
+}
+
+.best{
+    margin-top:15px;
+    color:#35ddff;
+}
+
+.menuCoins{
+    margin-top:10px;
+    color:#ffd83d;
+    font-size:20px;
+    font-weight:bold;
+}
+
+
+/* ==============================
+   LOJA
+============================== */
+
+#shop{
+    overflow:auto;
+    padding:30px;
+}
+
+#shop h2{
+    font-size:48px;
+    margin-bottom:5px;
+}
+
+.shopCoins{
+    color:#ffd83d;
+    font-size:22px;
+    margin-bottom:20px;
+}
+
+.shopGrid{
+    display:grid;
+    grid-template-columns:
+        repeat(4,160px);
+
+    gap:15px;
+
+    max-height:65vh;
+
+    overflow-y:auto;
+
+    padding:10px;
+}
+
+.skinCard{
+    background:#10102b;
+    border:2px solid #292956;
+    border-radius:10px;
+    padding:10px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.skinCard:hover{
+    transform:translateY(-4px);
+    border-color:#35ddff;
+}
+
+.skinCard.selected{
+    border-color:#35ddff;
+    box-shadow:
+        0 0 20px #35ddff55;
+}
+
+.skinCard.locked{
+    opacity:.75;
+}
+
+.skinPreview{
+    width:140px;
+    height:120px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.skinName{
+    font-weight:bold;
+    margin-top:5px;
+}
+
+.skinPrice{
+    margin-top:7px;
+    color:#ffd83d;
+}
+
+.skinStatus{
+    margin-top:5px;
+    font-size:12px;
+    opacity:.7;
+}
+
+
+/* ==============================
+   HUD
+============================== */
+
+#hud{
+    position:fixed;
+    top:18px;
+    left:18px;
+    z-index:20;
+    color:white;
+    text-shadow:0 2px 5px black;
+    user-select:none;
+    pointer-events:none;
+}
+
+.hudBlock{
+    margin-bottom:12px;
+}
+
+.hudTitle{
+    font-size:11px;
+    letter-spacing:1px;
+    opacity:.8;
+    margin-bottom:4px;
+}
+
+#lives{
+    font-size:23px;
+}
+
+.bar{
+    width:250px;
+    height:19px;
+    border:2px solid white;
+    border-radius:5px;
+    background:#0008;
+    overflow:hidden;
+}
+
+.barFill{
+    height:100%;
+    width:100%;
+}
+
+#fuelBar{
+    background:#35ddff;
+}
+
+#turboHud,
+#shieldHud{
+    display:none;
+}
+
+#turboBar{
+    background:#ffe600;
+}
+
+#shieldBar{
+    background:#65ffef;
+}
+
+#altitude{
+    font-size:23px;
+    font-weight:bold;
+}
+
+#score{
+    font-size:18px;
+}
+
+#coins{
+    font-size:18px;
+    color:#ffd83d;
+}
+
+#launchMessage{
+    position:fixed;
+    z-index:30;
+    top:76%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:white;
+    font-size:21px;
+    font-weight:bold;
+    text-shadow:0 0 12px #35ddff;
+    animation:pulse 1.2s infinite;
+}
+
+@keyframes pulse{
+    0%,100%{opacity:.35}
+    50%{opacity:1}
+}
+
+#controls{
+    position:fixed;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%);
+    color:white;
+    opacity:.45;
+    z-index:20;
+    font-size:13px;
+    pointer-events:none;
+}
+
+#soundButton{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:200;
+    width:45px;
+    height:45px;
+    border:0;
+    border-radius:50%;
+    background:#181836dd;
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+}
+
+#difficultyInfo{
+    position:fixed;
+    top:18px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:20;
+    color:white;
+    font-size:13px;
+    opacity:.45;
+    pointer-events:none;
+}
+
+
+/* ==============================
+   INSTRUÇÕES
+============================== */
+
+#instructions h2{
+    font-size:45px;
+    margin-bottom:30px;
+}
+
+.instructionsBox{
+    width:540px;
+    max-width:90vw;
+    margin-bottom:25px;
+}
+
+.instructionsBox div{
+    background:#ffffff0b;
+    border-radius:6px;
+    padding:11px;
+    margin:6px;
+}
+
+.key{
+    display:inline-block;
+    width:90px;
+    padding:5px;
+    margin-right:8px;
+    border-radius:5px;
+    background:white;
+    color:#111;
+    font-weight:bold;
+}
+
+
+/* ==============================
+   PAUSE / GAME OVER
+============================== */
+
+#pauseScreen{
+    background:#000b;
+}
+
+#pauseScreen h2{
+    font-size:60px;
+    margin-bottom:25px;
+}
+
+#gameOver{
+    background:#000d;
+}
+
+#gameOver h2{
+    font-size:65px;
+    color:#ff4565;
+    text-shadow:0 0 20px #ff234d;
+    margin-bottom:20px;
+}
+
+.stats{
+    margin:15px;
+    line-height:1.8;
+    font-size:20px;
+}
+
+#newRecord{
+    color:#ffe600;
+    font-weight:bold;
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<button id="soundButton">🔊</button>
+
+
+<!-- ==========================================
+     MENU PRINCIPAL
+========================================== -->
+
+<div id="mainMenu" class="screen">
+
+    <h1>ROCKET</h1>
+
+    <div class="subtitle">
+        CLIMB
+    </div>
+
+    <div class="menuCoins">
+        🪙 <span id="menuCoins">0</span>
+    </div>
+
+    <button
+        class="menuButton"
+        id="playButton">
+
+        🚀 JOGAR
+
+    </button>
+
+    <button
+        class="menuButton"
+        id="shopButton">
+
+        🎨 PERSONALIZAR
+
+    </button>
+
+    <button
+        class="menuButton secondary"
+        id="instructionsButton">
+
+        COMO JOGAR
+
+    </button>
+
+    <div
+        class="best"
+        id="menuBest">
+
+        RECORDE: 0 m
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     LOJA
+========================================== -->
+
+<div
+    id="shop"
+    class="screen hidden">
+
+    <h2>🚀 HANGAR</h2>
+
+    <div class="shopCoins">
+        🪙 <span id="shopCoins">0</span>
+    </div>
+
+    <div
+        class="shopGrid"
+        id="shopGrid">
+
+    </div>
+
+    <button
+        class="menuButton secondary"
+        id="shopBackButton">
+
+        VOLTAR
+
+    </button>
+
+</div>
+
+
+<!-- ==========================================
+     INSTRUÇÕES
+========================================== -->
+
+<div
+    id="instructions"
+    class="screen hidden">
+
+    <h2>COMO JOGAR</h2>
+
+    <div class="instructionsBox">
+
+        <div>
+            <span class="key">A</span>
+            Mover para esquerda
+        </div>
+
+        <div>
+            <span class="key">D</span>
+            Mover para direita
+        </div>
+
+        <div>
+            <span class="key">ESPAÇO</span>
+            Ativar motor
+        </div>
+
+        <div>
+            <span class="key">⚡</span>
+            Turbo + intangibilidade
+        </div>
+
+        <div>
+            <span class="key">🛡️</span>
+            Escudo
+        </div>
+
+        <div>
+            <span class="key">🪙</span>
+            Moedas podem ser usadas no hangar
+        </div>
+
+        <div>
+            <span class="key">❤️</span>
+            Recupera uma vida
+        </div>
+
+        <div>
+            <span class="key">⛽</span>
+            Reabastece combustível
+        </div>
+
+        <div>
+            <span class="key">ESC</span>
+            Pausar
+        </div>
+
+    </div>
+
+    <button
+        class="menuButton secondary"
+        id="backButton">
+
+        VOLTAR
+
+    </button>
+
+</div>
+
+
+<!-- ==========================================
+     HUD
+========================================== -->
+
+<div id="hud" style="display:none">
+
+    <div class="hudBlock">
+
+        <div class="hudTitle">
+            VIDAS
+        </div>
+
+        <div id="lives">
+            ❤️ ❤️ ❤️ ❤️ ❤️
+        </div>
+
+    </div>
+
+
+    <div class="hudBlock">
+
+        <div class="hudTitle">
+            COMBUSTÍVEL
+        </div>
+
+        <div class="bar">
+
+            <div
+                id="fuelBar"
+                class="barFill">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="hudBlock"
+        id="turboHud">
+
+        <div class="hudTitle">
+            ⚡ TURBO
+        </div>
+
+        <div class="bar">
+
+            <div
+                id="turboBar"
+                class="barFill">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="hudBlock"
+        id="shieldHud">
+
+        <div class="hudTitle">
+            🛡️ ESCUDO
+        </div>
+
+        <div class="bar">
+
+            <div
+                id="shieldBar"
+                class="barFill">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hudBlock">
+
+        <div class="hudTitle">
+            ALTITUDE
+        </div>
+
+        <div id="altitude">
+            0 m
+        </div>
+
+    </div>
+
+
+    <div class="hudBlock">
+
+        <div class="hudTitle">
+            PONTUAÇÃO
+        </div>
+
+        <div id="score">
+            0
+        </div>
+
+    </div>
+
+
+    <div class="hudBlock">
+
+        <div class="hudTitle">
+            MOEDAS
+        </div>
+
+        <div id="coins">
+            🪙 0
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="difficultyInfo"
+    style="display:none">
+
+    PERIGO: BAIXO
+
+</div>
+
+
+<div
+    id="launchMessage"
+    style="display:none">
+
+    SEGURE ESPAÇO PARA LANÇAR
+
+</div>
+
+
+<div
+    id="controls"
+    style="display:none">
+
+    A / D → mover
+    &nbsp; | &nbsp;
+    ESPAÇO → motor
+    &nbsp; | &nbsp;
+    ESC → pausa
+
+</div>
+
+
+<!-- ==========================================
+     PAUSA
+========================================== -->
+
+<div
+    id="pauseScreen"
+    class="screen hidden">
+
+    <h2>PAUSADO</h2>
+
+    <button
+        class="menuButton"
+        id="resumeButton">
+
+        CONTINUAR
+
+    </button>
+
+    <button
+        class="menuButton secondary"
+        id="pauseMenuButton">
+
+        MENU PRINCIPAL
+
+    </button>
+
+</div>
+
+
+<!-- ==========================================
+     GAME OVER
+========================================== -->
+
+<div
+    id="gameOver"
+    class="screen hidden">
+
+    <h2>GAME OVER</h2>
+
+    <div class="stats">
+
+        <div>
+            Altitude:
+            <strong id="finalAltitude">
+                0 m
+            </strong>
+        </div>
+
+        <div>
+            Pontuação:
+            <strong id="finalScore">
+                0
+            </strong>
+        </div>
+
+        <div>
+            Moedas:
+            <strong id="finalCoins">
+                0
+            </strong>
+        </div>
+
+    </div>
+
+    <div id="newRecord">
+        🏆 NOVO RECORDE!
+    </div>
+
+    <button
+        class="menuButton"
+        id="retryButton">
+
+        🚀 JOGAR NOVAMENTE
+
+    </button>
+
+    <button
+        class="menuButton secondary"
+        id="gameOverMenuButton">
+
+        MENU PRINCIPAL
+
+    </button>
+
+</div>
+
+
+<script>
+
+// Avisar o portal mãe que o jogo foi carregado com sucesso
+function sendEvent(type, data = {}) {
+    window.parent.postMessage({ type, gameSlug: 'rocket-climb', ...data }, '*');
+}
+
+sendEvent('game_loaded');
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
+
+let W=innerWidth;
+let H=innerHeight;
+
+
+function resize(){
+
+    W=innerWidth;
+    H=innerHeight;
+
+    canvas.width=W;
+    canvas.height=H;
+
+}
+
+
+addEventListener(
+    "resize",
+    resize
+);
+
+resize();
+
+
+/* =========================================================
+   SISTEMA DE SKINS
+========================================================= */
+
+const skins=[
+
+    {
+        id:"classic",
+
+        name:"Clássica",
+
+        price:0,
+
+        body:"#eeeeee",
+
+        window:"#35ddff",
+
+        wings:"#e43f5a",
+
+        flame:"#ff4c00",
+
+        glow:"#35ddff"
+
+    },
+
+    {
+        id:"red",
+
+        name:"Red Comet",
+
+        price:100,
+
+        body:"#e63946",
+
+        window:"#ffd166",
+
+        wings:"#8b1623",
+
+        flame:"#ff8c00",
+
+        glow:"#ff3344"
+
+    },
+
+    {
+        id:"blue",
+
+        name:"Ice Rocket",
+
+        price:250,
+
+        body:"#78d9ff",
+
+        window:"#ffffff",
+
+        wings:"#2374ab",
+
+        flame:"#7df9ff",
+
+        glow:"#35ddff"
+
+    },
+
+    {
+        id:"gold",
+
+        name:"Golden",
+
+        price:500,
+
+        body:"#ffd83d",
+
+        window:"#ffffff",
+
+        wings:"#b47b00",
+
+        flame:"#fff2a1",
+
+        glow:"#ffd83d"
+
+    },
+
+    {
+        id:"purple",
+
+        name:"Void",
+
+        price:750,
+
+        body:"#9b59ff",
+
+        window:"#ffb7ff",
+
+        wings:"#5518a8",
+
+        flame:"#e05cff",
+
+        glow:"#a855ff"
+
+    },
+
+    {
+        id:"green",
+
+        name:"Emerald",
+
+        price:1000,
+
+        body:"#45e08c",
+
+        window:"#dffff0",
+
+        wings:"#147343",
+
+        flame:"#8cffbc",
+
+        glow:"#45e08c"
+
+    },
+
+    {
+        id:"black",
+
+        name:"Black Hole",
+
+        price:1500,
+
+        body:"#242424",
+
+        window:"#9c9cff",
+
+        wings:"#050505",
+
+        flame:"#8b5cff",
+
+        glow:"#765cff"
+
+    },
+
+    {
+        id:"rainbow",
+
+        name:"Galaxy",
+
+        price:2500,
+
+        body:"rainbow",
+
+        window:"#ffffff",
+
+        wings:"rainbow",
+
+        flame:"#ffffff",
+
+        glow:"#ffffff"
+
+    }
+
+];
+
+
+/*
+ * MOEDAS TOTAIS
+ */
+
+let totalCoins=
+    Number(
+        localStorage.getItem(
+            "rocketCoins"
+        )
+    )||0;
+
+
+/*
+ * SKINS DESBLOQUEADAS
+ */
+
+let unlockedSkins=
+    JSON.parse(
+        localStorage.getItem(
+            "rocketSkins"
+        )||'["classic"]'
+    );
+
+
+/*
+ * SKIN EQUIPADA
+ */
+
+let equippedSkin=
+    localStorage.getItem(
+        "rocketEquipped"
+    )||"classic";
+
+
+function saveCustomization(){
+
+    localStorage.setItem(
+        "rocketCoins",
+        totalCoins
+    );
+
+    localStorage.setItem(
+        "rocketSkins",
+        JSON.stringify(
+            unlockedSkins
+        )
+    );
+
+    localStorage.setItem(
+        "rocketEquipped",
+        equippedSkin
+    );
+
+}
+
+
+function getSkin(){
+
+    return skins.find(
+        s=>s.id===equippedSkin
+    )||skins[0];
+
+}
+
+
+/* =========================================================
+   PREVIEW DA NAVE NA LOJA
+========================================================= */
+
+function drawSkinPreview(
+    canvas,
+    skin
+){
+
+    const c=
+        canvas.getContext("2d");
+
+    c.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    c.save();
+
+    c.translate(
+        canvas.width/2,
+        canvas.height/2
+    );
+
+
+    const scale=1.15;
+
+    c.scale(
+        scale,
+        scale
+    );
+
+
+    /*
+     * Glow
+     */
+
+    c.shadowBlur=25;
+
+    c.shadowColor=
+        skin.glow;
+
+
+    /*
+     * Asa
+     */
+
+    c.fillStyle=
+        skin.wings;
+
+
+    c.beginPath();
+
+    c.moveTo(
+        -12,
+        8
+    );
+
+    c.lineTo(
+        -28,
+        28
+    );
+
+    c.lineTo(
+        -11,
+        23
+    );
+
+    c.closePath();
+
+    c.fill();
+
+
+    c.beginPath();
+
+    c.moveTo(
+        12,
+        8
+    );
+
+    c.lineTo(
+        28,
+        28
+    );
+
+    c.lineTo(
+        11,
+        23
+    );
+
+    c.closePath();
+
+    c.fill();
+
+
+    /*
+     * Corpo
+     */
+
+    if(
+        skin.body==="rainbow"
+    ){
+
+        const gradient=
+            c.createLinearGradient(
+                -20,
+                0,
+                20,
+                0
+            );
+
+        gradient.addColorStop(
+            0,
+            "#ff3b3b"
+        );
+
+        gradient.addColorStop(
+            .25,
+            "#ffd93d"
+        );
+
+        gradient.addColorStop(
+            .5,
+            "#48ff91"
+        );
+
+        gradient.addColorStop(
+            .75,
+            "#35ddff"
+        );
+
+        gradient.addColorStop(
+            1,
+            "#a855ff"
+        );
+
+        c.fillStyle=
+            gradient;
+
+    }
+    else{
+
+        c.fillStyle=
+            skin.body;
+
+    }
+
+
+    c.beginPath();
+
+    c.moveTo(
+        0,
+        -38
+    );
+
+    c.quadraticCurveTo(
+        19,
+        -15,
+        16,
+        18
+    );
+
+    c.lineTo(
+        -16,
+        18
+    );
+
+    c.quadraticCurveTo(
+        -19,
+        -15,
+        0,
+        -38
+    );
+
+    c.closePath();
+
+    c.fill();
+
+
+    c.strokeStyle=
+        "#111";
+
+    c.lineWidth=3;
+
+    c.stroke();
+
+
+    /*
+     * Janela
+     */
+
+    c.fillStyle=
+        skin.window;
+
+    c.beginPath();
+
+    c.arc(
+        0,
+        -10,
+        9,
+        0,
+        Math.PI*2
+    );
+
+    c.fill();
+
+    c.stroke();
+
+
+    /*
+     * Chama
+     */
+
+    c.shadowColor=
+        skin.flame;
+
+
+    c.fillStyle=
+        skin.flame;
+
+
+    c.beginPath();
+
+    c.moveTo(
+        -7,
+        23
+    );
+
+    c.lineTo(
+        7,
+        23
+    );
+
+    c.lineTo(
+        0,
+        45
+    );
+
+    c.closePath();
+
+    c.fill();
+
+
+    c.restore();
+
+}
+
+
+/* =========================================================
+   RENDER DA LOJA
+========================================================= */
+
+function renderShop(){
+
+    document.getElementById(
+        "shopCoins"
+    ).textContent=
+        totalCoins;
+
+
+    const grid=
+        document.getElementById(
+            "shopGrid"
+        );
+
+    grid.innerHTML="";
+
+
+    for(
+        const skin of skins
+    ){
+
+        const unlocked=
+            unlockedSkins.includes(
+                skin.id
+            );
+
+        const selected=
+            equippedSkin===
+            skin.id;
+
+
+        const card=
+            document.createElement(
+                "div"
+            );
+
+
+        card.className=
+            "skinCard"+
+            (
+                selected
+                    ?" selected"
+                    :""
+            )+
+            (
+                !unlocked
+                    ?" locked"
+                    :""
+            );
+
+
+        const preview=
+            document.createElement(
+                "div"
+            );
+
+
+        preview.className=
+            "skinPreview";
+
+
+        const previewCanvas=
+            document.createElement(
+                "canvas"
+            );
+
+
+        previewCanvas.width=140;
+        previewCanvas.height=120;
+
+
+        preview.appendChild(
+            previewCanvas
+        );
+
+
+        card.appendChild(
+            preview
+        );
+
+
+        const name=
+            document.createElement(
+                "div"
+            );
+
+
+        name.className=
+            "skinName";
+
+
+        name.textContent=
+            skin.name;
+
+
+        card.appendChild(
+            name
+        );
+
+
+        const price=
+            document.createElement(
+                "div"
+            );
+
+
+        price.className=
+            "skinPrice";
+
+
+        if(unlocked){
+
+            price.textContent=
+                selected
+                    ?"✓ EQUIPADA"
+                    :"EQUIPAR";
+
+        }
+        else{
+
+            price.textContent=
+                "🪙 "+
+                skin.price;
+
+        }
+
+
+        card.appendChild(
+            price
+        );
+
+
+        const status=
+            document.createElement(
+                "div"
+            );
+
+
+        status.className=
+            "skinStatus";
+
+
+        if(unlocked){
+
+            status.textContent=
+                selected
+                    ?"Sua nave atual"
+                    :"Clique para equipar";
+
+        }
+        else if(
+            totalCoins>=skin.price
+        ){
+
+            status.textContent=
+                "Clique para comprar";
+
+        }
+        else{
+
+            status.textContent=
+                "Moedas insuficientes";
+
+        }
+
+
+        card.appendChild(
+            status
+        );
+
+
+        card.onclick=()=>{
+
+            if(unlocked){
+
+                equippedSkin=
+                    skin.id;
+
+                saveCustomization();
+
+                renderShop();
+
+                return;
+
+            }
+
+
+            if(
+                totalCoins>=
+                skin.price
+            ){
+
+                totalCoins-=
+                    skin.price;
+
+                unlockedSkins.push(
+                    skin.id
+                );
+
+                equippedSkin=
+                    skin.id;
+
+                saveCustomization();
+
+                renderShop();
+
+                collectSound();
+
+            }
+            else{
+
+                tone(
+                    100,
+                    .15,
+                    "square",
+                    .1
+                );
+
+            }
+
+        };
+
+
+        grid.appendChild(
+            card
+        );
+
+
+        drawSkinPreview(
+            previewCanvas,
+            skin
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ÁUDIO
+========================================================= */
+
+let audioContext=null;
+
+let masterGain=null;
+let musicGain=null;
+let sfxGain=null;
+
+let audioEnabled=true;
+
+let musicStarted=false;
+
+let musicTimer=null;
+
+let engineOsc=null;
+let engineGain=null;
+
+
+function initAudio(){
+
+    if(audioContext){
+
+        if(
+            audioContext.state===
+            "suspended"
+        ){
+
+            audioContext.resume();
+
+        }
+
+        return;
+
+    }
+
+
+    audioContext=
+        new(
+            window.AudioContext||
+            window.webkitAudioContext
+        )();
+
+
+    masterGain=
+        audioContext.createGain();
+
+    musicGain=
+        audioContext.createGain();
+
+    sfxGain=
+        audioContext.createGain();
+
+
+    masterGain.gain.value=.65;
+
+    musicGain.gain.value=.22;
+
+    sfxGain.gain.value=.6;
+
+
+    musicGain.connect(
+        masterGain
+    );
+
+    sfxGain.connect(
+        masterGain
+    );
+
+    masterGain.connect(
+        audioContext.destination
+    );
+
+
+    audioContext.resume();
+
+}
+
+
+function tone(
+    frequency,
+    duration,
+    type="sine",
+    volume=.15,
+    destination=null
+){
+
+    if(
+        !audioEnabled||
+        !audioContext
+    )
+        return;
+
+
+    if(!destination)
+        destination=sfxGain;
+
+
+    const osc=
+        audioContext.createOscillator();
+
+    const gain=
+        audioContext.createGain();
+
+
+    osc.type=type;
+
+    osc.frequency.value=
+        frequency;
+
+
+    gain.gain.setValueAtTime(
+        0,
+        audioContext.currentTime
+    );
+
+
+    gain.gain.linearRampToValueAtTime(
+        volume,
+        audioContext.currentTime+.01
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audioContext.currentTime+
+        duration
+    );
+
+
+    osc.connect(gain);
+
+    gain.connect(destination);
+
+
+    osc.start();
+
+
+    osc.stop(
+        audioContext.currentTime+
+        duration
+    );
+
+}
+
+
+function noise(
+    duration=.2,
+    volume=.2
+){
+
+    if(
+        !audioEnabled||
+        !audioContext
+    )
+        return;
+
+
+    const size=
+        audioContext.sampleRate*
+        duration;
+
+
+    const buffer=
+        audioContext.createBuffer(
+            1,
+            size,
+            audioContext.sampleRate
+        );
+
+
+    const data=
+        buffer.getChannelData(0);
+
+
+    for(
+        let i=0;
+        i<size;
+        i++
+    ){
+
+        data[i]=
+            Math.random()*2-1;
+
+    }
+
+
+    const source=
+        audioContext.createBufferSource();
+
+    const gain=
+        audioContext.createGain();
+
+
+    source.buffer=buffer;
+
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioContext.currentTime
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audioContext.currentTime+
+        duration
+    );
+
+
+    source.connect(gain);
+
+    gain.connect(sfxGain);
+
+
+    source.start();
+
+}
+
+
+function collectSound(){
+
+    tone(
+        500,
+        .08,
+        "sine",
+        .12
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                750,
+                .1,
+                "sine",
+                .12
+            );
+
+        },
+        70
+    );
+
+}
+
+
+function turboSound(){
+
+    tone(
+        300,
+        .1,
+        "square",
+        .14
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                450,
+                .1,
+                "square",
+                .15
+            );
+
+        },
+        70
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                700,
+                .25,
+                "square",
+                .18
+            );
+
+        },
+        140
+    );
+
+}
+
+
+function shieldSound(){
+
+    tone(
+        500,
+        .1,
+        "triangle",
+        .15
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                700,
+                .18,
+                "triangle",
+                .15
+            );
+
+        },
+        80
+    );
+
+}
+
+
+function lifeSound(){
+
+    tone(
+        440,
+        .1,
+        "sine",
+        .15
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                660,
+                .15,
+                "sine",
+                .15
+            );
+
+        },
+        100
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                880,
+                .2,
+                "sine",
+                .18
+            );
+
+        },
+        200
+    );
+
+}
+
+
+function explosionSound(){
+
+    noise(
+        .4,
+        .35
+    );
+
+
+    tone(
+        70,
+        .4,
+        "sawtooth",
+        .2
+    );
+
+}
+
+
+function launchSound(){
+
+    tone(
+        100,
+        .5,
+        "sawtooth",
+        .15
+    );
+
+
+    tone(
+        200,
+        .5,
+        "triangle",
+        .08
+    );
+
+}
+
+
+function gameOverSound(){
+
+    tone(
+        300,
+        .25,
+        "sawtooth",
+        .15
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                200,
+                .25,
+                "sawtooth",
+                .15
+            );
+
+        },
+        220
+    );
+
+
+    setTimeout(
+        ()=>{
+
+            tone(
+                100,
+                .6,
+                "sawtooth",
+                .2
+            );
+
+        },
+        450
+    );
+
+}
+
+
+function startEngine(){
+
+    if(
+        !audioEnabled||
+        !audioContext||
+        engineOsc
+    )
+        return;
+
+
+    engineOsc=
+        audioContext.createOscillator();
+
+
+    engineGain=
+        audioContext.createGain();
+
+
+    engineOsc.type=
+        "sawtooth";
+
+
+    engineOsc.frequency.value=
+        80;
+
+
+    engineGain.gain.value=0;
+
+
+    engineOsc.connect(
+        engineGain
+    );
+
+
+    engineGain.connect(
+        sfxGain
+    );
+
+
+    engineOsc.start();
+
+}
+
+
+function updateEngine(){
+
+    if(
+        !engineOsc||
+        !engineGain
+    )
+        return;
+
+
+    let volume=0;
+
+
+    if(
+        gameRunning&&
+        !paused&&
+        player.started
+    ){
+
+        if(player.turbo)
+            volume=.14;
+
+        else if(
+            keys.space&&
+            player.fuel>0
+        )
+            volume=.08;
+
+    }
+
+
+    engineGain.gain.linearRampToValueAtTime(
+        volume,
+        audioContext.currentTime+.05
+    );
+
+}
+
+
+function stopEngine(){
+
+    if(engineOsc){
+
+        try{
+
+            engineOsc.stop();
+
+        }catch(e){}
+
+
+        engineOsc=null;
+
+        engineGain=null;
+
+    }
+
+}
+
+
+function startMusic(){
+
+    if(
+        musicStarted||
+        !audioEnabled||
+        !audioContext
+    )
+        return;
+
+
+    musicStarted=true;
+
+
+    const notes=[
+        110,
+        130.81,
+        146.83,
+        164.81,
+        196,
+        220,
+        246.94,
+        293.66
+    ];
+
+
+    let i=0;
+
+
+    function loop(){
+
+        if(!musicStarted)
+            return;
+
+
+        tone(
+            notes[i],
+            2.5,
+            "sine",
+            .035,
+            musicGain
+        );
+
+
+        i=
+            (i+1)%
+            notes.length;
+
+
+        musicTimer=
+            setTimeout(
+                loop,
+                1500
+            );
+
+    }
+
+
+    loop();
+
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+const keys={
+    a:false,
+    d:false,
+    space:false
+};
+
+
+addEventListener(
+    "keydown",
+    e=>{
+
+        const k=
+            e.key.toLowerCase();
+
+
+        if(k==="a")
+            keys.a=true;
+
+
+        if(k==="d")
+            keys.d=true;
+
+
+        if(e.code==="Space"){
+
+            e.preventDefault();
+
+            keys.space=true;
+
+        }
+
+
+        if(
+            e.code==="Escape"
+        ){
+
+            togglePause();
+
+        }
+
+    }
+);
+
+
+addEventListener(
+    "keyup",
+    e=>{
+
+        const k=
+            e.key.toLowerCase();
+
+
+        if(k==="a")
+            keys.a=false;
+
+
+        if(k==="d")
+            keys.d=false;
+
+
+        if(
+            e.code==="Space"
+        )
+            keys.space=false;
+
+    }
+);
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+const player={
+
+    x:W/2,
+
+    y:H*.55,
+
+    width:38,
+
+    height:70,
+
+    speed:5.5,
+
+    gravity:.07,
+
+    thrust:.14,
+
+    maxFallSpeed:2,
+
+    maxRiseSpeed:-2.8,
+
+    turboSpeed:-6,
+
+    fuel:100,
+
+    maxFuel:100,
+
+    fuelConsumption:.035,
+
+    lives:5,
+
+    invulnerable:0,
+
+    altitude:0,
+
+    score:0,
+
+    coins:0,
+
+    started:false,
+
+    turbo:false,
+
+    turboTime:0,
+
+    maxTurboTime:360,
+
+    shield:false,
+
+    shieldTime:0,
+
+    maxShieldTime:600,
+
+    velocityY:0
+
+};
+
+
+/* =========================================================
+   OBJETOS
+========================================================= */
+
+let meteors=[];
+let stations=[];
+let powerUps=[];
+let coins=[];
+let hearts=[];
+let shields=[];
+let particles=[];
+let stars=[];
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let gameRunning=false;
+
+let gameOver=false;
+
+let paused=false;
+
+let meteorTimer=0;
+
+let stationTimer=0;
+
+let powerTimer=0;
+
+let coinTimer=0;
+
+let heartTimer=0;
+
+let shieldTimer=0;
+
+
+/* =========================================================
+   RECORDES
+========================================================= */
+
+let bestAltitude=
+    Number(
+        localStorage.getItem(
+            "rocketAltitude"
+        )
+    )||0;
+
+
+let bestScore=
+    Number(
+        localStorage.getItem(
+            "rocketScore"
+        )
+    )||0;
+
+
+function updateBest(){
+
+    document.getElementById(
+        "menuBest"
+    ).textContent=
+        "RECORDE: "+
+        Math.floor(bestAltitude)+
+        " m | "+
+        Math.floor(bestScore)+
+        " pts";
+
+
+    document.getElementById(
+        "menuCoins"
+    ).textContent=
+        totalCoins;
+
+}
+
+
+updateBest();
+
+
+/* =========================================================
+   ESTRELAS
+========================================================= */
+
+function createStars(){
+
+    stars=[];
+
+
+    for(
+        let i=0;
+        i<220;
+        i++
+    ){
+
+        stars.push({
+
+            x:
+                Math.random()*W,
+
+            y:
+                Math.random()*H,
+
+            size:
+                Math.random()*2+.4,
+
+            speed:
+                Math.random()*.7+.1
+
+        });
+
+    }
+
+}
+
+
+/* =========================================================
+   PARTÍCULAS
+========================================================= */
+
+function particle(
+    x,
+    y,
+    color,
+    count=10,
+    speed=2
+){
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const angle=
+            Math.random()*
+            Math.PI*2;
+
+
+        const velocity=
+            Math.random()*
+            speed;
+
+
+        particles.push({
+
+            x:x,
+
+            y:y,
+
+            vx:
+                Math.cos(angle)*
+                velocity,
+
+            vy:
+                Math.sin(angle)*
+                velocity,
+
+            life:
+                30+
+                Math.random()*30,
+
+            maxLife:60,
+
+            size:
+                2+
+                Math.random()*4,
+
+            color:color
+
+        });
+
+    }
+
+}
+
+
+function updateParticles(){
+
+    for(
+        let i=
+            particles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=
+            particles[i];
+
+
+        p.x+=p.vx;
+
+        p.y+=p.vy;
+
+        p.vy+=.02;
+
+        p.life--;
+
+
+        if(
+            p.life<=0
+        ){
+
+            particles.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+}
+
+
+function drawParticles(){
+
+    for(
+        const p of particles
+    ){
+
+        ctx.globalAlpha=
+            p.life/
+            p.maxLife;
+
+
+        ctx.fillStyle=
+            p.color;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.fill();
+
+    }
+
+
+    ctx.globalAlpha=1;
+
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame(){
+
+    sendEvent('game_start');
+
+    initAudio();
+
+    startMusic();
+
+    startEngine();
+
+
+    player.x=W/2;
+
+    player.y=H*.55;
+
+    player.velocityY=0;
+
+    player.fuel=100;
+
+    player.lives=5;
+
+    player.invulnerable=0;
+
+    player.altitude=0;
+
+    player.score=0;
+
+    player.coins=0;
+
+    player.started=false;
+
+    player.turbo=false;
+
+    player.turboTime=0;
+
+    player.shield=false;
+
+    player.shieldTime=0;
+
+
+    meteors=[];
+    stations=[];
+    powerUps=[];
+    coins=[];
+    hearts=[];
+    shields=[];
+    particles=[];
+
+
+    meteorTimer=90;
+
+    stationTimer=300;
+
+    powerTimer=500;
+
+    coinTimer=70;
+
+    heartTimer=800;
+
+    shieldTimer=1000;
+
+
+    gameRunning=true;
+
+    gameOver=false;
+
+    paused=false;
+
+
+    document
+        .getElementById("mainMenu")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("instructions")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("shop")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("gameOver")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("pauseScreen")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("hud")
+        .style.display="block";
+
+
+    document
+        .getElementById("controls")
+        .style.display="block";
+
+
+    document
+        .getElementById("difficultyInfo")
+        .style.display="block";
+
+
+    document
+        .getElementById("launchMessage")
+        .style.display="block";
+
+
+    createStars();
+
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+function returnMenu(){
+
+    gameRunning=false;
+
+    gameOver=false;
+
+    paused=false;
+
+
+    stopEngine();
+
+
+    document
+        .getElementById("mainMenu")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("instructions")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("shop")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("gameOver")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("pauseScreen")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("hud")
+        .style.display="none";
+
+
+    document
+        .getElementById("controls")
+        .style.display="none";
+
+
+    document
+        .getElementById("difficultyInfo")
+        .style.display="none";
+
+
+    document
+        .getElementById("launchMessage")
+        .style.display="none";
+
+
+    updateBest();
+
+}
+
+
+/* =========================================================
+   PAUSA
+========================================================= */
+
+function togglePause(){
+
+    if(
+        !gameRunning||
+        gameOver
+    )
+        return;
+
+
+    paused=!paused;
+
+
+    document
+        .getElementById("pauseScreen")
+        .classList.toggle(
+            "hidden",
+            !paused
+        );
+
+}
+
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame(){
+
+    if(gameOver)
+        return;
+
+
+    sendEvent('game_completed', { score: Math.floor(player.score) });
+
+    gameOver=true;
+
+    gameRunning=false;
+
+
+    stopEngine();
+
+    gameOverSound();
+
+
+    const oldAltitude=
+        bestAltitude;
+
+    const oldScore=
+        bestScore;
+
+
+    if(
+        player.altitude>
+        bestAltitude
+    ){
+
+        bestAltitude=
+            player.altitude;
+
+
+        localStorage.setItem(
+            "rocketAltitude",
+            bestAltitude
+        );
+
+    }
+
+
+    if(
+        player.score>
+        bestScore
+    ){
+
+        bestScore=
+            player.score;
+
+
+        localStorage.setItem(
+            "rocketScore",
+            bestScore
+        );
+
+    }
+
+
+    /*
+     * AS MOEDAS DA PARTIDA
+     * SÃO ADICIONADAS À CARTEIRA
+     */
+
+    totalCoins+=
+        player.coins;
+
+
+    saveCustomization();
+
+
+    document.getElementById(
+        "finalAltitude"
+    ).textContent=
+        Math.floor(
+            player.altitude
+        )+
+        " m";
+
+
+    document.getElementById(
+        "finalScore"
+    ).textContent=
+        Math.floor(
+            player.score
+        );
+
+
+    document.getElementById(
+        "finalCoins"
+    ).textContent=
+        player.coins;
+
+
+    document.getElementById(
+        "newRecord"
+    ).style.display=
+        (
+            player.altitude>
+            oldAltitude||
+            player.score>
+            oldScore
+        )
+        ?"block"
+        :"none";
+
+
+    document
+        .getElementById("gameOver")
+        .classList.remove("hidden");
+
+}
+
+
+/* =========================================================
+   DANO
+========================================================= */
+
+function damagePlayer(){
+
+    if(player.turbo)
+        return;
+
+
+    if(
+        player.invulnerable>0
+    )
+        return;
+
+
+    if(player.shield){
+
+        player.shield=false;
+
+        player.shieldTime=0;
+
+        shieldSound();
+
+
+        particle(
+            player.x,
+            player.y,
+            "#65ffef",
+            35,
+            4
+        );
+
+
+        return;
+
+    }
+
+
+    player.lives--;
+
+    player.invulnerable=180;
+
+    player.velocityY=-2;
+
+
+    explosionSound();
+
+
+    particle(
+        player.x,
+        player.y,
+        "#ff5a30",
+        30,
+        4
+    );
+
+
+    if(
+        player.lives<=0
+    ){
+
+        endGame();
+
+    }
+
+}
+
+
+/* =========================================================
+   METEOROS
+========================================================= */
+
+function createMeteor(){
+
+    const radius=
+        9+
+        Math.random()*17;
+
+
+    const safeDistance=150;
+
+
+    let x;
+
+    let attempts=0;
+
+
+    do{
+
+        x=
+            radius+
+            Math.random()*
+            (W-radius*2);
+
+
+        attempts++;
+
+    }
+    while(
+        Math.abs(
+            x-player.x
+        )<
+        safeDistance&&
+        attempts<30
+    );
+
+
+    const difficulty=
+        Math.min(
+            player.altitude/3000,
+            3
+        );
+
+
+    meteors.push({
+
+        x:x,
+
+        y:
+            -radius-50,
+
+        radius:radius,
+
+        speed:
+            .35+
+            Math.random()*.65+
+            difficulty*.08,
+
+        angle:
+            Math.random()*
+            Math.PI*2,
+
+        rotation:
+            (
+                Math.random()-.5
+            )*.04
+
+    });
+
+}
+
+
+function updateMeteors(){
+
+    for(
+        let i=
+            meteors.length-1;
+        i>=0;
+        i--
+    ){
+
+        const m=
+            meteors[i];
+
+
+        m.y+=m.speed;
+
+        m.angle+=m.rotation;
+
+
+        const rocket={
+
+            x:
+                player.x-
+                player.width/2,
+
+            y:
+                player.y-
+                player.height/2,
+
+            width:
+                player.width,
+
+            height:
+                player.height
+
+        };
+
+
+        if(
+            circleRect(
+                m,
+                rocket
+            )
+        ){
+
+            damagePlayer();
+
+
+            meteors.splice(
+                i,
+                1
+            );
+
+
+            continue;
+
+        }
+
+
+        if(
+            m.y>
+            H+150
+        ){
+
+            meteors.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    if(!player.started)
+        return;
+
+
+    meteorTimer--;
+
+
+    if(
+        meteorTimer<=0
+    ){
+
+        createMeteor();
+
+
+        const difficulty=
+            Math.min(
+                player.altitude/3000,
+                3
+            );
+
+
+        meteorTimer=
+            Math.max(
+                32,
+                60-
+                difficulty*5
+            );
+
+
+        if(
+            player.altitude>1800&&
+            Math.random()<.12
+        ){
+
+            createMeteor();
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   ESTAÇÕES
+========================================================= */
+
+function createStation(){
+
+    stations.push({
+
+        x:
+            70+
+            Math.random()*
+            (W-140),
+
+        y:-100,
+
+        width:110,
+
+        height:60,
+
+        pulse:0
+
+    });
+
+}
+
+
+function updateStations(){
+
+    if(!player.started)
+        return;
+
+
+    for(
+        let i=
+            stations.length-1;
+        i>=0;
+        i--
+    ){
+
+        const s=
+            stations[i];
+
+
+        s.y+=.55;
+
+        s.pulse+=.05;
+
+
+        const rocket={
+
+            x:
+                player.x-
+                player.width/2,
+
+            y:
+                player.y-
+                player.height/2,
+
+            width:
+                player.width,
+
+            height:
+                player.height
+
+        };
+
+
+        if(
+            rectCollision(
+                rocket,
+                s
+            )
+        ){
+
+            const before=
+                player.fuel;
+
+
+            player.fuel+=1.8;
+
+
+            if(
+                player.fuel>
+                player.maxFuel
+            ){
+
+                player.fuel=
+                    player.maxFuel;
+
+            }
+
+
+            if(
+                player.fuel>
+                before&&
+                Math.random()<.05
+            ){
+
+                collectSound();
+
+            }
+
+        }
+
+
+        if(
+            s.y>
+            H+150
+        ){
+
+            stations.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    stationTimer--;
+
+
+    if(
+        stationTimer<=0
+    ){
+
+        createStation();
+
+
+        stationTimer=
+            320+
+            Math.random()*180;
+
+    }
+
+}
+
+
+/* =========================================================
+   TURBO
+========================================================= */
+
+function createTurbo(){
+
+    powerUps.push({
+
+        x:
+            70+
+            Math.random()*
+            (W-140),
+
+        y:-100,
+
+        width:48,
+
+        height:48,
+
+        pulse:0,
+
+        rotation:0
+
+    });
+
+}
+
+
+function updateTurbo(){
+
+    if(!player.started)
+        return;
+
+
+    for(
+        let i=
+            powerUps.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=
+            powerUps[i];
+
+
+        p.y+=.65;
+
+        p.pulse+=.08;
+
+        p.rotation+=.03;
+
+
+        const rocket={
+
+            x:
+                player.x-
+                player.width/2,
+
+            y:
+                player.y-
+                player.height/2,
+
+            width:
+                player.width,
+
+            height:
+                player.height
+
+        };
+
+
+        if(
+            rectCollision(
+                rocket,
+                p
+            )
+        ){
+
+            player.turbo=true;
+
+            player.turboTime=
+                player.maxTurboTime;
+
+
+            turboSound();
+
+
+            particle(
+                player.x,
+                player.y,
+                "#ffe600",
+                30,
+                3
+            );
+
+
+            powerUps.splice(
+                i,
+                1
+            );
+
+
+            continue;
+
+        }
+
+
+        if(
+            p.y>
+            H+150
+        ){
+
+            powerUps.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    powerTimer--;
+
+
+    if(
+        powerTimer<=0
+    ){
+
+        createTurbo();
+
+
+        powerTimer=
+            450+
+            Math.random()*350;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOEDAS
+========================================================= */
+
+function createCoin(){
+
+    coins.push({
+
+        x:
+            40+
+            Math.random()*
+            (W-80),
+
+        y:-50,
+
+        radius:11,
+
+        rotation:0,
+
+        pulse:0
+
+    });
+
+}
+
+
+function updateCoins(){
+
+    if(!player.started)
+        return;
+
+
+    for(
+        let i=
+            coins.length-1;
+        i>=0;
+        i--
+    ){
+
+        const c=
+            coins[i];
+
+
+        c.y+=.7;
+
+        c.rotation+=.08;
+
+        c.pulse+=.08;
+
+
+        const dx=
+            c.x-player.x;
+
+        const dy=
+            c.y-player.y;
+
+
+        const distance=
+            Math.sqrt(
+                dx*dx+
+                dy*dy
+            );
+
+
+        if(
+            distance<38
+        ){
+
+            player.coins++;
+
+            player.score+=100;
+
+
+            collectSound();
+
+
+            particle(
+                c.x,
+                c.y,
+                "#ffd83d",
+                18,
+                2.5
+            );
+
+
+            coins.splice(
+                i,
+                1
+            );
+
+
+            continue;
+
+        }
+
+
+        if(
+            c.y>
+            H+100
+        ){
+
+            coins.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    coinTimer--;
+
+
+    if(
+        coinTimer<=0
+    ){
+
+        createCoin();
+
+
+        if(
+            Math.random()<.25
+        )
+            createCoin();
+
+
+        coinTimer=
+            75+
+            Math.random()*90;
+
+    }
+
+}
+
+
+/* =========================================================
+   VIDAS
+========================================================= */
+
+function createHeart(){
+
+    hearts.push({
+
+        x:
+            50+
+            Math.random()*
+            (W-100),
+
+        y:-50,
+
+        size:22,
+
+        pulse:0
+
+    });
+
+}
+
+
+function updateHearts(){
+
+    if(!player.started)
+        return;
+
+
+    for(
+        let i=
+            hearts.length-1;
+        i>=0;
+        i--
+    ){
+
+        const h=
+            hearts[i];
+
+
+        h.y+=.65;
+
+        h.pulse+=.08;
+
+
+        const dx=
+            h.x-player.x;
+
+        const dy=
+            h.y-player.y;
+
+
+        if(
+            Math.sqrt(
+                dx*dx+
+                dy*dy
+            )<40
+        ){
+
+            if(
+                player.lives<5
+            ){
+
+                player.lives++;
+
+                lifeSound();
+
+
+                particle(
+                    h.x,
+                    h.y,
+                    "#ff4c6d",
+                    20,
+                    2
+                );
+
+
+                hearts.splice(
+                    i,
+                    1
+                );
+
+            }
+
+
+            continue;
+
+        }
+
+
+        if(
+            h.y>
+            H+100
+        ){
+
+            hearts.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    heartTimer--;
+
+
+    if(
+        heartTimer<=0&&
+        player.lives<5
+    ){
+
+        createHeart();
+
+
+        heartTimer=
+            700+
+            Math.random()*400;
+
+    }
+
+}
+
+
+/* =========================================================
+   ESCUDO
+========================================================= */
+
+function createShield(){
+
+    shields.push({
+
+        x:
+            50+
+            Math.random()*
+            (W-100),
+
+        y:-60,
+
+        size:26,
+
+        rotation:0
+
+    });
+
+}
+
+
+function updateShields(){
+
+    if(!player.started)
+        return;
+
+
+    for(
+        let i=
+            shields.length-1;
+        i>=0;
+        i--
+    ){
+
+        const s=
+            shields[i];
+
+
+        s.y+=.7;
+
+        s.rotation+=.04;
+
+
+        const dx=
+            s.x-player.x;
+
+        const dy=
+            s.y-player.y;
+
+
+        if(
+            Math.sqrt(
+                dx*dx+
+                dy*dy
+            )<40
+        ){
+
+            player.shield=true;
+
+            player.shieldTime=
+                player.maxShieldTime;
+
+
+            shieldSound();
+
+
+            particle(
+                s.x,
+                s.y,
+                "#65ffef",
+                30,
+                3
+            );
+
+
+            shields.splice(
+                i,
+                1
+            );
+
+
+            continue;
+
+        }
+
+
+        if(
+            s.y>
+            H+100
+        ){
+
+            shields.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    shieldTimer--;
+
+
+    if(
+        shieldTimer<=0
+    ){
+
+        createShield();
+
+
+        shieldTimer=
+            1000+
+            Math.random()*500;
+
+    }
+
+}
+
+
+/* =========================================================
+   COLISÕES
+========================================================= */
+
+function rectCollision(a,b){
+
+    return(
+        a.x<
+        b.x+b.width&&
+
+        a.x+a.width>
+        b.x&&
+
+        a.y<
+        b.y+b.height&&
+
+        a.y+a.height>
+        b.y
+    );
+
+}
+
+
+function circleRect(
+    circle,
+    rect
+){
+
+    const x=
+        Math.max(
+            rect.x,
+            Math.min(
+                circle.x,
+                rect.x+
+                rect.width
+            )
+        );
+
+
+    const y=
+        Math.max(
+            rect.y,
+            Math.min(
+                circle.y,
+                rect.y+
+                rect.height
+            )
+        );
+
+
+    const dx=
+        circle.x-x;
+
+    const dy=
+        circle.y-y;
+
+
+    return(
+        dx*dx+
+        dy*dy<
+        circle.radius*
+        circle.radius
+    );
+
+}
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+function updatePlayer(){
+
+    if(keys.a)
+        player.x-=player.speed;
+
+
+    if(keys.d)
+        player.x+=player.speed;
+
+
+    const half=
+        player.width/2;
+
+
+    player.x=
+        Math.max(
+            half,
+            Math.min(
+                W-half,
+                player.x
+            )
+        );
+
+
+    /*
+     * O JOGADOR NÃO COMEÇA
+     * A CAIR ATÉ APERTAR ESPAÇO.
+     */
+
+    if(!player.started){
+
+        if(keys.space){
+
+            player.started=true;
+
+            player.velocityY=-.5;
+
+            launchSound();
+
+
+            document
+                .getElementById(
+                    "launchMessage"
+                )
+                .style.display=
+                    "none";
+
+        }
+        else{
+
+            player.velocityY=0;
+
+            return;
+
+        }
+
+    }
+
+
+    /*
+     * TURBO
+     */
+
+    if(player.turbo){
+
+        player.velocityY=
+            player.turboSpeed;
+
+
+        player.turboTime--;
+
+
+        if(
+            player.turboTime<=0
+        ){
+
+            player.turbo=false;
+
+            player.turboTime=0;
+
+        }
+
+    }
+
+
+    /*
+     * MOVIMENTO NORMAL
+     */
+
+    else{
+
+        if(
+            keys.space&&
+            player.fuel>0
+        ){
+
+            player.velocityY-=
+                player.thrust;
+
+
+            player.fuel-=
+                player.fuelConsumption;
+
+
+            if(
+                player.fuel<0
+            ){
+
+                player.fuel=0;
+
+            }
+
+        }
+
+
+        player.velocityY+=
+            player.gravity;
+
+
+        if(
+            player.velocityY>
+            player.maxFallSpeed
+        ){
+
+            player.velocityY=
+                player.maxFallSpeed;
+
+        }
+
+
+        if(
+            player.velocityY<
+            player.maxRiseSpeed
+        ){
+
+            player.velocityY=
+                player.maxRiseSpeed;
+
+        }
+
+    }
+
+
+    player.y+=
+        player.velocityY;
+
+
+    /*
+     * CÂMERA
+     */
+
+    const cameraLine=
+        H*.38;
+
+
+    if(
+        player.y<
+        cameraLine
+    ){
+
+        const distance=
+            cameraLine-player.y;
+
+
+        player.y=
+            cameraLine;
+
+
+        player.altitude+=
+            distance*.10;
+
+
+        player.score+=
+            distance*.5;
+
+
+        for(
+            const m of meteors
+        )
+            m.y+=distance;
+
+
+        for(
+            const s of stations
+        )
+            s.y+=distance;
+
+
+        for(
+            const p of powerUps
+        )
+            p.y+=distance;
+
+
+        for(
+            const c of coins
+        )
+            c.y+=distance;
+
+
+        for(
+            const h of hearts
+        )
+            h.y+=distance;
+
+
+        for(
+            const s of shields
+        )
+            s.y+=distance;
+
+    }
+
+
+    /*
+     * CAIU
+     */
+
+    if(
+        player.y>
+        H+100
+    ){
+
+        endGame();
+
+    }
+
+
+    /*
+     * INVULNERABILIDADE
+     */
+
+    if(
+        player.invulnerable>0
+    ){
+
+        player.invulnerable--;
+
+    }
+
+
+    /*
+     * ESCUDO
+     */
+
+    if(player.shield){
+
+        player.shieldTime--;
+
+
+        if(
+            player.shieldTime<=0
+        ){
+
+            player.shield=false;
+
+            player.shieldTime=0;
+
+        }
+
+    }
+
+
+    /*
+     * MOTOR
+     */
+
+    if(
+        player.started&&
+        (
+            keys.space||
+            player.turbo
+        )&&
+        Math.random()<.7
+    ){
+
+        particle(
+
+            player.x+
+            (
+                Math.random()-.5
+            )*10,
+
+            player.y+
+            player.height/2,
+
+            player.turbo
+                ?" #ffe600".trim()
+                :"#ff6b24",
+
+            1,
+
+            player.turbo
+                ?2
+                :1
+
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ESTRELAS
+========================================================= */
+
+function updateStars(){
+
+    for(
+        const s of stars
+    ){
+
+        s.y+=
+            s.speed*
+            (
+                player.turbo
+                    ?4
+                    :1
+            );
+
+
+        if(
+            s.y>H
+        ){
+
+            s.y=0;
+
+            s.x=
+                Math.random()*W;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function drawBackground(){
+
+    /*
+     * O GAMEPLAY ORIGINAL FOI MANTIDO.
+     * A única mudança aqui é o ambiente visual:
+     * conforme a altitude aumenta, o céu muda de cor.
+     */
+
+    const altitude = player.altitude || 0;
+
+    const stops = [
+        {h:0,    top:[8,55,105],   bottom:[35,120,180]},
+        {h:500,  top:[24,35,95],   bottom:[65,70,155]},
+        {h:1000, top:[65,25,105],  bottom:[105,55,155]},
+        {h:1800, top:[18,12,55],   bottom:[45,25,85]},
+        {h:3000, top:[4,5,20],    bottom:[15,12,45]},
+        {h:5000, top:[2,2,10],    bottom:[20,3,55]},
+        {h:8000, top:[10,0,25],   bottom:[55,0,75]}
+    ];
+
+    function interpolateColor(a,b,t){
+        return [
+            Math.round(a[0]+(b[0]-a[0])*t),
+            Math.round(a[1]+(b[1]-a[1])*t),
+            Math.round(a[2]+(b[2]-a[2])*t)
+        ];
+    }
+
+    function getColor(h, position){
+
+        if(h<=stops[0].h)
+            return stops[0][position];
+
+        for(let i=0;i<stops.length-1;i++){
+
+            const a=stops[i];
+            const b=stops[i+1];
+
+            if(h<=b.h){
+
+                const t=(h-a.h)/(b.h-a.h);
+
+                return interpolateColor(
+                    a[position],
+                    b[position],
+                    t
+                );
+
+            }
+
+        }
+
+        return stops[stops.length-1][position];
+    }
+
+    const top=getColor(altitude,"top");
+    const bottom=getColor(altitude,"bottom");
+
+    const gradient=ctx.createLinearGradient(
+        0,
+        0,
+        0,
+        H
+    );
+
+    gradient.addColorStop(
+        0,
+        `rgb(${top[0]},${top[1]},${top[2]})`
+    );
+
+    gradient.addColorStop(
+        1,
+        `rgb(${bottom[0]},${bottom[1]},${bottom[2]})`
+    );
+
+    ctx.fillStyle=gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+    /* As estrelas continuam sendo as mesmas do jogo original. */
+
+    for(const s of stars){
+
+        ctx.globalAlpha=
+            .25+
+            s.size*.18;
+
+        ctx.fillStyle="white";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            s.x,
+            s.y,
+            s.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+    ctx.globalAlpha=1;
+
+}
+
+
+/* =========================================================
+   ROCKET
+========================================================= */
+
+function drawRocket(){
+
+    if(
+        player.invulnerable>0&&
+        Math.floor(
+            player.invulnerable/6
+        )%2===0&&
+        !player.turbo
+    ){
+
+        return;
+
+    }
+
+
+    const skin=
+        getSkin();
+
+
+    ctx.save();
+
+
+    ctx.translate(
+        player.x,
+        player.y
+    );
+
+
+    /*
+     * ESCUDO
+     */
+
+    if(player.shield){
+
+        const pulse=
+            Math.sin(
+                performance.now()/100
+            )*4;
+
+
+        ctx.shadowBlur=25;
+
+        ctx.shadowColor=
+            "#65ffef";
+
+
+        ctx.strokeStyle=
+            "#65ffef";
+
+
+        ctx.lineWidth=3;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            0,
+            0,
+            43+pulse,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+     * TURBO
+     */
+
+    if(player.turbo){
+
+        ctx.shadowBlur=30;
+
+        ctx.shadowColor=
+            "#ffe600";
+
+
+        ctx.strokeStyle=
+            "#ffe600";
+
+
+        ctx.lineWidth=3;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            0,
+            0,
+            48+
+            Math.sin(
+                performance.now()/70
+            )*5,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+     * CHAMA
+     */
+
+    let flame=0;
+
+
+    if(player.turbo){
+
+        flame=
+            60+
+            Math.random()*20;
+
+    }
+    else if(
+        keys.space&&
+        player.fuel>0
+    ){
+
+        flame=
+            18+
+            Math.random()*12;
+
+    }
+
+
+    if(flame>0){
+
+        ctx.shadowBlur=18;
+
+        ctx.shadowColor=
+            skin.flame;
+
+
+        ctx.fillStyle=
+            skin.flame;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            -10,
+            25
+        );
+
+
+        ctx.lineTo(
+            10,
+            25
+        );
+
+
+        ctx.lineTo(
+            0,
+            25+flame
+        );
+
+
+        ctx.closePath();
+
+
+        ctx.fill();
+
+
+        ctx.fillStyle=
+            "#ffe600";
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            -5,
+            25
+        );
+
+
+        ctx.lineTo(
+            5,
+            25
+        );
+
+
+        ctx.lineTo(
+            0,
+            25+
+            flame*.6
+        );
+
+
+        ctx.closePath();
+
+
+        ctx.fill();
+
+    }
+
+
+    ctx.shadowBlur=0;
+
+
+    /*
+     * ASAS
+     */
+
+    if(
+        skin.wings==="rainbow"
+    ){
+
+        const wingGradient=
+            ctx.createLinearGradient(
+                -30,
+                0,
+                30,
+                0
+            );
+
+
+        wingGradient.addColorStop(
+            0,
+            "#ff3b3b"
+        );
+
+
+        wingGradient.addColorStop(
+            .5,
+            "#48ff91"
+        );
+
+
+        wingGradient.addColorStop(
+            1,
+            "#a855ff"
+        );
+
+
+        ctx.fillStyle=
+            wingGradient;
+
+    }
+    else{
+
+        ctx.fillStyle=
+            skin.wings;
+
+    }
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        -12,
+        8
+    );
+
+
+    ctx.lineTo(
+        -28,
+        28
+    );
+
+
+    ctx.lineTo(
+        -11,
+        23
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        12,
+        8
+    );
+
+
+    ctx.lineTo(
+        28,
+        28
+    );
+
+
+    ctx.lineTo(
+        11,
+        23
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    /*
+     * CORPO
+     */
+
+    if(
+        skin.body==="rainbow"
+    ){
+
+        const bodyGradient=
+            ctx.createLinearGradient(
+                -20,
+                0,
+                20,
+                0
+            );
+
+
+        bodyGradient.addColorStop(
+            0,
+            "#ff3b3b"
+        );
+
+
+        bodyGradient.addColorStop(
+            .25,
+            "#ffd93d"
+        );
+
+
+        bodyGradient.addColorStop(
+            .5,
+            "#48ff91"
+        );
+
+
+        bodyGradient.addColorStop(
+            .75,
+            "#35ddff"
+        );
+
+
+        bodyGradient.addColorStop(
+            1,
+            "#a855ff"
+        );
+
+
+        ctx.fillStyle=
+            bodyGradient;
+
+    }
+    else{
+
+        ctx.fillStyle=
+            skin.body;
+
+    }
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        0,
+        -38
+    );
+
+
+    ctx.quadraticCurveTo(
+        19,
+        -15,
+        16,
+        18
+    );
+
+
+    ctx.lineTo(
+        -16,
+        18
+    );
+
+
+    ctx.quadraticCurveTo(
+        -19,
+        -15,
+        0,
+        -38
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.strokeStyle=
+        "#111";
+
+
+    ctx.lineWidth=3;
+
+
+    ctx.stroke();
+
+
+    /*
+     * JANELA
+     */
+
+    ctx.fillStyle=
+        skin.window;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        0,
+        -10,
+        9,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.stroke();
+
+
+    /*
+     * DETALHE
+     */
+
+    ctx.fillStyle=
+        "#bbb";
+
+
+    ctx.fillRect(
+        -8,
+        9,
+        16,
+        8
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   METEORO
+========================================================= */
+
+function drawMeteor(m){
+
+    ctx.save();
+
+
+    ctx.translate(
+        m.x,
+        m.y
+    );
+
+
+    ctx.rotate(
+        m.angle
+    );
+
+
+    ctx.fillStyle=
+        "#76675d";
+
+
+    ctx.beginPath();
+
+
+    const points=9;
+
+
+    for(
+        let i=0;
+        i<points;
+        i++
+    ){
+
+        const angle=
+            i*
+            Math.PI*2/
+            points;
+
+
+        const radius=
+            m.radius*
+            (
+                .85+
+                Math.random()*.15
+            );
+
+
+        const x=
+            Math.cos(angle)*
+            radius;
+
+
+        const y=
+            Math.sin(angle)*
+            radius;
+
+
+        if(i===0)
+            ctx.moveTo(x,y);
+        else
+            ctx.lineTo(x,y);
+
+    }
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.fillStyle=
+        "#50463f";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        -m.radius*.3,
+        -m.radius*.2,
+        m.radius*.18,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   ESTAÇÃO
+========================================================= */
+
+function drawStation(s){
+
+    ctx.save();
+
+
+    const x=
+        s.x+
+        s.width/2;
+
+
+    const y=
+        s.y+
+        s.height/2;
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    /*
+     * PAINÉIS
+     */
+
+    ctx.shadowBlur=20;
+
+    ctx.shadowColor=
+        "#00eaff";
+
+
+    ctx.fillStyle=
+        "#263d89";
+
+
+    ctx.fillRect(
+        -75,
+        -13,
+        30,
+        26
+    );
+
+
+    ctx.fillRect(
+        45,
+        -13,
+        30,
+        26
+    );
+
+
+    ctx.shadowBlur=0;
+
+
+    /*
+     * CORPO
+     */
+
+    ctx.fillStyle=
+        "#ddd";
+
+
+    ctx.fillRect(
+        -40,
+        -22,
+        80,
+        44
+    );
+
+
+    /*
+     * PAINEL
+     */
+
+    ctx.fillStyle=
+        "#35ddff";
+
+
+    ctx.fillRect(
+        -23,
+        -11,
+        46,
+        22
+    );
+
+
+    ctx.fillStyle=
+        "#101827";
+
+
+    ctx.fillRect(
+        -8,
+        -7,
+        16,
+        14
+    );
+
+
+    /*
+     * LUZ
+     */
+
+    ctx.fillStyle=
+        "#00ff88";
+
+
+    ctx.font=
+        "bold 13px Arial";
+
+
+    ctx.textAlign=
+        "center";
+
+
+    ctx.fillText(
+        "F",
+        0,
+        4
+    );
+
+
+    /*
+     * PLACA
+     */
+
+    ctx.fillStyle=
+        "#06251a";
+
+
+    ctx.strokeStyle=
+        "#00ff88";
+
+
+    ctx.lineWidth=2;
+
+
+    ctx.fillRect(
+        -35,
+        -50,
+        70,
+        22
+    );
+
+
+    ctx.strokeRect(
+        -35,
+        -50,
+        70,
+        22
+    );
+
+
+    ctx.fillStyle=
+        "#00ff88";
+
+
+    ctx.font=
+        "bold 13px Arial";
+
+
+    ctx.fillText(
+        "⛽ FUEL",
+        0,
+        -35
+    );
+
+
+    ctx.fillStyle=
+        "white";
+
+
+    ctx.font=
+        "bold 10px Arial";
+
+
+    ctx.fillText(
+        "REABASTECIMENTO",
+        0,
+        48
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   TURBO
+========================================================= */
+
+function drawTurbo(p){
+
+    ctx.save();
+
+
+    const x=
+        p.x+
+        p.width/2;
+
+
+    const y=
+        p.y+
+        p.height/2;
+
+
+    const pulse=
+        Math.sin(
+            p.pulse
+        )*4;
+
+
+    ctx.translate(
+        x,
+        y
+    );
+
+
+    ctx.rotate(
+        p.rotation
+    );
+
+
+    ctx.shadowBlur=30;
+
+
+    ctx.shadowColor=
+        "#ffe600";
+
+
+    ctx.strokeStyle=
+        "#ffe600";
+
+
+    ctx.lineWidth=3;
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        0,
+        0,
+        22+pulse,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.stroke();
+
+
+    ctx.fillStyle=
+        "#ffe600";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        4,
+        -17
+    );
+
+
+    ctx.lineTo(
+        -9,
+        2
+    );
+
+
+    ctx.lineTo(
+        -1,
+        2
+    );
+
+
+    ctx.lineTo(
+        -6,
+        17
+    );
+
+
+    ctx.lineTo(
+        10,
+        -5
+    );
+
+
+    ctx.lineTo(
+        2,
+        -5
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+
+    ctx.fillStyle=
+        "#ffe600";
+
+
+    ctx.font=
+        "bold 12px Arial";
+
+
+    ctx.textAlign=
+        "center";
+
+
+    ctx.fillText(
+        "TURBO",
+        x,
+        p.y-8
+    );
+
+}
+
+
+/* =========================================================
+   MOEDA
+========================================================= */
+
+function drawCoin(c){
+
+    ctx.save();
+
+
+    ctx.translate(
+        c.x,
+        c.y
+    );
+
+
+    const scale=
+        Math.abs(
+            Math.cos(
+                c.rotation
+            )
+        );
+
+
+    ctx.scale(
+        Math.max(
+            .15,
+            scale
+        ),
+        1
+    );
+
+
+    ctx.shadowBlur=15;
+
+
+    ctx.shadowColor=
+        "#ffd83d";
+
+
+    ctx.fillStyle=
+        "#ffd83d";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+        0,
+        0,
+        c.radius,
+        0,
+        Math.PI*2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.fillStyle=
+        "#fff2a1";
+
+
+    ctx.font=
+        "bold 13px Arial";
+
+
+    ctx.textAlign=
+        "center";
+
+
+    ctx.textBaseline=
+        "middle";
+
+
+    ctx.fillText(
+        "$",
+        0,
+        1
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   CORAÇÃO
+========================================================= */
+
+function drawHeart(h){
+
+    ctx.save();
+
+
+    ctx.translate(
+        h.x,
+        h.y
+    );
+
+
+    const scale=
+        1+
+        Math.sin(
+            h.pulse
+        )*.1;
+
+
+    ctx.scale(
+        scale,
+        scale
+    );
+
+
+    ctx.shadowBlur=15;
+
+
+    ctx.shadowColor=
+        "#ff3f64";
+
+
+    ctx.fillStyle=
+        "#ff4265";
+
+
+    ctx.font=
+        "26px Arial";
+
+
+    ctx.textAlign=
+        "center";
+
+
+    ctx.textBaseline=
+        "middle";
+
+
+    ctx.fillText(
+        "♥",
+        0,
+        0
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   ESCUDO
+========================================================= */
+
+function drawShield(s){
+
+    ctx.save();
+
+
+    ctx.translate(
+        s.x,
+        s.y
+    );
+
+
+    ctx.rotate(
+        s.rotation
+    );
+
+
+    ctx.shadowBlur=20;
+
+
+    ctx.shadowColor=
+        "#65ffef";
+
+
+    ctx.strokeStyle=
+        "#65ffef";
+
+
+    ctx.lineWidth=3;
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+        0,
+        -22
+    );
+
+
+    ctx.lineTo(
+        18,
+        -14
+    );
+
+
+    ctx.lineTo(
+        15,
+        9
+    );
+
+
+    ctx.quadraticCurveTo(
+        0,
+        25,
+        -15,
+        9
+    );
+
+
+    ctx.lineTo(
+        -18,
+        -14
+    );
+
+
+    ctx.closePath();
+
+
+    ctx.stroke();
+
+
+    ctx.fillStyle=
+        "#65ffef";
+
+
+    ctx.font=
+        "bold 15px Arial";
+
+
+    ctx.textAlign=
+        "center";
+
+
+    ctx.fillText(
+        "S",
+        0,
+        5
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   HUD
+========================================================= */
+
+function updateHUD(){
+
+    const fuel=
+        player.fuel/
+        player.maxFuel*
+        100;
+
+
+    document.getElementById(
+        "fuelBar"
+    ).style.width=
+        fuel+"%";
+
+
+    if(
+        fuel<20
+    ){
+
+        document.getElementById(
+            "fuelBar"
+        ).style.background=
+            "#ff334f";
+
+    }
+    else if(
+        fuel<50
+    ){
+
+        document.getElementById(
+            "fuelBar"
+        ).style.background=
+            "#ffc107";
+
+    }
+    else{
+
+        document.getElementById(
+            "fuelBar"
+        ).style.background=
+            "#35ddff";
+
+    }
+
+
+    document.getElementById(
+        "altitude"
+    ).textContent=
+        Math.floor(
+            player.altitude
+        )+
+        " m";
+
+
+    document.getElementById(
+        "score"
+    ).textContent=
+        Math.floor(
+            player.score
+        );
+
+
+    document.getElementById(
+        "coins"
+    ).textContent=
+        "🪙 "+
+        player.coins;
+
+
+    let heartsText="";
+
+
+    for(
+        let i=0;
+        i<player.lives;
+        i++
+    ){
+
+        heartsText+="❤️ ";
+
+    }
+
+
+    document.getElementById(
+        "lives"
+    ).textContent=
+        heartsText;
+
+
+    /*
+     * TURBO
+     */
+
+    if(player.turbo){
+
+        document
+            .getElementById(
+                "turboHud"
+            )
+            .style.display=
+                "block";
+
+
+        document
+            .getElementById(
+                "turboBar"
+            )
+            .style.width=
+                (
+                    player.turboTime/
+                    player.maxTurboTime*
+                    100
+                )+
+                "%";
+
+    }
+    else{
+
+        document
+            .getElementById(
+                "turboHud"
+            )
+            .style.display=
+                "none";
+
+    }
+
+
+    /*
+     * ESCUDO
+     */
+
+    if(player.shield){
+
+        document
+            .getElementById(
+                "shieldHud"
+            )
+            .style.display=
+                "block";
+
+
+        document
+            .getElementById(
+                "shieldBar"
+            )
+            .style.width=
+                (
+                    player.shieldTime/
+                    player.maxShieldTime*
+                    100
+                )+
+                "%";
+
+    }
+    else{
+
+        document
+            .getElementById(
+                "shieldHud"
+            )
+            .style.display=
+                "none";
+
+    }
+
+
+    /*
+     * DIFICULDADE
+     */
+
+    let difficulty=
+        player.altitude;
+
+
+    let text=
+        "PERIGO: BAIXO";
+
+
+    if(
+        difficulty>=800&&
+        difficulty<1800
+    ){
+
+        text=
+            "PERIGO: MODERADO";
+
+    }
+    else if(
+        difficulty>=1800&&
+        difficulty<3000
+    ){
+
+        text=
+            "PERIGO: ALTO";
+
+    }
+    else if(
+        difficulty>=3000
+    ){
+
+        text=
+            "PERIGO: EXTREMO";
+
+    }
+
+
+    document.getElementById(
+        "difficultyInfo"
+    ).textContent=
+        text;
+
+}
+
+
+/* =========================================================
+   DRAW
+========================================================= */
+
+function draw(){
+
+    drawBackground();
+
+
+    for(
+        const s of stations
+    )
+        drawStation(s);
+
+
+    for(
+        const c of coins
+    )
+        drawCoin(c);
+
+
+    for(
+        const h of hearts
+    )
+        drawHeart(h);
+
+
+    for(
+        const s of shields
+    )
+        drawShield(s);
+
+
+    for(
+        const p of powerUps
+    )
+        drawTurbo(p);
+
+
+    for(
+        const m of meteors
+    )
+        drawMeteor(m);
+
+
+    drawParticles();
+
+    drawRocket();
+
+}
+
+
+/* =========================================================
+   GAME LOOP
+========================================================= */
+
+function loop(){
+
+    if(
+        gameRunning&&
+        !paused&&
+        !gameOver
+    ){
+
+        updatePlayer();
+
+        updateMeteors();
+
+        updateStations();
+
+        updateTurbo();
+
+        updateCoins();
+
+        updateHearts();
+
+        updateShields();
+
+        updateParticles();
+
+        updateStars();
+
+        updateHUD();
+
+        updateEngine();
+
+    }
+
+
+    draw();
+
+
+    requestAnimationFrame(
+        loop
+    );
+
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+document
+    .getElementById(
+        "playButton"
+    )
+    .onclick=()=>{
+
+        initAudio();
+
+        tone(
+            440,
+            .08,
+            "sine",
+            .12
+        );
+
+        startGame();
+
+    };
+
+
+document
+    .getElementById(
+        "shopButton"
+    )
+    .onclick=()=>{
+
+        initAudio();
+
+        renderShop();
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "shop"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+    };
+
+
+document
+    .getElementById(
+        "shopBackButton"
+    )
+    .onclick=()=>{
+
+        document
+            .getElementById(
+                "shop"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+
+        updateBest();
+
+    };
+
+
+document
+    .getElementById(
+        "instructionsButton"
+    )
+    .onclick=()=>{
+
+        initAudio();
+
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "instructions"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+    };
+
+
+document
+    .getElementById(
+        "backButton"
+    )
+    .onclick=()=>{
+
+        document
+            .getElementById(
+                "instructions"
+            )
+            .classList.add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "mainMenu"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+    };
+
+
+document
+    .getElementById(
+        "resumeButton"
+    )
+    .onclick=()=>{
+
+        togglePause();
+
+    };
+
+
+document
+    .getElementById(
+        "pauseMenuButton"
+    )
+    .onclick=()=>{
+
+        returnMenu();
+
+    };
+
+
+document
+    .getElementById(
+        "retryButton"
+    )
+    .onclick=()=>{
+
+        startGame();
+
+    };
+
+
+document
+    .getElementById(
+        "gameOverMenuButton"
+    )
+    .onclick=()=>{
+
+        returnMenu();
+
+    };
+
+
+document
+    .getElementById(
+        "soundButton"
+    )
+    .onclick=()=>{
+
+        initAudio();
+
+
+        audioEnabled=
+            !audioEnabled;
+
+
+        const button=
+            document.getElementById(
+                "soundButton"
+            );
+
+
+        if(audioEnabled){
+
+            masterGain.gain.value=.65;
+
+            button.textContent="🔊";
+
+            startMusic();
+
+        }
+        else{
+
+            masterGain.gain.value=0;
+
+            button.textContent="🔇";
+
+        }
+
+    };
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+createStars();
+
+updateBest();
+
+loop();
+
+</script>
+
+</body>
+</html>

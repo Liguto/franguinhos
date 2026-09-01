@@ -264,6 +264,23 @@ export default function App() {
             durationMonths: 120, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0,
             auditLog: `[2026-08-24T14:30:00Z] Jogo desenvolvido in-house com validação da curadora Denise. Propriedade Intelectual total.\n`
           }
+        },
+        {
+          game: {
+            id: '8', slug: 'rocket-climb', title: 'Rocket Climb', description: 'Pilote uma nave espacial, desvie de meteoros, gerencie seu combustível e use turbos e escudos para subir o mais alto possível nesse viciante jogo de sobrevivência espacial!',
+            category: 'Arcade', subcategories: ['Espaço', 'Sobrevivência', 'Casual'], tags: ['foguete', 'espaco', 'obstaculos', 'moedas', 'climb'],
+            ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
+            iconUrl: 'rocket', prefixUrl: '/games/rocket-climb/', version: '1.0.0',
+            controls: { mouse: false, teclado: true, toque: true, gamepad: false }, orientation: 'both',
+            statusTechnical: 'aprovado', statusEditorial: 'publicado', statusDoc: 'aprovado',
+            author: 'Franguinhos Games', licenseName: 'Proprietário'
+          },
+          contract: {
+            id: 'c-8', gameId: '8', contractNumber: 'CON-2026-008', signatoryCreator: 'Franguinhos Games', termsAccepted: true,
+            licenseType: 'Proprietário (In-house)', exclusivityScope: 'Exclusivo Total',
+            durationMonths: 120, revenueSharePercent: 0.0, fixedPaymentAmount: 0.0,
+            auditLog: `[2026-08-31T21:00:00Z] Jogo desenvolvido in-house e integrado ao monorepo.\n`
+          }
         }
       ];
       setCatalog(mockCatalog);
