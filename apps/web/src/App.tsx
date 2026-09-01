@@ -1283,7 +1283,7 @@ export default function App() {
 
   return (
     <div className={`flex flex-col min-h-screen ${agePreference === 'educacional' ? 'theme-edu' : agePreference === 'terceira_idade' ? 'theme-senior' : ''}`}>
-      
+
 
       {/* --- LATERAL SQUARE ADS STACK (Widescreen Only) --- */}
       {consentOptions.advertising && (
@@ -1492,64 +1492,68 @@ export default function App() {
                   {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
                     <div className="bento-featured-grid">
                       {/* Cartão 2: Dashboard/Estatísticas Cognitivas */}
-                      <div className="bento-card-stats glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-purple-950/40 via-[#0f111a]/80 to-pink-950/20 border border-purple-500/20">
+                      {/* Cartão 2: Dashboard/Estatísticas Cognitivas */}
+                      <div className="bento-card-stats glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-purple-950/15 via-[#0a0b12]/95 to-pink-950/10 border border-purple-500/15">
                         <div>
                           <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest bg-pink-950/60 px-2.5 py-1 rounded-full border border-pink-500/20">
-                              ⚡ PERFORMANCE COGNITIVA
+                            <span className="text-[9px] font-bold text-pink-400 uppercase tracking-widest bg-pink-950/40 px-2.5 py-0.5 rounded-full border border-pink-500/20 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                              TELEMETRIA
                             </span>
-                            <Activity className="w-5 h-5 text-pink-500 animate-pulse" />
+                            <Activity className="w-4 h-4 text-pink-500 animate-pulse" />
                           </div>
-                          <h3 className="text-base font-extrabold text-white tracking-tight">Atividade do Portal</h3>
-
+                          <h3 className="text-sm font-extrabold text-white tracking-tight">Desempenho & Atividade</h3>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5 mt-2">
-                          <div className="text-center p-2 bg-white/5 rounded-lg">
-                            <span className="text-xs text-gray-400 block font-semibold">Ativos Hoje</span>
-                            <span className="text-sm font-extrabold text-cyan-400 font-mono">1.248</span>
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/5 mt-2">
+                          <div className="text-left">
+                            <span className="text-[10px] text-gray-400 block font-semibold uppercase tracking-wider">Ativos Hoje</span>
+                            <span className="text-lg font-black text-cyan-400 font-mono tracking-tight flex items-center gap-1.5 mt-0.5">
+                              1.248 <span className="text-[9px] text-green-400 bg-green-950/50 px-1 py-0.2 rounded font-bold">+12%</span>
+                            </span>
                           </div>
-                          <div className="text-center p-2 bg-white/5 rounded-lg">
-                            <span className="text-xs text-gray-400 block font-semibold">Jogos Totais</span>
-                            <span className="text-sm font-extrabold text-pink-400 font-mono">{games.length}</span>
+                          <div className="text-left">
+                            <span className="text-[10px] text-gray-400 block font-semibold uppercase tracking-wider">Total Jogos</span>
+                            <span className="text-lg font-black text-pink-400 font-mono tracking-tight mt-0.5">
+                              {games.length}
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       {/* Cartão 3: Filtro de Faixas Etárias Dinâmico */}
-                      <div className="bento-card-age glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-cyan-950/30 via-[#0f111a]/80 to-indigo-950/20 border border-cyan-500/20">
+                      {/* Cartão 3: Filtro de Faixas Etárias Dinâmico */}
+                      <div className="bento-card-age glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-cyan-950/15 via-[#0a0b12]/95 to-indigo-950/10 border border-cyan-500/15">
                         <div>
                           <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/60 px-2.5 py-1 rounded-full border border-cyan-500/20">
-                              👶 ACESSIBILIDADE TOTAL
+                            <span className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/40 px-2.5 py-0.5 rounded-full border border-cyan-500/20 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                              CURADORIA
                             </span>
-                            <Users className="w-5 h-5 text-cyan-400" />
+                            <Users className="w-4 h-4 text-cyan-400" />
                           </div>
-                          <h3 className="text-base font-extrabold text-white tracking-tight">Modos Editoriais</h3>
-                          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-                            Filtros curados de acessibilidade para bebês, crianças, adolescentes e idosos.
-                          </p>
+                          <h3 className="text-sm font-extrabold text-white tracking-tight">Filtro de Faixa Etária</h3>
                         </div>
-                        <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-white/5">
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'geral' ? 'bg-cyan-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                        <div className="flex flex-wrap gap-1.5 mt-2 pt-3 border-t border-white/5">
+                          <button
+                            className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all duration-200 border ${agePreference === 'geral' ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.3)]' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/5'}`}
                             onClick={() => setAgePreference('geral')}
                           >
                             Geral
                           </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'educacional' ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                          <button
+                            className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all duration-200 border ${agePreference === 'educacional' ? 'bg-green-500 text-black border-green-400 shadow-[0_0_10px_rgba(34,197,94,0.3)]' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/5'}`}
                             onClick={() => setAgePreference('educacional')}
                           >
                             Edu
                           </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'bebes' ? 'bg-pink-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                          <button
+                            className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all duration-200 border ${agePreference === 'bebes' ? 'bg-pink-500 text-white border-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.3)]' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/5'}`}
                             onClick={() => setAgePreference('bebes')}
                           >
                             Bebês
                           </button>
-                          <button 
-                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'terceira_idade' ? 'bg-amber-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                          <button
+                            className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg transition-all duration-200 border ${agePreference === 'terceira_idade' ? 'bg-amber-500 text-black border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'bg-white/5 hover:bg-white/10 text-gray-300 border-white/5'}`}
                             onClick={() => setAgePreference('terceira_idade')}
                           >
                             Sênior
@@ -1592,6 +1596,12 @@ export default function App() {
                       <div className="bento-grid-feed">
                         {getFilteredGames().map((game, index) => {
                           let spanClass = 'bento-span-1x1';
+                          if (activeCategory === 'Tudo' && !searchQuery) {
+                            if (index === 0) spanClass = 'bento-span-2x1';
+                            else if (index === 1) spanClass = 'bento-span-1x2';
+                            else if (index === 2) spanClass = 'bento-span-2x2';
+                            else if (index === 5) spanClass = 'bento-span-2x1';
+                          }
                           
                           return (
                             <div 
@@ -1839,22 +1849,28 @@ export default function App() {
                   <span>Amigos Online ({onlineFriends.filter(f => f.status !== 'ausente').length})</span>
                 </div>
                 
-                <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1">
+                <div className="space-y-2.5 overflow-y-auto max-h-[140px] pr-1 bento-friends-list">
                   {onlineFriends.map((friend) => (
-                    <div key={friend.name} className="flex items-center gap-2.5">
+                    <div key={friend.name} className="flex items-center gap-2.5 hover:bg-white/[0.02] p-1 rounded-lg transition duration-200">
                       <div className="relative shrink-0">
-                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px]`}>
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px] shadow-[0_0_8px_rgba(255,255,255,0.05)]`}>
                           {friend.name.substring(0, 2).toUpperCase()}
                         </div>
-                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${
+                        <span className={`absolute bottom-0 right-0 w-2 h-2 rounded-full border border-black ${
                           friend.status === 'jogando' ? 'bg-green-400 animate-pulse' :
                           friend.status === 'online' ? 'bg-green-400' : 'bg-gray-500'
                         }`} />
                       </div>
                       <div className="flex-grow min-w-0">
                         <div className="text-xs font-extrabold text-white truncate leading-none">{friend.name}</div>
-                        <div className="text-[10px] text-gray-400 truncate mt-0.5">
-                          {friend.status === 'jogando' ? `Jogando ${friend.game}` : 'Disponível'}
+                        <div className="text-[10px] text-gray-400 truncate mt-1">
+                          {friend.status === 'jogando' ? (
+                            <span className="text-[9.5px] text-green-400 bg-green-950/40 border border-green-500/10 px-1.5 py-0.5 rounded-md font-extrabold">
+                              🎮 {friend.game}
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-gray-400">Disponível</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1869,15 +1885,20 @@ export default function App() {
                   <span>Chat Geral do Portal</span>
                 </div>
 
-                {/* Lista de Mensagens */}
-                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2 pr-1 mb-2">
+{/* Lista de Mensagens */}
+                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2.5 pr-1 mb-2 bento-chat-messages">
                   {chatMessages.map((msg, index) => (
-                    <div key={index} className="text-left text-xs bg-white/[0.02] p-1.5 rounded border border-white/[0.03]">
-                      <div className="flex justify-between items-center mb-0.5">
-                        <span className="font-extrabold text-cyan-400 text-[10px]">{msg.sender}</span>
-                        <span className="text-[9px] text-gray-500 font-mono">{msg.time}</span>
+                    <div key={index} className="flex gap-2 text-xs bg-white/[0.01] hover:bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] transition">
+                      <div className={`w-6.5 h-6.5 rounded-full bg-gradient-to-br ${msg.avatarColor} flex items-center justify-center text-white font-extrabold text-[9px] shrink-0 shadow-sm`}>
+                        {msg.sender.substring(0, 1).toUpperCase()}
                       </div>
-                      <p className="text-gray-300 text-[11px] leading-relaxed">{msg.text}</p>
+                      <div className="flex-grow min-w-0">
+                        <div className="flex justify-between items-center mb-0.5">
+                          <span className="font-extrabold text-cyan-400 text-[10px]">{msg.sender}</span>
+                          <span className="text-[8px] text-gray-500 font-mono">{msg.time}</span>
+                        </div>
+                        <p className="text-gray-300 text-[10.5px] leading-relaxed break-words">{msg.text}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
