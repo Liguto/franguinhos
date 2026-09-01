@@ -1728,37 +1728,38 @@ export default function App() {
         {/* VIEW: ADMIN PANEL */}
         {view === 'admin' && user && user.role !== 'user' && (
           <div className="space-y-6 text-left">
-            {/* Admin Header with Navigation Sub-tabs */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5 backdrop-blur-md">
+            {/* Header com Abas em formato de Cápsula Segmentada Premium */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#07080e]/90 p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
               <button 
-                className="btn-secondary py-2 px-4 flex items-center gap-2" 
+                className="btn-secondary py-2 px-4 flex items-center gap-2 text-xs font-bold border border-white/10 hover:border-cyan-500/30 text-gray-300 hover:text-white transition rounded-xl shrink-0" 
                 onClick={() => setView('home')}
               >
-                <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
+                <ArrowLeft className="w-4 h-4 text-cyan-400" /> Voltar ao Portal
               </button>
               
-              <h2 className="text-lg font-extrabold text-cyan-300 neon-glow-cyan uppercase tracking-wider">
-                Cockpit Administrativo Integrado
+              <h2 className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2 font-mono">
+                <Settings className="w-4 h-4 text-cyan-400 animate-spin-slow shrink-0" />
+                <span>Cockpit de Administração</span>
               </h2>
               
-              <div className="flex flex-wrap gap-2">
+              <div className="flex bg-black/50 p-1 rounded-full border border-white/5 gap-1 shrink-0">
                 <button 
-                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'catalog' ? 'active' : ''}`}
+                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'catalog' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
                   onClick={() => { setAdminTab('catalog'); setAdminViewMode('list'); }}
                 >
-                  <FolderGit2 className="w-4 h-4" /> Catálogo
+                  <FolderGit2 className="w-3.5 h-3.5" /> Catálogo
                 </button>
                 <button 
-                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'contracts' ? 'active' : ''}`}
+                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'contracts' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
                   onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
                 >
-                  <FileSignature className="w-4 h-4" /> Contratos
+                  <FileSignature className="w-3.5 h-3.5" /> Contratos
                 </button>
                 <button 
-                  className={`pref-btn flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'active' : ''}`}
+                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
                   onClick={() => { setAdminTab('dashboard'); setAdminViewMode('list'); }}
                 >
-                  <BarChart3 className="w-4 h-4" /> Analytics & IA
+                  <BarChart3 className="w-3.5 h-3.5" /> Analytics & IA
                 </button>
               </div>
             </div>
