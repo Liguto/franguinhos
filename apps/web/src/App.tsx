@@ -1283,128 +1283,7 @@ export default function App() {
 
   return (
     <div className={`flex flex-col min-h-screen ${agePreference === 'educacional' ? 'theme-edu' : agePreference === 'terceira_idade' ? 'theme-senior' : ''}`}>
-      {/* --- HEADER --- */}
-      <header>
-        <div className="header-container">
-          <div className="logo-container flex items-center gap-2 cursor-pointer" onClick={() => { setView('home'); setSelectedGame(null); }}>
-            <img 
-              src="/logo_franguinhos.png" 
-              alt="Franguinhos Games Logo" 
-              className="h-10 sm:h-12 w-auto object-contain transition duration-200 hover:scale-105 shrink-0" 
-              style={{ maxHeight: '48px' }}
-            />
-            <span className="hidden sm:block font-extrabold text-lg lg:text-xl tracking-tight bg-gradient-to-r from-cyan-400 to-pink-500 bg-clip-text text-transparent">
-              FRANGUINHOS GAMES
-            </span>
-          </div>
-
-          {/* Barra de Busca Premium em Cápsula (Agora visível em todas as telas) */}
-          <div className="header-search">
-            <div className="search-bar-container">
-              <Search className="search-bar-icon w-5 h-5" />
-              <input 
-                type="text" 
-                placeholder="Buscar jogos, tags..." 
-                className="search-bar-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Seleção de Perfil/Modo Editorial e Ações */}
-          <div className="header-actions">
-            <div className="pref-selector">
-              <button 
-                className={`pref-btn ${agePreference === 'geral' ? 'active' : ''}`}
-                onClick={() => setAgePreference('geral')}
-                title="Mostrar catálogo geral completo"
-              >
-                Geral
-              </button>
-              <button 
-                className={`pref-btn ${agePreference === 'educacional' ? 'active educacional' : ''}`}
-                onClick={() => setAgePreference('educacional')}
-                title="Catálogo Educacional (Anúncios ocultos e foco em aprendizado)"
-              >
-                Educacional
-              </button>
-              <button 
-                className={`pref-btn ${agePreference === 'bebes' ? 'active bebes' : ''}`}
-                onClick={() => setAgePreference('bebes')}
-                title="Catálogo Bebês (Seguro, sem anúncios e com trava de tela)"
-              >
-                Bebês
-              </button>
-              <button 
-                className={`pref-btn ${agePreference === 'terceira_idade' ? 'active idoso' : ''}`}
-                onClick={() => setAgePreference('terceira_idade')}
-                title="Área Sênior (Jogos lógicos e acessíveis)"
-              >
-                Sênior
-              </button>
-              
-              <div className="w-[1px] h-4 bg-white/20 mx-1"></div>
-              
-              <button 
-                className={`pref-btn flex items-center gap-1 ${teaMode ? 'active bg-green-500/20 text-green-400' : ''}`}
-                onClick={() => setTeaMode(!teaMode)}
-                title="Modo Neurodivergente (Baixa estimulação sensorial)"
-              >
-                <Brain className="w-3.5 h-3.5" /> TEA
-              </button>
-            </div>
-
-            {/* Favoritos (Design Premium em Cápsula com Contador) */}
-            {user && (
-              <button 
-                className={`btn-secondary py-1.5 px-3 text-xs flex items-center gap-2 transition-all ${view === 'favorites' ? 'border-pink-500/50 text-pink-400 bg-pink-500/10' : 'hover:border-pink-500/30 hover:text-pink-400'}`}
-                onClick={() => { setView('favorites'); setSelectedGame(null); }}
-                title="Meus Favoritos"
-              >
-                <Heart className={`w-4 h-4 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : 'text-gray-400'}`} />
-                <span className="hidden sm:inline font-bold">Favoritos</span>
-                {favorites.length > 0 && (
-                  <span className="bg-pink-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(255,0,127,0.6)]">
-                    {favorites.length}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Autenticação */}
-            {user ? (
-              <div className="header-user-badge">
-                <span className="text-sm font-semibold hidden lg:inline-block text-cyan-400">
-                  Olá, {user.username}!
-                </span>
-                {user.role !== 'user' && (
-                  <button 
-                    onClick={() => { setView('admin'); setSelectedGame(null); }}
-                    className="admin-badge-glow"
-                    title="Painel Administrativo"
-                  >
-                    ADMIN
-                  </button>
-                )}
-                <button 
-                  className="btn-secondary py-1.5 px-3 text-xs" 
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4" /> Sair
-                </button>
-              </div>
-            ) : (
-              <button 
-                className="btn-primary"
-                onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
-              >
-                <User className="w-4 h-4" /> Entrar
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+      
 
       {/* --- LATERAL SQUARE ADS STACK (Widescreen Only) --- */}
       {consentOptions.advertising && (
@@ -1612,31 +1491,6 @@ export default function App() {
                   {/* SEÇÃO 'EM DESTAQUE' (Bento Style: 2 ou 3 cartões grandes) */}
                   {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
                     <div className="bento-featured-grid">
-                      {/* Cartão 1: Jogo Principal Recomendado (Card Grande) */}
-                      <div 
-                        className="bento-card-featured-game glass-card cursor-pointer group"
-                        style={{ backgroundImage: `url(${games[0].bannerUrl})` }}
-                        onClick={() => handlePlayGame(games[0])}
-                      >
-                        <div className="bento-featured-overlay">
-                          <span className="bento-card-badge-hot">
-                            🔥 RECOMENDADO DO DIA
-                          </span>
-                          <h2 className="text-xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md">
-                            {games[0].title}
-                          </h2>
-                          <p className="text-xs text-gray-300 line-clamp-2 max-w-sm mt-1 leading-relaxed">
-                            {games[0].description}
-                          </p>
-                          <button 
-                            className="btn-primary mt-3 py-1.5 px-4 text-xs w-max font-bold"
-                            onClick={(e) => { e.stopPropagation(); handlePlayGame(games[0]); }}
-                          >
-                            Jogar Agora
-                          </button>
-                        </div>
-                      </div>
-
                       {/* Cartão 2: Dashboard/Estatísticas Cognitivas */}
                       <div className="bento-card-stats glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-purple-950/40 via-[#0f111a]/80 to-pink-950/20 border border-purple-500/20">
                         <div>
@@ -1647,9 +1501,7 @@ export default function App() {
                             <Activity className="w-5 h-5 text-pink-500 animate-pulse" />
                           </div>
                           <h3 className="text-base font-extrabold text-white tracking-tight">Atividade do Portal</h3>
-                          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-                            Mantenha o cérebro ativo com jogos lógicos e desafios de raciocínio lógico diários.
-                          </p>
+
                         </div>
                         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5 mt-2">
                           <div className="text-center p-2 bg-white/5 rounded-lg">
@@ -1740,12 +1592,6 @@ export default function App() {
                       <div className="bento-grid-feed">
                         {getFilteredGames().map((game, index) => {
                           let spanClass = 'bento-span-1x1';
-                          if (activeCategory === 'Tudo' && !searchQuery) {
-                            if (index === 0) spanClass = 'bento-span-2x1';
-                            else if (index === 1) spanClass = 'bento-span-1x2';
-                            else if (index === 2) spanClass = 'bento-span-2x2';
-                            else if (index === 5) spanClass = 'bento-span-2x1';
-                          }
                           
                           return (
                             <div 
@@ -1823,7 +1669,6 @@ export default function App() {
                     <div className="bento-grid-feed">
                       {games.filter(g => favorites.includes(g.id)).map((game, index) => {
                         let spanClass = 'bento-span-1x1';
-                        if (index === 0) spanClass = 'bento-span-2x1';
                         
                         return (
                           <div 
