@@ -84,12 +84,13 @@ export default function App() {
   const [favorites, setFavorites] = useState<string[]>([]); // Array de IDs de jogos
 
   // --- Estados do Painel Administrativo Integrado ---
-  const [adminTab, setAdminTab] = useState<'catalog' | 'contracts' | 'dashboard'>('catalog');
+  const [adminTab, setAdminTab] = useState<'catalog' | 'contracts' | 'dashboard' | 'users'>('catalog');
   const [adminCatalog, setAdminCatalog] = useState<any[]>([]);
   const [adminViewMode, setAdminViewMode] = useState<'list' | 'add' | 'edit'>('list');
   const [adminSelectedGame, setAdminSelectedGame] = useState<any | null>(null);
   const [adminSelectedContract, setAdminSelectedContract] = useState<any | null>(null);
   const [adminSelectedDossier, setAdminSelectedDossier] = useState<any | null>(null);
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
 
   const [formGame, setFormGame] = useState({
     title: '', slug: '', description: '', category: 'Arcade', subcategories: '', tags: '',
@@ -363,8 +364,8 @@ export default function App() {
         },
         {
           id: '7',
-          slug: 'rocket-climb',
-          title: 'Rocket Climb',
+          slug: 'rocket-rise',
+          title: 'Rocket Rise',
           description: 'Pilote uma nave espacial, desvie de meteoros, gerencie seu combustível e use turbos e escudos para subir o mais alto possível nesse viciante jogo de sobrevivência espacial!',
           category: 'Arcade',
           subcategories: ['Espaço', 'Sobrevivência', 'Casual'],
@@ -372,7 +373,7 @@ export default function App() {
           ageRating: 'Livre',
           bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
           iconUrl: 'rocket',
-          prefixUrl: '/games/rocket-climb/',
+          prefixUrl: '/games/rocket-rise/',
           version: '1.0.0',
           controls: { mouse: false, teclado: true, toque: true, gamepad: false },
           orientation: 'both',
@@ -777,12 +778,57 @@ export default function App() {
     return <span className="badge badge-yellow">Pendência Jurídica</span>;
   };
 
+  const fetchAdminUsers = async () => {
+    try {
+      const response = await fetch('/api/admin/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminUsers(data);
+      } else {
+        throw new Error();
+      }
+    } catch (e) {
+      console.warn('API de usuários offline. Simulando usuários.');
+      setAdminUsers([
+        { id: '1', username: 'admin', role: 'super_admin', status: 'ativo', agePreference: 'sem_preferencia', createdAt: new Date().toISOString() },
+        { id: '2', username: 'editor', role: 'editor', status: 'ativo', agePreference: 'sem_preferencia', createdAt: new Date().toISOString() },
+        { id: '3', username: 'poki_gamer', role: 'user', status: 'ativo', agePreference: 'sem_preferencia', createdAt: new Date().toISOString() },
+        { id: '4', username: 'vovo_gamer', role: 'user', status: 'ativo', agePreference: 'terceira_idade', createdAt: new Date().toISOString() }
+      ]);
+    }
+  };
+
+  const handleAdminUpdateRole = async (userId: string, newRole: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      if (response.ok) {
+        fetchAdminUsers();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erro ao alterar permissão do usuário.');
+      }
+    } catch (e) {
+      // Simulação Offline
+      setAdminUsers(adminUsers.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    }
+  };
+
   // --- Efeitos de Administração Integrada ---
   useEffect(() => {
     if (view === 'admin' && user && user.role !== 'user') {
       fetchAdminCatalog();
       fetchAdminMetrics();
       fetchAdminInsights();
+      fetchAdminUsers();
     }
   }, [view, user, token]);
 
@@ -1127,7 +1173,7 @@ export default function App() {
 
   // Helper para verificar se o jogo possui código físico implementado localmente
   const isPhysicalGame = (slug: string) => {
-    return ['snake-retro', 'memory-match', 'space-defense', 'sudoku-zen', 'math-run', 'bubble-pop', 'rocket-climb'].includes(slug);
+    return ['snake-retro', 'memory-match', 'space-defense', 'sudoku-zen', 'math-run', 'bubble-pop', 'rocket-rise'].includes(slug);
   };
 
   return (
@@ -1761,6 +1807,12 @@ export default function App() {
                 >
                   <BarChart3 className="w-3.5 h-3.5" /> Analytics & IA
                 </button>
+                <button 
+                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'users' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                  onClick={() => { setAdminTab('users'); setAdminViewMode('list'); }}
+                >
+                  <Users className="w-3.5 h-3.5" /> Usuários
+                </button>
               </div>
             </div>
 
@@ -2384,6 +2436,85 @@ export default function App() {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: USERS MANAGEMENT (Permissão de Usuários) */}
+            {adminTab === 'users' && (
+              <div className="glass-panel p-6 space-y-6 rounded-2xl bg-[#0a0b12]/40 border border-white/5 backdrop-blur-md shadow-xl">
+                <div className="border-b border-white/5 pb-4">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider font-mono">
+                    Controle de Permissões de Usuários
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Gerencie papéis de acesso de usuários em cascata (ADMIN / USER) em total conformidade técnica (LGPD/ECA).
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border border-white/5 bg-black/20">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr>
+                        <th className="font-mono text-[10px]">Usuário / ID</th>
+                        <th className="font-mono text-[10px]">E-mail de Cadastro</th>
+                        <th className="font-mono text-[10px]">Papel / Cargo</th>
+                        <th className="font-mono text-[10px]">Status</th>
+                        <th className="font-mono text-[10px]">Criado Em</th>
+                        <th className="font-mono text-[10px] text-right">Alterar Permissão</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {adminUsers.map((u) => (
+                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-lg bg-pink-950/20 border border-pink-500/20 flex items-center justify-center shrink-0 text-pink-400">
+                                <User className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="font-bold text-white text-xs">{u.username}</div>
+                                <div className="text-[10px] text-gray-500 font-mono">ID: {u.id}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-gray-400 font-mono text-[11px]">{u.email || u.username + '_safekey@arcade.com'}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${
+                              u.role === 'super_admin' || u.role === 'admin' 
+                                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25' 
+                                : 'bg-white/5 text-gray-400 border-white/5'
+                            }`}>
+                              {u.role === 'super_admin' ? 'Super Admin' : u.role === 'editor' ? 'Editor' : u.role === 'user' ? 'Jogador' : u.role}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`badge ${u.status === 'ativo' ? 'badge-green' : 'badge-red'}`}>
+                              {u.status || 'ativo'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-[10px] text-gray-400">
+                            {new Date(u.createdAt || Date.now()).toLocaleDateString('pt-BR')}
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <select 
+                              className="form-input text-xs w-[160px] font-bold text-white bg-black/60 border border-white/10"
+                              value={u.role}
+                              disabled={user?.id === u.id} // Prevenir auto-rebaixamento
+                              onChange={(e) => handleAdminUpdateRole(u.id, e.target.value)}
+                            >
+                              <option value="user">Jogador (USER)</option>
+                              <option value="super_admin">Administrador (ADMIN)</option>
+                              <option value="editor">Editor</option>
+                              <option value="moderador">Moderador</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Rocket Climb</title>
+<title>Rocket Rise</title>
 
 <style>
 *{
@@ -406,7 +406,7 @@ h1{
     <h1>ROCKET</h1>
 
     <div class="subtitle">
-        CLIMB
+        RISE
     </div>
 
     <div class="menuCoins">
@@ -789,7 +789,7 @@ h1{
 
 // Avisar o portal mãe que o jogo foi carregado com sucesso
 function sendEvent(type, data = {}) {
-    window.parent.postMessage({ type, gameSlug: 'rocket-climb', ...data }, '*');
+    window.parent.postMessage({ type, gameSlug: 'rocket-rise', ...data }, '*');
 }
 
 sendEvent('game_loaded');
