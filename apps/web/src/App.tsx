@@ -3,7 +3,8 @@ import {
   Gamepad2, Search, Heart, User, LogIn, LogOut, Info, Shield, 
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, 
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
-  FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight
+  FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
+  MessageSquare, Send
 } from 'lucide-react';
 
 // Interfaces internas
@@ -144,6 +145,110 @@ export default function App() {
   const [showAdOverlay, setShowAdOverlay] = useState<boolean>(false);
   const [adCountdown, setAdCountdown] = useState<number>(3);
   const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
+
+  // --- Estados do Bento Grid Social & Chat (Nova Interface) ---
+  const [onlineFriends, setOnlineFriends] = useState([
+    { name: 'GamerPro', status: 'jogando', game: 'Snake Retro Arcade', avatarColor: 'from-cyan-500 to-blue-500' },
+    { name: 'Alice_Logics', status: 'jogando', game: 'Memory Training Neon', avatarColor: 'from-pink-500 to-purple-500' },
+    { name: 'MatheMágico', status: 'online', game: '', avatarColor: 'from-green-500 to-emerald-500' },
+    { name: 'Nerd_HTML5', status: 'ausente', game: '', avatarColor: 'from-yellow-500 to-orange-500' }
+  ]);
+
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'GamerPro', text: 'Alguém conseguiu passar dos 100 pontos no Snake Retro?', time: '2 min atrás', avatarColor: 'from-cyan-500 to-blue-500' },
+    { sender: 'Alice_Logics', text: 'Memory Neon é excelente para exercitar o cérebro! Recomendo!', time: '1 min atrás', avatarColor: 'from-pink-500 to-purple-500' },
+    { sender: 'MatheMágico', text: 'Novo recorde no Math Run: 250 pontos! Alguém me supera?', time: 'Agora', avatarColor: 'from-green-500 to-emerald-500' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  // Efeito para atualizar aleatoriamente o status/jogo dos amigos e simular atividade real
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlineFriends(prev => {
+        return prev.map(friend => {
+          if (Math.random() > 0.75) {
+            const gamesList = ['Snake Retro Arcade', 'Memory Training Neon', 'Cyber Space Defense', 'Super Math Run', 'Sudoku Zen Master', 'Bolhas Mágicas', 'Rocket Rise'];
+            const statuses = ['jogando', 'online', 'ausente'];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            const randomGame = randomStatus === 'jogando' ? gamesList[Math.floor(Math.random() * gamesList.length)] : '';
+            return {
+              ...friend,
+              status: randomStatus,
+              game: randomGame
+            };
+          }
+          return friend;
+        });
+      });
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSendChatMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userMsg = {
+      sender: user ? user.username : 'Jogador_Visitante',
+      text: chatInput,
+      time: 'Agora',
+      avatarColor: 'from-pink-500 to-cyan-500'
+    };
+
+    setChatMessages(prev => [...prev, userMsg]);
+    const inputVal = chatInput.toLowerCase();
+    setChatInput('');
+
+    // Resposta simulada após 1.5 segundos
+    setTimeout(() => {
+      let replyText = '';
+      let replySender = 'GamerPro';
+      let replyColor = 'from-cyan-500 to-blue-500';
+
+      if (inputVal.includes('snake') || inputVal.includes('cobra') || inputVal.includes('cobrinha')) {
+        replySender = 'GamerPro';
+        replyText = 'O segredo do Snake é fazer curvas rápidas rente às paredes de neon!';
+        replyColor = 'from-cyan-500 to-blue-500';
+      } else if (inputVal.includes('oi') || inputVal.includes('olá') || inputVal.includes('ola') || inputVal.includes('salve') || inputVal.includes('eae')) {
+        replySender = 'Nerd_HTML5';
+        replyText = 'Eae jogador! Bem-vindo ao chat ao vivo do Franguinhos Games! Bora jogar!';
+        replyColor = 'from-yellow-500 to-orange-500';
+      } else if (inputVal.includes('math') || inputVal.includes('matematica') || inputVal.includes('conta') || inputVal.includes('calculo')) {
+        replySender = 'MatheMágico';
+        replyText = 'Math Run é insano, as contas dão bônus de velocidade e multiplicam o score!';
+        replyColor = 'from-green-500 to-emerald-500';
+      } else if (inputVal.includes('memoria') || inputVal.includes('memory')) {
+        replySender = 'Alice_Logics';
+        replyText = 'No Memory Neon recomendo focar nas cores para decorar os pares mais rápido.';
+        replyColor = 'from-pink-500 to-purple-500';
+      } else {
+        const randomReplies = [
+          'Mandou bem! Bora subir esse recorde nos rankings do portal!',
+          'Este novo visual Bento Grid ficou simplesmente perfeito, muito premium!',
+          'Qual o seu jogo favorito? O meu é o Cyber Space Defense!',
+          'Caraca, esse chat está super movimentado hoje!',
+          'Se cansar do neon, ativa o Modo TEA nas Configurações da barra lateral!'
+        ];
+        const senders = [
+          { name: 'GamerPro', color: 'from-cyan-500 to-blue-500' },
+          { name: 'Alice_Logics', color: 'from-pink-500 to-purple-500' },
+          { name: 'Nerd_HTML5', color: 'from-yellow-500 to-orange-500' }
+        ];
+        const chosenSender = senders[Math.floor(Math.random() * senders.length)];
+        replySender = chosenSender.name;
+        replyText = randomReplies[Math.floor(Math.random() * randomReplies.length)];
+        replyColor = chosenSender.color;
+      }
+
+      setChatMessages(prev => [...prev, {
+        sender: replySender,
+        text: replyText,
+        time: 'Agora',
+        avatarColor: replyColor
+      }]);
+    }, 1500);
+  };
+
 
   // --- Efeitos e Inicialização ---
   useEffect(() => {
@@ -1351,1251 +1456,1308 @@ export default function App() {
       )}
 
       {/* --- CONTEÚDO PRINCIPAL --- */}
-      <main className="container flex-grow py-8">
+            <main className="container flex-grow py-8">
         
         {/* MASTER TOP LEADERBOARD AD (Maior Visibilidade - CPM Máximo) */}
         {consentOptions.advertising && (
           <div className="ad-slot-leaderboard mt-0 mb-8"></div>
         )}
 
-        {/* VIEW: HOME */}
-        {view === 'home' && (
-          <div className="space-y-8">
+        {['home', 'favorites', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
+          <div className="bento-portal-wrapper">
             
-            {/* Barra de Busca Móvel */}
-            <div className="flex md:hidden items-center relative w-full mb-4">
-              <input 
-                type="text" 
-                placeholder="Buscar jogos..." 
-                className="input-field pr-10 py-2"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute right-3 w-5 h-5 text-gray-400" />
-            </div>
-
-            {/* Seletor de Faixa Etária Móvel (Visível apenas no celular, oculto no PC) */}
-            <div className="mobile-pref-block">
-              <div className="pref-selector">
+            {/* 1. COLUNA DA ESQUERDA: SIDEBAR DE NAVEGAÇÃO COMPACTA */}
+            <aside className="bento-sidebar-left">
+              <div className="bento-sidebar-section-title">Navegação</div>
+              <nav className="bento-sidebar-nav">
                 <button 
-                  className={`pref-btn ${agePreference === 'geral' ? 'active' : ''}`}
-                  onClick={() => setAgePreference('geral')}
+                  className={`bento-nav-item ${view === 'home' && activeCategory === 'Tudo' ? 'active' : ''}`}
+                  onClick={() => { setView('home'); setActiveCategory('Tudo'); setSelectedGame(null); }}
                 >
-                  Geral
+                  <Gamepad2 className="w-5 h-5 text-cyan-400" />
+                  <span>Início</span>
                 </button>
+                
                 <button 
-                  className={`pref-btn ${agePreference === 'educacional' ? 'active educacional' : ''}`}
-                  onClick={() => setAgePreference('educacional')}
+                  className={`bento-nav-item ${view === 'favorites' ? 'active text-pink-400' : ''}`}
+                  onClick={() => { setView('favorites'); setSelectedGame(null); }}
                 >
-                  Educacional
-                </button>
-                <button 
-                  className={`pref-btn ${agePreference === 'terceira_idade' ? 'active idoso' : ''}`}
-                  onClick={() => setAgePreference('terceira_idade')}
-                >
-                  Sênior
-                </button>
-              </div>
-            </div>
-
-            {/* Categorias Tabs */}
-            <div className="category-container">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
-                  onClick={() => setActiveCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* HERO BANNER DESTAQUE (Apenas na categoria Geral/Tudo e sem busca ativa para visual premium) */}
-            {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
-              <div 
-                className="hero-banner"
-                style={{ backgroundImage: `url(${games[0].bannerUrl})` }}
-              >
-                <div className="hero-content">
-                  <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-500/20 w-max">
-                    🎮 RECOMENDADO DO DIA
-                  </span>
-                  <h2 className="text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md">
-                    {games[0].title}
-                  </h2>
-                  <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed max-w-sm">
-                    {games[0].description}
-                  </p>
-                  <button 
-                    className="btn-primary mt-2"
-                    onClick={() => handlePlayGame(games[0])}
-                  >
-                    Jogar Agora
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* SLOT DE ANÚNCIO SUPERIOR (Vazio para testes de layout de Ad Adsense / Direct) */}
-            {consentOptions.advertising && (
-              <div className="ad-slot-leaderboard"></div>
-            )}
-
-            {/* Grid de Jogos */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-extrabold text-cyan-300 flex flex-wrap items-center gap-2">
-                <Grid className="w-6 h-6 text-cyan-400" />
-                <span>
-                  {activeCategory === 'Tudo' ? 'Todos os Jogos' : `Jogos de ${activeCategory}`}
-                  {agePreference !== 'geral' && (
-                    <span className="text-pink-400">
-                      {' '}do Filtro {agePreference === 'educacional' ? 'Educacional' : agePreference === 'bebes' ? 'Bebês' : 'Sênior'}
+                  <Heart className={`w-5 h-5 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : 'text-gray-400'}`} />
+                  <span>Biblioteca</span>
+                  {favorites.length > 0 && (
+                    <span className="bento-nav-badge bg-pink-600 text-white">
+                      {favorites.length}
                     </span>
                   )}
-                </span>
-              </h2>
+                </button>
+              </nav>
 
-              {getFilteredGames().length === 0 ? (
-                <div className="glass-panel p-10 text-center text-gray-400 space-y-2">
-                  <p>Nenhum jogo encontrado com os filtros selecionados.</p>
-                  <button 
-                    className="text-cyan-400 hover:underline text-sm font-semibold"
-                    onClick={() => { setSearchQuery(''); setActiveCategory('Tudo'); setAgePreference('geral'); }}
+              <div className="bento-sidebar-section-title">Categorias</div>
+              <div className="bento-sidebar-nav">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    className={`bento-nav-item ${view === 'home' && activeCategory === cat ? 'active' : ''}`}
+                    onClick={() => { setView('home'); setActiveCategory(cat); setSelectedGame(null); }}
                   >
-                    Resetar Filtros
+                    {cat === 'Tudo' ? <Grid className="w-5 h-5 text-cyan-400" /> :
+                     cat === 'Arcade' ? <Zap className="w-5 h-5 text-yellow-400" /> :
+                     cat === 'Memória' ? <Brain className="w-5 h-5 text-pink-400" /> :
+                     <Rocket className="w-5 h-5 text-purple-400" />}
+                    <span>{cat}</span>
                   </button>
-                </div>
-              ) : (
-                <div className="game-grid">
-                  {getFilteredGames().map((game) => (
-                    <div 
-                      key={game.id}
-                      className="glass-card p-4 flex flex-col justify-between cursor-pointer group"
-                      onClick={() => handlePlayGame(game)}
-                    >
-                      <div>
-                        <div className="game-card-icon-container">
-                          {renderGameCover(game)}
-                          
-                          {/* Modern Floating Like Pill with reactive likes count */}
-                          <div 
-                            className="game-card-like-pill"
-                            onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                            title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
+                ))}
+              </div>
+
+              <div className="bento-sidebar-section-title">Configurações</div>
+              <div className="bento-sidebar-nav">
+                <button 
+                  className={`bento-nav-item ${teaMode ? 'active bg-green-500/20 text-green-400' : ''}`}
+                  onClick={() => setTeaMode(!teaMode)}
+                >
+                  <Brain className="w-5 h-5 text-green-400" />
+                  <span>Modo TEA</span>
+                </button>
+              </div>
+
+              <div className="bento-sidebar-section-title">Suporte & Legal</div>
+              <div className="bento-sidebar-nav">
+                <button 
+                  className={`bento-nav-item ${view === 'privacy' ? 'active' : ''}`}
+                  onClick={() => { setView('privacy'); setSelectedGame(null); }}
+                >
+                  <Shield className="w-5 h-5 text-blue-400" />
+                  <span>Privacidade</span>
+                </button>
+                <button 
+                  className={`bento-nav-item ${view === 'terms' ? 'active' : ''}`}
+                  onClick={() => { setView('terms'); setSelectedGame(null); }}
+                >
+                  <FileText className="w-5 h-5 text-teal-400" />
+                  <span>Termos</span>
+                </button>
+                <button 
+                  className={`bento-nav-item ${view === 'contact' ? 'active' : ''}`}
+                  onClick={() => { setView('contact'); setSelectedGame(null); }}
+                >
+                  <HelpCircle className="w-5 h-5 text-emerald-400" />
+                  <span>Contato</span>
+                </button>
+                <button 
+                  className={`bento-nav-item ${view === 'report' ? 'active text-pink-400' : ''}`}
+                  onClick={() => { setView('report'); setSelectedGame(null); }}
+                >
+                  <ShieldAlert className="w-5 h-5 text-pink-500" />
+                  <span>Denunciar</span>
+                </button>
+              </div>
+            </aside>
+
+            {/* 2. COLUNA CENTRAL: CONTEÚDO DINÂMICO */}
+            <div className="bento-main-content">
+              
+              {/* VIEW: HOME */}
+              {view === 'home' && (
+                <div className="space-y-8">
+                  
+                  {/* Barra de Busca Móvel */}
+                  <div className="flex md:hidden items-center relative w-full mb-4">
+                    <input 
+                      type="text" 
+                      placeholder="Buscar jogos..." 
+                      className="input-field pr-10 py-2"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Search className="absolute right-3 w-5 h-5 text-gray-400" />
+                  </div>
+
+                  {/* Seletor de Faixa Etária Móvel (Visível apenas no celular, oculto no PC) */}
+                  <div className="mobile-pref-block">
+                    <div className="pref-selector">
+                      <button 
+                        className={`pref-btn ${agePreference === 'geral' ? 'active' : ''}`}
+                        onClick={() => setAgePreference('geral')}
+                      >
+                        Geral
+                      </button>
+                      <button 
+                        className={`pref-btn ${agePreference === 'educacional' ? 'active educacional' : ''}`}
+                        onClick={() => setAgePreference('educacional')}
+                      >
+                        Educacional
+                      </button>
+                      <button 
+                        className={`pref-btn ${agePreference === 'terceira_idade' ? 'active idoso' : ''}`}
+                        onClick={() => setAgePreference('terceira_idade')}
+                      >
+                        Sênior
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Categorias Tabs */}
+                  <div className="category-container">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
+                        onClick={() => setActiveCategory(cat)}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* SEÇÃO 'EM DESTAQUE' (Bento Style: 2 ou 3 cartões grandes) */}
+                  {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
+                    <div className="bento-featured-grid">
+                      {/* Cartão 1: Jogo Principal Recomendado (Card Grande) */}
+                      <div 
+                        className="bento-card-featured-game glass-card cursor-pointer group"
+                        style={{ backgroundImage: `url(${games[0].bannerUrl})` }}
+                        onClick={() => handlePlayGame(games[0])}
+                      >
+                        <div className="bento-featured-overlay">
+                          <span className="bento-card-badge-hot">
+                            🔥 RECOMENDADO DO DIA
+                          </span>
+                          <h2 className="text-xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-md">
+                            {games[0].title}
+                          </h2>
+                          <p className="text-xs text-gray-300 line-clamp-2 max-w-sm mt-1 leading-relaxed">
+                            {games[0].description}
+                          </p>
+                          <button 
+                            className="btn-primary mt-3 py-1.5 px-4 text-xs w-max font-bold"
+                            onClick={(e) => { e.stopPropagation(); handlePlayGame(games[0]); }}
                           >
-                            <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                            <span>{likesCount[game.id] || 0}</span>
+                            Jogar Agora
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Cartão 2: Dashboard/Estatísticas Cognitivas */}
+                      <div className="bento-card-stats glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-purple-950/40 via-[#0f111a]/80 to-pink-950/20 border border-purple-500/20">
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest bg-pink-950/60 px-2.5 py-1 rounded-full border border-pink-500/20">
+                              ⚡ PERFORMANCE COGNITIVA
+                            </span>
+                            <Activity className="w-5 h-5 text-pink-500 animate-pulse" />
+                          </div>
+                          <h3 className="text-base font-extrabold text-white tracking-tight">Atividade do Portal</h3>
+                          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                            Mantenha o cérebro ativo com jogos lógicos e desafios de raciocínio lógico diários.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5 mt-2">
+                          <div className="text-center p-2 bg-white/5 rounded-lg">
+                            <span className="text-xs text-gray-400 block font-semibold">Ativos Hoje</span>
+                            <span className="text-sm font-extrabold text-cyan-400 font-mono">1.248</span>
+                          </div>
+                          <div className="text-center p-2 bg-white/5 rounded-lg">
+                            <span className="text-xs text-gray-400 block font-semibold">Jogos Totais</span>
+                            <span className="text-sm font-extrabold text-pink-400 font-mono">{games.length}</span>
                           </div>
                         </div>
-                        <h3 className="font-bold text-sm tracking-tight group-hover:text-cyan-400 transition">
-                          {game.title}
-                        </h3>
-                        <p className="text-[11px] text-purple-300 font-bold uppercase mt-1">
-                          {game.category}
-                        </p>
                       </div>
-                      
-                      <div className="flex items-center mt-3 pt-2 border-t border-white/5">
-                        <span className="text-[10px] text-gray-400 font-semibold">
-                          Class: {game.ageRating}
-                        </span>
+
+                      {/* Cartão 3: Filtro de Faixas Etárias Dinâmico */}
+                      <div className="bento-card-age glass-card p-5 flex flex-col justify-between bg-gradient-to-br from-cyan-950/30 via-[#0f111a]/80 to-indigo-950/20 border border-cyan-500/20">
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/60 px-2.5 py-1 rounded-full border border-cyan-500/20">
+                              👶 ACESSIBILIDADE TOTAL
+                            </span>
+                            <Users className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          <h3 className="text-base font-extrabold text-white tracking-tight">Modos Editoriais</h3>
+                          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                            Filtros curados de acessibilidade para bebês, crianças, adolescentes e idosos.
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-white/5">
+                          <button 
+                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'geral' ? 'bg-cyan-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            onClick={() => setAgePreference('geral')}
+                          >
+                            Geral
+                          </button>
+                          <button 
+                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'educacional' ? 'bg-green-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            onClick={() => setAgePreference('educacional')}
+                          >
+                            Edu
+                          </button>
+                          <button 
+                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'bebes' ? 'bg-pink-500 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            onClick={() => setAgePreference('bebes')}
+                          >
+                            Bebês
+                          </button>
+                          <button 
+                            className={`px-2 py-1 text-[10px] font-bold rounded transition ${agePreference === 'terceira_idade' ? 'bg-amber-500 text-black' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            onClick={() => setAgePreference('terceira_idade')}
+                          >
+                            Sênior
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SLOT DE ANÚNCIO SUPERIOR */}
+                  {consentOptions.advertising && (
+                    <div className="ad-slot-leaderboard"></div>
+                  )}
+
+                  {/* Grid de Jogos */}
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-extrabold text-cyan-300 flex flex-wrap items-center gap-2">
+                      <Grid className="w-6 h-6 text-cyan-400" />
+                      <span>
+                        {activeCategory === 'Tudo' ? 'Todos os Jogos' : `Jogos de ${activeCategory}`}
+                        {agePreference !== 'geral' && (
+                          <span className="text-pink-400">
+                            {' '}do Filtro {agePreference === 'educacional' ? 'Educacional' : agePreference === 'bebes' ? 'Bebês' : 'Sênior'}
+                          </span>
+                        )}
+                      </span>
+                    </h2>
+
+                    {getFilteredGames().length === 0 ? (
+                      <div className="glass-panel p-10 text-center text-gray-400 space-y-2">
+                        <p>Nenhum jogo encontrado com os filtros selecionados.</p>
+                        <button 
+                          className="text-cyan-400 hover:underline text-sm font-semibold"
+                          onClick={() => { setSearchQuery(''); setActiveCategory('Tudo'); setAgePreference('geral'); }}
+                        >
+                          Resetar Filtros
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="bento-grid-feed">
+                        {getFilteredGames().map((game, index) => {
+                          let spanClass = 'bento-span-1x1';
+                          if (activeCategory === 'Tudo' && !searchQuery) {
+                            if (index === 0) spanClass = 'bento-span-2x1';
+                            else if (index === 1) spanClass = 'bento-span-1x2';
+                            else if (index === 2) spanClass = 'bento-span-2x2';
+                            else if (index === 5) spanClass = 'bento-span-2x1';
+                          }
+                          
+                          return (
+                            <div 
+                              key={game.id}
+                              className={`bento-card glass-card ${spanClass} cursor-pointer group`}
+                              onClick={() => handlePlayGame(game)}
+                            >
+                              <div className="bento-card-image-wrapper">
+                                {renderGameCover(game)}
+                                
+                                <div 
+                                  className="game-card-like-pill"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
+                                  <span>{likesCount[game.id] || 0}</span>
+                                </div>
+                              </div>
+
+                              <div className="bento-card-overlay">
+                                <span className="bento-card-badge">
+                                  {game.category}
+                                </span>
+                                <h3 className="bento-card-title">
+                                  {game.title}
+                                </h3>
+                                <p className="bento-card-desc">
+                                  {game.description}
+                                </p>
+                                <div className="bento-card-footer">
+                                  <span className="bento-card-rating">
+                                    Class: {game.ageRating}
+                                  </span>
+                                  <span className="bento-card-play-btn">
+                                    🎮 JOGAR
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* IN-FEED AD SLOT CARD - Bento Style */}
+                        {consentOptions.advertising && (
+                          <div className="bento-card ad-slot-card bento-span-2x1 flex-center">
+                            <div className="text-center p-4">
+                              <span className="text-[10px] text-gray-500 block uppercase font-bold tracking-widest mb-1">Anúncio Patrocinado</span>
+                              <p className="text-xs text-gray-400 font-semibold">Espaço Publicitário de Alta Fidelidade (RPM)</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SLOT DE ANÚNCIO IN-FEED LEADERBOARD INFERIOR */}
+                  {consentOptions.advertising && (
+                    <div className="ad-slot-leaderboard"></div>
+                  )}
+                </div>
+              )}
+
+              {view === 'favorites' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-extrabold text-pink-500 flex items-center gap-2">
+                    <Heart className="w-7 h-7 fill-current" /> Meus Favoritos
+                  </h2>
+
+                  {games.filter(g => favorites.includes(g.id)).length === 0 ? (
+                    <div className="glass-panel p-10 text-center text-gray-400">
+                      Você ainda não adicionou nenhum jogo aos favoritos. Explore o catálogo para encontrar seus preferidos!
+                    </div>
+                  ) : (
+                    <div className="bento-grid-feed">
+                      {games.filter(g => favorites.includes(g.id)).map((game, index) => {
+                        let spanClass = 'bento-span-1x1';
+                        if (index === 0) spanClass = 'bento-span-2x1';
+                        
+                        return (
+                          <div 
+                            key={game.id}
+                            className={`bento-card glass-card ${spanClass} cursor-pointer group`}
+                            onClick={() => handlePlayGame(game)}
+                          >
+                            <div className="bento-card-image-wrapper">
+                              {renderGameCover(game)}
+                              
+                              <div 
+                                className="game-card-like-pill"
+                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
+                              >
+                                <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-500 animate-heart" />
+                                <span>{likesCount[game.id] || 0}</span>
+                              </div>
+                            </div>
+
+                            <div className="bento-card-overlay">
+                              <span className="bento-card-badge">
+                                {game.category}
+                              </span>
+                              <h3 className="bento-card-title">
+                                {game.title}
+                              </h3>
+                              <p className="bento-card-desc">
+                                {game.description}
+                              </p>
+                              <div className="bento-card-footer">
+                                <span className="bento-card-rating">
+                                  Class: {game.ageRating}
+                                </span>
+                                <span className="bento-card-play-btn text-pink-500">
+                                  🎮 JOGAR
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {view === 'privacy' && (
+                <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
+                  <h2 className="text-2xl font-extrabold text-cyan-300">Política de Privacidade (LGPD)</h2>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    No **Franguinhos Games**, respeitamos rigorosamente a privacidade dos nossos visitantes e jogadores de conformidade com a Lei Geral de Proteção de Dados (LGPD) e o ECA. 
+                    Garantimos coleta mínima de dados: nenhuma informação pessoal é obrigatória para jogar ou se cadastrar (exigimos apenas nome de usuário e senha). 
+                    A declaração de faixa etária é opcional e serve exclusivamente para ajustar a curadoria editorial dos jogos na tela inicial.
+                  </p>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    Para crianças menores de 12 anos, garantimos que a publicidade é estritamente não personalizada e nenhum profiling comportamental é realizado. 
+                    Você pode habilitar ou desabilitar cookies de analíticas e marketing a qualquer momento através do nosso painel de privacidade no rodapé.
+                  </p>
+                  <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
+                </div>
+              )}
+
+              {view === 'terms' && (
+                <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
+                  <h2 className="text-2xl font-extrabold text-cyan-300">Termos de Uso</h2>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    Ao utilizar o Franguinhos Games, você concorda com nossos termos. O portal oferece jogos casuais em formato HTML5 incorporados via iframe em sandbox isoladas para a sua segurança.
+                    Todos os jogos listados possuem licenciamento amplo comercial comprovado ou cessão patrimonial de direitos autorais de conformidade com a legislação brasileira (Lei nº 9.610/98 e Lei nº 9.609/98).
+                  </p>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    É estritamente proibido tentar violar os sandboxes dos jogos, fazer scraping do portal ou distribuir os arquivos de jogos estáticos sem prévia autorização contratual por escrito dos autores.
+                  </p>
+                  <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
+                </div>
+              )}
+
+              {view === 'contact' && (
+                <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
+                  <h2 className="text-2xl font-extrabold text-cyan-300">Fale Conosco</h2>
+                  <form onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso! Responderemos em até 48 horas.'); setView('home'); }} className="space-y-4">
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">Nome:</label>
+                      <input type="text" className="input-field" required />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">Assunto:</label>
+                      <input type="text" className="input-field" required />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">Mensagem:</label>
+                      <textarea rows={4} className="input-field resize-none" required></textarea>
+                    </div>
+                    <button type="submit" className="btn-primary w-full justify-center">Enviar Mensagem</button>
+                  </form>
+                </div>
+              )}
+
+              {view === 'report' && (
+                <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
+                  <h2 className="text-2xl font-extrabold text-pink-500">Denunciar Conteúdo</h2>
+                  <p className="text-xs text-gray-400">
+                    Valorizamos os direitos autorais e as licenças comerciais. Se você identificou qualquer jogo que viole direitos patrimoniais, informe no formulário abaixo com as devidas comprovações para remoção imediata.
+                  </p>
+                  <form onSubmit={(e) => { e.preventDefault(); alert('Denúncia recebida e registrada no workflow editorial para análise técnica e jurídica.'); setView('home'); }} className="space-y-4">
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">Seu Nome / Empresa:</label>
+                      <input type="text" className="input-field" required />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">URL / Título do Jogo:</label>
+                      <input type="text" className="input-field" required />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400 block mb-1">Detalhes da Violação / Licença Conflitante:</label>
+                      <textarea rows={4} className="input-field resize-none" required></textarea>
+                    </div>
+                    <button type="submit" className="btn-primary w-full justify-center bg-pink-600 hover:bg-pink-700">Enviar Denúncia</button>
+                  </form>
+                </div>
+              )}
+
+            </div>
+
+            {/* 3. COLUNA DA DIREITA: PAINEL SOCIAL / INTERATIVO */}
+            <aside className="bento-sidebar-right">
+              {/* Widget de Perfil do Usuário */}
+              <div className="bento-profile-card">
+                {user ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-500 flex items-center justify-center text-white font-extrabold text-sm border-2 border-cyan-400/30">
+                      {user.username.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="font-extrabold text-white text-xs leading-none">Olá, {user.username}!</div>
+                      <div className="text-[10px] text-gray-400 font-mono mt-0.5 uppercase tracking-widest">{user.role === 'super_admin' ? 'Super Admin' : 'Jogador'}</div>
+                    </div>
+                    <button 
+                      onClick={handleLogout} 
+                      className="p-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition"
+                      title="Sair da Conta"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-500">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs text-gray-400">Perfil offline</span>
+                    </div>
+                    <button 
+                      className="btn-primary py-1 px-3 text-[10px] font-black"
+                      onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
+                    >
+                      Conectar
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Widget de Amigos Online */}
+              <div className="bento-social-card flex-grow flex flex-col min-h-[160px]">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2">
+                  <Users className="w-4 h-4 text-cyan-400" />
+                  <span>Amigos Online ({onlineFriends.filter(f => f.status !== 'ausente').length})</span>
+                </div>
+                
+                <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1">
+                  {onlineFriends.map((friend) => (
+                    <div key={friend.name} className="flex items-center gap-2.5">
+                      <div className="relative shrink-0">
+                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px]`}>
+                          {friend.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${
+                          friend.status === 'jogando' ? 'bg-green-400 animate-pulse' :
+                          friend.status === 'online' ? 'bg-green-400' : 'bg-gray-500'
+                        }`} />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <div className="text-xs font-extrabold text-white truncate leading-none">{friend.name}</div>
+                        <div className="text-[10px] text-gray-400 truncate mt-0.5">
+                          {friend.status === 'jogando' ? `Jogando ${friend.game}` : 'Disponível'}
+                        </div>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
 
-                  {/* IN-FEED AD SLOT CARD (Slot vazio de alta fidelidade para testes de layout e RPM) */}
-                  {consentOptions.advertising && (
-                    <div className="ad-slot-card"></div>
+              {/* Widget de Chat Ao Vivo */}
+              <div className="bento-chat-card flex flex-col min-h-[260px]">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2 shrink-0">
+                  <MessageSquare className="w-4 h-4 text-pink-500" />
+                  <span>Chat Geral do Portal</span>
+                </div>
+
+                {/* Lista de Mensagens */}
+                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2 pr-1 mb-2">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className="text-left text-xs bg-white/[0.02] p-1.5 rounded border border-white/[0.03]">
+                      <div className="flex justify-between items-center mb-0.5">
+                        <span className="font-extrabold text-cyan-400 text-[10px]">{msg.sender}</span>
+                        <span className="text-[9px] text-gray-500 font-mono">{msg.time}</span>
+                      </div>
+                      <p className="text-gray-300 text-[11px] leading-relaxed">{msg.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Input de Envio de Chat */}
+                <form onSubmit={handleSendChatMessage} className="flex gap-1.5 border-t border-white/5 pt-2 shrink-0">
+                  <input 
+                    type="text" 
+                    placeholder="Diga algo no chat..." 
+                    className="input-field text-xs py-1.5"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    className="btn-primary p-2 justify-center rounded-lg bg-cyan-500 text-black border-none hover:bg-cyan-400 shrink-0"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </div>
+
+              {/* Widget de Pesquisa Flutuante no Rodapé da Sidebar */}
+              <div className="bento-floating-search shrink-0">
+                <Search className="w-4 h-4 text-cyan-400 shrink-0" />
+                <input 
+                  type="text" 
+                  placeholder="Pesquisa rápida..." 
+                  className="bento-floating-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </aside>
+
+          </div>
+        ) : (
+          /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
+          <>
+            {view === 'playing' && selectedGame && agePreference !== 'bebes' && (
+              <div className="space-y-6">
+                
+                {/* Header de Navegação do Jogo */}
+                <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5">
+                  <button 
+                    className="btn-secondary py-2 px-4" 
+                    onClick={triggerExitGame}
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
+                  </button>
+
+                  <h2 className="text-xl font-extrabold text-cyan-300 neon-glow-cyan">
+                    {selectedGame.title}
+                  </h2>
+
+                  <button 
+                    className={`like-action-btn ${favorites.includes(selectedGame.id) ? 'liked' : ''}`}
+                    onClick={() => handleToggleFavorite(selectedGame.id)}
+                    title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
+                  >
+                    <Heart className="w-5 h-5" />
+                    <span className="like-text">
+                      {favorites.includes(selectedGame.id) ? 'Curtido!' : 'Curtir'}
+                    </span>
+                    <span className="like-divider"></span>
+                    <span className="like-count">
+                      {likesCount[selectedGame.id] || 0}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
+                <div className="iframe-container">
+                  {isPlayingGame ? (
+                    isPhysicalGame(selectedGame.slug) ? (
+                      <iframe
+                        key={selectedGame.id}
+                        src={getGameUrl(selectedGame)}
+                        sandbox="allow-scripts allow-same-origin allow-forms"
+                        allow="fullscreen; autoplay"
+                        allowFullScreen
+                        title={selectedGame.title}
+                      ></iframe>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">
+                        <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-950/80 px-3 py-1 rounded-full border border-yellow-500/20">
+                          🛡️ CIRCUITO EM MANUTENÇÃO EDITORIAL
+                        </span>
+                        <h3 className="text-lg font-bold text-white">Próximo Lançamento</h3>
+                        <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+                          Este circuito está em fase de auditoria jurídica de direitos autorais e testes de controle de toque. Estará online em breve!
+                        </p>
+                        <button 
+                          className="btn-secondary py-1.5 px-4 text-xs font-bold"
+                          onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false); }}
+                        >
+                          Voltar ao Catálogo
+                        </button>
+                      </div>
+                    )
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95">
+                      <p className="text-cyan-400 font-bold mb-4 neon-glow-cyan">Injetando chips estelares...</p>
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
 
-            {/* SLOT DE ANÚNCIO IN-FEED LEADERBOARD INFERIOR (Vazio de alta fidelidade para testes de layout de anúncios) */}
-            {consentOptions.advertising && (
-              <div className="ad-slot-leaderboard"></div>
-            )}
-          </div>
-        )}
-
-        {/* VIEW: FAVORITOS */}
-        {view === 'favorites' && (
-          <div className="space-y-6">
-            <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>
-              <ArrowLeft className="w-4 h-4" /> Voltar ao Início
-            </button>
-            <h2 className="text-2xl font-extrabold text-pink-500 flex items-center gap-2">
-              <Heart className="w-7 h-7 fill-current" /> Meus Favoritos
-            </h2>
-
-            {games.filter(g => favorites.includes(g.id)).length === 0 ? (
-              <div className="glass-panel p-10 text-center text-gray-400">
-                Você ainda não adicionou nenhum jogo aos favoritos. Explore o catálogo para encontrar seus preferidos!
-              </div>
-            ) : (
-              <div className="game-grid">
-                {games.filter(g => favorites.includes(g.id)).map((game) => (
-                  <div 
-                    key={game.id}
-                    className="glass-card p-4 flex flex-col justify-between cursor-pointer group"
-                    onClick={() => handlePlayGame(game)}
-                  >
-                    <div>
-                      <div className="game-card-icon-container">
-                        {renderGameCover(game)}
-                        
-                        {/* Modern Floating Like Pill with reactive likes count */}
-                        <div 
-                          className="game-card-like-pill"
-                          onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                          title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                          <span>{likesCount[game.id] || 0}</span>
-                        </div>
-                      </div>
-                      <h3 className="font-bold text-sm group-hover:text-cyan-400 transition">
-                        {game.title}
-                      </h3>
-                      <p className="text-[10px] text-purple-300 font-bold uppercase mt-1">
-                        {game.category}
-                      </p>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/5">
-                      <span className="text-[10px] text-gray-400">
-                        Class: {game.ageRating}
-                      </span>
-                      <span className="text-[10px] font-bold text-cyan-400 font-mono tracking-wider">
-                        🎮 JOGAR
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* VIEW: PLAYING GAME */}
-        {view === 'playing' && selectedGame && agePreference !== 'bebes' && (
-            <div className="space-y-6">
-              
-              {/* Header de Navegação do Jogo */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5">
-                <button 
-                  className="btn-secondary py-2 px-4" 
-                  onClick={triggerExitGame}
-                >
-                  <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
-                </button>
-
-                <h2 className="text-xl font-extrabold text-cyan-300 neon-glow-cyan">
-                  {selectedGame.title}
-                </h2>
-
-                <button 
-                  className={`like-action-btn ${favorites.includes(selectedGame.id) ? 'liked' : ''}`}
-                  onClick={() => handleToggleFavorite(selectedGame.id)}
-                  title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
-                >
-                  <Heart className="w-5 h-5" />
-                  <span className="like-text">
-                    {favorites.includes(selectedGame.id) ? 'Curtido!' : 'Curtir'}
-                  </span>
-                  <span className="like-divider"></span>
-                  <span className="like-count">
-                    {likesCount[selectedGame.id] || 0}
-                  </span>
-                </button>
-              </div>
-
-              {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
-              <div className="iframe-container">
-                {isPlayingGame ? (
-                  isPhysicalGame(selectedGame.slug) ? (
-                    <iframe
-                      key={selectedGame.id}
-                      src={getGameUrl(selectedGame)}
-                      sandbox="allow-scripts allow-same-origin allow-forms"
-                      allow="fullscreen; autoplay"
-                      allowFullScreen
-                      title={selectedGame.title}
-                    ></iframe>
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">
-                      <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-950/80 px-3 py-1 rounded-full border border-yellow-500/20">
-                        🛡️ CIRCUITO EM MANUTENÇÃO EDITORIAL
-                      </span>
-                      <h3 className="text-lg font-bold text-white">Próximo Lançamento</h3>
-                      <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-                        Este circuito está em fase de auditoria jurídica de direitos autorais e testes de controle de toque. Estará online em breve!
-                      </p>
-                      <button 
-                        className="btn-secondary py-1.5 px-4 text-xs font-bold"
-                        onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false); }}
-                      >
-                        Voltar ao Catálogo
-                      </button>
-                    </div>
-                  )
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95">
-                    <p className="text-cyan-400 font-bold mb-4 neon-glow-cyan">Injetando chips estelares...</p>
-                  </div>
-                )}
-              </div>
-
-              {/* SLOT DE ANÚNCIO LEADERBOARD DEBAIXO DO JOGO (Vazio para testes de layout e RPM) */}
-              {consentOptions.advertising && (
-                <div className="ad-slot-leaderboard"></div>
-              )}
-
-              {/* LAYOUT DE INFORMAÇÕES DEBAIXO DO JOGO (Refatorado para Cinema Layout) */}
-              <div className="play-info-split">
-                
-                {/* COLUNA ESQUERDA (Descrição e Outros Jogos Recomendados) */}
-                <div className="space-y-6">
-                  
-                  {/* Descrição do Jogo */}
-                  <div className="glass-panel p-6 space-y-4">
-                    <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-cyan-400" /> Descrição do Circuito
-                    </h3>
-                  <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                    {selectedGame.description}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
-                    {selectedGame.tags.map(t => (
-                      <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-cyan-950/40 text-cyan-300 border border-cyan-800/20 font-bold">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Grid Premium de Recomendados ( Continue Jogando Poki-Style ) */}
-                <div className="space-y-4">
-                  <h3 className="text-md font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                    <Grid className="w-5 h-5 text-cyan-400" /> Continue Jogando (Sugeridos)
-                  </h3>
-                  <div className="game-grid">
-                    {getRelatedGames(selectedGame).map(game => (
-                      <div 
-                        key={game.id}
-                        className="glass-card p-4 flex flex-col justify-between cursor-pointer group"
-                        onClick={() => handlePlayGame(game)}
-                      >
-                        <div>
-                          <div className="game-card-icon-container">
-                            {renderGameCover(game)}
-                            
-                            {/* Modern Floating Like Pill */}
-                            <div 
-                              className="game-card-like-pill"
-                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                              title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                            >
-                              <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                              <span>{likesCount[game.id] || 0}</span>
-                            </div>
-                          </div>
-                          <h4 className="font-bold text-sm tracking-tight text-white truncate group-hover:text-cyan-400 transition">{game.title}</h4>
-                          <p className="text-[11px] text-purple-300 font-bold uppercase mt-1">{game.category}</p>
-                        </div>
-                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/5">
-                          <span className="text-[10px] text-gray-400">Class: {game.ageRating}</span>
-                          <span className="text-[10px] font-bold text-cyan-400 font-mono">🎮 JOGAR</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* COLUNA DIREITA (Especificações Técnicas & Banners Laterais) */}
-              <div className="info-panel">
-                
-                {/* Ficha Técnica & Controles */}
-                <div className="glass-panel p-6 space-y-4">
-                  <h3 className="text-md font-bold text-cyan-300 flex items-center gap-2 uppercase tracking-wider">
-                    <Settings className="w-4 h-4 text-cyan-400" /> Especificações & Controles
-                  </h3>
-                  
-                  <div className="space-y-3 text-xs">
-                    <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-gray-400">Desenvolvedor:</span>
-                      <span className="font-bold text-purple-300">{selectedGame.author}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-gray-400">Acordo Licença:</span>
-                      <span className="font-bold text-green-400">{selectedGame.licenseName}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-white/5 pb-2">
-                      <span className="text-gray-400">Classificação:</span>
-                      <span className="font-extrabold text-cyan-400">{selectedGame.ageRating}</span>
-                    </div>
-                    
-                    {/* Controles Declarados */}
-                    <div className="pt-2">
-                      <span className="text-gray-400 block mb-2">Compatibilidade:</span>
-                      <div className="flex gap-2">
-                        <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.toque ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`} title={selectedGame.controls.toque ? "Suporta Toque" : "Não suporta Toque"}>
-                          <Smartphone className="w-4 h-4" />
-                          <span className="text-[9px]">Toque</span>
-                        </div>
-                        <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.teclado ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`} title={selectedGame.controls.teclado ? "Suporta Teclado" : "Não suporta Teclado"}>
-                          <Gamepad2 className="w-4 h-4" />
-                          <span className="text-[9px]">Teclado</span>
-                        </div>
-                        <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.mouse ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`} title={selectedGame.controls.mouse ? "Suporta Mouse" : "Não suporta Mouse"}>
-                          <Volume2 className="w-4 h-4" />
-                          <span className="text-[9px]">Mouse</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* SLOT DE ANÚNCIO RETANGULAR LATERAL (Vazio para testes de layout e RPM na barra lateral) */}
+                {/* SLOT DE ANÚNCIO LEADERBOARD DEBAIXO DO JOGO */}
                 {consentOptions.advertising && (
-                  <div className="ad-slot-rectangle"></div>
+                  <div className="ad-slot-leaderboard"></div>
                 )}
 
-              </div>
-            </div>
-          </div>
-        )}
-
-      {/* STATIC PAGES */}
-        {/* VIEW: ADMIN PANEL */}
-        {view === 'admin' && user && user.role !== 'user' && (
-          <div className="space-y-6 text-left">
-            {/* Header com Abas em formato de Cápsula Segmentada Premium */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#07080e]/90 p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
-              <button 
-                className="btn-secondary py-2 px-4 flex items-center gap-2 text-xs font-bold border border-white/10 hover:border-cyan-500/30 text-gray-300 hover:text-white transition rounded-xl shrink-0" 
-                onClick={() => setView('home')}
-              >
-                <ArrowLeft className="w-4 h-4 text-cyan-400" /> Voltar ao Portal
-              </button>
-              
-              <h2 className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2 font-mono">
-                <Settings className="w-4 h-4 text-cyan-400 animate-spin-slow shrink-0" />
-                <span>Cockpit de Administração</span>
-              </h2>
-              
-              <div className="flex bg-black/50 p-1 rounded-full border border-white/5 gap-1 shrink-0">
-                <button 
-                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'catalog' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
-                  onClick={() => { setAdminTab('catalog'); setAdminViewMode('list'); }}
-                >
-                  <FolderGit2 className="w-3.5 h-3.5" /> Catálogo
-                </button>
-                <button 
-                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'contracts' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
-                  onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
-                >
-                  <FileSignature className="w-3.5 h-3.5" /> Contratos
-                </button>
-                <button 
-                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
-                  onClick={() => { setAdminTab('dashboard'); setAdminViewMode('list'); }}
-                >
-                  <BarChart3 className="w-3.5 h-3.5" /> Analytics & IA
-                </button>
-                <button 
-                  className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'users' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
-                  onClick={() => { setAdminTab('users'); setAdminViewMode('list'); }}
-                >
-                  <Users className="w-3.5 h-3.5" /> Usuários
-                </button>
-              </div>
-            </div>
-
-            {/* TAB 1: CATALOG MANAGMENT */}
-            {adminTab === 'catalog' && (
-              <div className="space-y-6">
-                {adminViewMode === 'list' ? (
-                  <div className="glass-panel p-6 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
-                      <div>
-                        <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                          Catálogo de Circuitos HTML5
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          Gerencie fichas técnicas de jogos e contratos de licenciamento ativos no portal.
-                        </p>
-                      </div>
-                      <button 
-                        className="btn-primary py-2 px-4 flex items-center gap-1.5"
-                        onClick={handleAdminAddClick}
-                      >
-                        <Plus className="w-4 h-4" /> Adicionar Novo Jogo
-                      </button>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Jogo / ID</th>
-                            <th>Categoria</th>
-                            <th>Versão</th>
-                            <th>Status Técnico</th>
-                            <th>Status Editorial</th>
-                            <th>Dossiê Jurídico</th>
-                            <th className="text-right">Ações</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {adminCatalog.map((item) => (
-                            <tr key={item.game.id}>
-                              <td>
-                                <div className="flex items-center gap-3">
-                                  {item.game.bannerUrl ? (
-                                    <img 
-                                      src={item.game.bannerUrl} 
-                                      alt={item.game.title} 
-                                      className="w-10 h-7 object-cover rounded border border-white/5 shrink-0"
-                                    />
-                                  ) : (
-                                    <div className="w-10 h-7 bg-white/5 rounded border border-white/5 flex items-center justify-center shrink-0">
-                                      <Gamepad2 className="w-4 h-4 text-cyan-400" />
-                                    </div>
-                                  )}
-                                  <div>
-                                    <div className="font-bold text-white text-xs">{item.game.title}</div>
-                                    <div className="text-[10px] text-gray-400 font-mono">slug: {item.game.slug}</div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td>
-                                <span className="font-semibold text-purple-300">{item.game.category}</span>
-                              </td>
-                              <td className="font-mono text-[11px] text-gray-300">v{item.game.version}</td>
-                              <td>{getTechnicalBadge(item.game.statusTechnical)}</td>
-                              <td>{getEditorialBadge(item.game.statusEditorial)}</td>
-                              <td>{getDocBadge(item.game.statusDoc)}</td>
-                              <td>
-                                <div className="flex items-center justify-end gap-2">
-                                  <button 
-                                    className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
-                                    title="Editar Ficha"
-                                    onClick={() => handleAdminEditClick(item)}
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                  </button>
-                                  {item.contract && (
-                                    <button 
-                                      className="p-1.5 rounded bg-white/5 hover:bg-green-500/20 text-green-400 transition"
-                                      title="Dossiê de Licenciamento"
-                                      onClick={() => setAdminSelectedDossier(item)}
-                                    >
-                                      <FileText className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                  <button 
-                                    className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-red-400 transition"
-                                    title="Deletar Jogo"
-                                    onClick={() => handleAdminDeleteGame(item.game.id)}
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="glass-panel p-6 space-y-6">
-                    <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                      <div>
-                        <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                          {adminViewMode === 'add' ? 'Cadastrar Novo Jogo e Acordo' : 'Editar Ficha Técnica'}
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          Preencha as especificações técnicas, metadados editoriais e as informações do licenciamento em cascata.
-                        </p>
-                      </div>
-                      <button 
-                        className="btn-secondary py-1.5 px-4 text-xs font-bold"
-                        onClick={() => setAdminViewMode('list')}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-
-                    <form onSubmit={handleAdminSaveSubmit} className="space-y-6 text-left">
-                      {/* Seção 1: Ficha Técnica */}
-                      <div className="space-y-4">
-                        <h4 className="text-sm font-bold text-cyan-300 uppercase tracking-widest border-b border-cyan-950 pb-1">
-                          1. Metadados & Ficha Técnica do Jogo
-                        </h4>
-                        
-                        <div className="form-grid">
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Título do Jogo:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.title} onChange={(e) => setFormGame({...formGame, title: e.target.value})}
-                              placeholder="Ex: Tetris Neon"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Slug Único do Iframe:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.slug} onChange={(e) => setFormGame({...formGame, slug: e.target.value})}
-                              placeholder="Ex: tetris-neon"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Categoria Principal:</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.category} onChange={(e) => setFormGame({...formGame, category: e.target.value})}
-                            >
-                              <option value="Arcade">Arcade</option>
-                              <option value="Memória">Memória</option>
-                              <option value="Ação">Ação</option>
-                              <option value="Educacional">Educacional</option>
-                              <option value="Terceira Idade">Terceira Idade</option>
-                              <option value="Bebês">Bebês</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Versão:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.version} onChange={(e) => setFormGame({...formGame, version: e.target.value})}
-                              placeholder="Ex: 1.0.0"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">URL de Origem (Capa/Banner):</label>
-                            <input 
-                              type="text" className="form-input"
-                              value={formGame.bannerUrl} onChange={(e) => setFormGame({...formGame, bannerUrl: e.target.value})}
-                              placeholder="Ex: https://images.unsplash.com/..."
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Caminho Relativo Iframe (prefixUrl):</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.prefixUrl} onChange={(e) => setFormGame({...formGame, prefixUrl: e.target.value})}
-                              placeholder="Ex: /games/tetris-neon/"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Subcategorias (separadas por vírgula):</label>
-                            <input 
-                              type="text" className="form-input"
-                              value={formGame.subcategories} onChange={(e) => setFormGame({...formGame, subcategories: e.target.value})}
-                              placeholder="Ex: Puzzle,Lógica,Casual"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Tags de Busca (separadas por vírgula):</label>
-                            <input 
-                              type="text" className="form-input"
-                              value={formGame.tags} onChange={(e) => setFormGame({...formGame, tags: e.target.value})}
-                              placeholder="Ex: blocos,encaixe,neon"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Estúdio Autor / Desenvolvedor:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.author} onChange={(e) => setFormGame({...formGame, author: e.target.value})}
-                              placeholder="Ex: Pixel Games Ltd"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Nome do Acordo de Licença:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.licenseName} onChange={(e) => setFormGame({...formGame, licenseName: e.target.value})}
-                              placeholder="Ex: Licença Comercial Não Exclusiva"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Orientação Física:</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.orientation} onChange={(e) => setFormGame({...formGame, orientation: e.target.value as any})}
-                            >
-                              <option value="both">Ambas (both)</option>
-                              <option value="landscape">Paisagem (landscape)</option>
-                              <option value="portrait">Retrato (portrait)</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Classificação Indicativa (ECA):</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.ageRating} onChange={(e) => setFormGame({...formGame, ageRating: e.target.value})}
-                            >
-                              <option value="Livre">Livre</option>
-                              <option value="10+">10+</option>
-                              <option value="14+">14+</option>
-                              <option value="18+">18+</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        {/* Controles de Entrada */}
-                        <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 space-y-2">
-                          <label className="text-xs text-gray-400 font-bold block">Compatibilidade e Controles:</label>
-                          <div className="flex flex-wrap gap-4 text-xs text-white">
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input 
-                                type="checkbox" checked={formGame.mouse}
-                                onChange={(e) => setFormGame({...formGame, mouse: e.target.checked})}
-                              /> Suporta Mouse / Clique
-                            </label>
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input 
-                                type="checkbox" checked={formGame.teclado}
-                                onChange={(e) => setFormGame({...formGame, teclado: e.target.checked})}
-                              /> Suporta Teclado (Setas/WASD)
-                            </label>
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input 
-                                type="checkbox" checked={formGame.toque}
-                                onChange={(e) => setFormGame({...formGame, toque: e.target.checked})}
-                              /> Suporta Tela de Toque (Mobile Touch)
-                            </label>
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input 
-                                type="checkbox" checked={formGame.gamepad}
-                                onChange={(e) => setFormGame({...formGame, gamepad: e.target.checked})}
-                              /> Suporta Controle Gamepad
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="form-group">
-                          <label className="text-xs text-gray-400 block">Descrição Editorial Comercial:</label>
-                          <textarea 
-                            rows={3} className="form-input resize-none" required
-                            value={formGame.description} onChange={(e) => setFormGame({...formGame, description: e.target.value})}
-                            placeholder="Descrição completa do jogo para SEO..."
-                          />
-                        </div>
-                      </div>
-
-                      {/* Seção 2: Contrato Jurídico */}
-                      <div className="space-y-4">
-                        <h4 className="text-sm font-bold text-pink-400 uppercase tracking-widest border-b border-pink-950 pb-1">
-                          2. Dossiê Legal & Acordo de Licenciamento (LGPD/ECA)
-                        </h4>
-
-                        <div className="form-grid">
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Código Único do Contrato:</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.contractNumber} onChange={(e) => setFormGame({...formGame, contractNumber: e.target.value})}
-                              placeholder="Ex: CON-2026-008"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Licenciante (Pessoa Física ou Jurídica):</label>
-                            <input 
-                              type="text" className="form-input" required
-                              value={formGame.signatoryCreator} onChange={(e) => setFormGame({...formGame, signatoryCreator: e.target.value})}
-                              placeholder="Razão Social ou Nome Completo do Autor"
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Tipo de Licença:</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.licenseType} onChange={(e) => setFormGame({...formGame, licenseType: e.target.value})}
-                            >
-                              <option value="Proprietário (In-house)">Proprietário (In-house)</option>
-                              <option value="Licença Comercial Exclusiva Digital">Licença Comercial Exclusiva Digital</option>
-                              <option value="Licença Comercial Não Exclusiva">Licença Comercial Não Exclusiva</option>
-                              <option value="Cessão de Propriedade Intelectual">Cessão de Propriedade Intelectual</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Escopo de Exclusividade:</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.exclusivityScope} onChange={(e) => setFormGame({...formGame, exclusivityScope: e.target.value})}
-                            >
-                              <option value="Exclusivo Total">Exclusivo Total</option>
-                              <option value="Exclusivo Brasil">Exclusivo Brasil</option>
-                              <option value="Não Exclusivo">Não Exclusivo / Global</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Duração do Acordo (Meses):</label>
-                            <input 
-                              type="number" className="form-input" required
-                              value={formGame.durationMonths} onChange={(e) => setFormGame({...formGame, durationMonths: Number(e.target.value)})}
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Repasse de Receita / Revenue Share (%):</label>
-                            <input 
-                              type="number" step="0.1" className="form-input" required
-                              value={formGame.revenueSharePercent} onChange={(e) => setFormGame({...formGame, revenueSharePercent: Number(e.target.value)})}
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Pagamento Fixo Adiantado (R$):</label>
-                            <input 
-                              type="number" className="form-input" required
-                              value={formGame.fixedPaymentAmount} onChange={(e) => setFormGame({...formGame, fixedPaymentAmount: Number(e.target.value)})}
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Representante Legal (Signatário):</label>
-                            <input 
-                              type="text" className="form-input"
-                              value={formGame.signatoryRepresentative} onChange={(e) => setFormGame({...formGame, signatoryRepresentative: e.target.value})}
-                              placeholder="Nome do procurador/representante"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 text-xs text-white">
-                          <label className="flex items-center gap-1.5 cursor-pointer font-bold">
-                            <input 
-                              type="checkbox" checked={formGame.termsAccepted}
-                              onChange={(e) => setFormGame({...formGame, termsAccepted: e.target.checked})}
-                              required
-                            /> Contrato de cessão e termos de conformidade e auditoria de direitos autorais aceitos formalmente
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Seção 3: Status de Homologação */}
-                      <div className="space-y-4">
-                        <h4 className="text-sm font-bold text-yellow-400 uppercase tracking-widest border-b border-yellow-950 pb-1">
-                          3. Workflow Editorial & Auditoria Técnica
-                        </h4>
-
-                        <div className="form-grid">
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Fase de Teste Técnico (Sandbox/Toque):</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.statusTechnical} onChange={(e) => setFormGame({...formGame, statusTechnical: e.target.value})}
-                            >
-                              <option value="aprovado">Aprovado e Homologado (Sem Bugs)</option>
-                              <option value="pendente_teste">Pendente Homologação / Controle de Toque</option>
-                              <option value="rejeitado">Rejeitado (Apresenta Bugs de Sandbox)</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Status Editorial (Exibição Homepage):</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.statusEditorial} onChange={(e) => setFormGame({...formGame, statusEditorial: e.target.value})}
-                            >
-                              <option value="publicado">Publicado (Visível para o Público)</option>
-                              <option value="rascunho">Rascunho Editorial (Oculto)</option>
-                              <option value="em_análise">Em Análise / Avaliação de Curadoria</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label className="text-xs text-gray-400 block">Auditoria Documentação de Direitos:</label>
-                            <select 
-                              className="form-input" required
-                              value={formGame.statusDoc} onChange={(e) => setFormGame({...formGame, statusDoc: e.target.value})}
-                            >
-                              <option value="aprovado">Cadeia de Direitos Aprovada (100% OK)</option>
-                              <option value="documentacao_pendente">Pendência Jurídica / Dossiê Incompleto</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4 pt-4 border-t border-white/5">
-                        <button 
-                          type="button" className="btn-secondary flex-1 py-2.5 justify-center"
-                          onClick={() => setAdminViewMode('list')}
-                        >
-                          Cancelar e Voltar
-                        </button>
-                        <button type="submit" className="btn-primary flex-grow py-2.5 justify-center font-bold">
-                          Salvar Registro e Contrato
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TAB 2: CONTRACTS LEDGER */}
-            {adminTab === 'contracts' && (
-              <div className="glass-panel p-6 space-y-4">
-                <div>
-                  <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                    Livro de Contratos de Licenciamento
-                  </h3>
-                  <p className="text-xs text-gray-400">
-                    Cadeia completa de cessão e validade jurídica para auditoria e prestação de contas.
-                  </p>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Jogo / ID</th>
-                        <th>Cód. Contrato</th>
-                        <th>Licenciante / Estúdio</th>
-                        <th>Licença</th>
-                        <th>Vigência</th>
-                        <th>Adiantamento / Rev Share</th>
-                        <th>Termos Aceitos</th>
-                        <th className="text-right">Dossiê</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminCatalog.map((item) => (
-                        <tr key={item.game.id}>
-                          <td>
-                            <div className="font-bold text-white text-xs">{item.game.title}</div>
-                            <div className="text-[10px] text-gray-500 font-mono">ID: {item.game.id}</div>
-                          </td>
-                          <td>
-                            <span className="font-mono font-bold text-cyan-400 text-xs">
-                              {item.contract?.contractNumber || 'SEM CONTRATO'}
-                            </span>
-                          </td>
-                          <td>
-                            <span className="font-semibold text-gray-300">{item.contract?.signatoryCreator || item.game.author}</span>
-                          </td>
-                          <td>
-                            <span className="text-purple-300 text-[11px]">{item.contract?.licenseType || item.game.licenseName}</span>
-                          </td>
-                          <td>
-                            <span className="text-gray-400 text-[11px]">{item.contract?.durationMonths ? `${item.contract.durationMonths} meses` : 'N/A'}</span>
-                          </td>
-                          <td>
-                            <div className="font-semibold text-white">R$ {item.contract?.fixedPaymentAmount?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}</div>
-                            <div className="text-[10px] text-green-400 font-mono">{item.contract?.revenueSharePercent || 0}% de Rev Share</div>
-                          </td>
-                          <td>
-                            {item.contract?.termsAccepted ? (
-                              <span className="badge badge-green">Aceito</span>
-                            ) : (
-                              <span className="badge badge-yellow">Requer Assinatura</span>
-                            )}
-                          </td>
-                          <td>
-                            <div className="flex justify-end">
-                              <button 
-                                className="p-1.5 rounded bg-white/5 hover:bg-green-500/20 text-green-400 transition"
-                                title="Ver Dossiê e Histórico de Auditoria"
-                                onClick={() => setAdminSelectedDossier(item)}
-                              >
-                                <FileText className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: ANALYTICS DASHBOARD & AI */}
-            {adminTab === 'dashboard' && adminMetrics && (
-              <div className="space-y-6">
-                {/* KPI Cards Grid */}
-                <div className="kpi-grid">
-                  <div className="glass-panel p-4 kpi-card">
-                    <div className="kpi-icon-wrapper cyan">
-                      <Activity className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="kpi-title">Sessões Totais</div>
-                      <div className="kpi-value">{adminMetrics.sessions?.toLocaleString('pt-BR')}</div>
-                    </div>
-                  </div>
-
-                  <div className="glass-panel p-4 kpi-card">
-                    <div className="kpi-icon-wrapper purple">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="kpi-title">Usuários Ativos</div>
-                      <div className="kpi-value">{adminMetrics.activeUsers?.toLocaleString('pt-BR')}</div>
-                    </div>
-                  </div>
-
-                  <div className="glass-panel p-4 kpi-card">
-                    <div className="kpi-icon-wrapper green">
-                      <DollarSign className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="kpi-title">Receita Bruta</div>
-                      <div className="kpi-value">USD {adminMetrics.revenue?.gross?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                    </div>
-                  </div>
-
-                  <div className="glass-panel p-4 kpi-card">
-                    <div className="kpi-icon-wrapper pink">
-                      <AlertCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="kpi-title">Taxa Rejeição (Bounce)</div>
-                      <div className="kpi-value">{(adminMetrics.bounceRate * 100).toFixed(1)}%</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Categoria mais Acessada */}
-                  <div className="glass-panel p-5 space-y-4">
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/5 pb-2">
-                      Sessões por Categoria (Profiling-Free)
-                    </h3>
-                    <div className="space-y-3">
-                      {adminMetrics.topCategories?.map((cat: any) => (
-                        <div key={cat.name} className="space-y-1">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span className="text-gray-300">{cat.name}</span>
-                            <span className="text-cyan-400 font-mono">{cat.sessions?.toLocaleString('pt-BR')}</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-cyan-400 rounded-full" 
-                              style={{ width: `${(cat.sessions / adminMetrics.sessions) * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* AI Insights & Compliance Recommendations */}
-                  <div className="glass-panel p-5 space-y-4 lg:col-span-2">
-                    <h3 className="text-xs font-bold text-pink-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-white/5 pb-2">
-                      <Cpu className="w-4 h-4 text-pink-500 animate-pulse" /> Agregações Analíticas de IA e Conformidade
-                    </h3>
+                {/* LAYOUT DE INFORMAÇÕES DEBAIXO DO JOGO */}
+                <div className="play-info-split">
+                  
+                  {/* COLUNA ESQUERDA */}
+                  <div className="space-y-6">
                     
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                      {adminInsights.map((insight) => (
-                        <div key={insight.id} className="p-3 bg-black/40 rounded-lg border border-white/5 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-bold text-white text-xs flex items-center gap-1">
-                              <ChevronRight className="w-4 h-4 text-pink-500 shrink-0" /> {insight.title}
-                            </h4>
-                            <span className="badge badge-purple text-[9px]">{insight.confidence} confiança</span>
+                    {/* Descrição do Jogo */}
+                    <div className="glass-panel p-6 space-y-4">
+                      <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-cyan-400" /> Descrição do Circuito
+                      </h3>
+                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                        {selectedGame.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+                        {selectedGame.tags.map(t => (
+                          <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-cyan-950/40 text-cyan-300 border border-cyan-800/20 font-bold">
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Grid Premium de Recomendados */}
+                    <div className="space-y-4">
+                      <h3 className="text-md font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                        <Grid className="w-5 h-5 text-cyan-400" /> Continue Jogando (Sugeridos)
+                      </h3>
+                      <div className="game-grid">
+                        {getRelatedGames(selectedGame).map(game => (
+                          <div 
+                            key={game.id}
+                            className="glass-card p-4 flex flex-col justify-between cursor-pointer group"
+                            onClick={() => handlePlayGame(game)}
+                          >
+                            <div>
+                              <div className="game-card-icon-container">
+                                {renderGameCover(game)}
+                                
+                                <div 
+                                  className="game-card-like-pill"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
+                                  <span>{likesCount[game.id] || 0}</span>
+                                </div>
+                              </div>
+                              <h4 className="font-bold text-sm tracking-tight text-white truncate group-hover:text-cyan-400 transition">{game.title}</h4>
+                              <p className="text-[11px] text-purple-300 font-bold uppercase mt-1">{game.category}</p>
+                            </div>
+                            <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/5">
+                              <span className="text-[10px] text-gray-400">Class: {game.ageRating}</span>
+                              <span className="text-[10px] font-bold text-cyan-400 font-mono">🎮 JOGAR</span>
+                            </div>
                           </div>
-                          <p className="text-[11px] text-gray-400 leading-relaxed pl-4">
-                            {insight.summary}
-                          </p>
-                          <div className="pl-4 space-y-1">
-                            <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Sugestões de Ajuste:</div>
-                            <ul className="list-disc pl-4 text-[10px] text-gray-300 leading-relaxed space-y-1">
-                              {insight.suggestions?.map((sug: string, idx: number) => (
-                                <li key={idx}>{sug}</li>
-                              ))}
-                            </ul>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* COLUNA DIREITA */}
+                  <div className="info-panel">
+                    
+                    {/* Ficha Técnica & Controles */}
+                    <div className="glass-panel p-6 space-y-4">
+                      <h3 className="text-md font-bold text-cyan-300 flex items-center gap-2 uppercase tracking-wider">
+                        <Settings className="w-4 h-4 text-cyan-400" /> Especificações & Controles
+                      </h3>
+                      
+                      <div className="space-y-3 text-xs">
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-gray-400">Desenvolvedor:</span>
+                          <span className="font-bold text-purple-300">{selectedGame.author}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-gray-400">Acordo Licença:</span>
+                          <span className="font-bold text-green-400">{selectedGame.licenseName}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-2">
+                          <span className="text-gray-400">Classificação:</span>
+                          <span className="font-extrabold text-cyan-400">{selectedGame.ageRating}</span>
+                        </div>
+                        
+                        <div className="pt-2">
+                          <span className="text-gray-400 block mb-2">Compatibilidade:</span>
+                          <div className="flex gap-2">
+                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.toque ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
+                              <Smartphone className="w-4 h-4" />
+                              <span className="text-[9px]">Toque</span>
+                            </div>
+                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.teclado ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
+                              <Gamepad2 className="w-4 h-4" />
+                              <span className="text-[9px]">Teclado</span>
+                            </div>
+                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.mouse ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
+                              <Volume2 className="w-4 h-4" />
+                              <span className="text-[9px]">Mouse</span>
+                            </div>
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
+
+                    {/* SLOT DE ANÚNCIO RETANGULAR LATERAL */}
+                    {consentOptions.advertising && (
+                      <div className="ad-slot-rectangle"></div>
+                    )}
+
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: USERS MANAGEMENT (Permissão de Usuários) */}
-            {adminTab === 'users' && (
-              <div className="glass-panel p-6 space-y-6 rounded-2xl bg-[#0a0b12]/40 border border-white/5 backdrop-blur-md shadow-xl">
-                <div className="border-b border-white/5 pb-4">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider font-mono">
-                    Controle de Permissões de Usuários
-                  </h3>
-                  <p className="text-xs text-gray-400">
-                    Gerencie papéis de acesso de usuários em cascata (ADMIN / USER) em total conformidade técnica (LGPD/ECA).
-                  </p>
+            {view === 'admin' && user && user.role !== 'user' && (
+              <div className="space-y-6 text-left">
+                {/* Header com Abas em formato de Cápsula Segmentada Premium */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#07080e]/90 p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
+                  <button 
+                    className="btn-secondary py-2 px-4 flex items-center gap-2 text-xs font-bold border border-white/10 hover:border-cyan-500/30 text-gray-300 hover:text-white transition rounded-xl shrink-0" 
+                    onClick={() => setView('home')}
+                  >
+                    <ArrowLeft className="w-4 h-4 text-cyan-400" /> Voltar ao Portal
+                  </button>
+                  
+                  <h2 className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2 font-mono">
+                    <Settings className="w-4 h-4 text-cyan-400 animate-spin-slow shrink-0" />
+                    <span>Cockpit de Administração</span>
+                  </h2>
+                  
+                  <div className="flex bg-black/50 p-1 rounded-full border border-white/5 gap-1 shrink-0">
+                    <button 
+                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'catalog' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      onClick={() => { setAdminTab('catalog'); setAdminViewMode('list'); }}
+                    >
+                      <FolderGit2 className="w-3.5 h-3.5" /> Catálogo
+                    </button>
+                    <button 
+                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'contracts' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
+                    >
+                      <FileSignature className="w-3.5 h-3.5" /> Contratos
+                    </button>
+                    <button 
+                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      onClick={() => { setAdminTab('dashboard'); setAdminViewMode('list'); }}
+                    >
+                      <BarChart3 className="w-3.5 h-3.5" /> Analytics & IA
+                    </button>
+                    <button 
+                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'users' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      onClick={() => { setAdminTab('users'); setAdminViewMode('list'); }}
+                    >
+                      <Users className="w-3.5 h-3.5" /> Usuários
+                    </button>
+                  </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-white/5 bg-black/20">
-                  <table className="min-w-full">
-                    <thead>
-                      <tr>
-                        <th className="font-mono text-[10px]">Usuário / ID</th>
-                        <th className="font-mono text-[10px]">E-mail de Cadastro</th>
-                        <th className="font-mono text-[10px]">Papel / Cargo</th>
-                        <th className="font-mono text-[10px]">Status</th>
-                        <th className="font-mono text-[10px]">Criado Em</th>
-                        <th className="font-mono text-[10px] text-right">Alterar Permissão</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {adminUsers.map((u) => (
-                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-lg bg-pink-950/20 border border-pink-500/20 flex items-center justify-center shrink-0 text-pink-400">
-                                <User className="w-4 h-4" />
+                {/* TAB 1: CATALOG MANAGMENT */}
+                {adminTab === 'catalog' && (
+                  <div className="space-y-6">
+                    {adminViewMode === 'list' ? (
+                      <div className="glass-panel p-6 space-y-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
+                          <div>
+                            <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                              Catálogo de Circuitos HTML5
+                            </h3>
+                            <p className="text-xs text-gray-400">
+                              Gerencie fichas técnicas de jogos e contratos de licenciamento ativos no portal.
+                            </p>
+                          </div>
+                          <button 
+                            className="btn-primary py-2 px-4 flex items-center gap-1.5"
+                            onClick={handleAdminAddClick}
+                          >
+                            <Plus className="w-4 h-4" /> Adicionar Novo Jogo
+                          </button>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Jogo / ID</th>
+                                <th>Categoria</th>
+                                <th>Versão</th>
+                                <th>Status Técnico</th>
+                                <th>Status Editorial</th>
+                                <th>Dossiê Jurídico</th>
+                                <th className="text-right">Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {adminCatalog.map((item) => (
+                                <tr key={item.game.id}>
+                                  <td>
+                                    <div className="flex items-center gap-3">
+                                      {item.game.bannerUrl ? (
+                                        <img 
+                                          src={item.game.bannerUrl} 
+                                          alt={item.game.title} 
+                                          className="w-10 h-7 object-cover rounded border border-white/5 shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="w-10 h-7 bg-white/5 rounded border border-white/5 flex items-center justify-center shrink-0">
+                                          <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                                        </div>
+                                      )}
+                                      <div>
+                                        <div className="font-bold text-white text-xs">{item.game.title}</div>
+                                        <div className="text-[10px] text-gray-400 font-mono">slug: {item.game.slug}</div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <span className="font-semibold text-purple-300">{item.game.category}</span>
+                                  </td>
+                                  <td className="font-mono text-[11px] text-gray-300">v{item.game.version}</td>
+                                  <td>{getTechnicalBadge(item.game.statusTechnical)}</td>
+                                  <td>{getEditorialBadge(item.game.statusEditorial)}</td>
+                                  <td>{getDocBadge(item.game.statusDoc)}</td>
+                                  <td>
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button 
+                                        className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
+                                        title="Editar Ficha"
+                                        onClick={() => handleAdminEditClick(item)}
+                                      >
+                                        <Edit2 className="w-3.5 h-3.5" />
+                                      </button>
+                                      {item.contract && (
+                                        <button 
+                                          className="p-1.5 rounded bg-white/5 hover:bg-green-500/20 text-green-400 transition"
+                                          title="Dossiê de Licenciamento"
+                                          onClick={() => setAdminSelectedDossier(item)}
+                                        >
+                                          <FileText className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                      <button 
+                                        className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-red-400 transition"
+                                        title="Deletar Jogo"
+                                        onClick={() => handleAdminDeleteGame(item.game.id)}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="glass-panel p-6 space-y-6">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                          <div>
+                            <h3 className="text-md font-bold text-white uppercase tracking-wider">
+                              {adminViewMode === 'add' ? 'Cadastrar Novo Jogo e Acordo' : 'Editar Ficha Técnica'}
+                            </h3>
+                            <p className="text-xs text-gray-400">
+                              Preencha as especificações técnicas, metadados editoriais e as informações do licenciamento em cascata.
+                            </p>
+                          </div>
+                          <button 
+                            className="btn-secondary py-1.5 px-4 text-xs font-bold"
+                            onClick={() => setAdminViewMode('list')}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+
+                        <form onSubmit={handleAdminSaveSubmit} className="space-y-6 text-left">
+                          <div className="space-y-4">
+                            <h4 className="text-sm font-bold text-cyan-300 uppercase tracking-widest border-b border-cyan-950 pb-1">
+                              1. Metadados & Ficha Técnica do Jogo
+                            </h4>
+                            
+                            <div className="form-grid">
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Título do Jogo:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.title} onChange={(e) => setFormGame({...formGame, title: e.target.value})}
+                                  placeholder="Ex: Tetris Neon"
+                                />
                               </div>
-                              <div>
-                                <div className="font-bold text-white text-xs">{u.username}</div>
-                                <div className="text-[10px] text-gray-500 font-mono">ID: {u.id}</div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Slug Único do Iframe:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.slug} onChange={(e) => setFormGame({...formGame, slug: e.target.value})}
+                                  placeholder="Ex: tetris-neon"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Categoria Principal:</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.category} onChange={(e) => setFormGame({...formGame, category: e.target.value})}
+                                >
+                                  <option value="Arcade">Arcade</option>
+                                  <option value="Memória">Memória</option>
+                                  <option value="Ação">Ação</option>
+                                  <option value="Educacional">Educacional</option>
+                                  <option value="Terceira Idade">Terceira Idade</option>
+                                  <option value="Bebês">Bebês</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Versão:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.version} onChange={(e) => setFormGame({...formGame, version: e.target.value})}
+                                  placeholder="Ex: 1.0.0"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">URL de Origem (Capa/Banner):</label>
+                                <input 
+                                  type="text" className="form-input"
+                                  value={formGame.bannerUrl} onChange={(e) => setFormGame({...formGame, bannerUrl: e.target.value})}
+                                  placeholder="Ex: https://images.unsplash.com/..."
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Caminho Relativo Iframe (prefixUrl):</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.prefixUrl} onChange={(e) => setFormGame({...formGame, prefixUrl: e.target.value})}
+                                  placeholder="Ex: /games/tetris-neon/"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Subcategorias (separadas por vírgula):</label>
+                                <input 
+                                  type="text" className="form-input"
+                                  value={formGame.subcategories} onChange={(e) => setFormGame({...formGame, subcategories: e.target.value})}
+                                  placeholder="Ex: Puzzle,Lógica,Casual"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Tags de Busca (separadas por vírgula):</label>
+                                <input 
+                                  type="text" className="form-input"
+                                  value={formGame.tags} onChange={(e) => setFormGame({...formGame, tags: e.target.value})}
+                                  placeholder="Ex: blocos,encaixe,neon"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Estúdio Autor / Desenvolvedor:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.author} onChange={(e) => setFormGame({...formGame, author: e.target.value})}
+                                  placeholder="Ex: Pixel Games Ltd"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Nome do Acordo de Licença:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.licenseName} onChange={(e) => setFormGame({...formGame, licenseName: e.target.value})}
+                                  placeholder="Ex: Licença Comercial Não Exclusiva"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Orientação Física:</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.orientation} onChange={(e) => setFormGame({...formGame, orientation: e.target.value as any})}
+                                >
+                                  <option value="both">Ambas (both)</option>
+                                  <option value="landscape">Paisagem (landscape)</option>
+                                  <option value="portrait">Retrato (portrait)</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Classificação Indicativa (ECA):</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.ageRating} onChange={(e) => setFormGame({...formGame, ageRating: e.target.value})}
+                                >
+                                  <option value="Livre">Livre</option>
+                                  <option value="10+">10+</option>
+                                  <option value="14+">14+</option>
+                                  <option value="18+">18+</option>
+                                </select>
                               </div>
                             </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-gray-400 font-mono text-[11px]">{u.email || u.username + '_safekey@arcade.com'}</span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${
-                              u.role === 'super_admin' || u.role === 'admin' 
-                                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25' 
-                                : 'bg-white/5 text-gray-400 border-white/5'
-                            }`}>
-                              {u.role === 'super_admin' ? 'Super Admin' : u.role === 'editor' ? 'Editor' : u.role === 'user' ? 'Jogador' : u.role}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`badge ${u.status === 'ativo' ? 'badge-green' : 'badge-red'}`}>
-                              {u.status || 'ativo'}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 font-mono text-[10px] text-gray-400">
-                            {new Date(u.createdAt || Date.now()).toLocaleDateString('pt-BR')}
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <select 
-                              className="form-input text-xs w-[160px] font-bold text-white bg-black/60 border border-white/10"
-                              value={u.role}
-                              disabled={user?.id === u.id} // Prevenir auto-rebaixamento
-                              onChange={(e) => handleAdminUpdateRole(u.id, e.target.value)}
+
+                            <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 space-y-2">
+                              <label className="text-xs text-gray-400 font-bold block">Compatibilidade e Controles:</label>
+                              <div className="flex flex-wrap gap-4 text-xs text-white">
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                  <input 
+                                    type="checkbox" checked={formGame.mouse}
+                                    onChange={(e) => setFormGame({...formGame, mouse: e.target.checked})}
+                                  /> Suporta Mouse / Clique
+                                </label>
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                  <input 
+                                    type="checkbox" checked={formGame.teclado}
+                                    onChange={(e) => setFormGame({...formGame, teclado: e.target.checked})}
+                                  /> Suporta Teclado (Setas/WASD)
+                                </label>
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                  <input 
+                                    type="checkbox" checked={formGame.toque}
+                                    onChange={(e) => setFormGame({...formGame, toque: e.target.checked})}
+                                  /> Suporta Tela de Toque (Mobile Touch)
+                                </label>
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                  <input 
+                                    type="checkbox" checked={formGame.gamepad}
+                                    onChange={(e) => setFormGame({...formGame, gamepad: e.target.checked})}
+                                  /> Suporta Controle Gamepad
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="form-group">
+                              <label className="text-xs text-gray-400 block">Descrição Editorial Comercial:</label>
+                              <textarea 
+                                rows={3} className="form-input resize-none" required
+                                value={formGame.description} onChange={(e) => setFormGame({...formGame, description: e.target.value})}
+                                placeholder="Descrição completa do jogo para SEO..."
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h4 className="text-sm font-bold text-pink-400 uppercase tracking-widest border-b border-pink-950 pb-1">
+                              2. Dossiê Legal & Acordo de Licenciamento (LGPD/ECA)
+                            </h4>
+
+                            <div className="form-grid">
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Código Único do Contrato:</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.contractNumber} onChange={(e) => setFormGame({...formGame, contractNumber: e.target.value})}
+                                  placeholder="Ex: CON-2026-008"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Licenciante (Pessoa Física ou Jurídica):</label>
+                                <input 
+                                  type="text" className="form-input" required
+                                  value={formGame.signatoryCreator} onChange={(e) => setFormGame({...formGame, signatoryCreator: e.target.value})}
+                                  placeholder="Razão Social ou Nome Completo do Autor"
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Tipo de Licença:</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.licenseType} onChange={(e) => setFormGame({...formGame, licenseType: e.target.value})}
+                                >
+                                  <option value="Proprietário (In-house)">Proprietário (In-house)</option>
+                                  <option value="Licença Comercial Exclusiva Digital">Licença Comercial Exclusiva Digital</option>
+                                  <option value="Licença Comercial Não Exclusiva">Licença Comercial Não Exclusiva</option>
+                                  <option value="Cessão de Propriedade Intelectual">Cessão de Propriedade Intelectual</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Escopo de Exclusividade:</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.exclusivityScope} onChange={(e) => setFormGame({...formGame, exclusivityScope: e.target.value})}
+                                >
+                                  <option value="Exclusivo Total">Exclusivo Total</option>
+                                  <option value="Exclusivo Brasil">Exclusivo Brasil</option>
+                                  <option value="Não Exclusivo">Não Exclusivo / Global</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Duração do Acordo (Meses):</label>
+                                <input 
+                                  type="number" className="form-input" required
+                                  value={formGame.durationMonths} onChange={(e) => setFormGame({...formGame, durationMonths: Number(e.target.value)})}
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Repasse de Receita / Revenue Share (%):</label>
+                                <input 
+                                  type="number" step="0.1" className="form-input" required
+                                  value={formGame.revenueSharePercent} onChange={(e) => setFormGame({...formGame, revenueSharePercent: Number(e.target.value)})}
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Pagamento Fixo Adiantado (R$):</label>
+                                <input 
+                                  type="number" className="form-input" required
+                                  value={formGame.fixedPaymentAmount} onChange={(e) => setFormGame({...formGame, fixedPaymentAmount: Number(e.target.value)})}
+                                />
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Representante Legal (Signatário):</label>
+                                <input 
+                                  type="text" className="form-input"
+                                  value={formGame.signatoryRepresentative} onChange={(e) => setFormGame({...formGame, signatoryRepresentative: e.target.value})}
+                                  placeholder="Nome do procurador/representante"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="bg-[#0b0c14] p-3 rounded-lg border border-white/5 text-xs text-white">
+                              <label className="flex items-center gap-1.5 cursor-pointer font-bold">
+                                <input 
+                                  type="checkbox" checked={formGame.termsAccepted}
+                                  onChange={(e) => setFormGame({...formGame, termsAccepted: e.target.checked})}
+                                  required
+                                /> Contrato de cessão e termos de conformidade e auditoria de direitos autorais aceitos formalmente
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h4 className="text-sm font-bold text-yellow-400 uppercase tracking-widest border-b border-yellow-950 pb-1">
+                              3. Workflow Editorial & Auditoria Técnica
+                            </h4>
+
+                            <div className="form-grid">
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Fase de Teste Técnico (Sandbox/Toque):</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.statusTechnical} onChange={(e) => setFormGame({...formGame, statusTechnical: e.target.value})}
+                                >
+                                  <option value="aprovado">Aprovado e Homologado (Sem Bugs)</option>
+                                  <option value="pendente_teste">Pendente Homologação / Controle de Toque</option>
+                                  <option value="rejeitado">Rejeitado (Apresenta Bugs de Sandbox)</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Status Editorial (Exibição Homepage):</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.statusEditorial} onChange={(e) => setFormGame({...formGame, statusEditorial: e.target.value})}
+                                >
+                                  <option value="publicado">Publicado (Visível para o Público)</option>
+                                  <option value="rascunho">Rascunho Editorial (Oculto)</option>
+                                  <option value="em_análise">Em Análise / Auditoria de Curadoria</option>
+                                </select>
+                              </div>
+
+                              <div className="form-group">
+                                <label className="text-xs text-gray-400 block">Auditoria Documentação de Direitos:</label>
+                                <select 
+                                  className="form-input" required
+                                  value={formGame.statusDoc} onChange={(e) => setFormGame({...formGame, statusDoc: e.target.value})}
+                                >
+                                  <option value="aprovado">Cadeia de Direitos Aprovada (100% OK)</option>
+                                  <option value="documentacao_pendente">Pendência Jurídica / Dossiê Incompleto</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-4 pt-4 border-t border-white/5">
+                            <button 
+                              type="button" className="btn-secondary flex-1 py-2.5 justify-center"
+                              onClick={() => setAdminViewMode('list')}
                             >
-                              <option value="user">Jogador (USER)</option>
-                              <option value="super_admin">Administrador (ADMIN)</option>
-                              <option value="editor">Editor</option>
-                              <option value="moderador">Moderador</option>
-                            </select>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                              Cancelar e Voltar
+                            </button>
+                            <button type="submit" className="btn-primary flex-grow py-2.5 justify-center font-bold">
+                              Salvar Registro e Contrato
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
-
-        {view === 'privacy' && (
-          <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-extrabold text-cyan-300">Política de Privacidade (LGPD)</h2>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              No **Franguinhos Games**, respeitamos rigorosamente a privacidade dos nossos visitantes e jogadores de conformidade com a Lei Geral de Proteção de Dados (LGPD) e o ECA. 
-              Garantimos coleta mínima de dados: nenhuma informação pessoal é obrigatória para jogar ou se cadastrar (exigimos apenas nome de usuário e senha). 
-              A declaração de faixa etária é opcional e serve exclusivamente para ajustar a curadoria editorial dos jogos na tela inicial.
-            </p>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Para crianças menores de 12 anos, garantimos que a publicidade é estritamente não personalizada e nenhum profiling comportamental é realizado. 
-              Você pode habilitar ou desabilitar cookies de analíticas e marketing a qualquer momento através do nosso painel de privacidade no rodapé.
-            </p>
-            <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
-          </div>
-        )}
-
-        {view === 'terms' && (
-          <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
-            <h2 className="text-2xl font-extrabold text-cyan-300">Termos de Uso</h2>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Ao utilizar o Franguinhos Games, você concorda com nossos termos. O portal oferece jogos casuais em formato HTML5 incorporados via iframe em sandbox isoladas para a sua segurança.
-              Todos os jogos listados possuem licenciamento amplo comercial comprovado ou cessão patrimonial de direitos autorais de conformidade com a legislação brasileira (Lei nº 9.610/98 e Lei nº 9.609/98).
-            </p>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              É estritamente proibido tentar violar os sandboxes dos jogos, fazer scraping do portal ou distribuir os arquivos de jogos estáticos sem prévia autorização contratual por escrito dos autores.
-            </p>
-            <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
-          </div>
-        )}
-
-        {view === 'contact' && (
-          <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
-            <h2 className="text-2xl font-extrabold text-cyan-300">Fale Conosco</h2>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso! Responderemos em até 48 horas.'); setView('home'); }} className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Nome:</label>
-                <input type="text" className="input-field" required />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Assunto:</label>
-                <input type="text" className="input-field" required />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Mensagem:</label>
-                <textarea rows={4} className="input-field resize-none" required></textarea>
-              </div>
-              <button type="submit" className="btn-primary w-full justify-center">Enviar Mensagem</button>
-            </form>
-          </div>
-        )}
-
-        {view === 'report' && (
-          <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
-            <h2 className="text-2xl font-extrabold text-pink-500">Denunciar Conteúdo</h2>
-            <p className="text-xs text-gray-400">
-              Valorizamos os direitos autorais e as licenças comerciais. Se você identificou qualquer jogo que viole direitos patrimoniais, informe no formulário abaixo com as devidas comprovações para remoção imediata.
-            </p>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Denúncia recebida e registrada no workflow editorial para análise técnica e jurídica.'); setView('home'); }} className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Seu Nome / Empresa:</label>
-                <input type="text" className="input-field" required />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">URL / Título do Jogo:</label>
-                <input type="text" className="input-field" required />
-              </div>
-              <div>
-                <label className="text-sm text-gray-400 block mb-1">Detalhes da Violação / Licença Conflitante:</label>
-                <textarea rows={4} className="input-field resize-none" required></textarea>
-              </div>
-              <button type="submit" className="btn-primary w-full justify-center bg-pink-600 hover:bg-pink-700">Enviar Denúncia</button>
-            </form>
-          </div>
+          </>
         )}
       </main>
+
 
       {/* --- FOOTER (Reestruturado com 3 Colunas Premium) --- */}
       <footer>
