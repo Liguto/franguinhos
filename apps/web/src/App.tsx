@@ -1360,15 +1360,6 @@ export default function App() {
             
             {/* 1. COLUNA DA ESQUERDA: SIDEBAR DE NAVEGAÇÃO COMPACTA */}
             <aside className="bento-sidebar-left">
-              {/* Logo Franguinhos Games */}
-              <div className="flex items-center gap-2.5 px-2 pb-5 border-b border-white/5 mb-4 select-none">
-                <img src="/logo_franguinhos.png" alt="Franguinhos Logo" className="w-8 h-8 rounded-lg object-contain filter drop-shadow-[0_0_8px_rgba(102,252,241,0.25)]" />
-                <div className="flex flex-col">
-                  <span className="text-xs font-black text-white leading-none tracking-widest uppercase">Franguinhos</span>
-                  <span className="text-[10px] font-black text-cyan-400 leading-none tracking-widest uppercase mt-1">Games</span>
-                </div>
-              </div>
-
               <div className="bento-sidebar-section-title">Menu Principal</div>
               <nav className="bento-sidebar-nav">
                 <button 
@@ -1439,8 +1430,41 @@ export default function App() {
                   onClick={() => setTeaMode(!teaMode)}
                 >
                   <Settings className="w-4 h-4 text-green-400" />
-                  <span>Modo TEA</span>
+                  <span>Modo TEA (Calmo)</span>
                 </button>
+
+                {/* Submenu de Modos Editoriais na Sidebar (Fidelidade / Usabilidade) */}
+                <div className="pl-2.5 pt-1 pb-2 border-l border-white/5 space-y-1 ml-4 my-2 select-none">
+                  <button
+                    className={`bento-nav-item-sub ${agePreference === 'geral' ? 'active' : ''}`}
+                    onClick={() => { setView('home'); setAgePreference('geral'); setSelectedGame(null); }}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'geral' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
+                    <span>Modo Geral</span>
+                  </button>
+                  <button
+                    className={`bento-nav-item-sub ${agePreference === 'educacional' ? 'active' : ''}`}
+                    onClick={() => { setView('home'); setAgePreference('educacional'); setSelectedGame(null); }}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'educacional' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
+                    <span>Modo Kids (Edu)</span>
+                  </button>
+                  <button
+                    className={`bento-nav-item-sub ${agePreference === 'bebes' ? 'active' : ''}`}
+                    onClick={() => { setView('home'); setAgePreference('bebes'); setSelectedGame(null); }}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'bebes' ? 'bg-pink-500 shadow-[0_0_6px_rgba(244,114,182,0.4)]' : 'bg-gray-600'}`} />
+                    <span>Modo Bebês</span>
+                  </button>
+                  <button
+                    className={`bento-nav-item-sub ${agePreference === 'terceira_idade' ? 'active' : ''}`}
+                    onClick={() => { setView('home'); setAgePreference('terceira_idade'); setSelectedGame(null); }}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'terceira_idade' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
+                    <span>Modo Sênior</span>
+                  </button>
+                </div>
+
                 <button 
                   className={`bento-nav-item ${view === 'privacy' ? 'active' : ''}`}
                   onClick={() => { setView('privacy'); setSelectedGame(null); }}
@@ -1467,114 +1491,48 @@ export default function App() {
                   
                   {/* Logotipo Centralizado de Alta Fidelidade (Mockup Alignment) */}
                   {!searchQuery && activeCategory === 'Tudo' && (
-                    <div className="flex flex-col items-center justify-center my-4 text-center select-none">
+                    <div 
+                      style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        textAlign: 'center', 
+                        margin: '30px auto', 
+                        width: '100%',
+                        userSelect: 'none'
+                      }}
+                      className="animate-[fadeInUp_0.4s_ease-out_forwards]"
+                    >
                       <img 
                         src="/logo_franguinhos.png" 
                         alt="Franguinhos Games Logo" 
-                        className="w-16 h-16 object-contain filter drop-shadow-[0_0_15px_rgba(102,252,241,0.25)] animate-[float_4s_ease-in-out_infinite]"
+                        style={{ width: '192px', height: '192px', objectFit: 'contain' }}
+                        className="filter drop-shadow-[0_0_30px_rgba(102,252,241,0.3)] animate-[float_4s_ease-in-out_infinite]"
                       />
-                      <h1 className="text-base font-black text-white tracking-widest uppercase mt-2">
+                      <h1 
+                        style={{ 
+                          fontSize: '1.25rem', 
+                          fontWeight: '900', 
+                          color: '#fff', 
+                          letterSpacing: '0.15em', 
+                          textTransform: 'uppercase', 
+                          marginTop: '16px',
+                          fontFamily: "'Outfit', sans-serif" 
+                        }}
+                      >
                         Franguinhos <span className="text-cyan-400">Games</span>
                       </h1>
-                      <div className="w-12 h-[3px] bg-gradient-to-r from-cyan-400 to-pink-500 rounded-full mt-2 opacity-60" />
-                    </div>
-                  )}
-
-                  {/* Barra de Busca Móvel */}
-                  <div className="flex md:hidden items-center relative w-full mb-4">
-                    <input 
-                      type="text" 
-                      placeholder="Buscar jogos..." 
-                      className="input-field pr-10 py-2"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <Search className="absolute right-3 w-5 h-5 text-gray-400" />
-                  </div>
-
-                  {/* Seletor de Faixa Etária Móvel (Visível apenas no celular, oculto no PC) */}
-                  <div className="mobile-pref-block">
-                    <div className="pref-selector">
-                      <button 
-                        className={`pref-btn ${agePreference === 'geral' ? 'active' : ''}`}
-                        onClick={() => setAgePreference('geral')}
-                      >
-                        Geral
-                      </button>
-                      <button 
-                        className={`pref-btn ${agePreference === 'educacional' ? 'active educacional' : ''}`}
-                        onClick={() => setAgePreference('educacional')}
-                      >
-                        Educacional
-                      </button>
-                      <button 
-                        className={`pref-btn ${agePreference === 'terceira_idade' ? 'active idoso' : ''}`}
-                        onClick={() => setAgePreference('terceira_idade')}
-                      >
-                        Sênior
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Categorias Tabs */}
-                  <div className="category-container">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
-                        onClick={() => setActiveCategory(cat)}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* SEÇÃO 'EM DESTAQUE' (Bento Style: 2 wide horizontal cards) */}
-                  {activeCategory === 'Tudo' && !searchQuery && games.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-xs font-extrabold text-white tracking-widest uppercase bg-cyan-950/40 px-3 py-1 rounded-full border border-cyan-500/20 w-max">
-                        ⭐ Em Destaque
-                      </h3>
-                      
-                      <div className="bento-featured-grid">
-                        {/* Cartão 1: Bolhas Mágicas (Recomendado do Dia) */}
-                        <div 
-                          className="bento-card-featured-game cursor-pointer group"
-                          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=80')` }}
-                          onClick={() => {
-                            const bubblePop = games.find(g => g.slug === 'bubble-pop') || games[0];
-                            handlePlayGame(bubblePop);
-                          }}
-                        >
-                          <div className="bento-featured-overlay">
-                            <span className="bento-card-badge-hot">
-                              🎮 RECOMENDADO DO DIA
-                            </span>
-                            <h2 className="text-lg font-black text-white tracking-tight uppercase group-hover:text-cyan-400 transition">
-                              Bolhas Mágicas
-                            </h2>
-                          </div>
-                        </div>
-                        
-                        {/* Cartão 2: Subway Surfers / Rocket Rise */}
-                        <div 
-                          className="bento-card-featured-game cursor-pointer group"
-                          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80')` }}
-                          onClick={() => {
-                            const rocketRise = games.find(g => g.slug === 'rocket-rise') || games[1];
-                            handlePlayGame(rocketRise);
-                          }}
-                        >
-                          <div className="bento-featured-overlay">
-                            <span className="bento-card-badge-hot bg-purple-950/40 border-purple-500/30 text-purple-400">
-                              🚀 ALTA PERFORMANCE
-                            </span>
-                            <h2 className="text-lg font-black text-white tracking-tight uppercase group-hover:text-pink-500 transition">
-                              Rocket Rise
-                            </h2>
-                          </div>
-                        </div>
-                      </div>
+                      <div 
+                        style={{ 
+                          width: '96px', 
+                          height: '4px', 
+                          background: 'linear-gradient(90deg, #00f0ff 0%, #ff007f 100%)', 
+                          borderRadius: '4px', 
+                          marginTop: '10px', 
+                          opacity: 0.7 
+                        }} 
+                      />
                     </div>
                   )}
 
@@ -1689,11 +1647,6 @@ export default function App() {
                       </div>
                     )}
                   </div>
-
-                  {/* SLOT DE ANÚNCIO IN-FEED LEADERBOARD INFERIOR */}
-                  {consentOptions.advertising && (
-                    <div className="ad-slot-leaderboard"></div>
-                  )}
                 </div>
               )}
 
@@ -1844,52 +1797,145 @@ export default function App() {
               {/* Widget de Perfil do Usuário */}
               <div className="bento-profile-card">
                 {user ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-500 flex items-center justify-center text-white font-extrabold text-sm border-2 border-cyan-400/30 bento-friend-avatar-glow">
-                      {user.username.substring(0, 2).toUpperCase()}
+                  <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
+                    {/* Linha 1: Avatar, Identidade e Sair */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Avatar Premium Circular Neon */}
+                        <div 
+                          style={{
+                            width: '46px',
+                            height: '46px',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontWeight: '900',
+                            fontSize: '1rem',
+                            border: '2px solid rgba(255, 255, 255, 0.15)',
+                            boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)',
+                            flexShrink: 0
+                          }}
+                        >
+                          {user.username.substring(0, 2).toUpperCase()}
+                        </div>
+                        
+                        <div className="min-w-0">
+                          <div className="font-extrabold text-white text-base truncate leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                            Olá, {user.username}!
+                          </div>
+                          <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                            {user.role === 'super_admin' ? 'Admin VIP' : 'Jogador VIP'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <button 
+                        onClick={handleLogout} 
+                        style={{
+                          background: 'rgba(255, 69, 101, 0.08)',
+                          border: '1px solid rgba(255, 69, 101, 0.2)',
+                          borderRadius: '50%',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#ff4565',
+                          cursor: 'pointer',
+                          transition: 'all 0.25s',
+                          boxShadow: '0 0 8px rgba(255, 69, 101, 0.1)',
+                          flexShrink: 0
+                        }}
+                        className="hover-logout-btn"
+                        title="Sair da Conta"
+                      >
+                        <LogOut style={{ width: '13px', height: '13px' }} />
+                      </button>
                     </div>
-                    <div className="flex-grow">
-                      <div className="font-extrabold text-white text-sm leading-none">Olá, {user.username}!</div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[9px] text-cyan-400 bg-cyan-950/50 px-1.5 py-0.5 rounded border border-cyan-500/20 font-mono uppercase tracking-wider">
-                          {user.role === 'super_admin' ? 'Admin' : 'Gamer'}
-                        </span>
-                        <span className="text-[9px] text-pink-400 bg-pink-950/40 px-1.5 py-0.5 rounded border border-pink-500/10 font-mono uppercase tracking-wider">
-                          Nível 12
-                        </span>
+                    
+                    {/* Linha 2: XP e Progresso de Nível Estendido */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-[10px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        <span className="bg-white/5 border border-white/5 px-2 py-0.5 rounded-md text-[9px] text-cyan-400 font-bold">NÍVEL 12</span>
+                        <span className="text-gray-500">PROGRESSO: <strong className="text-white font-mono">70%</strong></span>
+                      </div>
+                      <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                        <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%', transition: 'width 1s ease' }} />
                       </div>
                     </div>
-                    <button 
-                      onClick={handleLogout} 
-                      className="p-1 rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition"
-                      title="Sair da Conta"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400">
-                        <User className="w-4 h-4" />
+                  <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
+                    {/* Linha 1: Título e Status */}
+                    <div className="flex items-center gap-3">
+                      <div 
+                        style={{
+                          width: '42px',
+                          height: '42px',
+                          borderRadius: '50%',
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#8f9cae',
+                          flexShrink: 0
+                        }}
+                      >
+                        <User className="w-5 h-5" />
                       </div>
-                      <div>
-                        <div className="font-extrabold text-white text-xs leading-none">Jogador Visitante</div>
-                        <span className="text-[10px] text-gray-500 block mt-0.5">Salve seus recordes online</span>
+                      <div className="text-left">
+                        <div className="font-extrabold text-white text-base leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                          Jogador Visitante
+                        </div>
+                        <span className="text-[11px] text-gray-500 block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                          Crie uma conta para salvar dados!
+                        </span>
                       </div>
                     </div>
+                    
+                    {/* Linha 2: Vantagens Simplificadas */}
+                    <div className="text-left text-[11px] text-gray-400 font-medium px-1 leading-relaxed">
+                      🎁 Conecte-se para salvar seus jogos favoritos e gravar recordes nos rankings mundiais de pontuação.
+                    </div>
+                    
+                    {/* Linha 3: Botão Conectar */}
                     <button 
-                      className="btn-primary py-1.5 px-4 text-[10px] font-black shrink-0 shadow-[0_0_12px_rgba(0,240,255,0.2)]"
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #00f0ff 0%, #8a2be2 100%)',
+                        border: 'none',
+                        borderRadius: '12px',
+                        padding: '11px',
+                        color: '#000',
+                        fontWeight: '900',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        boxShadow: '0 4px 15px rgba(0, 240, 255, 0.25)',
+                        transition: 'all 0.25s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        fontFamily: "'Outfit', sans-serif"
+                      }}
+                      className="btn-connect-sidebar"
                       onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
                     >
-                      Entrar
+                      <LogIn style={{ width: '13px', height: '13px' }} />
+                      <span>Conectar Conta</span>
                     </button>
                   </div>
                 )}
               </div>
 
               {/* Widget de Amigos Online */}
-              <div className="bento-social-card flex-grow flex flex-col min-h-[160px]">
+              <div className="bento-social-card">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2">
                   <Users className="w-4 h-4 text-cyan-400" />
                   <span>Amigos Online ({onlineFriends.filter(f => f.status !== 'ausente').length})</span>
@@ -3074,9 +3120,9 @@ export default function App() {
       {/* --- AUTHENTICATION MODAL --- */}
       {showAuthModal && (
         <div className="modal-backdrop">
-          <div className="glass-panel modal-content relative">
+          <div className="glass-panel modal-content auth-modal-card relative">
             <button 
-              className="absolute top-4 right-4 text-gray-400 hover:text-white"
+              className="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-full hover:bg-white/5 transition"
               onClick={() => { setShowAuthModal(false); setAuthError(''); setRecoveryPhrase(''); }}
             >
               <X className="w-5 h-5" />
@@ -3095,78 +3141,95 @@ export default function App() {
                   {recoveryPhrase}
                 </div>
                 <button 
-                  className="btn-primary w-full justify-center"
+                  className="btn-primary w-full justify-center rounded-xl py-3 font-extrabold"
                   onClick={() => { setShowAuthModal(false); setRecoveryPhrase(''); setUsernameInput(''); setPasswordInput(''); }}
                 >
                   Concluído
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleAuthSubmit} className="space-y-4">
-                <h3 className="text-xl font-extrabold text-cyan-300 text-center">
-                  {authMode === 'login' ? 'ENTRAR NO ARCADE' : 'CRIAR CONTA SEGURA'}
-                </h3>
+              <form onSubmit={handleAuthSubmit} className="space-y-5">
                 
+                {/* Cabeçalho do Cartão de Autenticação */}
+                <div className="flex flex-col items-center justify-center text-center select-none mb-2">
+                  <img 
+                    src="/logo_franguinhos.png" 
+                    alt="Franguinhos Games Logo" 
+                    style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+                    className="filter drop-shadow-[0_0_15px_rgba(102,252,241,0.25)]"
+                  />
+                  <h2 className="text-md font-black text-white tracking-widest uppercase mt-2">
+                    Franguinhos <span className="text-cyan-400">Games</span>
+                  </h2>
+                </div>
+
+                {/* Seletor Segmentado de Abas Premium */}
+                <div className="flex bg-black/40 p-1 rounded-full border border-white/5 mb-6 max-w-[280px] mx-auto">
+                  <button
+                    type="button"
+                    className={`flex-1 text-center py-1.5 rounded-full text-xs font-black transition-all ${authMode === 'login' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.3)]' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                  >
+                    Fazer Login
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 text-center py-1.5 rounded-full text-xs font-black transition-all ${authMode === 'register' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.3)]' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                  >
+                    Criar Conta
+                  </button>
+                </div>
+
                 {authError && (
-                  <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-red-950/30 border border-red-500/20 text-xs text-red-400 flex items-center gap-2 text-left">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>{authError}</span>
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-400">Nome de Usuário:</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="Apelido único" 
-                    value={usernameInput}
-                    onChange={(e) => setUsernameInput(e.target.value)}
-                    required
-                  />
-                </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Nome de Usuário:</label>
+                    <div className="relative flex items-center">
+                      <User className="absolute left-3 w-4 h-4 text-cyan-400" />
+                      <input 
+                        type="text" 
+                        className="input-field pl-10" 
+                        placeholder="Seu apelido único de jogador" 
+                        value={usernameInput}
+                        onChange={(e) => setUsernameInput(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-400">Senha:</label>
-                  <input 
-                    type="password" 
-                    className="input-field" 
-                    placeholder="Senha de acesso" 
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    required
-                  />
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Senha de Acesso:</label>
+                    <div className="relative flex items-center">
+                      <Lock className="absolute left-3 w-4 h-4 text-cyan-400" />
+                      <input 
+                        type="password" 
+                        className="input-field pl-10" 
+                        placeholder="Sua senha secreta" 
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {authMode === 'register' && (
-                  <p className="text-[10px] text-gray-400 leading-relaxed">
-                    🔒 **Privacidade**: Sua senha será criptografada como Hash scrypt/bcrypt. Não guardamos e-mails nem faremos rastreamento abusivo.
-                  </p>
+                  <div className="p-3 rounded-lg bg-cyan-950/20 border border-cyan-500/10 text-[10px] text-gray-400 leading-relaxed text-left flex gap-2">
+                    <Shield className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                    <span>🔒 <strong>Privacidade Garantida</strong>: Sua senha é armazenada com criptografia de hash irreversível. Não coletamos e-mails de acordo com as diretrizes da LGPD e do ECA.</span>
+                  </div>
                 )}
 
-                <button type="submit" className="btn-primary w-full justify-center font-bold">
-                  {authMode === 'login' ? 'Conectar' : 'Criar Minha Conta'}
+                <button type="submit" className="btn-primary w-full justify-center font-black py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-black shadow-[0_4px_15px_rgba(0,240,255,0.2)] hover:shadow-[0_4px_25px_rgba(0,240,255,0.45)] mt-4">
+                  {authMode === 'login' ? 'Conectar ao Portal' : 'Registrar Minha Conta'}
                 </button>
-
-                <div className="text-center pt-2">
-                  {authMode === 'login' ? (
-                    <button 
-                      type="button" 
-                      className="text-xs text-gray-400 hover:text-cyan-400 transition"
-                      onClick={() => setAuthMode('register')}
-                    >
-                      Não tem conta? **Cadastre-se aqui**
-                    </button>
-                  ) : (
-                    <button 
-                      type="button" 
-                      className="text-xs text-gray-400 hover:text-cyan-400 transition"
-                      onClick={() => setAuthMode('login')}
-                    >
-                      Já possui conta? **Faça login aqui**
-                    </button>
-                  )}
-                </div>
               </form>
             )}
           </div>
