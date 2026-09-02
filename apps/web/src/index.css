@@ -2172,4 +2172,187 @@ tbody tr:hover {
   }
 }
 
+/* ==========================================================================
+   UX AUDIT UPGRADES — SKELETON, TRANSITIONS, ESCAPE, PARENT GATE, CHALLENGES & CHARTS
+   ========================================================================== */
+
+/* 1. Shimmer Loading Skeletons */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-body {
+  flex-grow: 1;
+  height: calc(100% - 22px);
+  border-radius: 28px;
+  background: linear-gradient(90deg, rgba(20, 22, 37, 0.6) 25%, rgba(35, 38, 58, 0.7) 37%, rgba(20, 22, 37, 0.6) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(20, 22, 37, 0.6) 25%, rgba(35, 38, 58, 0.7) 37%, rgba(20, 22, 37, 0.6) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  margin-left: 6px;
+}
+
+/* 2. Micro-Animations & Page Transitions */
+.fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-feed-transition {
+  transition: opacity 0.25s ease-in-out;
+}
+
+/* 3. Floating Close Escape Button in Iframe */
+.bento-game-floating-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(10, 12, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-game-floating-close:hover {
+  background: rgba(255, 0, 127, 0.15);
+  border-color: var(--accent-pink);
+  color: var(--accent-pink);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+}
+
+/* 4. Playful Parent Gate modal style */
+.parent-gate-card {
+  max-width: 400px;
+  border-color: rgba(255, 0, 127, 0.25) !important;
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.02) 0%, rgba(10, 12, 22, 0.85) 100%) !important;
+  box-shadow: 0 20px 50px rgba(255, 0, 127, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+  border-radius: 28px !important;
+  padding: 30px !important;
+}
+
+.parent-gate-card h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+/* 5. Friend Challenge Card Social */
+.bento-challenge-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin-top: 8px;
+  background: rgba(10, 11, 22, 0.95);
+  border: 1px solid rgba(102, 252, 241, 0.2);
+  backdrop-filter: blur(12px);
+  padding: 12px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 6. CSS-Based Minimalist KPI Charts for Backoffice */
+.css-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(10, 12, 22, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.css-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.css-bar-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  width: 90px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.css-bar-track {
+  flex-grow: 1;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.css-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-cyan) 100%);
+  box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.css-bar-row:nth-child(even) .css-bar-fill {
+  background: linear-gradient(90deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+}
+
+.css-bar-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #fff;
+  width: 45px;
+  text-align: right;
+}
+
 
