@@ -82,6 +82,7 @@ export default function App() {
   const [showParentGate, setShowParentGate] = useState<boolean>(false);
   const [parentMath, setParentMath] = useState({ n1: 0, n2: 0, op: '+' });
   const [parentInput, setParentInput] = useState<string>('');
+  const [isScreenLocked, setIsScreenLocked] = useState<boolean>(false);
   const wakeLockRef = useRef<any>(null);
 
   // Autenticação
@@ -98,7 +99,7 @@ export default function App() {
   const [favorites, setFavorites] = useState<string[]>([]); // Array de IDs de jogos
 
   // --- Estados do Painel Administrativo Integrado ---
-  const [adminTab, setAdminTab] = useState<'catalog' | 'contracts' | 'dashboard' | 'users'>('catalog');
+  const [adminTab, setAdminTab] = useState<'contracts' | 'dashboard' | 'users'>('contracts');
   const [adminCatalog, setAdminCatalog] = useState<any[]>([]);
   const [adminViewMode, setAdminViewMode] = useState<'list' | 'add' | 'edit'>('list');
   const [adminSelectedGame, setAdminSelectedGame] = useState<any | null>(null);
@@ -140,10 +141,6 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('arcade_likes_count', JSON.stringify(likesCount));
   }, [likesCount]);
-
-  // PWA & Posição de Instalação
-  const [isPwaInstalled, setIsPwaInstalled] = useState<boolean>(false);
-  const [showPwaBanner, setShowPwaBanner] = useState<boolean>(true);
 
   // Consentimento de Privacidade (LGPD)
   const [consentVersion, setConsentVersion] = useState<string>('v1');
@@ -1212,6 +1209,14 @@ export default function App() {
     setShowConsentBanner(false);
   };
 
+  // Mapeia categorias extras/especiais para as 3 categorias padrão da barra lateral
+  const getMappedCategory = (cat: string) => {
+    if (cat === 'Bebês') return 'Arcade';
+    if (cat === 'Educacional' || cat === 'Infantil') return 'Memória';
+    if (cat === 'Terceira Idade' || cat === 'Puzzle') return 'Memória';
+    return cat; // 'Arcade', 'Memória', 'Ação' mantêm-se iguais
+  };
+
   // Filtragem de Jogos baseada nas preferências ativas
   const getFilteredGames = () => {
     let result = [...games];
@@ -1227,9 +1232,12 @@ export default function App() {
       result = result.filter(g => g.category === 'Memória' || g.category === 'Terceira Idade' || g.tags.includes('mente'));
     }
 
-    // 2. Filtragem por Categoria
+    // 2. Filtragem por Categoria (Engloba categorias especiais do monorepo de acordo com o mapeamento)
     if (activeCategory !== 'Tudo') {
-      result = result.filter(g => g.category === activeCategory);
+      result = result.filter(g => {
+        const mappedCat = getMappedCategory(g.category);
+        return mappedCat === activeCategory;
+      });
     }
 
     // 3. Filtragem por Busca
@@ -1316,36 +1324,7 @@ export default function App() {
         </>
       )}
 
-      {/* --- SLEEK MOBILE-ONLY PWA TOAST (Escondido em PCs, visível apenas em celulares) --- */}
-      {showPwaBanner && !isPwaInstalled && (
-        <div className="pwa-toast">
-          <div className="flex items-center gap-2 text-sm">
-            <Smartphone className="text-cyan-400 w-5 h-5 shrink-0" />
-            <span className="font-bold text-white">Instalar Franguinhos Games</span>
-          </div>
-          <p className="text-[11px] text-gray-400 leading-relaxed">
-            Instale o PWA para jogar em tela cheia de forma instantânea com atalho direto na sua tela inicial!
-          </p>
-          <div className="flex gap-3 justify-end pt-1">
-            <button 
-              className="text-[11px] text-gray-500 font-bold hover:text-white transition"
-              onClick={() => setShowPwaBanner(false)}
-            >
-              Agora Não
-            </button>
-            <button 
-              className="bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-[11px] py-1.5 px-4 rounded-full transition"
-              onClick={() => {
-                setIsPwaInstalled(true);
-                setShowPwaBanner(false);
-                alert("Simulação de PWA: Aplicativo adicionado à sua tela inicial com sucesso!");
-              }}
-            >
-              Instalar
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* --- CONTEÚDO PRINCIPAL --- */}
             <main className="container flex-grow py-8">
@@ -1381,14 +1360,6 @@ export default function App() {
                       {favorites.length}
                     </span>
                   )}
-                </button>
-
-                <button 
-                  className="bento-nav-item"
-                  onClick={() => alert("Comunidade: Feed Social em breve!")}
-                >
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span>Comunidade</span>
                 </button>
 
                 <button 
@@ -1430,7 +1401,7 @@ export default function App() {
                   onClick={() => setTeaMode(!teaMode)}
                 >
                   <Settings className="w-4 h-4 text-green-400" />
-                  <span>Modo TEA (Calmo)</span>
+                  <span>Modo TEA: {teaMode ? 'ON' : 'OFF'}</span>
                 </button>
 
                 {/* Submenu de Modos Editoriais na Sidebar (Fidelidade / Usabilidade) */}
@@ -1540,6 +1511,45 @@ export default function App() {
                   {consentOptions.advertising && (
                     <div className="ad-slot-leaderboard"></div>
                   )}
+
+                  {/* Seletor de Acessibilidade Mobile (Menu de Modos de Interação no Topo, visível apenas em celulares e tablets) */}
+                  <div className="mobile-only-modes-bar select-none">
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'geral' && !teaMode ? 'active-geral' : ''}`}
+                      onClick={() => { setAgePreference('geral'); setTeaMode(false); }}
+                    >
+                      <Grid style={{ width: '16px', height: '16px' }} />
+                      <span>Geral</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${teaMode ? 'active-tea' : ''}`}
+                      onClick={() => setTeaMode(!teaMode)}
+                    >
+                      <Brain style={{ width: '16px', height: '16px' }} />
+                      <span>TEA: {teaMode ? 'ON' : 'OFF'}</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'educacional' && !teaMode ? 'active-edu' : ''}`}
+                      onClick={() => { setAgePreference('educacional'); setTeaMode(false); }}
+                    >
+                      <Award style={{ width: '16px', height: '16px' }} />
+                      <span>Kids (Edu)</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'bebes' && !teaMode ? 'active-bebes' : ''}`}
+                      onClick={() => { setAgePreference('bebes'); setTeaMode(false); }}
+                    >
+                      <Sparkles style={{ width: '16px', height: '16px' }} />
+                      <span>Bebês</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'terceira_idade' && !teaMode ? 'active-senior' : ''}`}
+                      onClick={() => { setAgePreference('terceira_idade'); setTeaMode(false); }}
+                    >
+                      <Star style={{ width: '16px', height: '16px' }} />
+                      <span>Sênior</span>
+                    </button>
+                  </div>
 
                   {/* Grid de Jogos */}
                   <div className="space-y-4">
@@ -1799,13 +1809,13 @@ export default function App() {
                 {user ? (
                   <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
                     {/* Linha 1: Avatar, Identidade e Sair */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         {/* Avatar Premium Circular Neon */}
                         <div 
                           style={{
-                            width: '46px',
-                            height: '46px',
+                            width: '34px',
+                            height: '34px',
                             borderRadius: '50%',
                             background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
                             display: 'flex',
@@ -1813,9 +1823,9 @@ export default function App() {
                             justifyContent: 'center',
                             color: '#fff',
                             fontWeight: '900',
-                            fontSize: '1rem',
-                            border: '2px solid rgba(255, 255, 255, 0.15)',
-                            boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)',
+                            fontSize: '0.78rem',
+                            border: '1.5px solid rgba(255, 255, 255, 0.1)',
+                            boxShadow: '0 0 8px rgba(0, 240, 255, 0.2)',
                             flexShrink: 0
                           }}
                         >
@@ -1823,10 +1833,10 @@ export default function App() {
                         </div>
                         
                         <div className="min-w-0">
-                          <div className="font-extrabold text-white text-base truncate leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                          <div className="font-extrabold text-white text-xs truncate leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
                             Olá, {user.username}!
                           </div>
-                          <span className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest block mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                          <span className="text-[8px] text-cyan-400 font-extrabold uppercase tracking-widest block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
                             {user.role === 'super_admin' ? 'Admin VIP' : 'Jogador VIP'}
                           </span>
                         </div>
@@ -1838,8 +1848,8 @@ export default function App() {
                           background: 'rgba(255, 69, 101, 0.08)',
                           border: '1px solid rgba(255, 69, 101, 0.2)',
                           borderRadius: '50%',
-                          width: '32px',
-                          height: '32px',
+                          width: '28px',
+                          height: '28px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1852,29 +1862,61 @@ export default function App() {
                         className="hover-logout-btn"
                         title="Sair da Conta"
                       >
-                        <LogOut style={{ width: '13px', height: '13px' }} />
+                        <LogOut style={{ width: '11px', height: '11px' }} />
                       </button>
                     </div>
                     
                     {/* Linha 2: XP e Progresso de Nível Estendido */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-[10px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                        <span className="bg-white/5 border border-white/5 px-2 py-0.5 rounded-md text-[9px] text-cyan-400 font-bold">NÍVEL 12</span>
-                        <span className="text-gray-500">PROGRESSO: <strong className="text-white font-mono">70%</strong></span>
+                    <div className="space-y-1.5 flex-grow flex flex-col justify-end">
+                      <div className="flex justify-between items-center text-[8px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        <span className="bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-[8px] text-cyan-400 font-bold">NÍVEL 12</span>
+                        <span className="text-gray-500">XP: <strong className="text-white font-mono">1420 / 2000</strong></span>
                       </div>
-                      <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                      <div className="w-full h-1 bg-black/40 rounded-full overflow-hidden border border-white/5">
                         <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%', transition: 'width 1s ease' }} />
                       </div>
                     </div>
+
+                    {/* Linha 3: Atalho de Área Administrativa para Super Admins */}
+                    {user.role === 'super_admin' && (
+                      <button 
+                        onClick={() => { setView('admin'); setSelectedGame(null); }}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(0, 240, 255, 0.08)',
+                          border: '1px solid rgba(0, 240, 255, 0.2)',
+                          borderRadius: '8px',
+                          padding: '5px',
+                          color: 'var(--accent-cyan)',
+                          fontWeight: '800',
+                          fontSize: '0.62rem',
+                          cursor: 'pointer',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          boxShadow: '0 0 8px rgba(0, 240, 255, 0.1)',
+                          transition: 'all 0.25s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px',
+                          fontFamily: "'Outfit', sans-serif",
+                          marginTop: '6px'
+                        }}
+                        className="btn-admin-profile-shortcut"
+                        title="Abrir Cockpit Administrativo"
+                      >
+                        ⚙️ Área Administrativa
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
                     {/* Linha 1: Título e Status */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <div 
                         style={{
-                          width: '42px',
-                          height: '42px',
+                          width: '34px',
+                          height: '34px',
                           borderRadius: '50%',
                           background: 'rgba(255, 255, 255, 0.03)',
                           border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -1885,21 +1927,21 @@ export default function App() {
                           flexShrink: 0
                         }}
                       >
-                        <User className="w-5 h-5" />
+                        <User className="w-4 h-4" />
                       </div>
                       <div className="text-left">
-                        <div className="font-extrabold text-white text-base leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        <div className="font-extrabold text-white text-xs leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
                           Jogador Visitante
                         </div>
-                        <span className="text-[11px] text-gray-500 block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        <span className="text-[9px] text-gray-500 block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
                           Crie uma conta para salvar dados!
                         </span>
                       </div>
                     </div>
                     
                     {/* Linha 2: Vantagens Simplificadas */}
-                    <div className="text-left text-[11px] text-gray-400 font-medium px-1 leading-relaxed">
-                      🎁 Conecte-se para salvar seus jogos favoritos e gravar recordes nos rankings mundiais de pontuação.
+                    <div className="text-left text-[9px] text-gray-500 font-medium px-1 leading-normal">
+                      🎁 Conecte-se para salvar seus jogos favoritos e gravar recordes nos rankings de pontuação.
                     </div>
                     
                     {/* Linha 3: Botão Conectar */}
@@ -1908,87 +1950,33 @@ export default function App() {
                         width: '100%',
                         background: 'linear-gradient(135deg, #00f0ff 0%, #8a2be2 100%)',
                         border: 'none',
-                        borderRadius: '12px',
-                        padding: '11px',
+                        borderRadius: '10px',
+                        padding: '8px',
                         color: '#000',
                         fontWeight: '900',
-                        fontSize: '0.75rem',
+                        fontSize: '0.68rem',
                         cursor: 'pointer',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
-                        boxShadow: '0 4px 15px rgba(0, 240, 255, 0.25)',
+                        boxShadow: '0 4px 12px rgba(0, 240, 255, 0.2)',
                         transition: 'all 0.25s',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px',
+                        gap: '4px',
                         fontFamily: "'Outfit', sans-serif"
                       }}
                       className="btn-connect-sidebar"
                       onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
                     >
-                      <LogIn style={{ width: '13px', height: '13px' }} />
+                      <LogIn style={{ width: '11px', height: '11px' }} />
                       <span>Conectar Conta</span>
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Widget de Amigos Online */}
-              <div className="bento-social-card">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2">
-                  <Users className="w-4 h-4 text-cyan-400" />
-                  <span>Amigos Online ({onlineFriends.filter(f => f.status !== 'ausente').length})</span>
-                </div>
-                
-                <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1 bento-sidebar-scroll">
-                  {onlineFriends.map((friend) => (
-                    <div 
-                      key={friend.name} 
-                      className="bento-friend-item relative"
-                      onClick={() => {
-                        if (friend.status === 'jogando') {
-                          setActiveChallengeFriend(activeChallengeFriend === friend.name ? null : friend.name);
-                        }
-                      }}
-                    >
-                      <div className="relative shrink-0">
-                        <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${friend.avatarColor} flex items-center justify-center text-white font-extrabold text-[10px] bento-friend-avatar-glow`}>
-                          {friend.name.substring(0, 2).toUpperCase()}
-                        </div>
-                        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border border-black ${
-                          friend.status === 'jogando' ? 'bg-green-400 animate-pulse' :
-                          friend.status === 'online' ? 'bg-green-400' : 'bg-gray-500'
-                        }`} />
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <div className="text-xs font-extrabold text-white truncate leading-none">{friend.name}</div>
-                        <div className="text-[10px] text-gray-400 truncate mt-1">
-                          {friend.status === 'jogando' ? `Jogando ${friend.game}` : 'Disponível'}
-                        </div>
-                      </div>
 
-                      {/* Popover de Desafio em Tempo Real (Gamificação / Loyalty Loop) */}
-                      {activeChallengeFriend === friend.name && friend.status === 'jogando' && (
-                        <div className="bento-challenge-popover" onClick={(e) => e.stopPropagation()}>
-                          <div className="text-[10px] text-pink-400 font-extrabold mb-1">🎮 DESAFIO ATIVO</div>
-                          <p className="text-[11px] text-white font-bold leading-tight mb-2">Bater recorde no {friend.game}!</p>
-                          <button 
-                            className="w-full bg-cyan-400 hover:bg-cyan-300 text-black text-[10px] font-black py-1 px-2 rounded-lg transition"
-                            onClick={() => {
-                              const matchingGame = games.find(g => g.title === friend.game) || games[0];
-                              handlePlayGame(matchingGame);
-                              setActiveChallengeFriend(null);
-                            }}
-                          >
-                            Bora Desafiar
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {/* Widget de Chat Ao Vivo */}
               <div className="bento-chat-card flex flex-col min-h-[260px]">
@@ -2020,50 +2008,68 @@ export default function App() {
                 </div>
 
                 {/* Input de Envio de Chat */}
-                <form onSubmit={handleSendChatMessage} className="flex gap-1.5 border-t border-white/5 pt-2 shrink-0">
+                <form 
+                  onSubmit={handleSendChatMessage} 
+                  style={{ 
+                    display: 'flex', 
+                    gap: '6px', 
+                    borderTop: '1px solid rgba(255,255,255,0.06)', 
+                    paddingTop: '8px', 
+                    marginTop: '8px',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    alignItems: 'center'
+                  }}
+                >
                   <input 
                     type="text" 
-                    placeholder="Diga algo no chat..." 
-                    className="input-field text-xs py-1.5"
+                    placeholder="Diga algo..." 
+                    className="input-field text-xs"
+                    style={{ 
+                      flexGrow: 1, 
+                      minWidth: 0, 
+                      height: '32px', 
+                      padding: '4px 10px', 
+                      fontSize: '0.68rem',
+                      boxSizing: 'border-box'
+                    }}
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     required
                   />
                   <button 
                     type="submit" 
-                    className="btn-primary p-2 justify-center rounded-lg bg-cyan-500 text-black border-none hover:bg-cyan-400 shrink-0"
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: 'var(--accent-cyan)',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      boxShadow: '0 0 8px rgba(102, 252, 241, 0.2)',
+                      boxSizing: 'border-box',
+                      transition: 'all 0.25s'
+                    }}
+                    className="btn-send-chat"
+                    title="Enviar Mensagem"
                   >
-                    <Send className="w-3.5 h-3.5" />
+                    <Send style={{ width: '12px', height: '12px' }} />
                   </button>
                 </form>
               </div>
 
-              {/* Widget de Pesquisa Flutuante no Rodapé da Sidebar */}
-              <div className="bento-floating-search shrink-0">
-                <Search className="w-4 h-4 text-cyan-400 shrink-0" />
-                <input 
-                  type="text" 
-                  placeholder="Pesquisa rápida..." 
-                  className="bento-floating-search-input"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
             </aside>
 
           </div>
         ) : (
           /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
           <>
-            {view === 'playing' && selectedGame && agePreference !== 'bebes' && (
+            {view === 'playing' && selectedGame && !isScreenLocked && (
               <div className="space-y-6">
                 
                 {/* Header de Navegação do Jogo */}
@@ -2104,6 +2110,18 @@ export default function App() {
                     title="Fechar Jogo e Voltar"
                   >
                     <X className="w-4 h-4" />
+                  </button>
+
+                  {/* Botão de Bloqueio Infantil Flutuante (Parental Lock) */}
+                  <button 
+                    className="bento-game-floating-lock"
+                    onClick={() => {
+                      setAgePreference('bebes');
+                      alert("Modo Bebês Ativado! A tela foi bloqueada em Fullscreen. Para sair, clique no cadeado da esquerda e resolva a conta matemática.");
+                    }}
+                    title="Bloquear Tela (Modo Bebês)"
+                  >
+                    <Lock className="w-4 h-4" />
                   </button>
 
                   {isPlayingGame ? (
@@ -2279,16 +2297,10 @@ export default function App() {
                   
                   <div className="flex bg-black/50 p-1 rounded-full border border-white/5 gap-1 shrink-0">
                     <button 
-                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'catalog' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
-                      onClick={() => { setAdminTab('catalog'); setAdminViewMode('list'); }}
-                    >
-                      <FolderGit2 className="w-3.5 h-3.5" /> Catálogo
-                    </button>
-                    <button 
                       className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'contracts' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
                       onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
                     >
-                      <FileSignature className="w-3.5 h-3.5" /> Contratos
+                      <FileSignature className="w-3.5 h-3.5" /> Contratos & Jogos
                     </button>
                     <button 
                       className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
@@ -2305,25 +2317,25 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* TAB 1: CATALOG MANAGMENT */}
-                {adminTab === 'catalog' && (
+                {/* TAB 1: CONTRACTS & GAMES INTEGRATED MANAGEMENT */}
+                {adminTab === 'contracts' && (
                   <div className="space-y-6">
                     {adminViewMode === 'list' ? (
                       <div className="glass-panel p-6 space-y-4">
                         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
                           <div>
-                            <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                              Catálogo de Circuitos HTML5
+                            <h3 className="text-md font-bold text-white uppercase tracking-wider" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                              Matriz de Contratos & Licenciamento
                             </h3>
                             <p className="text-xs text-gray-400">
-                              Gerencie fichas técnicas de jogos e contratos de licenciamento ativos no portal.
+                              Gerencie fichas técnicas de jogos, conformidade jurídica e acordos comerciais ativos.
                             </p>
                           </div>
                           <button 
                             className="btn-primary py-2 px-4 flex items-center gap-1.5"
                             onClick={handleAdminAddClick}
                           >
-                            <Plus className="w-4 h-4" /> Adicionar Novo Jogo
+                            <Plus className="w-4 h-4" /> Cadastrar Novo Jogo e Contrato
                           </button>
                         </div>
 
@@ -2331,9 +2343,10 @@ export default function App() {
                           <table>
                             <thead>
                               <tr>
-                                <th>Jogo / ID</th>
-                                <th>Categoria</th>
-                                <th>Versão</th>
+                                <th>Contrato / Jogo</th>
+                                <th>Licenciante (Autor)</th>
+                                <th>Tipo de Licença</th>
+                                <th>Rev Share / Fixo</th>
                                 <th>Status Técnico</th>
                                 <th>Status Editorial</th>
                                 <th>Dossiê Jurídico</th>
@@ -2344,28 +2357,23 @@ export default function App() {
                               {adminCatalog.map((item) => (
                                 <tr key={item.game.id}>
                                   <td>
-                                    <div className="flex items-center gap-3">
-                                      {item.game.bannerUrl ? (
-                                        <img 
-                                          src={item.game.bannerUrl} 
-                                          alt={item.game.title} 
-                                          className="w-10 h-7 object-cover rounded border border-white/5 shrink-0"
-                                        />
-                                      ) : (
-                                        <div className="w-10 h-7 bg-white/5 rounded border border-white/5 flex items-center justify-center shrink-0">
-                                          <Gamepad2 className="w-4 h-4 text-cyan-400" />
-                                        </div>
-                                      )}
-                                      <div>
-                                        <div className="font-bold text-white text-xs">{item.game.title}</div>
-                                        <div className="text-[10px] text-gray-400 font-mono">slug: {item.game.slug}</div>
-                                      </div>
+                                    <div>
+                                      <div className="font-bold text-white text-xs">{item.game.title}</div>
+                                      <div className="text-[9px] text-cyan-400 font-mono mt-0.5">Reg: {item.contract?.contractNumber || 'PENDENTE'}</div>
                                     </div>
                                   </td>
                                   <td>
-                                    <span className="font-semibold text-purple-300">{item.game.category}</span>
+                                    <div className="font-semibold text-white text-xs">{item.contract?.signatoryCreator || item.game.author || 'N/A'}</div>
+                                    <div className="text-[9px] text-gray-400 font-medium">Rep: {item.contract?.signatoryRepresentative || 'Representante Legal'}</div>
                                   </td>
-                                  <td className="font-mono text-[11px] text-gray-300">v{item.game.version}</td>
+                                  <td>
+                                    <span className="font-bold text-xs text-purple-300 block">{item.contract?.licenseType || 'Licença de Uso'}</span>
+                                    <span className="text-[9px] text-gray-500 font-semibold uppercase">{item.contract?.exclusivityScope || 'Não Exclusivo'}</span>
+                                  </td>
+                                  <td className="font-mono text-xs">
+                                    <div className="text-cyan-400 font-bold">{item.contract?.revenueSharePercent || 0}% Share</div>
+                                    <div className="text-gray-500 text-[10px]">R$ {item.contract?.fixedPaymentAmount || 0} Fixo</div>
+                                  </td>
                                   <td>{getTechnicalBadge(item.game.statusTechnical)}</td>
                                   <td>{getEditorialBadge(item.game.statusEditorial)}</td>
                                   <td>{getDocBadge(item.game.statusDoc)}</td>
@@ -2373,7 +2381,7 @@ export default function App() {
                                     <div className="flex items-center justify-end gap-2">
                                       <button 
                                         className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
-                                        title="Editar Ficha"
+                                        title="Editar Ficha e Contrato"
                                         onClick={() => handleAdminEditClick(item)}
                                       >
                                         <Edit2 className="w-3.5 h-3.5" />
@@ -2407,7 +2415,7 @@ export default function App() {
                         <div className="flex items-center justify-between border-b border-white/5 pb-4">
                           <div>
                             <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                              {adminViewMode === 'add' ? 'Cadastrar Novo Jogo e Acordo' : 'Editar Ficha Técnica'}
+                              {adminViewMode === 'add' ? 'Cadastrar Novo Jogo e Acordo' : 'Editar Ficha Técnica & Contrato'}
                             </h3>
                             <p className="text-xs text-gray-400">
                               Preencha as especificações técnicas, metadados editoriais e as informações do licenciamento em cascata.
@@ -2744,51 +2752,6 @@ export default function App() {
                   </div>
                 )}
 
-                {/* TAB 2: CONTRACTS MANAGMENT */}
-                {adminTab === 'contracts' && (
-                  <div className="space-y-6">
-                    <div className="glass-panel p-6 space-y-4">
-                      <div className="border-b border-white/5 pb-4">
-                        <h3 className="text-md font-bold text-white uppercase tracking-wider">
-                          Matriz de Conformidade Jurídica (Direitos Autorais)
-                        </h3>
-                        <p className="text-xs text-gray-400">
-                          Monitore contratos assinados, termos de cessão e a auditoria de propriedade intelectual das desenvolvedoras parceiras.
-                        </p>
-                      </div>
-
-                      <div className="overflow-x-auto">
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Contrato ID</th>
-                              <th>Jogo</th>
-                              <th>Licenciante (Autor)</th>
-                              <th>Tipo de Licença</th>
-                              <th>Escopo Exclusividade</th>
-                              <th>Rev Share</th>
-                              <th>Dossiê Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {adminCatalog.map((item) => (
-                              <tr key={item.game.id}>
-                                <td className="font-mono text-cyan-400 text-xs">{item.contract?.contractNumber || 'N/A'}</td>
-                                <td className="font-bold text-white">{item.game.title}</td>
-                                <td>{item.contract?.signatoryCreator || item.game.author || 'N/A'}</td>
-                                <td><span className="text-xs text-purple-300 font-semibold">{item.contract?.licenseType || 'Comercial'}</span></td>
-                                <td><span className="badge badge-purple">{item.contract?.exclusivityScope || 'Não Exclusivo'}</span></td>
-                                <td className="font-mono text-xs">{item.contract?.revenueSharePercent || 0}%</td>
-                                <td>{getDocBadge(item.game.statusDoc)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* TAB 3: ANALYTICS & IA (Audit Upgrades) */}
                 {adminTab === 'dashboard' && (
                   <div className="space-y-6">
@@ -3010,8 +2973,18 @@ export default function App() {
       </footer>
 
       {/* --- MODO BEBÊS (LOCKSCREEN EM TELA CHEIA E ABSOLUTA) --- */}
-      {view === 'playing' && selectedGame && agePreference === 'bebes' && (
-        <div className="fixed inset-0 z-[9999] bg-[#0f172a] block">
+      {view === 'playing' && selectedGame && isScreenLocked && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99999,
+            backgroundColor: '#05060a',
+            display: 'block'
+          }}
+        >
           {isPlayingGame ? (
             isPhysicalGame(selectedGame.slug) ? (
               <iframe
@@ -3021,18 +2994,51 @@ export default function App() {
                 allow="fullscreen; autoplay"
                 allowFullScreen
                 title={selectedGame.title}
-                className="absolute inset-0 w-full h-full border-none m-0 p-0"
-                style={{ objectFit: 'cover' }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  margin: 0,
+                  padding: 0,
+                  objectFit: 'cover'
+                }}
               ></iframe>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-white font-bold">Em Manutenção Editorial...</div>
+              <div 
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontWeight: 'bold'
+                }}
+              >
+                Em Manutenção Editorial...
+              </div>
             )
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-cyan-400 font-bold">Carregando Jogo Lúdico...</div>
+            <div 
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#22d3ee',
+                fontWeight: 'bold'
+              }}
+            >
+              Carregando Jogo Lúdico...
+            </div>
           )}
           
           <button 
-            className="absolute top-4 right-4 md:top-8 md:right-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 z-[10000] shadow-lg"
+            className="absolute top-4 right-4 md:top-8 md:right-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 shadow-lg"
+            style={{ position: 'absolute', zIndex: 100000 }}
             onClick={handleManualFullscreen}
             title="Tela Cheia"
           >
@@ -3040,7 +3046,8 @@ export default function App() {
           </button>
           
           <button 
-            className="absolute top-4 left-4 md:top-8 md:left-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 z-[10000] shadow-lg"
+            className="absolute top-4 left-4 md:top-8 md:left-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 shadow-lg"
+            style={{ position: 'absolute', zIndex: 100000 }}
             onClick={triggerExitGame}
             title="Sair do Jogo (Protegido)"
           >
@@ -3128,7 +3135,99 @@ export default function App() {
               <X className="w-5 h-5" />
             </button>
 
-            {recoveryPhrase ? (
+            {user ? (
+              <div className="space-y-6 text-center select-none animate-[fadeInUp_0.4s_ease-out_forwards]">
+                <div className="flex flex-col items-center justify-center text-center">
+                  <img
+                    src="/logo_franguinhos.png"
+                    alt="Franguinhos Games Logo"
+                    style={{ width: '64px', height: '64px', objectFit: 'contain' }}
+                    className="filter drop-shadow-[0_0_20px_rgba(102,252,241,0.3)] animate-[float_4s_ease-in-out_infinite]"
+                  />
+                  <h3 className="text-xl font-black text-white uppercase tracking-wider mt-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                    Menu da <span className="text-cyan-400">sua Conta</span>
+                  </h3>
+                </div>
+
+                <div className="p-5 bg-black/40 rounded-2xl border border-white/5 space-y-4">
+                  {/* Informações Básicas */}
+                  <div className="flex items-center gap-4 text-left">
+                    <div 
+                      style={{
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontWeight: '900',
+                        fontSize: '0.95rem',
+                        border: '2px solid rgba(255, 255, 255, 0.15)',
+                        boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)',
+                        flexShrink: 0
+                      }}
+                    >
+                      {user.username.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-white text-sm leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                        {user.username}
+                      </h4>
+                      <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest mt-1">
+                        {user.role === 'super_admin' ? 'Administrador do Portal' : 'Jogador VIP'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Nível & Experiência */}
+                  <div className="space-y-2 pt-2 border-t border-white/5 text-left">
+                    <div className="flex justify-between items-center text-[10px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                      <span className="bg-white/5 border border-white/5 px-2 py-0.5 rounded-md text-[9px] text-cyan-400 font-bold">NÍVEL 12</span>
+                      <span className="text-gray-500">XP: <strong className="text-white font-mono">1.420 / 2.000</strong></span>
+                    </div>
+                    <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                      <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%' }} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Se for Super Admin, exibe o link direto para a Área Administrativa */}
+                  {user.role === 'super_admin' && (
+                    <button
+                      className="btn-primary w-full justify-center rounded-xl py-3 font-extrabold"
+                      onClick={() => {
+                        setView('admin');
+                        setSelectedGame(null);
+                        setShowAuthModal(false);
+                      }}
+                    >
+                      ⚙️ Área Administrativa (Cockpit)
+                    </button>
+                  )}
+
+                  <button
+                    className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                    style={{ borderColor: 'rgba(255, 69, 101, 0.2)', color: '#ff4565', background: 'rgba(255, 69, 101, 0.05)' }}
+                    onClick={() => {
+                      handleLogout();
+                      setShowAuthModal(false);
+                    }}
+                  >
+                    Sair da Conta (Logout)
+                  </button>
+
+                  <button
+                    className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                    onClick={() => setShowAuthModal(false)}
+                  >
+                    Fechar Menu
+                  </button>
+                </div>
+              </div>
+            ) : recoveryPhrase ? (
               <div className="space-y-6 text-center">
                 <div className="w-16 h-16 bg-green-950/40 border border-green-500/30 rounded-full flex items-center justify-center mx-auto text-green-400">
                   <Shield className="w-8 h-8" />
@@ -3325,8 +3424,8 @@ export default function App() {
 
       {/* --- PARENT GATE MODAL (Lockscreen para Bebês) --- */}
       {showParentGate && (
-        <div className="modal-backdrop">
-          <div className="glass-panel modal-content parent-gate-card text-center space-y-6">
+        <div className="modal-backdrop" style={{ zIndex: 200000 }}>
+          <div className="glass-panel modal-content parent-gate-card text-center space-y-6" style={{ zIndex: 200001 }}>
             <div className="w-14 h-14 bg-pink-950/40 border border-pink-500/30 rounded-full flex items-center justify-center mx-auto text-pink-500 animate-bounce">
               <Lock className="w-6 h-6" />
             </div>

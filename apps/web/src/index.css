@@ -507,11 +507,51 @@ header {
 }
 
 @media (max-width: 768px) {
+  /* Reduz o padding horizontal geral no celular para dar muito mais espaço lateral ao jogo */
+  .container {
+    padding: 0 12px !important;
+  }
+
+  /* O jogo entra em modo Fullscreen Imersivo de Celular, cobrindo todo o viewport e escondendo o resto do site */
   .iframe-container {
-    aspect-ratio: unset;
-    height: 85vh; /* Ocupa 85% da tela do celular para jogar de forma imersiva e não estragar a rolagem */
-    min-height: 400px;
-    border-radius: 12px;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important; /* Fica por cima de qualquer elemento, inclusive headers e bottom-bar */
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    aspect-ratio: unset !important;
+    background-color: #000 !important;
+    margin: 0 !important;
+  }
+
+  /* O botão flutuante de fechar (X) fica visível e tátil no canto superior direito do fullscreen */
+  .bento-game-floating-close {
+    position: fixed !important;
+    top: 16px !important;
+    right: 16px !important;
+    z-index: 100000 !important; /* Garante que fique flutuando por cima do iframe do jogo */
+    background: rgba(10, 12, 22, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    width: 44px !important; /* Tamanho confortável para toque de dedão */
+    height: 44px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    cursor: pointer;
+    transition: all 0.25s ease !important;
+  }
+
+  .bento-game-floating-close:hover {
+    background: rgba(255, 0, 127, 0.2) !important;
+    border-color: var(--accent-pink) !important;
+    color: var(--accent-pink) !important;
+    transform: scale(1.05) !important;
   }
 }
 
@@ -1187,36 +1227,49 @@ footer {
   border-color: rgba(157, 78, 221, 0.2);
 }
 
-/* Tabelas Administrativas */
+/* Tabelas Administrativas Premium */
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.75rem;
   text-align: left;
+  border-spacing: 0;
 }
 
 th, td {
-  padding: 0.65rem 0.85rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
 }
 
 th {
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   color: var(--accent-cyan);
-  letter-spacing: 0.05em;
-  background: rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.08em;
+  background: rgba(10, 11, 22, 0.4);
+  font-size: 0.65rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+tbody tr {
+  transition: all 0.25s ease;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.01);
 }
 
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 240, 255, 0.03) !important;
+  box-shadow: inset 3px 0 0 var(--accent-cyan);
 }
 
-/* Formulário Administrativo */
+/* Formulário Administrativo de Alta Fidelidade */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 @media (min-width: 768px) {
@@ -1227,25 +1280,47 @@ tbody tr:hover {
 
 .form-group {
   display: flex;
-  flex-col: column;
-  gap: 0.25rem;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.45rem 0.75rem;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  padding: 0.68rem 1rem;
+  background: rgba(5, 6, 10, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   outline: none;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .form-input:focus {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 15px rgba(102, 252, 241, 0.2), inset 0 0 8px rgba(102, 252, 241, 0.05);
+  background: rgba(5, 6, 10, 0.8) !important;
+}
+
+/* Select option custom focus */
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 32px;
 }
 
 /* KPIs Dashboard */
@@ -1324,6 +1399,7 @@ tbody tr:hover {
   max-width: 1400px;
   margin: 0 auto;
   align-items: start;
+  min-height: calc(100vh - 240px); /* Garante altura suficiente para empurrar o rodapé para o final da tela em monitores grandes */
 }
 
 /* 2. Coluna Central: Conteúdo Principal */
@@ -1557,42 +1633,55 @@ tbody tr:hover {
   box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
 }
 
-/* 4. Coluna Direita: Social & Chat Panel */
+/* 4. Coluna Direita: Social & Chat Panel (Unified Premium Glass Box) */
 .bento-sidebar-right {
   position: sticky;
   top: 90px;
   height: calc(100vh - 120px);
+  width: 350px;
+  background: rgba(10, 12, 22, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 18px;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 330px;
+  justify-content: space-between; /* Distribui as seções perfeitamente de cima a baixo */
+  gap: 0; /* Remove gaps brutos em favor de distribuição automática fluida */
   box-sizing: border-box;
 }
 
-.bento-profile-card, .bento-social-card, .bento-chat-card {
-  background: rgba(10, 12, 22, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 16px;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
-  transition: var(--transition);
+/* Os cartões agora são seções modais limpas dentro do painel unificado, com divisórias elegantes */
+.bento-profile-card, .bento-chat-card {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   box-sizing: border-box;
+  transition: var(--transition);
+}
+
+/* Divisória horizontal sutil entre o perfil e o chat com respiro confortável */
+.bento-profile-card {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding-bottom: 14px !important;
+  margin-bottom: 14px !important;
 }
 
 /* Card de Perfil - Visual Premium de VIP Gamer Card */
 .bento-profile-card {
-  border-color: rgba(102, 252, 241, 0.15);
-  background: linear-gradient(135deg, rgba(102, 252, 241, 0.02) 0%, rgba(10, 12, 22, 0.7) 100%);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  height: 160px;
-  padding: 18px !important;
+  height: 190px; /* Altura ideal espaçada e proeminente de cabeçalho no painel de 2 seções */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .bento-profile-card::before {
@@ -1608,85 +1697,84 @@ tbody tr:hover {
 
 .bento-profile-card:hover {
   border-color: var(--accent-cyan);
-  box-shadow: 0 12px 30px rgba(102, 252, 241, 0.12), inset 0 1px 2px rgba(102, 252, 241, 0.2);
-  transform: translateY(-2px);
+  box-shadow: none;
+  transform: none;
 }
 
-/* Card Social & Amigos */
-.bento-social-card {
-  border-color: rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 340px;
-  max-height: 380px;
-}
-
-.bento-social-card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
-}
-
-.bento-social-card .bento-sidebar-scroll {
-  flex-grow: 1;
-  overflow-y: auto;
-  max-height: 300px;
-}
-
-/* Lista de Itens de Amigos Premium */
-.bento-friend-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  transition: var(--transition);
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.bento-friend-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.08);
-  transform: translateX(3px);
-}
-
-.bento-friend-avatar-glow {
-  box-shadow: 0 0 10px rgba(102, 252, 241, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  transition: var(--transition);
-}
-
-.bento-friend-item:hover .bento-friend-avatar-glow {
-  transform: scale(1.05);
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 12px var(--accent-cyan-glow);
-}
-
-/* Card de Chat Premium estilo Discord/Twitch */
+/* Card de Chat Premium - Escorrega até a base do Painel */
 .bento-chat-card {
-  border-color: rgba(255, 0, 127, 0.1);
-  background: linear-gradient(135deg, rgba(255, 0, 127, 0.01) 0%, rgba(10, 12, 22, 0.7) 100%);
   display: flex;
   flex-direction: column;
-  flex: 1.5;
-  min-height: 500px;
-  max-height: 560px;
+  height: 560px; /* Altura máxima estendida para preencher a base e preencher o vazio */
+  flex-shrink: 0;
 }
 
 .bento-chat-card:hover {
-  border-color: var(--accent-pink);
-  box-shadow: 0 12px 30px rgba(255, 0, 127, 0.1), inset 0 1px 1px rgba(255, 0, 127, 0.1);
-  transform: translateY(-2px);
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .bento-chat-card .bento-sidebar-scroll {
   flex-grow: 1;
   overflow-y: auto;
-  max-height: 420px;
-  margin-bottom: 8px;
+  max-height: 460px; /* Aumentado o espaço vertical das mensagens */
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+
+/* Bolhas de Mensagem de Chat Modernizadas */
+.bento-chat-bubble {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 4px 10px 10px 10px;
+  padding: 6px 10px;
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+.bento-chat-bubble:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.bento-chat-bubble.msg-pink {
+  border-left-color: var(--accent-pink);
+}
+
+.bento-chat-bubble.msg-purple {
+  border-left-color: var(--accent-purple);
+}
+
+.bento-chat-bubble.msg-yellow {
+  border-left-color: #ffd83d;
+}
+
+.bento-chat-bubble.msg-green {
+  border-left-color: #39ff14;
+}
+
+/* Barra de Busca Flutuante no Rodapé */
+.bento-floating-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(5, 6, 10, 0.5);
+  border: 1px solid rgba(102, 252, 241, 0.1);
+  border-radius: 50px;
+  padding: 8px 16px;
+  box-shadow: inset 0 0 10px rgba(102, 252, 241, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.bento-floating-search:focus-within {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(102, 252, 241, 0.2), inset 0 0 10px rgba(102, 252, 241, 0.05);
+  background: rgba(5, 6, 10, 0.7);
 }
 
 /* Bolhas de Mensagem de Chat Modernizadas */
@@ -2104,98 +2192,140 @@ tbody tr:hover {
     left: 0;
     right: 0;
     top: auto;
-    height: 68px;
+    height: 72px;
     width: 100% !important;
-    background: rgba(10, 11, 22, 0.95);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid var(--border-glass);
+    background: rgba(10, 11, 22, 0.96);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0;
     margin: 0;
-    padding: 0 12px;
+    padding: 0 16px;
+    display: flex !important;
     flex-direction: row !important;
     justify-content: space-around;
     align-items: center;
     z-index: 1000;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    box-sizing: border-box;
   }
   
-  .bento-sidebar-section-title {
-    display: none !important; /* Remove cabeçalhos no mobile nav */
-  }
-  
-  .bento-sidebar-left .bento-sidebar-nav {
-    flex-direction: row !important;
-    width: 100%;
-    justify-content: space-around;
-    gap: 0;
-  }
-  
-  .bento-sidebar-left .bento-nav-item {
-    flex-direction: column !important;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 6px 0;
-    width: auto;
-    color: var(--text-muted);
-    border: none !important;
-    background: transparent !important;
-  }
-  
-  .bento-sidebar-left .bento-nav-item span:not(.bento-nav-badge) {
-    font-size: 0.58rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  
-  .bento-sidebar-left .bento-nav-item svg {
-    width: 18px !important;
-    height: 18px !important;
-  }
-  
-  .bento-sidebar-left .bento-nav-badge {
-    position: absolute;
-    top: 2px;
-    right: -2px;
-    font-size: 0.55rem;
-    padding: 1px 4px;
-  }
-
-  /* 2. Remove as dobras de tamanho no grid do celular */
-  .bento-grid-feed {
-    grid-template-columns: 1fr;
-    grid-auto-rows: auto;
-    gap: 16px;
-  }
-  
-  .bento-span-1x1, .bento-span-2x1, .bento-span-1x2, .bento-span-2x2 {
-    grid-column: span 1 !important;
-    grid-row: span 1 !important;
-  }
-  
-  .bento-card {
-    height: 150px;
-  }
-  
-  /* 3. Destaque esconde os cartões adicionais, exibe só o jogo recomendado */
-  .bento-featured-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .bento-card-stats, .bento-card-age {
+  /* Esconde completamente cabeçalhos, listas de categorias, ajustes e spacers no celular */
+  .bento-sidebar-left .bento-sidebar-section-title,
+  .bento-sidebar-left .bento-sidebar-nav:not(:first-of-type),
+  .bento-sidebar-left .flex-grow {
     display: none !important;
   }
   
-  .bento-card-featured-game {
-    grid-column: span 1;
-    grid-row: span 1;
-    height: 140px;
+  .bento-sidebar-left .bento-sidebar-nav:first-of-type {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   
-  .bento-featured-overlay {
-    padding: 14px;
+  .bento-sidebar-left .bento-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 8px 0 !important;
+    width: 33.33% !important; /* Cada aba ocupa exatamente 1/3 da largura */
+    color: var(--text-muted) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: var(--transition) !important;
+  }
+
+  .bento-sidebar-left .bento-nav-item span:not(.bento-nav-badge) {
+    font-size: 0.62rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block !important;
+  }
+
+  .bento-sidebar-left .bento-nav-item svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: var(--text-muted);
+    transition: var(--transition);
+  }
+
+  /* Ativo no Mobile */
+  .bento-sidebar-left .bento-nav-item.active {
+    color: #ffd700 !important; /* Dourado para o ativo */
+    background: transparent !important;
+    border-left: none !important; /* Remove barra lateral no mobile */
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  }
+
+  .bento-sidebar-left .bento-nav-item.active svg {
+    color: #ffd700 !important;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5));
+  }
+
+  .bento-sidebar-left .bento-nav-badge {
+    position: absolute;
+    top: 4px;
+    right: 33.33%;
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    background: #ff007f !important;
+    box-shadow: 0 0 6px rgba(255, 0, 127, 0.5);
+  }
+
+  /* 2. Grid de Jogos estilo Poki.com (Mosaico denso de 3 colunas de quadrados) */
+  .bento-grid-feed {
+    grid-template-columns: repeat(3, 1fr) !important; /* 3 colunas de ícones idênticas ao Poki! */
+    grid-auto-rows: auto !important;
+    grid-auto-flow: row !important;
+    gap: 12px !important;
+    padding: 0 4px;
+  }
+  
+  @media (min-width: 480px) and (max-width: 768px) {
+    .bento-grid-feed {
+      grid-template-columns: repeat(4, 1fr) !important; /* 4 colunas em celulares de tela mais larga */
+    }
+  }
+  
+  .bento-card-wrapper {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+    height: auto !important; /* Altura livre para obedecer o aspect-ratio */
+  }
+  
+  .bento-card-body {
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important; /* Mapeia quadrados perfeitos idênticos a ícones de app do Poki */
+    border-radius: 20px !important; /* Cantos Squircle suaves e bem visíveis */
+    border-color: rgba(255, 255, 255, 0.04) !important;
+  }
+  
+  /* Oculta textos decorativos, títulos e overlays no celular para despoluir a visualização de ícones */
+  .bento-card-top-header,
+  .bento-card-overlay,
+  .bento-card-title-under {
+    display: none !important;
+  }
+
+  /* Mini pílula de curtidas discreta posicionada no canto do ícone do celular */
+  .game-card-like-pill {
+    top: 6px !important;
+    right: 6px !important;
+    padding: 2px 5px !important;
+    font-size: 8px !important;
+    background: rgba(10, 12, 22, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
   }
   
   .bento-featured-overlay h2 {
@@ -2414,4 +2544,357 @@ tbody tr:hover {
   transform: scale(1.04);
 }
 
+/* 8. Barra de Modos de Interação Superior Mobile (Padrão Console Profissional) */
+.mobile-only-modes-bar {
+  display: none; /* Oculto no PC por padrão */
+}
+
+@media (max-width: 1024px) {
+  .mobile-only-modes-bar {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(10, 11, 22, 0.96);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+    flex-direction: row !important;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Adiciona espaçamento superior na área de conteúdo para a barra superior fixada não comer nada */
+  main.container {
+    padding-top: 72px !important;
+  }
+}
+
+.pref-btn-mobile {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 6px 0 !important;
+  width: 20% !important; /* 5 abas de modos de interação = 20% de espaço cada */
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: var(--transition) !important;
+  box-sizing: border-box;
+  height: 100% !important;
+}
+
+.pref-btn-mobile:hover {
+  color: var(--text-main) !important;
+}
+
+.pref-btn-mobile span {
+  font-size: 0.55rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: block !important;
+  font-family: 'Outfit', sans-serif;
+  margin-top: 1px;
+}
+
+.pref-btn-mobile svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+/* Ativos com as Cores Temáticas Originais de Acessibilidade */
+.pref-btn-mobile.active-geral {
+  color: var(--accent-cyan) !important;
+}
+.pref-btn-mobile.active-geral svg {
+  color: var(--accent-cyan) !important;
+  filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.4));
+}
+
+.pref-btn-mobile.active-tea {
+  color: #8bc34a !important;
+}
+.pref-btn-mobile.active-tea svg {
+  color: #8bc34a !important;
+  filter: drop-shadow(0 0 5px rgba(139, 195, 74, 0.4));
+}
+
+.pref-btn-mobile.active-edu {
+  color: #4ade80 !important;
+}
+.pref-btn-mobile.active-edu svg {
+  color: #4ade80 !important;
+  filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.4));
+}
+
+.pref-btn-mobile.active-bebes {
+  color: #f472b6 !important;
+}
+.pref-btn-mobile.active-bebes svg {
+  color: #f472b6 !important;
+  filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.4));
+}
+
+.pref-btn-mobile.active-senior {
+  color: #f5d061 !important;
+}
+.pref-btn-mobile.active-senior svg {
+  color: #f5d061 !important;
+  filter: drop-shadow(0 0 5px rgba(245, 208, 97, 0.4));
+}
+
+/* ==========================================================================
+   ELEGANT SIDEBAR UPGRADE — HIGHLY READABLE FONTS & SPACING FOR 2-WIDGET SIDEBAR
+   ========================================================================== */
+
+/* Tipografia geral da coluna direita */
+.bento-sidebar-right {
+  font-size: 0.82rem !important;
+}
+
+/* Título da seção do Chat Geral do Portal */
+.bento-sidebar-right .bento-chat-card .border-b.border-white\/5 span {
+  font-size: 0.78rem !important; /* 12.5px */
+  letter-spacing: 0.05em !important;
+}
+
+/* Balões de Mensagem de Bate-Papo */
+.bento-chat-bubble {
+  padding: 8px 12px !important; /* Espaçamento mais confortável */
+  border-radius: 4px 12px 12px 12px !important;
+}
+
+/* Nome do Remetente no Chat */
+.bento-chat-bubble span.font-extrabold {
+  font-size: 0.75rem !important; /* Nome do remetente aumentado para 12px */
+  letter-spacing: 0.01em !important;
+}
+
+/* Horário da Mensagem no Chat */
+.bento-chat-bubble span.text-\[8px\],
+.bento-chat-bubble span.text-\[9px\] {
+  font-size: 0.58rem !important; /* Horário aumentado para 9px */
+}
+
+/* Texto de Mensagem do Chat */
+.bento-chat-bubble p {
+  font-size: 0.78rem !important; /* Mensagem de bate-papo de alta legibilidade - 12.5px */
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+}
+
+/* Inputs de Envio de Chat */
+.bento-chat-card .input-field {
+  font-size: 0.78rem !important; /* Texto de digitação aumentado para 12.5px */
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+}
+
+.bento-chat-card button[type="submit"] {
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+}
+
+/* ==========================================================================
+ 9. RESPONSIVE ADMIN COCKPIT UPGRADES (MOBILE & TABLET SUPPORT)
+ ========================================================================== */
+
+@media (max-width: 768px) {
+/* Container Geral do Admin no Mobile */
+main.container .space-y-6 {
+  padding-top: 8px !important;
+  gap: 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Cabeçalhos e Títulos de Seção do Cockpit */
+.bento-main-content .space-y-6 > .flex.items-center.justify-between,
+.bento-main-content .space-y-6 .border-b.border-white\/5 {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  text-align: center !important;
+  gap: 14px !important;
+}
+
+/* Centralização de Títulos e Textos Auxiliares */
+.bento-main-content h2,
+.bento-main-content h3 {
+  text-align: center !important;
+  margin: 0 auto !important;
+}
+
+.bento-main-content p {
+  text-align: center !important;
+}
+
+/* Botão de cadastro no mobile: centralizado e expandido */
+.bento-main-content .btn-primary {
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: 320px;
+  margin: 0 auto !important;
+}
+
+/* Abas de Navegação do Cockpit Admin no Mobile (Estica uniformemente em 3 colunas) */
+.bento-main-content .flex.bg-black\/50.p-1.rounded-full {
+  display: flex !important;
+  width: 100% !important;
+  justify-content: space-between !important;
+  border-radius: 12px !important;
+  background: rgba(5, 6, 10, 0.8) !important;
+}
+
+.bento-main-content .flex.bg-black\/50.p-1.rounded-full button {
+  width: 33.33% !important; /* Exatamente 1/3 para cada aba (Contratos, Analytics, Usuários) */
+  text-align: center !important;
+  justify-content: center !important;
+  padding: 8px 4px !important;
+  font-size: 0.6rem !important; /* 9px */
+  letter-spacing: 0.02em !important;
+  border-radius: 8px !important;
+}
+
+/* --- SEGREDO DE UX RESPONSIVO: OCULTAÇÃO DE COLUNAS SECUNDÁRIAS --- */
+/* Remove colunas de metadados largos no celular para fazer a tabela caber inteira sem barras de rolagem */
+table th:nth-child(2),
+table td:nth-child(2), /* Oculta Licenciante */
+table th:nth-child(3),
+table td:nth-child(3), /* Oculta Tipo de Licença */
+table th:nth-child(4),
+table td:nth-child(4), /* Oculta Rev Share */
+table th:nth-child(6),
+table td:nth-child(6) { /* Oculta Status Editorial */
+  display: none !important;
+}
+
+/* No mobile, exibe apenas Contrato/Jogo, Status Técnico, Status Documentação e Ações */
+table {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* Formulário de Cadastro/Edição no celular */
+.glass-panel.p-6.space-y-6,
+.glass-panel.p-6.space-y-4 {
+  padding: 16px !important;
+  border-radius: 16px !important;
+}
+
+.form-grid {
+  grid-template-columns: 1fr !important; /* Força 1 coluna em todos os grupos do formulário no celular */
+  gap: 12px !important;
+}
+
+/* Dashboard KPIs do Analytics no celular */
+.kpi-grid {
+  grid-template-columns: 1fr !important; /* KPIs empilham na vertical em 1 única coluna para alta legibilidade */
+  gap: 12px !important;
+}
+
+.kpi-card {
+  padding: 12px !important;
+}
+
+/* Gráficos de Barra de KPI no Analytics */
+.css-bar-row {
+  gap: 8px !important;
+}
+
+.css-bar-label {
+  width: 75px !important;
+  font-size: 0.62rem !important;
+}
+}
+
+/* ==========================================================================
+ 10. PREMIUM PARENTAL LOCK BUTTON (PULSING MAGENTA GLOW)
+ ========================================================================== */
+
+/* Botão de Bloqueio Infantil Flutuante (Parental Lock Style - Ultra Premium) */
+.bento-game-floating-lock {
+position: absolute;
+top: 16px;
+right: 68px; /* Posicionado exatamente ao lado esquerdo do botão de fechar X */
+z-index: 100;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+width: 38px;
+height: 38px;
+border-radius: 50% !important;
+background: rgba(255, 0, 127, 0.12) !important;
+border: 1.5px solid rgba(255, 0, 127, 0.35) !important;
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+color: #ff007f !important;
+box-shadow: 0 0 12px rgba(255, 0, 127, 0.25), inset 0 0 8px rgba(255, 0, 127, 0.1);
+cursor: pointer;
+transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+box-sizing: border-box;
+}
+
+.bento-game-floating-lock svg {
+width: 15px !important;
+height: 15px !important;
+color: #ff007f !important;
+filter: drop-shadow(0 0 4px rgba(255, 0, 127, 0.6));
+animation: pulse-pink 2.2s infinite ease-in-out !important;
+}
+
+@keyframes pulse-pink {
+0%, 100% {
+  transform: scale(1);
+  opacity: 0.85;
+  filter: drop-shadow(0 0 3px rgba(255, 0, 127, 0.4));
+}
+50% {
+  transform: scale(1.1);
+  opacity: 1;
+  filter: drop-shadow(0 0 8px #ff007f);
+}
+}
+
+.bento-game-floating-lock:hover {
+background: #ff007f !important;
+color: #fff !important;
+border-color: #ff007f !important;
+transform: scale(1.1) !important;
+box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
+}
+
+.bento-game-floating-lock:hover svg {
+color: #fff !important;
+filter: drop-shadow(0 0 6px #fff) !important;
+animation: none !important;
+}
+
+@media (max-width: 768px) {
+.bento-game-floating-lock {
+  position: fixed !important;
+  top: 16px !important;
+  right: 72px !important; /* Ajuste milimétrico ao lado do fechar móvel de 44px */
+  z-index: 100000 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+}
 
