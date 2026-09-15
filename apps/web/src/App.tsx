@@ -52,8 +52,8 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>('Tudo');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Preferências
-  const [agePreference, setAgePreference] = useState<'geral' | 'educacional' | 'terceira_idade' | 'bebes'>('geral');
+  // Preferências - 7 Verticais de Públicos Oficiais do KRUUJ (Whitepaper Item 6)
+  const [agePreference, setAgePreference] = useState<'geral' | 'educacional' | 'terceira_idade' | 'bebes' | 'family' | 'edu' | 'premium'>('geral');
   
   // UX Audit Upgrades — Estados para Skeletons de Transição e Gamificação Social
   const [isCatalogLoading, setIsCatalogLoading] = useState<boolean>(false);
@@ -83,6 +83,7 @@ export default function App() {
   const [parentMath, setParentMath] = useState({ n1: 0, n2: 0, op: '+' });
   const [parentInput, setParentInput] = useState<string>('');
   const [isScreenLocked, setIsScreenLocked] = useState<boolean>(false);
+  const [accountSubView, setAccountSubView] = useState<'menu' | 'history'>('menu');
   const wakeLockRef = useRef<any>(null);
 
   // Autenticação
@@ -156,108 +157,62 @@ export default function App() {
   const [adCountdown, setAdCountdown] = useState<number>(3);
   const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
 
-  // --- Estados do Bento Grid Social & Chat (Nova Interface) ---
-  const [onlineFriends, setOnlineFriends] = useState([
-    { name: 'GamerPro', status: 'jogando', game: 'Snake Retro Arcade', avatarColor: 'from-cyan-500 to-blue-500' },
-    { name: 'Alice_Logics', status: 'jogando', game: 'Memory Training Neon', avatarColor: 'from-pink-500 to-purple-500' },
-    { name: 'MatheMágico', status: 'online', game: '', avatarColor: 'from-green-500 to-emerald-500' },
-    { name: 'Nerd_HTML5', status: 'ausente', game: '', avatarColor: 'from-yellow-500 to-orange-500' }
-  ]);
+  // --- Histórico de Jogos Recentes (Requisito de MVP) ---
+  interface RecentPlay {
+    id: string;
+    timestamp: number;
+  }
 
-  const [chatMessages, setChatMessages] = useState([
-    { sender: 'GamerPro', text: 'Alguém conseguiu passar dos 100 pontos no Snake Retro?', time: '2 min atrás', avatarColor: 'from-cyan-500 to-blue-500' },
-    { sender: 'Alice_Logics', text: 'Memory Neon é excelente para exercitar o cérebro! Recomendo!', time: '1 min atrás', avatarColor: 'from-pink-500 to-purple-500' },
-    { sender: 'MatheMágico', text: 'Novo recorde no Math Run: 250 pontos! Alguém me supera?', time: 'Agora', avatarColor: 'from-green-500 to-emerald-500' }
-  ]);
-  const [chatInput, setChatInput] = useState('');
+  const [recentGames, setRecentGames] = useState<RecentPlay[]>([]);
 
-  // Efeito para atualizar aleatoriamente o status/jogo dos amigos e simular atividade real
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setOnlineFriends(prev => {
-        return prev.map(friend => {
-          if (Math.random() > 0.75) {
-            const gamesList = ['Snake Retro Arcade', 'Memory Training Neon', 'Cyber Space Defense', 'Super Math Run', 'Sudoku Zen Master', 'Bolhas Mágicas', 'Rocket Rise'];
-            const statuses = ['jogando', 'online', 'ausente'];
-            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-            const randomGame = randomStatus === 'jogando' ? gamesList[Math.floor(Math.random() * gamesList.length)] : '';
-            return {
-              ...friend,
-              status: randomStatus,
-              game: randomGame
-            };
-          }
-          return friend;
-        });
-      });
-    }, 15000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleSendChatMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-
-    const userMsg = {
-      sender: user ? user.username : 'Jogador_Visitante',
-      text: chatInput,
-      time: 'Agora',
-      avatarColor: 'from-pink-500 to-cyan-500'
-    };
-
-    setChatMessages(prev => [...prev, userMsg]);
-    const inputVal = chatInput.toLowerCase();
-    setChatInput('');
-
-    // Resposta simulada após 1.5 segundos
-    setTimeout(() => {
-      let replyText = '';
-      let replySender = 'GamerPro';
-      let replyColor = 'from-cyan-500 to-blue-500';
-
-      if (inputVal.includes('snake') || inputVal.includes('cobra') || inputVal.includes('cobrinha')) {
-        replySender = 'GamerPro';
-        replyText = 'O segredo do Snake é fazer curvas rápidas rente às paredes de neon!';
-        replyColor = 'from-cyan-500 to-blue-500';
-      } else if (inputVal.includes('oi') || inputVal.includes('olá') || inputVal.includes('ola') || inputVal.includes('salve') || inputVal.includes('eae')) {
-        replySender = 'Nerd_HTML5';
-        replyText = 'Eae jogador! Bem-vindo ao chat ao vivo do Franguinhos Games! Bora jogar!';
-        replyColor = 'from-yellow-500 to-orange-500';
-      } else if (inputVal.includes('math') || inputVal.includes('matematica') || inputVal.includes('conta') || inputVal.includes('calculo')) {
-        replySender = 'MatheMágico';
-        replyText = 'Math Run é insano, as contas dão bônus de velocidade e multiplicam o score!';
-        replyColor = 'from-green-500 to-emerald-500';
-      } else if (inputVal.includes('memoria') || inputVal.includes('memory')) {
-        replySender = 'Alice_Logics';
-        replyText = 'No Memory Neon recomendo focar nas cores para decorar os pares mais rápido.';
-        replyColor = 'from-pink-500 to-purple-500';
-      } else {
-        const randomReplies = [
-          'Mandou bem! Bora subir esse recorde nos rankings do portal!',
-          'Este novo visual Bento Grid ficou simplesmente perfeito, muito premium!',
-          'Qual o seu jogo favorito? O meu é o Cyber Space Defense!',
-          'Caraca, esse chat está super movimentado hoje!',
-          'Se cansar do neon, ativa o Modo TEA nas Configurações da barra lateral!'
-        ];
-        const senders = [
-          { name: 'GamerPro', color: 'from-cyan-500 to-blue-500' },
-          { name: 'Alice_Logics', color: 'from-pink-500 to-purple-500' },
-          { name: 'Nerd_HTML5', color: 'from-yellow-500 to-orange-500' }
-        ];
-        const chosenSender = senders[Math.floor(Math.random() * senders.length)];
-        replySender = chosenSender.name;
-        replyText = randomReplies[Math.floor(Math.random() * randomReplies.length)];
-        replyColor = chosenSender.color;
-      }
-
-      setChatMessages(prev => [...prev, {
-        sender: replySender,
-        text: replyText,
-        time: 'Agora',
-        avatarColor: replyColor
-      }]);
-    }, 1500);
+  // Formatador de tempo relativo em português para o histórico de recentes
+  const formatRelativeTime = (timestamp: number) => {
+    if (!timestamp) return '';
+    const diffMs = Date.now() - timestamp;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Agora';
+    if (diffMins < 60) return `${diffMins}m atrás`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h atrás`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d atrás`;
   };
+
+  // Efeito para carregar o histórico de jogos recentes de forma isolada (Usuário VIP vs Visitante Anônimo)
+  useEffect(() => {
+    if (user) {
+      // Se houver um usuário conectado, carrega reativamente o seu histórico persistente
+      const storedRecents = localStorage.getItem(`recents_${user.username}`);
+      if (storedRecents) {
+        try {
+          const parsed = JSON.parse(storedRecents);
+          if (Array.isArray(parsed)) {
+            // Normaliza os dados legados: se o item for uma string, converte-o para o novo formato de objeto com timestamp atual!
+            const normalized = parsed.map(item => {
+              if (typeof item === 'string') {
+                return { id: item, timestamp: Date.now() };
+              }
+              if (item && typeof item === 'object' && item.id) {
+                return { id: item.id, timestamp: item.timestamp || Date.now() };
+              }
+              return null;
+            }).filter((item): item is RecentPlay => !!item);
+            
+            setRecentGames(normalized);
+            return;
+          }
+        } catch (e) {
+          setRecentGames([]);
+        }
+      }
+    }
+    
+    // Se for um visitante anônimo ou se o usuário deslogar, o histórico é resetado para vazio absoluto (Garantia de Privacidade LGPD)
+    setRecentGames([]);
+  }, [user]);
 
 
   // --- Efeitos e Inicialização ---
@@ -300,21 +255,21 @@ export default function App() {
 
   // --- SEO Dinâmico (Long-Tail SEO Engine) ---
   useEffect(() => {
-    let pageTitle = 'Franguinhos Games | Jogos HTML5 Online Gratuitos e Seguros';
-    let pageDesc = 'Portal de jogos HTML5 responsivo, focado em desempenho mobile, segurança de sandbox e total conformidade com a LGPD e ECA.';
+    let pageTitle = 'KRUUJ — Jogue. Descubra. Conecte.';
+    let pageDesc = 'KRUUJ é uma plataforma de descoberta e jogos web responsiva, focada em segurança, acessibilidade e total conformidade com a LGPD e o ECA.';
 
     if (view === 'playing' && selectedGame) {
       // Long-Tail SEO injetado quando uma página de jogo específica é acessada
-      pageTitle = `${selectedGame.title} - Jogar Online Grátis | Franguinhos Games`;
+      pageTitle = `${selectedGame.title} - Jogar Online Grátis | KRUUJ`;
       pageDesc = selectedGame.description;
     } else if (view === 'home') {
       // Long-Tail SEO para subnichos de categoria editorial
       if (agePreference === 'educacional') {
-        pageTitle = 'Jogos Educacionais de Matemática e Lógica Online | Franguinhos Games';
-        pageDesc = 'Os melhores jogos educativos de matemática, memória e lógica para crianças e adolescentes jogarem grátis e sem instalar nada no celular.';
+        pageTitle = 'Jogos Educacionais e Lógicos | KRUUJ Kids';
+        pageDesc = 'Os melhores jogos educativos de matemática, memória e lógica para crianças e adolescentes jogarem grátis no KRUUJ Kids.';
       } else if (agePreference === 'terceira_idade') {
-        pageTitle = 'Jogos para Terceira Idade e Memória Grátis | Franguinhos Games';
-        pageDesc = 'Jogos gratuitos para estimular a memória de idosos. Sudoku, caça-palavras e jogos de lógica fáceis e relaxantes direto no celular.';
+        pageTitle = 'Jogos Cognitivos e Memória | KRUUJ 60+';
+        pageDesc = 'Jogos gratuitos para estimular a memória de idosos. Sudoku e jogos de lógica fáceis e relaxantes no KRUUJ 60+.';
       }
     }
 
@@ -1140,6 +1095,17 @@ export default function App() {
     setView('playing');
     logEvent('game_start', { gameId: game.id, gameSlug: game.slug });
 
+    // Gravação de históricos de jogos recentes (Fase 1 - MVP) - Histórico Total de até 30 jogos de todos os tempos
+    setRecentGames(prev => {
+      const filtered = prev.filter(play => play.id !== game.id);
+      const updated = [{ id: game.id, timestamp: Date.now() }, ...filtered].slice(0, 30); // guarda o histórico de até 30 partidas de todas as sessões
+      const usernameKey = user ? user.username : 'visitante';
+      if (user) {
+        localStorage.setItem(`recents_${usernameKey}`, JSON.stringify(updated));
+      }
+      return updated;
+    });
+
     // 1. Aciona o modo Fullscreen do navegador nativamente no mobile/tablet (ou sempre no modo Bebês)
     if (window.innerWidth < 1024 || agePreference === 'bebes') {
       try {
@@ -1350,16 +1316,16 @@ export default function App() {
                 </button>
                 
                 <button 
-                  className={`bento-nav-item ${view === 'favorites' ? 'active' : ''}`}
-                  onClick={() => { setView('favorites'); setSelectedGame(null); }}
+                 className={`bento-nav-item ${view === 'favorites' ? 'active' : ''}`}
+                 onClick={() => { setView('favorites'); setSelectedGame(null); }}
                 >
-                  <Heart className={`w-4 h-4 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : ''}`} />
-                  <span>Biblioteca</span>
-                  {favorites.length > 0 && (
-                    <span className="bento-nav-badge bg-pink-600 text-white">
-                      {favorites.length}
-                    </span>
-                  )}
+                 <Heart className={`w-4 h-4 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : ''}`} />
+                 <span>Favoritos</span>
+                 {favorites.length > 0 && (
+                   <span className="bento-nav-badge bg-pink-600 text-white">
+                     {favorites.length}
+                   </span>
+                 )}
                 </button>
 
                 <button 
@@ -1401,7 +1367,7 @@ export default function App() {
                   onClick={() => setTeaMode(!teaMode)}
                 >
                   <Settings className="w-4 h-4 text-green-400" />
-                  <span>Modo TEA: {teaMode ? 'ON' : 'OFF'}</span>
+                  <span>KRUUJ Calmo: {teaMode ? 'ON' : 'OFF'}</span>
                 </button>
 
                 {/* Submenu de Modos Editoriais na Sidebar (Fidelidade / Usabilidade) */}
@@ -1411,28 +1377,28 @@ export default function App() {
                     onClick={() => { setView('home'); setAgePreference('geral'); setSelectedGame(null); }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'geral' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>Modo Geral</span>
+                    <span>KRUUJ Play</span>
                   </button>
                   <button
                     className={`bento-nav-item-sub ${agePreference === 'educacional' ? 'active' : ''}`}
                     onClick={() => { setView('home'); setAgePreference('educacional'); setSelectedGame(null); }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'educacional' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>Modo Kids (Edu)</span>
+                    <span>KRUUJ Kids</span>
                   </button>
                   <button
                     className={`bento-nav-item-sub ${agePreference === 'bebes' ? 'active' : ''}`}
                     onClick={() => { setView('home'); setAgePreference('bebes'); setSelectedGame(null); }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'bebes' ? 'bg-pink-500 shadow-[0_0_6px_rgba(244,114,182,0.4)]' : 'bg-gray-600'}`} />
-                    <span>Modo Bebês</span>
+                    <span>KRUUJ Baby</span>
                   </button>
                   <button
                     className={`bento-nav-item-sub ${agePreference === 'terceira_idade' ? 'active' : ''}`}
                     onClick={() => { setView('home'); setAgePreference('terceira_idade'); setSelectedGame(null); }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'terceira_idade' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>Modo Sênior</span>
+                    <span>KRUUJ 60+</span>
                   </button>
                 </div>
 
@@ -1475,24 +1441,30 @@ export default function App() {
                       }}
                       className="animate-[fadeInUp_0.4s_ease-out_forwards]"
                     >
-                      <img 
-                        src="/logo_franguinhos.png" 
-                        alt="Franguinhos Games Logo" 
-                        style={{ width: '192px', height: '192px', objectFit: 'contain' }}
-                        className="filter drop-shadow-[0_0_30px_rgba(102,252,241,0.3)] animate-[float_4s_ease-in-out_infinite]"
-                      />
-                      <h1 
+                      <div 
                         style={{ 
-                          fontSize: '1.25rem', 
-                          fontWeight: '900', 
-                          color: '#fff', 
-                          letterSpacing: '0.15em', 
-                          textTransform: 'uppercase', 
-                          marginTop: '16px',
-                          fontFamily: "'Outfit', sans-serif" 
+                          fontSize: '5.2rem',
+                          filter: 'drop-shadow(0 0 30px rgba(139, 92, 246, 0.45))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          animation: 'float 4s ease-in-out infinite'
                         }}
                       >
-                        Franguinhos <span className="text-cyan-400">Games</span>
+                        🦉
+                      </div>
+                      <h1 
+                        style={{ 
+                          fontSize: '1.75rem', 
+                          fontWeight: '900', 
+                          color: '#fff', 
+                          letterSpacing: '0.22em', 
+                          textTransform: 'uppercase', 
+                          marginTop: '16px',
+                          fontFamily: "'Space Grotesk', 'Outfit', sans-serif" 
+                        }}
+                      >
+                        KRUUJ <span className="text-pink-500">Play</span>
                       </h1>
                       <div 
                         style={{ 
@@ -1519,35 +1491,56 @@ export default function App() {
                       onClick={() => { setAgePreference('geral'); setTeaMode(false); }}
                     >
                       <Grid style={{ width: '16px', height: '16px' }} />
-                      <span>Geral</span>
+                      <span>Play</span>
                     </button>
                     <button 
                       className={`pref-btn-mobile ${teaMode ? 'active-tea' : ''}`}
                       onClick={() => setTeaMode(!teaMode)}
                     >
-                      <Brain style={{ width: '16px', height: '16px' }} />
-                      <span>TEA: {teaMode ? 'ON' : 'OFF'}</span>
+                      <Settings style={{ width: '16px', height: '16px' }} />
+                      <span>Calmo</span>
                     </button>
                     <button 
                       className={`pref-btn-mobile ${agePreference === 'educacional' && !teaMode ? 'active-edu' : ''}`}
                       onClick={() => { setAgePreference('educacional'); setTeaMode(false); }}
                     >
                       <Award style={{ width: '16px', height: '16px' }} />
-                      <span>Kids (Edu)</span>
+                      <span>Kids</span>
                     </button>
                     <button 
                       className={`pref-btn-mobile ${agePreference === 'bebes' && !teaMode ? 'active-bebes' : ''}`}
                       onClick={() => { setAgePreference('bebes'); setTeaMode(false); }}
                     >
                       <Sparkles style={{ width: '16px', height: '16px' }} />
-                      <span>Bebês</span>
+                      <span>Baby</span>
                     </button>
                     <button 
                       className={`pref-btn-mobile ${agePreference === 'terceira_idade' && !teaMode ? 'active-senior' : ''}`}
                       onClick={() => { setAgePreference('terceira_idade'); setTeaMode(false); }}
                     >
                       <Star style={{ width: '16px', height: '16px' }} />
-                      <span>Sênior</span>
+                      <span>60+</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'family' && !teaMode ? 'active-geral' : ''}`}
+                      onClick={() => { setAgePreference('family'); setTeaMode(false); }}
+                    >
+                      <Users style={{ width: '16px', height: '16px' }} />
+                      <span>Family</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'edu' && !teaMode ? 'active-edu' : ''}`}
+                      onClick={() => { setAgePreference('edu'); setTeaMode(false); }}
+                    >
+                      <Brain style={{ width: '16px', height: '16px' }} />
+                      <span>Edu</span>
+                    </button>
+                    <button 
+                      className={`pref-btn-mobile ${agePreference === 'premium' && !teaMode ? 'active-geral' : ''}`}
+                      onClick={() => { setAgePreference('premium'); setTeaMode(false); }}
+                    >
+                      <Zap style={{ width: '16px', height: '16px' }} />
+                      <span>Premium</span>
                     </button>
                   </div>
 
@@ -1559,7 +1552,14 @@ export default function App() {
                         {activeCategory === 'Tudo' ? 'Todos os Jogos' : `Jogos de ${activeCategory}`}
                         {agePreference !== 'geral' && (
                           <span className="text-pink-400">
-                            {' '}do Filtro {agePreference === 'educacional' ? 'Educacional' : agePreference === 'bebes' ? 'Bebês' : 'Sênior'}
+                            {' '}do Filtro {
+                              agePreference === 'educacional' ? 'KRUUJ Kids' : 
+                              agePreference === 'bebes' ? 'KRUUJ Baby' : 
+                              agePreference === 'terceira_idade' ? 'KRUUJ 60+' : 
+                              agePreference === 'family' ? 'KRUUJ Family' : 
+                              agePreference === 'edu' ? 'KRUUJ Edu' : 
+                              'KRUUJ Premium'
+                            }
                           </span>
                         )}
                       </span>
@@ -1600,10 +1600,10 @@ export default function App() {
                               onClick={() => handlePlayGame(game)}
                             >
                               <div className="bento-card-body glass-card">
-                                {/* Pílula do Topo "FRANGUINHOS GAMES" */}
+                                {/* Pílula do Topo "KRUUJ" */}
                                 <div className="bento-card-top-header">
                                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                  <span>Franguinhos Games</span>
+                                  <span>KRUUJ Studio</span>
                                 </div>
 
                                 <div className="bento-card-image-wrapper">
@@ -1729,7 +1729,7 @@ export default function App() {
                 <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
                   <h2 className="text-2xl font-extrabold text-cyan-300">Política de Privacidade (LGPD)</h2>
                   <p className="text-sm text-gray-300 leading-relaxed">
-                    No **Franguinhos Games**, respeitamos rigorosamente a privacidade dos nossos visitantes e jogadores de conformidade com a Lei Geral de Proteção de Dados (LGPD) e o ECA. 
+                    No **KRUUJ**, respeitamos rigorosamente a privacidade dos nossos visitantes e jogadores de conformidade com a Lei Geral de Proteção de Dados (LGPD) e o ECA. 
                     Garantimos coleta mínima de dados: nenhuma informação pessoal é obrigatória para jogar ou se cadastrar (exigimos apenas nome de usuário e senha). 
                     A declaração de faixa etária é opcional e serve exclusivamente para ajustar a curadoria editorial dos jogos na tela inicial.
                   </p>
@@ -1745,7 +1745,7 @@ export default function App() {
                 <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
                   <h2 className="text-2xl font-extrabold text-cyan-300">Termos de Uso</h2>
                   <p className="text-sm text-gray-300 leading-relaxed">
-                    Ao utilizar o Franguinhos Games, você concorda com nossos termos. O portal oferece jogos casuais em formato HTML5 incorporados via iframe em sandbox isoladas para a sua segurança.
+                    Ao utilizar o KRUUJ, você concorda com nossos termos. O portal oferece jogos casuais em formato HTML5 incorporados via iframe em sandbox isoladas para a sua segurança.
                     Todos os jogos listados possuem licenciamento amplo comercial comprovado ou cessão patrimonial de direitos autorais de conformidade com a legislação brasileira (Lei nº 9.610/98 e Lei nº 9.609/98).
                   </p>
                   <p className="text-sm text-gray-300 leading-relaxed">
@@ -1978,89 +1978,59 @@ export default function App() {
 
 
 
-              {/* Widget de Chat Ao Vivo */}
+              {/* Widget de Histórico de Jogos Recentes (Fase 1 - Requisito MVP) */}
               <div className="bento-chat-card flex flex-col min-h-[260px]">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2 shrink-0">
-                  <MessageSquare className="w-4 h-4 text-pink-500" />
-                  <span>Chat Geral do Portal</span>
+                  <FileText className="w-4 h-4 text-pink-500" />
+                  <span>Jogados Recentemente</span>
                 </div>
 
-                {/* Lista de Mensagens */}
-                <div className="flex-grow overflow-y-auto max-h-[160px] space-y-2 pr-1 mb-2 bento-sidebar-scroll">
-                  {chatMessages.map((msg, index) => {
-                    let bubbleColorClass = 'msg-purple';
-                    if (msg.sender === 'GamerPro') bubbleColorClass = 'msg-cyan';
-                    else if (msg.sender === 'Alice_Logics') bubbleColorClass = 'msg-pink';
-                    else if (msg.sender === 'MatheMágico') bubbleColorClass = 'msg-green';
-                    else if (msg.sender === 'Nerd_HTML5') bubbleColorClass = 'msg-yellow';
-                    else if (user && msg.sender === user.username) bubbleColorClass = 'msg-pink';
-
-                    return (
-                      <div key={index} className={`bento-chat-bubble ${bubbleColorClass}`}>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="font-extrabold text-white text-[10px] tracking-tight">{msg.sender}</span>
-                          <span className="text-[8px] text-gray-500 font-mono">{msg.time}</span>
+                {/* Lista de Recentes */}
+                <div className="flex-grow overflow-y-auto max-h-[440px] space-y-2.5 pr-1 mb-2 bento-sidebar-scroll">
+                  {games.filter(g => recentGames.slice(0, 5).some(play => play.id === g.id)).length === 0 ? (
+                    <div className="text-center text-gray-500 text-xs py-10 select-none">
+                      Nenhum jogo jogado recentemente. Explore o catálogo!
+                    </div>
+                  ) : (
+                    // Renderiza estritamente os 5 últimos jogos jogados na barra lateral para economizar espaço
+                    recentGames
+                      .slice(0, 5)
+                      .map(play => ({ play, g: games.find(g => g.id === play.id) }))
+                      .filter((item): item is { play: RecentPlay, g: Game } => !!item.g)
+                      .map(({ play, g }) => (
+                        <div 
+                          key={g.id} 
+                          className="kruuj-history-item"
+                          onClick={() => handlePlayGame(g)}
+                        >
+                          {g.bannerUrl ? (
+                            <img 
+                              src={g.bannerUrl} 
+                              alt={g.title} 
+                              className="kruuj-history-cover"
+                            />
+                          ) : (
+                            <div className="kruuj-history-cover-fallback">
+                              <Gamepad2 style={{ width: '13px', height: '13px' }} />
+                            </div>
+                          )}
+                          <div className="flex-grow min-w-0 text-left">
+                            <div className="kruuj-history-title">{g.title}</div>
+                            <div className="flex items-center justify-between gap-2 mt-0.5">
+                              <div className="kruuj-history-category">{g.category}</div>
+                              <span className="text-[8px] text-gray-500 font-extrabold uppercase font-mono tracking-wider">{formatRelativeTime(play.timestamp)}</span>
+                            </div>
+                          </div>
+                          <button 
+                            className="kruuj-history-btn select-none shrink-0"
+                            onClick={(e) => { e.stopPropagation(); handlePlayGame(g); }}
+                          >
+                            JOGAR
+                          </button>
                         </div>
-                        <p className="text-gray-300 text-[11px] leading-relaxed font-semibold">{msg.text}</p>
-                      </div>
-                    );
-                  })}
+                      ))
+                  )}
                 </div>
-
-                {/* Input de Envio de Chat */}
-                <form 
-                  onSubmit={handleSendChatMessage} 
-                  style={{ 
-                    display: 'flex', 
-                    gap: '6px', 
-                    borderTop: '1px solid rgba(255,255,255,0.06)', 
-                    paddingTop: '8px', 
-                    marginTop: '8px',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    alignItems: 'center'
-                  }}
-                >
-                  <input 
-                    type="text" 
-                    placeholder="Diga algo..." 
-                    className="input-field text-xs"
-                    style={{ 
-                      flexGrow: 1, 
-                      minWidth: 0, 
-                      height: '32px', 
-                      padding: '4px 10px', 
-                      fontSize: '0.68rem',
-                      boxSizing: 'border-box'
-                    }}
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    required
-                  />
-                  <button 
-                    type="submit" 
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: 'var(--accent-cyan)',
-                      color: '#000',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      flexShrink: 0,
-                      boxShadow: '0 0 8px rgba(102, 252, 241, 0.2)',
-                      boxSizing: 'border-box',
-                      transition: 'all 0.25s'
-                    }}
-                    className="btn-send-chat"
-                    title="Enviar Mensagem"
-                  >
-                    <Send style={{ width: '12px', height: '12px' }} />
-                  </button>
-                </form>
               </div>
 
             </aside>
@@ -2886,17 +2856,13 @@ export default function App() {
           {/* Coluna 1: Logo & Resumo */}
           <div className="footer-col">
             <div className="flex items-center gap-1.5 mb-2">
-              <img 
-                src="/logo_franguinhos.png" 
-                alt="Franguinhos Games Logo" 
-                style={{ width: '16px', height: '16px', objectFit: 'contain', opacity: 0.8 }} 
-              />
-              <span className="font-extrabold text-[10px] tracking-tight bg-gradient-to-r from-cyan-400 to-pink-500 bg-clip-text text-transparent uppercase">
-                Franguinhos Games
+              <span className="text-sm">🦉</span>
+              <span className="font-extrabold text-[11px] tracking-widest bg-gradient-to-r from-pink-500 to-[#f59e0b] bg-clip-text text-transparent uppercase font-mono">
+                KRUUJ
               </span>
             </div>
             <p>
-              Portal de jogos HTML5 responsivo, focado em desempenho mobile, segurança de sandbox e total conformidade com a LGPD e o Estatuto da Criança e do Adolescente (ECA).
+              KRUUJ é uma plataforma de descoberta e jogos web responsiva, focada em segurança, acessibilidade cognitiva e total conformidade com a LGPD e o Estatuto da Criança e do Adolescente (ECA).
             </p>
           </div>
 
@@ -2963,7 +2929,7 @@ export default function App() {
 
         {/* Linha Inferior com Copyright e Redes Sociais */}
         <div className="footer-bottom">
-          <p>© 2026 Franguinhos Games. Todos os direitos reservados. Tema Glassmorphic Dark Arcade.</p>
+          <p>© 2026 KRUUJ. Todos os direitos reservados. Tema Space Dark Arcade.</p>
           <div className="social-links">
             <a href="#discord" className="social-icon" title="Comunidade Discord">DC</a>
             <a href="#twitter" className="social-icon" title="Canal Twitter / X">TW</a>
@@ -3137,95 +3103,175 @@ export default function App() {
 
             {user ? (
               <div className="space-y-6 text-center select-none animate-[fadeInUp_0.4s_ease-out_forwards]">
-                <div className="flex flex-col items-center justify-center text-center">
-                  <img
-                    src="/logo_franguinhos.png"
-                    alt="Franguinhos Games Logo"
-                    style={{ width: '64px', height: '64px', objectFit: 'contain' }}
-                    className="filter drop-shadow-[0_0_20px_rgba(102,252,241,0.3)] animate-[float_4s_ease-in-out_infinite]"
-                  />
-                  <h3 className="text-xl font-black text-white uppercase tracking-wider mt-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                    Menu da <span className="text-cyan-400">sua Conta</span>
-                  </h3>
-                </div>
-
-                <div className="p-5 bg-black/40 rounded-2xl border border-white/5 space-y-4">
-                  {/* Informações Básicas */}
-                  <div className="flex items-center gap-4 text-left">
-                    <div 
-                      style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#fff',
-                        fontWeight: '900',
-                        fontSize: '0.95rem',
-                        border: '2px solid rgba(255, 255, 255, 0.15)',
-                        boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)',
-                        flexShrink: 0
-                      }}
-                    >
-                      {user.username.substring(0, 2).toUpperCase()}
+                {accountSubView === 'menu' ? (
+                  <>
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <div 
+                        style={{ 
+                          fontSize: '3rem',
+                          filter: 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))',
+                          animation: 'float 4s ease-in-out infinite'
+                        }}
+                      >
+                        🦉
+                      </div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-wider mt-3" style={{ fontFamily: "'Space Grotesk', 'Outfit', sans-serif" }}>
+                        Menu da <span className="text-pink-500">sua Conta</span>
+                      </h3>
                     </div>
-                    <div>
-                      <h4 className="font-extrabold text-white text-sm leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                        {user.username}
-                      </h4>
-                      <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest mt-1">
-                        {user.role === 'super_admin' ? 'Administrador do Portal' : 'Jogador VIP'}
-                      </p>
+
+                    <div className="p-5 bg-black/40 rounded-2xl border border-white/5 space-y-4">
+                      {/* Informações Básicas */}
+                      <div className="flex items-center gap-4 text-left">
+                        <div 
+                          style={{
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontWeight: '900',
+                            fontSize: '0.95rem',
+                            border: '2px solid rgba(255, 255, 255, 0.15)',
+                            boxShadow: '0 0 12px rgba(0, 240, 255, 0.3)',
+                            flexShrink: 0
+                          }}
+                        >
+                          {user.username.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <h4 className="font-extrabold text-white text-sm leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                            {user.username}
+                          </h4>
+                          <p className="text-[10px] text-cyan-400 font-extrabold uppercase tracking-widest mt-1">
+                            {user.role === 'super_admin' ? 'Administrador do Portal' : 'Jogador VIP'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Nível & Experiência */}
+                      <div className="space-y-2 pt-2 border-t border-white/5 text-left">
+                        <div className="flex justify-between items-center text-[10px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                          <span className="bg-white/5 border border-white/5 px-2 py-0.5 rounded-md text-[9px] text-cyan-400 font-bold">NÍVEL 12</span>
+                          <span className="text-gray-500">XP: <strong className="text-white font-mono">1.420 / 2.000</strong></span>
+                        </div>
+                        <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                          <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%' }} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Nível & Experiência */}
-                  <div className="space-y-2 pt-2 border-t border-white/5 text-left">
-                    <div className="flex justify-between items-center text-[10px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                      <span className="bg-white/5 border border-white/5 px-2 py-0.5 rounded-md text-[9px] text-cyan-400 font-bold">NÍVEL 12</span>
-                      <span className="text-gray-500">XP: <strong className="text-white font-mono">1.420 / 2.000</strong></span>
+                    <div className="space-y-3">
+                      {/* Botão de Histórico de Jogos Recentes */}
+                      <button
+                        className="btn-primary w-full justify-center rounded-xl py-3 font-extrabold"
+                        onClick={() => setAccountSubView('history')}
+                        style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%)', color: '#fff', border: 'none' }}
+                      >
+                        📜 Meu Histórico de Jogos
+                      </button>
+
+                      {/* Se for Super Admin, exibe o link direto para a Área Administrativa */}
+                      {user.role === 'super_admin' && (
+                        <button
+                          className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                          onClick={() => {
+                            setView('admin');
+                            setSelectedGame(null);
+                            setShowAuthModal(false);
+                          }}
+                        >
+                          ⚙️ Área Administrativa (Cockpit)
+                        </button>
+                      )}
+
+                      <button
+                        className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                        style={{ borderColor: 'rgba(255, 69, 101, 0.2)', color: '#ff4565', background: 'rgba(255, 69, 101, 0.05)' }}
+                        onClick={() => {
+                          handleLogout();
+                          setShowAuthModal(false);
+                        }}
+                      >
+                        Sair da Conta (Logout)
+                      </button>
+
+                      <button
+                        className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                        onClick={() => setShowAuthModal(false)}
+                      >
+                        Fechar Menu
+                      </button>
                     </div>
-                    <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                      <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%' }} />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <div style={{ fontSize: '2.5rem' }}>📜</div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-wider mt-2" style={{ fontFamily: "'Space Grotesk', 'Outfit', sans-serif" }}>
+                        Histórico de <span className="text-cyan-400">Jogos</span>
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1">Seus últimos circuitos acessados no portal</p>
                     </div>
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  {/* Se for Super Admin, exibe o link direto para a Área Administrativa */}
-                  {user.role === 'super_admin' && (
-                    <button
-                      className="btn-primary w-full justify-center rounded-xl py-3 font-extrabold"
-                      onClick={() => {
-                        setView('admin');
-                        setSelectedGame(null);
-                        setShowAuthModal(false);
-                      }}
-                    >
-                      ⚙️ Área Administrativa (Cockpit)
-                    </button>
-                  )}
+                    <div className="p-3 bg-black/40 rounded-2xl border border-white/5 space-y-2.5 max-h-[300px] overflow-y-auto bento-sidebar-scroll text-left">
+                      {games.filter(g => recentGames.some(play => play.id === g.id)).length === 0 ? (
+                        <div className="text-center text-gray-500 text-xs py-10 select-none">
+                          Você ainda não jogou nenhum jogo nesta sessão.
+                        </div>
+                      ) : (
+                        recentGames
+                          .map(play => ({ play, g: games.find(g => g.id === play.id) }))
+                          .filter((item): item is { play: RecentPlay, g: Game } => !!item.g)
+                          .map(({ play, g }) => (
+                            <div 
+                              key={g.id} 
+                              className="kruuj-history-item"
+                              onClick={() => { handlePlayGame(g); setShowAuthModal(false); setAccountSubView('menu'); }}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {g.bannerUrl ? (
+                                <img 
+                                  src={g.bannerUrl} 
+                                  alt={g.title} 
+                                  className="kruuj-history-cover"
+                                />
+                              ) : (
+                                <div className="kruuj-history-cover-fallback">
+                                  <Gamepad2 style={{ width: '13px', height: '13px' }} />
+                                </div>
+                              )}
+                              <div className="flex-grow min-w-0 text-left">
+                                <div className="kruuj-history-title">{g.title}</div>
+                                <div className="flex items-center justify-between gap-2 mt-0.5">
+                                  <div className="kruuj-history-category">{g.category}</div>
+                                  <span className="text-[8px] text-gray-500 font-extrabold uppercase font-mono tracking-wider">{formatRelativeTime(play.timestamp)}</span>
+                                </div>
+                              </div>
+                              <button 
+                                className="kruuj-history-btn select-none shrink-0"
+                                onClick={(e) => { e.stopPropagation(); handlePlayGame(g); setShowAuthModal(false); setAccountSubView('menu'); }}
+                              >
+                                JOGAR
+                              </button>
+                            </div>
+                          ))
+                      )}
+                    </div>
 
-                  <button
-                    className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
-                    style={{ borderColor: 'rgba(255, 69, 101, 0.2)', color: '#ff4565', background: 'rgba(255, 69, 101, 0.05)' }}
-                    onClick={() => {
-                      handleLogout();
-                      setShowAuthModal(false);
-                    }}
-                  >
-                    Sair da Conta (Logout)
-                  </button>
-
-                  <button
-                    className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
-                    onClick={() => setShowAuthModal(false)}
-                  >
-                    Fechar Menu
-                  </button>
-                </div>
+                    <div className="space-y-2">
+                      <button
+                        className="btn-secondary w-full justify-center rounded-xl py-3 font-extrabold"
+                        onClick={() => setAccountSubView('menu')}
+                      >
+                        ⬅️ Voltar ao Menu
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ) : recoveryPhrase ? (
               <div className="space-y-6 text-center">
@@ -3251,14 +3297,16 @@ export default function App() {
                 
                 {/* Cabeçalho do Cartão de Autenticação */}
                 <div className="flex flex-col items-center justify-center text-center select-none mb-2">
-                  <img 
-                    src="/logo_franguinhos.png" 
-                    alt="Franguinhos Games Logo" 
-                    style={{ width: '56px', height: '56px', objectFit: 'contain' }}
-                    className="filter drop-shadow-[0_0_15px_rgba(102,252,241,0.25)]"
-                  />
-                  <h2 className="text-md font-black text-white tracking-widest uppercase mt-2">
-                    Franguinhos <span className="text-cyan-400">Games</span>
+                  <div 
+                    style={{ 
+                      fontSize: '3rem',
+                      filter: 'drop-shadow(0 0 15px rgba(139, 92, 246, 0.4))'
+                    }}
+                  >
+                    🦉
+                  </div>
+                  <h2 className="text-md font-black text-white tracking-widest uppercase mt-2" style={{ fontFamily: "'Space Grotesk', 'Outfit', sans-serif" }}>
+                    KRUUJ <span className="text-pink-500">Play</span>
                   </h2>
                 </div>
 

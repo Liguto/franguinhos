@@ -3,24 +3,24 @@
    ========================================================================== */
 
 :root {
-  --bg-primary: #05060a;
-  --bg-secondary: #0c0d16;
-  --bg-card: rgba(18, 22, 38, 0.55);
-  --bg-glass: rgba(18, 22, 38, 0.7);
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-cyan: rgba(102, 252, 241, 0.2);
-  --accent-cyan: #66fcf1;
-  --accent-cyan-glow: rgba(102, 252, 241, 0.35);
-  --accent-pink: #ff007f;
-  --accent-pink-glow: rgba(255, 0, 127, 0.35);
-  --accent-purple: #8a2be2;
-  --accent-purple-glow: rgba(138, 43, 226, 0.3);
-  --text-main: #f5f6f9;
-  --text-muted: #9f9cb5;
-  --text-glow: 0 0 10px rgba(102, 252, 241, 0.3);
-  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg-primary: #080E1A; /* Azul-marinho profundo oficial do KRUUJ */
+  --bg-secondary: #141829; /* Fundo de card/seção do KRUUJ */
+  --bg-card: rgba(20, 24, 41, 0.65);
+  --bg-glass: rgba(20, 24, 41, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.05);
+  --border-cyan: rgba(59, 130, 246, 0.25);
+  --accent-cyan: #3B82F6; /* Azul/Ciano de conexão e tecnologia */
+  --accent-cyan-glow: rgba(59, 130, 246, 0.4);
+  --accent-pink: #8B5CF6; /* Roxo Elétrico - Cor de assinatura principal */
+  --accent-pink-glow: rgba(139, 92, 246, 0.4);
+  --accent-purple: #F59E0B; /* Laranja - Cor de realce e acento */
+  --accent-purple-glow: rgba(245, 158, 11, 0.4);
+  --text-main: #F3F4F6; /* Texto claro */
+  --text-muted: #9CA3AF; /* Texto silenciado */
+  --text-glow: 0 0 10px rgba(139, 92, 246, 0.4);
+  --font-family: 'Space Grotesk', 'Outfit', -apple-system, sans-serif;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
 }
 
 /* --- EDUCATIONAL THEME --- (Cores Lúdicas, Amarelo/Azul vibrantes, fundo menos denso) */
@@ -2884,17 +2884,118 @@ animation: none !important;
 }
 
 @media (max-width: 768px) {
-.bento-game-floating-lock {
-  position: fixed !important;
-  top: 16px !important;
-  right: 72px !important; /* Ajuste milimétrico ao lado do fechar móvel de 44px */
-  z-index: 100000 !important;
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 50% !important;
+  .bento-game-floating-lock {
+    position: fixed !important;
+    top: 16px !important;
+    right: 72px !important; /* Ajuste milimétrico ao lado do fechar móvel de 44px */
+    z-index: 100000 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   11. KRUUJ HISTORY WIDGET — ULTRA PREMIUM GAME CARDS & ACTIONS
+   ========================================================================== */
+
+.kruuj-history-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important; /* Fixa alinhamento perfeito à esquerda */
+  gap: 12px !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+.kruuj-history-item:hover {
+  background: rgba(139, 92, 246, 0.08) !important; /* Roxo Elétrico translúcido */
+  border-color: rgba(139, 92, 246, 0.25) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.12) !important;
+}
+
+.kruuj-history-cover {
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: cover !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.3s ease !important;
+}
+
+.kruuj-history-item:hover .kruuj-history-cover {
+  transform: scale(1.05) !important;
+  border-color: var(--accent-pink) !important;
+}
+
+.kruuj-history-cover-fallback {
+  width: 42px !important;
+  height: 42px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  color: var(--accent-cyan) !important;
+  flex-shrink: 0 !important;
 }
+
+.kruuj-history-title {
+  font-family: 'Space Grotesk', 'Outfit', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 0.74rem !important; /* ~12px */
+  color: #fff !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.kruuj-history-category {
+  font-family: 'Space Grotesk', 'Outfit', sans-serif !important;
+  font-size: 0.55rem !important; /* ~9px */
+  font-weight: 800 !important;
+  color: var(--accent-cyan) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin-top: 3px !important;
+}
+
+/* O Botão de Jogar dos Recentes (Degradê Espacial Pulsante) */
+.kruuj-history-btn {
+  background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  color: #fff !important;
+  font-family: 'Space Grotesk', 'Outfit', sans-serif !important;
+  font-size: 0.62rem !important; /* ~10px */
+  font-weight: 900 !important;
+  padding: 6px 14px !important;
+  letter-spacing: 0.06em !important;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  margin-left: auto !important; /* Força o botão a se travar na extrema direita simétrica */
+}
+
+.kruuj-history-btn:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.6), 0 0 8px rgba(59, 130, 246, 0.3) !important;
 }
 
