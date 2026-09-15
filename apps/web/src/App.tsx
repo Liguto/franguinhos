@@ -1521,30 +1521,7 @@ export default function App() {
                       <Star style={{ width: '16px', height: '16px' }} />
                       <span>60+</span>
                     </button>
-                    <button 
-                      className="pref-btn-mobile"
-                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                      onClick={() => alert("O modo KRUUJ Family estará disponível em breve com vantagens para toda a família!")}
-                    >
-                      <Users style={{ width: '16px', height: '16px', opacity: 0.7 }} />
-                      <span className="flex items-center gap-0.5">Family 🔒</span>
-                    </button>
-                    <button 
-                      className="pref-btn-mobile"
-                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                      onClick={() => alert("O modo KRUUJ Edu estará disponível em breve com projetos e jogos escolares!")}
-                    >
-                      <Brain style={{ width: '16px', height: '16px', opacity: 0.7 }} />
-                      <span className="flex items-center gap-0.5">Edu 🔒</span>
-                    </button>
-                    <button 
-                      className="pref-btn-mobile"
-                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
-                      onClick={() => alert("O modo KRUUJ Premium estará disponível em breve com benefícios e vantagens exclusivas!")}
-                    >
-                      <Zap style={{ width: '16px', height: '16px', opacity: 0.7 }} />
-                      <span className="flex items-center gap-0.5">Premium 🔒</span>
-                    </button>
+
                   </div>
 
                   {/* Grid de Jogos */}
