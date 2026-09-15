@@ -1522,25 +1522,28 @@ export default function App() {
                       <span>60+</span>
                     </button>
                     <button 
-                      className={`pref-btn-mobile ${agePreference === 'family' && !teaMode ? 'active-geral' : ''}`}
-                      onClick={() => { setAgePreference('family'); setTeaMode(false); }}
+                      className="pref-btn-mobile"
+                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                      onClick={() => alert("O modo KRUUJ Family estará disponível em breve com vantagens para toda a família!")}
                     >
-                      <Users style={{ width: '16px', height: '16px' }} />
-                      <span>Family</span>
+                      <Users style={{ width: '16px', height: '16px', opacity: 0.7 }} />
+                      <span className="flex items-center gap-0.5">Family 🔒</span>
                     </button>
                     <button 
-                      className={`pref-btn-mobile ${agePreference === 'edu' && !teaMode ? 'active-edu' : ''}`}
-                      onClick={() => { setAgePreference('edu'); setTeaMode(false); }}
+                      className="pref-btn-mobile"
+                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                      onClick={() => alert("O modo KRUUJ Edu estará disponível em breve com projetos e jogos escolares!")}
                     >
-                      <Brain style={{ width: '16px', height: '16px' }} />
-                      <span>Edu</span>
+                      <Brain style={{ width: '16px', height: '16px', opacity: 0.7 }} />
+                      <span className="flex items-center gap-0.5">Edu 🔒</span>
                     </button>
                     <button 
-                      className={`pref-btn-mobile ${agePreference === 'premium' && !teaMode ? 'active-geral' : ''}`}
-                      onClick={() => { setAgePreference('premium'); setTeaMode(false); }}
+                      className="pref-btn-mobile"
+                      style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                      onClick={() => alert("O modo KRUUJ Premium estará disponível em breve com benefícios e vantagens exclusivas!")}
                     >
-                      <Zap style={{ width: '16px', height: '16px' }} />
-                      <span>Premium</span>
+                      <Zap style={{ width: '16px', height: '16px', opacity: 0.7 }} />
+                      <span className="flex items-center gap-0.5">Premium 🔒</span>
                     </button>
                   </div>
 
