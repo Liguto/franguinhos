@@ -145,7 +145,7 @@ export default function App() {
 
 
 
-  // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês
+  // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês e restaurar fullscreen no toque
   useEffect(() => {
     if (!isScreenLocked) return;
 
@@ -154,13 +154,29 @@ export default function App() {
     const handlePopState = () => {
       if (isScreenLocked) {
         window.history.pushState(null, '', window.location.href);
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
         alert("O Modo Bebês está ativo! Resolva o cálculo do cadeado de segurança para sair do jogo.");
       }
     };
 
+    const handleTouchToRestore = () => {
+      if (isScreenLocked && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('touchstart', handleTouchToRestore, { passive: true });
+    window.addEventListener('touchend', handleTouchToRestore, { passive: true });
+    window.addEventListener('click', handleTouchToRestore);
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('touchstart', handleTouchToRestore);
+      window.removeEventListener('touchend', handleTouchToRestore);
+      window.removeEventListener('click', handleTouchToRestore);
     };
   }, [isScreenLocked]);
 
@@ -2976,7 +2992,8 @@ export default function App() {
             zIndex: 99999,
             backgroundColor: '#05060a',
             display: 'block',
-            cursor: !document.fullscreenElement ? 'pointer' : 'default'
+            cursor: !document.fullscreenElement ? 'pointer' : 'default',
+            touchAction: 'none'
           }}
           onClick={() => {
             if (!document.fullscreenElement) {
