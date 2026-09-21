@@ -2095,11 +2095,8 @@ export default function App() {
                       setAgePreference('bebes');
                       setIsScreenLocked(true);
                       if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen()
-                          .then(() => setIsFullscreenExitDetected(false))
-                          .catch(() => {});
+                        document.documentElement.requestFullscreen().catch(() => {});
                       }
-                      alert("Modo Bebês Ativado! A tela foi bloqueada em Fullscreen. Para sair, resolva a conta de segurança no cadeado da esquerda.");
                     }}
                     title="Bloquear Tela (Modo Bebês)"
                   >
