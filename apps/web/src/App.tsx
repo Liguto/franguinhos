@@ -83,7 +83,6 @@ export default function App() {
   const [parentMath, setParentMath] = useState({ n1: 0, n2: 0, op: '+' });
   const [parentInput, setParentInput] = useState<string>('');
   const [isScreenLocked, setIsScreenLocked] = useState<boolean>(false);
-  const [isFullscreenExitDetected, setIsFullscreenExitDetected] = useState<boolean>(false);
   const [accountSubView, setAccountSubView] = useState<'menu' | 'history'>('menu');
   const wakeLockRef = useRef<any>(null);
 
@@ -144,33 +143,7 @@ export default function App() {
     localStorage.setItem('arcade_likes_count', JSON.stringify(likesCount));
   }, [likesCount]);
 
-  // Se a tela estiver travada (isScreenLocked) e sair do fullscreen por acidente, avisa e pede clique para reentrar
-  useEffect(() => {
-    if (!isScreenLocked) {
-      setIsFullscreenExitDetected(false);
-      return;
-    }
 
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && isScreenLocked) {
-        setIsFullscreenExitDetected(true);
-      } else {
-        setIsFullscreenExitDetected(false);
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
-      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
-    };
-  }, [isScreenLocked]);
 
   // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês
   useEffect(() => {
@@ -1124,14 +1097,13 @@ export default function App() {
     }
 
     setIsScreenLocked(false);
-    setIsFullscreenExitDetected(false);
 
     logEvent('game_exit', { gameId: selectedGame?.id, gameSlug: selectedGame?.slug });
   };
 
   // Gatilho de saída interceptado pelo Parent Gate no modo Bebês
   const triggerExitGame = () => {
-    if (agePreference === 'bebes') {
+    if (agePreference === 'bebes' && isScreenLocked) {
       // Gerar cálculo aleatório para o cadeado (Parent Gate)
       const isMult = Math.random() > 0.5;
       const n1 = Math.floor(Math.random() * 5) + 2; // 2 a 6
@@ -1173,24 +1145,7 @@ export default function App() {
       return updated;
     });
 
-    // 1. Aciona o modo Fullscreen do navegador nativamente no mobile/tablet (ou sempre no modo Bebês)
-    if (window.innerWidth < 1024 || agePreference === 'bebes') {
-      try {
-        const docEl = document.documentElement as any;
-        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-        if (requestFullScreen) {
-          await requestFullScreen.call(docEl);
-        }
-      } catch (err) {
-        console.warn('Fullscreen automático bloqueado ou não suportado pelo navegador.');
-      }
-    }
-
-    if (agePreference === 'bebes') {
-      setIsScreenLocked(true);
-    }
-
-    // 2. Trava de Tela (Screen Wake Lock) para o Modo Bebês
+    // Trava de Tela (Screen Wake Lock) para o Modo Bebês
     if (agePreference === 'bebes' && 'wakeLock' in navigator) {
       try {
         wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
@@ -3005,41 +2960,15 @@ export default function App() {
             height: '100vh',
             zIndex: 99999,
             backgroundColor: '#05060a',
-            display: 'block'
+            display: 'block',
+            cursor: !document.fullscreenElement ? 'pointer' : 'default'
+          }}
+          onClick={() => {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            }
           }}
         >
-          {isFullscreenExitDetected && (
-            <div 
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundColor: 'rgba(5, 6, 10, 0.98)',
-                zIndex: 100001,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '24px',
-                textAlign: 'center'
-              }}
-              className="space-y-6"
-            >
-              <Lock className="w-16 h-16 text-pink-500 animate-pulse" />
-              <h2 className="text-2xl font-extrabold text-white">Modo Bebês Suspenso</h2>
-              <p className="text-sm text-gray-400 max-w-sm">Para manter seu bebê seguro e ocultar as barras do navegador, clique no botão abaixo para reativar o bloqueio total em tela cheia.</p>
-              <button
-                type="button"
-                className="btn-primary py-3 px-8 text-base font-bold bg-pink-500 text-white rounded-xl shadow-lg hover:bg-pink-600 transition-all flex items-center gap-2"
-                onClick={() => {
-                  document.documentElement.requestFullscreen()
-                    .then(() => setIsFullscreenExitDetected(false))
-                    .catch(() => {});
-                }}
-              >
-                Reativar Bloqueio 🔒
-              </button>
-            </div>
-          )}
           {isPlayingGame ? (
             isPhysicalGame(selectedGame.slug) ? (
               <iframe
@@ -3092,21 +3021,33 @@ export default function App() {
           )}
           
           <button 
-            className="absolute top-4 right-4 md:top-8 md:right-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 shadow-lg"
-            style={{ position: 'absolute', zIndex: 100000 }}
-            onClick={handleManualFullscreen}
+            className="bento-game-floating-lock"
+            style={{ 
+              position: 'absolute', 
+              right: '16px', 
+              left: 'auto', 
+              top: '16px', 
+              zIndex: 100000 
+            }}
+            onClick={(e) => { e.stopPropagation(); handleManualFullscreen(); }}
             title="Tela Cheia"
           >
-            <Maximize className="w-6 h-6 md:w-8 md:h-8" />
+            <Maximize className="w-4 h-4" />
           </button>
           
           <button 
-            className="absolute top-4 left-4 md:top-8 md:left-8 p-3 md:p-4 bg-black/40 hover:bg-black/80 text-white/50 hover:text-white rounded-full backdrop-blur-sm transition-all border border-white/10 shadow-lg"
-            style={{ position: 'absolute', zIndex: 100000 }}
-            onClick={triggerExitGame}
+            className="bento-game-floating-lock"
+            style={{ 
+              position: 'absolute', 
+              left: '16px', 
+              right: 'auto', 
+              top: '16px', 
+              zIndex: 100000 
+            }}
+            onClick={(e) => { e.stopPropagation(); triggerExitGame(); }}
             title="Sair do Jogo (Protegido)"
           >
-            <Lock className="w-6 h-6 md:w-8 md:h-8" />
+            <Lock className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -3573,10 +3514,22 @@ export default function App() {
                 {parentMath.n1} {parentMath.op} {parentMath.n2} = ?
               </div>
               <input
-                type="number"
-                className="input-field text-center text-xl"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="input-field text-center text-2xl font-bold bg-black/60 border-pink-500/30 text-white rounded-lg p-2"
+                style={{ maxWidth: '160px', margin: '0 auto', display: 'block' }}
                 value={parentInput}
-                onChange={(e) => setParentInput(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (/^\d*$/.test(val)) {
+                    setParentInput(val);
+                    const expected = parentMath.op === 'x' ? parentMath.n1 * parentMath.n2 : parentMath.n1 + parentMath.n2;
+                    if (parseInt(val) === expected) {
+                      executeExitGame();
+                    }
+                  }
+                }}
                 autoFocus
                 required
               />
