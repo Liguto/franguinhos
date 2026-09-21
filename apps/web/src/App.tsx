@@ -145,9 +145,17 @@ export default function App() {
 
 
 
-  // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês e restaurar fullscreen no toque
+  // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês e restaurar fullscreen no toque/gesto
   useEffect(() => {
-    if (!isScreenLocked) return;
+    if (!isScreenLocked) {
+      document.documentElement.style.overscrollBehavior = '';
+      document.body.style.overscrollBehavior = '';
+      return;
+    }
+
+    // Trava de comportamento de overscroll para impedir navegação por deslize de borda e pull-to-refresh
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overscrollBehavior = 'none';
 
     window.history.pushState(null, '', window.location.href);
 
@@ -171,12 +179,18 @@ export default function App() {
     window.addEventListener('touchstart', handleTouchToRestore, { passive: true });
     window.addEventListener('touchend', handleTouchToRestore, { passive: true });
     window.addEventListener('click', handleTouchToRestore);
+    window.addEventListener('resize', handleTouchToRestore);
+    window.addEventListener('focus', handleTouchToRestore);
 
     return () => {
+      document.documentElement.style.overscrollBehavior = '';
+      document.body.style.overscrollBehavior = '';
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('touchstart', handleTouchToRestore);
       window.removeEventListener('touchend', handleTouchToRestore);
       window.removeEventListener('click', handleTouchToRestore);
+      window.removeEventListener('resize', handleTouchToRestore);
+      window.removeEventListener('focus', handleTouchToRestore);
     };
   }, [isScreenLocked]);
 
