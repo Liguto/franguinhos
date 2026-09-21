@@ -83,6 +83,7 @@ export default function App() {
   const [parentMath, setParentMath] = useState({ n1: 0, n2: 0, op: '+' });
   const [parentInput, setParentInput] = useState<string>('');
   const [isScreenLocked, setIsScreenLocked] = useState<boolean>(false);
+  const [isFullscreenExitDetected, setIsFullscreenExitDetected] = useState<boolean>(false);
   const [accountSubView, setAccountSubView] = useState<'menu' | 'history'>('menu');
   const wakeLockRef = useRef<any>(null);
 
@@ -142,6 +143,69 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('arcade_likes_count', JSON.stringify(likesCount));
   }, [likesCount]);
+
+  // Se a tela estiver travada (isScreenLocked) e sair do fullscreen por acidente, avisa e pede clique para reentrar
+  useEffect(() => {
+    if (!isScreenLocked) {
+      setIsFullscreenExitDetected(false);
+      return;
+    }
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isScreenLocked) {
+        setIsFullscreenExitDetected(true);
+      } else {
+        setIsFullscreenExitDetected(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, [isScreenLocked]);
+
+  // Bloquear navegação traseira (Botão Voltar do Android/Browser) no Modo Bebês
+  useEffect(() => {
+    if (!isScreenLocked) return;
+
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      if (isScreenLocked) {
+        window.history.pushState(null, '', window.location.href);
+        alert("O Modo Bebês está ativo! Resolva o cálculo do cadeado de segurança para sair do jogo.");
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isScreenLocked]);
+
+  // Impedir recarregamento acidental
+  useEffect(() => {
+    if (!isScreenLocked) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "O Modo Bebês está ativo! Tem certeza que deseja sair?";
+      return e.returnValue;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isScreenLocked]);
 
   // Consentimento de Privacidade (LGPD)
   const [consentVersion, setConsentVersion] = useState<string>('v1');
@@ -1059,6 +1123,9 @@ export default function App() {
       document.exitFullscreen().catch(() => {});
     }
 
+    setIsScreenLocked(false);
+    setIsFullscreenExitDetected(false);
+
     logEvent('game_exit', { gameId: selectedGame?.id, gameSlug: selectedGame?.slug });
   };
 
@@ -1117,6 +1184,10 @@ export default function App() {
       } catch (err) {
         console.warn('Fullscreen automático bloqueado ou não suportado pelo navegador.');
       }
+    }
+
+    if (agePreference === 'bebes') {
+      setIsScreenLocked(true);
     }
 
     // 2. Trava de Tela (Screen Wake Lock) para o Modo Bebês
@@ -2067,7 +2138,13 @@ export default function App() {
                     className="bento-game-floating-lock"
                     onClick={() => {
                       setAgePreference('bebes');
-                      alert("Modo Bebês Ativado! A tela foi bloqueada em Fullscreen. Para sair, clique no cadeado da esquerda e resolva a conta matemática.");
+                      setIsScreenLocked(true);
+                      if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen()
+                          .then(() => setIsFullscreenExitDetected(false))
+                          .catch(() => {});
+                      }
+                      alert("Modo Bebês Ativado! A tela foi bloqueada em Fullscreen. Para sair, resolva a conta de segurança no cadeado da esquerda.");
                     }}
                     title="Bloquear Tela (Modo Bebês)"
                   >
@@ -2931,6 +3008,38 @@ export default function App() {
             display: 'block'
           }}
         >
+          {isFullscreenExitDetected && (
+            <div 
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundColor: 'rgba(5, 6, 10, 0.98)',
+                zIndex: 100001,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px',
+                textAlign: 'center'
+              }}
+              className="space-y-6"
+            >
+              <Lock className="w-16 h-16 text-pink-500 animate-pulse" />
+              <h2 className="text-2xl font-extrabold text-white">Modo Bebês Suspenso</h2>
+              <p className="text-sm text-gray-400 max-w-sm">Para manter seu bebê seguro e ocultar as barras do navegador, clique no botão abaixo para reativar o bloqueio total em tela cheia.</p>
+              <button
+                type="button"
+                className="btn-primary py-3 px-8 text-base font-bold bg-pink-500 text-white rounded-xl shadow-lg hover:bg-pink-600 transition-all flex items-center gap-2"
+                onClick={() => {
+                  document.documentElement.requestFullscreen()
+                    .then(() => setIsFullscreenExitDetected(false))
+                    .catch(() => {});
+                }}
+              >
+                Reativar Bloqueio 🔒
+              </button>
+            </div>
+          )}
           {isPlayingGame ? (
             isPhysicalGame(selectedGame.slug) ? (
               <iframe
