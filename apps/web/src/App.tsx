@@ -1098,6 +1098,9 @@ export default function App() {
 
     setIsScreenLocked(false);
 
+    // Rola a página de volta para o topo (Garante que não fique perdida embaixo)
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     logEvent('game_exit', { gameId: selectedGame?.id, gameSlug: selectedGame?.slug });
   };
 
@@ -1159,7 +1162,10 @@ export default function App() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
     } else {
-      document.exitFullscreen().catch(() => {});
+      // SÓ permite sair do fullscreen se o lockscreen estiver DESATIVADO!
+      if (!isScreenLocked) {
+        document.exitFullscreen().catch(() => {});
+      }
     }
   };
 
