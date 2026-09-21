@@ -77,6 +77,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('arcade_tea_mode', String(teaMode));
   }, [teaMode]);
+
+  // Sempre que a rota/view mudar, rola a página de volta ao topo absoluto após a renderização do React
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 60); // 60ms dá tempo suficiente para a renderização do novo layout se consolidar
+    return () => clearTimeout(timer);
+  }, [view]);
   
   // Controle de Saída de Segurança (Parent Gate - Modo Bebês)
   const [showParentGate, setShowParentGate] = useState<boolean>(false);
