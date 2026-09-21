@@ -2122,16 +2122,36 @@ export default function App() {
                 </div>
 
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
-                <div className="iframe-container relative">
+                <div 
+                  className="iframe-container relative"
+                  style={isScreenLocked ? {
+                    position: 'fixed',
+                    inset: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 99999,
+                    backgroundColor: '#05060a',
+                    display: 'block',
+                    cursor: !document.fullscreenElement ? 'pointer' : 'default',
+                    touchAction: 'none'
+                  } : {}}
+                  onClick={() => {
+                    if (isScreenLocked && !document.fullscreenElement) {
+                      document.documentElement.requestFullscreen().catch(() => {});
+                    }
+                  }}
+                >
                   {/* Botão de Escape Flutuante (X) */}
-                  <button 
-                    className="bento-game-floating-close"
-                    style={{ right: '68px', zIndex: 100000 }}
-                    onClick={triggerExitGame}
-                    title="Fechar Jogo e Voltar"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  {!isScreenLocked && (
+                    <button 
+                      className="bento-game-floating-close"
+                      style={{ right: '68px', zIndex: 100000 }}
+                      onClick={triggerExitGame}
+                      title="Fechar Jogo e Voltar"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
 
                   {/* Botão de Fullscreen (Sempre à mostra) */}
                   <button 
@@ -2146,17 +2166,30 @@ export default function App() {
                   {/* Botão de Bloqueio Infantil Flutuante (Parental Lock) */}
                   <button 
                     className="bento-game-floating-lock"
-                    style={{ right: '120px', zIndex: 100000 }}
-                    onClick={() => {
-                      setAgePreference('bebes');
-                      setIsScreenLocked(true);
-                      if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(() => {});
+                    style={{ 
+                      right: '120px', 
+                      zIndex: 100000,
+                      ...(isScreenLocked ? {
+                        backgroundColor: '#ef4444',
+                        borderColor: '#ef4444',
+                        boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
+                      } : {})
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isScreenLocked) {
+                        triggerExitGame();
+                      } else {
+                        setAgePreference('bebes');
+                        setIsScreenLocked(true);
+                        if (!document.fullscreenElement) {
+                          document.documentElement.requestFullscreen().catch(() => {});
+                        }
                       }
                     }}
-                    title="Bloquear Tela (Modo Bebês)"
+                    title={isScreenLocked ? "Sair do Jogo (Protegido)" : "Bloquear Tela (Modo Bebês)"}
                   >
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-4 h-4" style={isScreenLocked ? { color: '#ffffff', filter: 'none', animation: 'none' } : {}} />
                   </button>
 
                   {isPlayingGame ? (
@@ -2168,6 +2201,16 @@ export default function App() {
                         allow="fullscreen; autoplay"
                         allowFullScreen
                         title={selectedGame.title}
+                        style={isScreenLocked ? {
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          border: 'none',
+                          margin: 0,
+                          padding: 0,
+                          objectFit: 'cover'
+                        } : {}}
                       ></iframe>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">
