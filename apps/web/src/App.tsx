@@ -2079,18 +2079,30 @@ export default function App() {
 
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
                 <div className="iframe-container relative">
-                  {/* Botão de Escape Flutuante (X) para usabilidade de perito */}
+                  {/* Botão de Escape Flutuante (X) */}
                   <button 
                     className="bento-game-floating-close"
+                    style={{ right: '68px', zIndex: 100000 }}
                     onClick={triggerExitGame}
                     title="Fechar Jogo e Voltar"
                   >
                     <X className="w-4 h-4" />
                   </button>
 
+                  {/* Botão de Fullscreen (Sempre à mostra) */}
+                  <button 
+                    className="bento-game-floating-close"
+                    style={{ right: '16px', zIndex: 100000 }}
+                    onClick={(e) => { e.stopPropagation(); handleManualFullscreen(); }}
+                    title="Tela Cheia"
+                  >
+                    <Maximize className="w-4 h-4" />
+                  </button>
+
                   {/* Botão de Bloqueio Infantil Flutuante (Parental Lock) */}
                   <button 
                     className="bento-game-floating-lock"
+                    style={{ right: '120px', zIndex: 100000 }}
                     onClick={() => {
                       setAgePreference('bebes');
                       setIsScreenLocked(true);
@@ -3017,8 +3029,9 @@ export default function App() {
             </div>
           )}
           
+          {/* Botão de Fullscreen (Sempre no canto direito) */}
           <button 
-            className="bento-game-floating-lock"
+            className="bento-game-floating-close"
             style={{ 
               position: 'absolute', 
               right: '16px', 
@@ -3032,19 +3045,23 @@ export default function App() {
             <Maximize className="w-4 h-4" />
           </button>
           
+          {/* Botão de Cadeado Ativado (Vermelho, no mesmo lugar que o desativado!) */}
           <button 
             className="bento-game-floating-lock"
             style={{ 
               position: 'absolute', 
-              left: '16px', 
-              right: 'auto', 
+              right: '120px', 
+              left: 'auto', 
               top: '16px', 
-              zIndex: 100000 
+              zIndex: 100000,
+              backgroundColor: '#ef4444',
+              borderColor: '#ef4444',
+              boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
             }}
             onClick={(e) => { e.stopPropagation(); triggerExitGame(); }}
             title="Sair do Jogo (Protegido)"
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-4 h-4" style={{ color: '#ffffff', filter: 'none', animation: 'none' }} />
           </button>
         </div>
       )}
