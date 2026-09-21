@@ -2089,37 +2089,39 @@ export default function App() {
         ) : (
           /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
           <>
-            {view === 'playing' && selectedGame && !isScreenLocked && (
+            {view === 'playing' && selectedGame && (
               <div className="space-y-6">
                 
                 {/* Header de Navegação do Jogo */}
-                <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5">
-                  <button 
-                    className="btn-secondary py-2 px-4" 
-                    onClick={triggerExitGame}
-                  >
-                    <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
-                  </button>
+                {!isScreenLocked && (
+                  <div className="flex flex-wrap items-center justify-between gap-4 bg-[#0f111a]/60 p-4 rounded-xl border border-white/5">
+                    <button 
+                      className="btn-secondary py-2 px-4" 
+                      onClick={triggerExitGame}
+                    >
+                      <ArrowLeft className="w-4 h-4" /> Voltar ao Portal
+                    </button>
 
-                  <h2 className="text-xl font-extrabold text-cyan-300 neon-glow-cyan">
-                    {selectedGame.title}
-                  </h2>
+                    <h2 className="text-xl font-extrabold text-cyan-300 neon-glow-cyan">
+                      {selectedGame.title}
+                    </h2>
 
-                  <button 
-                    className={`like-action-btn ${favorites.includes(selectedGame.id) ? 'liked' : ''}`}
-                    onClick={() => handleToggleFavorite(selectedGame.id)}
-                    title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
-                  >
-                    <Heart className="w-5 h-5" />
-                    <span className="like-text">
-                      {favorites.includes(selectedGame.id) ? 'Curtido!' : 'Curtir'}
-                    </span>
-                    <span className="like-divider"></span>
-                    <span className="like-count">
-                      {likesCount[selectedGame.id] || 0}
-                    </span>
-                  </button>
-                </div>
+                    <button 
+                      className={`like-action-btn ${favorites.includes(selectedGame.id) ? 'liked' : ''}`}
+                      onClick={() => handleToggleFavorite(selectedGame.id)}
+                      title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
+                    >
+                      <Heart className="w-5 h-5" />
+                      <span className="like-text">
+                        {favorites.includes(selectedGame.id) ? 'Curtido!' : 'Curtir'}
+                      </span>
+                      <span className="like-divider"></span>
+                      <span className="like-count">
+                        {likesCount[selectedGame.id] || 0}
+                      </span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
                 <div 
@@ -3046,113 +3048,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* --- MODO BEBÊS (LOCKSCREEN EM TELA CHEIA E ABSOLUTA) --- */}
-      {view === 'playing' && selectedGame && isScreenLocked && (
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            width: '100vw',
-            height: '100vh',
-            zIndex: 99999,
-            backgroundColor: '#05060a',
-            display: 'block',
-            cursor: !document.fullscreenElement ? 'pointer' : 'default',
-            touchAction: 'none'
-          }}
-          onClick={() => {
-            if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch(() => {});
-            }
-          }}
-        >
-          {isPlayingGame ? (
-            isPhysicalGame(selectedGame.slug) ? (
-              <iframe
-                key={selectedGame.id}
-                src={getGameUrl(selectedGame)}
-                sandbox="allow-scripts allow-same-origin allow-forms"
-                allow="fullscreen; autoplay"
-                allowFullScreen
-                title={selectedGame.title}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  margin: 0,
-                  padding: 0,
-                  objectFit: 'cover'
-                }}
-              ></iframe>
-            ) : (
-              <div 
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontWeight: 'bold'
-                }}
-              >
-                Em Manutenção Editorial...
-              </div>
-            )
-          ) : (
-            <div 
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#22d3ee',
-                fontWeight: 'bold'
-              }}
-            >
-              Carregando Jogo Lúdico...
-            </div>
-          )}
-          
-          {/* Botão de Fullscreen (Sempre no canto direito) */}
-          <button 
-            className="bento-game-floating-close"
-            style={{ 
-              position: 'absolute', 
-              right: '16px', 
-              left: 'auto', 
-              top: '16px', 
-              zIndex: 100000 
-            }}
-            onClick={(e) => { e.stopPropagation(); handleManualFullscreen(); }}
-            title="Tela Cheia"
-          >
-            <Maximize className="w-4 h-4" />
-          </button>
-          
-          {/* Botão de Cadeado Ativado (Vermelho, no mesmo lugar que o desativado!) */}
-          <button 
-            className="bento-game-floating-lock"
-            style={{ 
-              position: 'absolute', 
-              right: '120px', 
-              left: 'auto', 
-              top: '16px', 
-              zIndex: 100000,
-              backgroundColor: '#ef4444',
-              borderColor: '#ef4444',
-              boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
-            }}
-            onClick={(e) => { e.stopPropagation(); triggerExitGame(); }}
-            title="Sair do Jogo (Protegido)"
-          >
-            <Lock className="w-4 h-4" style={{ color: '#ffffff', filter: 'none', animation: 'none' }} />
-          </button>
-        </div>
-      )}
+
 
       {/* --- PRE-GAME INTERSTITIAL AD OVERLAY --- */}
       {showAdOverlay && (
