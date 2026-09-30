@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, Sparkles,
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
   FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
-  MessageSquare, Send
+  MessageSquare, Send, Compass, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile
 } from 'lucide-react';
 
 // Interfaces internas
@@ -45,10 +45,10 @@ interface UserProfile {
 
 export default function App() {
   // --- Estados do Portal ---
-  const [view, setView] = useState<'home' | 'playing' | 'favorites' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
+  const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação']);
+  const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
   const [activeCategory, setActiveCategory] = useState<string>('Tudo');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
@@ -58,6 +58,13 @@ export default function App() {
   // UX Audit Upgrades — Estados para Skeletons de Transição e Gamificação Social
   const [isCatalogLoading, setIsCatalogLoading] = useState<boolean>(false);
   const [activeChallengeFriend, setActiveChallengeFriend] = useState<string | null>(null);
+
+  // Estados dos Novos Módulos do Layout KRUUJ Oficial
+  const [featuredIndex, setFeaturedIndex] = useState<number>(0);
+  const [exploreAudience, setExploreAudience] = useState<string>('Todos');
+  const [exploreGenre, setExploreGenre] = useState<string>('Todos');
+  const [exploreMoment, setExploreMoment] = useState<string>('Todos');
+  const [profileTab, setProfileTab] = useState<'conquistas' | 'jogos' | 'favoritos' | 'config'>('conquistas');
 
   // Efeito de Transição Suave de Catálogo (Flicker-Free Skeletons)
   useEffect(() => {
@@ -383,48 +390,27 @@ export default function App() {
       const mockGames: Game[] = [
         {
           id: '1',
-          slug: 'snake-retro',
-          title: 'Snake Retro Arcade',
-          description: 'Jogo da cobrinha neon online grátis para celular e PC! O clássico retro futurista arcade perfeito para passar o tempo. Pegue os blocos de dados sem bater nas paredes.',
+          slug: 'rocket-rise',
+          title: 'Corrida Espacial',
+          description: 'Acelere nessa aventura intergaláctica cheia de adrenalina! Pilote sua nave espacial, desvie de chuvas de meteoros e colete energia estelar para cruzar a linha de chegada.',
           category: 'Arcade',
-          subcategories: ['Clássico', 'Casual', 'Retrô'],
-          tags: ['cobrinha', 'retro', 'pixel', 'neon', 'casual'],
+          subcategories: ['Corrida', 'Espaço', 'Ação'],
+          tags: ['corrida', 'espaco', 'arcade', 'foguete', 'velocidade'],
           ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=800&auto=format&fit=crop&q=60',
-          iconUrl: 'snake',
-          prefixUrl: '/games/snake-retro/',
-          version: '1.0.0',
+          bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/rocket-rise/',
+          version: '1.2.0',
           controls: { mouse: false, teclado: true, toque: true, gamepad: false },
           orientation: 'both',
           statusTechnical: 'aprovado',
           statusEditorial: 'publicado',
           statusDoc: 'aprovado',
-          author: 'RetroByte Studios',
-          licenseName: 'Licença Comercial Ampla'
+          author: 'KRUUJ Studio',
+          licenseName: 'Proprietário'
         },
         {
           id: '2',
-          slug: 'memory-match',
-          title: 'Memory Training Neon',
-          description: 'Jogos gratuitos para estimular a memória de idosos e crianças. Exercite sua mente combinando as cartas de neon vibrantes diretamente no celular sem precisar instalar nada.',
-          category: 'Memória',
-          subcategories: ['Cognitivo', 'Educacional', 'Infantil'],
-          tags: ['memoria', 'educacional', 'mente', 'cartas', 'infantil', 'idoso'],
-          ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&auto=format&fit=crop&q=60',
-          iconUrl: 'brain',
-          prefixUrl: '/games/memory-match/',
-          version: '1.0.2',
-          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
-          orientation: 'portrait',
-          statusTechnical: 'aprovado',
-          statusEditorial: 'publicado',
-          statusDoc: 'aprovado',
-          author: 'MindCare Software',
-          licenseName: 'Licença Comercial Geral'
-        },
-        {
-          id: '3',
           slug: 'space-defense',
           title: 'Cyber Space Defense',
           description: 'Jogo de tiro no espaço arcade gratuito. Defenda o núcleo central contra invasores cibernéticos do espaço profundo atirando sem parar! Jogue agora no PC ou mobile.',
@@ -445,28 +431,406 @@ export default function App() {
           licenseName: 'Cessão Total de Direitos'
         },
         {
-          id: '4',
-          slug: 'math-run',
-          title: 'Super Math Run',
-          description: 'Jogos de soma e matemática para 8 anos online. Corra, pule obstáculos e responda contas e cálculos rápidos mentalmente para continuar avançando. Aprender nunca foi tão divertido!',
-          category: 'Educacional',
-          subcategories: ['Corrida', 'Educacional', 'Matemática'],
-          tags: ['educacional', 'infantil', 'matematica', 'corrida', 'kids'],
+          id: '3',
+          slug: 'snake-retro',
+          title: 'Snake Retro Arcade',
+          description: 'Jogo da cobrinha neon online grátis para celular e PC! O clássico retro futurista arcade perfeito para passar o tempo. Pegue os blocos de dados sem bater nas paredes.',
+          category: 'Arcade',
+          subcategories: ['Clássico', 'Casual', 'Retrô'],
+          tags: ['cobrinha', 'retro', 'pixel', 'neon', 'casual'],
           ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
+          bannerUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'snake',
+          prefixUrl: '/games/snake-retro/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'RetroByte Studios',
+          licenseName: 'Licença Comercial Ampla'
+        },
+        {
+          id: '4',
+          slug: 'bubble-pop',
+          title: 'Bubble Boom',
+          description: 'Estoure bolhas mágicas coloridas em um ambiente vibrante, calmo e seguro. Perfeito para relaxar e exercitar a coordenação motora.',
+          category: 'Bebês',
+          subcategories: ['Lúdico', 'Sensorial', 'Cores'],
+          tags: ['bebes', 'bolhas', 'cores', 'sensorial', 'relaxante'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
           iconUrl: 'plus',
-          prefixUrl: '/games/math-run/',
-          version: '1.0.1',
+          prefixUrl: '/games/bubble-pop/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'KRUUJ Original',
+          licenseName: 'Proprietário'
+        },
+        {
+          id: '5',
+          slug: 'rocket-rise',
+          title: 'Super Kart Racer',
+          description: 'Acelere em pistas radicais com derrapagens insanas e turbos nitros empolgantes.',
+          category: 'Corrida',
+          subcategories: ['Kart', 'Velocidade', 'Arcade'],
+          tags: ['corrida', 'kart', 'velocidade', 'competicao'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/rocket-rise/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'Speedy Games',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '6',
+          slug: 'snake-retro',
+          title: 'Craft World',
+          description: 'Explore biomas voxel infinitos, minere recursos e construa castelos e ferramentas lendárias.',
+          category: 'Aventura',
+          subcategories: ['Sandbox', 'Crafting', 'Exploração'],
+          tags: ['craft', 'blocos', 'mundo', 'criativo'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'gamepad',
+          prefixUrl: '/games/snake-retro/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'BlockCraft Studio',
+          licenseName: 'Licença Ampla'
+        },
+        {
+          id: '7',
+          slug: 'rocket-rise',
+          title: 'Monster Truck',
+          description: 'Esmague obstáculos e faça saltos épicos pilotando caminhões monstros gigantescos.',
+          category: 'Ação',
+          subcategories: ['Carros', 'Acrobacias', 'Física'],
+          tags: ['truck', 'carros', 'acrobacia', 'destruicao'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/rocket-rise/',
+          version: '1.0.0',
           controls: { mouse: false, teclado: true, toque: true, gamepad: false },
           orientation: 'landscape',
           statusTechnical: 'aprovado',
           statusEditorial: 'publicado',
           statusDoc: 'aprovado',
-          author: 'EduPlay Corp',
-          licenseName: 'Licença Comercial Não Exclusiva'
+          author: 'NitroWheels Co',
+          licenseName: 'Licença Comercial'
         },
         {
-          id: '5',
+          id: '8',
+          slug: 'bubble-pop',
+          title: 'Fruit Ninja',
+          description: 'Corte melancias, laranjas e maçãs voadoras com golpes rápidos de lâmina ninja.',
+          category: 'Arcade',
+          subcategories: ['Corte', 'Reflexo', 'Casual'],
+          tags: ['frutas', 'corte', 'ninja', 'reflexo'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'plus',
+          prefixUrl: '/games/bubble-pop/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'SliceBlade Studio',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '9',
+          slug: 'space-defense',
+          title: 'Sky Force',
+          description: 'Combate aéreo intenso pilotando jatos avançados contra frotas e chefes mecânicos.',
+          category: 'Ação',
+          subcategories: ['Tiro', 'Aviões', 'Guerra'],
+          tags: ['aviao', 'tiro', 'batalha', 'ceu'],
+          ageRating: '10+',
+          bannerUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/space-defense/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: true },
+          orientation: 'landscape',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'SkyFighter Games',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '10',
+          slug: 'math-run',
+          title: 'Animal Rescue',
+          description: 'Salve bichinhos fofos perdidos na floresta mágica resolvendo desafios e enigmas.',
+          category: 'Educacional',
+          subcategories: ['Crianças', 'Animais', 'Lógica'],
+          tags: ['animais', 'resgate', 'infantil', 'natureza'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'plus',
+          prefixUrl: '/games/math-run/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+          orientation: 'landscape',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'Wildlife Games',
+          licenseName: 'Licença Não Exclusiva'
+        },
+        {
+          id: '11',
+          slug: 'memory-match',
+          title: 'Puzzle Quest',
+          description: 'Combine joias místicas e pedras preciosas para conjurar feitiços e vencer batalhas de inteligência.',
+          category: 'Puzzle',
+          subcategories: ['Joias', 'Combinação', 'RPG'],
+          tags: ['puzzle', 'joias', 'magia', 'raciocinio'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'brain',
+          prefixUrl: '/games/memory-match/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'GemQuest Studios',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '12',
+          slug: 'memory-match',
+          title: 'Color Match',
+          description: 'Teste sua agilidade mental e memória combinando blocos e paletas de cores harmônicas.',
+          category: 'Memória',
+          subcategories: ['Cognitivo', 'Design', 'Percepção'],
+          tags: ['cores', 'memoria', 'padroes', 'mente'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'brain',
+          prefixUrl: '/games/memory-match/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'ColorLabs',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '13',
+          slug: 'sudoku-zen',
+          title: 'Tiny Farmers',
+          description: 'Plante hortaliças, cuide dos animais da fazenda e negocie colheitas com seus vizinhos.',
+          category: 'Família',
+          subcategories: ['Fazenda', 'Gestão', 'Simulação'],
+          tags: ['fazenda', 'plantio', 'familia', 'relaxante'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'hash',
+          prefixUrl: '/games/sudoku-zen/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'FarmSim Co',
+          licenseName: 'Licença Geral'
+        },
+        {
+          id: '14',
+          slug: 'snake-retro',
+          title: 'Dragon Run',
+          description: 'Guie o dragão mítico pelos céus do reino coletando esferas de fogo e desviando de tempestades.',
+          category: 'Ação',
+          subcategories: ['Dragões', 'Corrida Infinita', 'Fantasia'],
+          tags: ['dragao', 'fantasia', 'corrida', 'mitologia'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'snake',
+          prefixUrl: '/games/snake-retro/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'MythicByte',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '15',
+          slug: 'rocket-rise',
+          title: 'Space Jump',
+          description: 'Pule entre plataformas flutuantes em baixa gravidade enquanto viaja pelo sistema solar.',
+          category: 'Arcade',
+          subcategories: ['Salto', 'Gravidade', 'Plataforma'],
+          tags: ['salto', 'plataforma', 'espaco', 'gravidade'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/rocket-rise/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'Orbit Games',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '16',
+          slug: 'rocket-rise',
+          title: 'Blaze Riders',
+          description: 'Corridas de motos esportivas em alta velocidade por metrópoles futuristas iluminadas a neon.',
+          category: 'Corrida',
+          subcategories: ['Motos', 'Velocidade', 'Cyberpunk'],
+          tags: ['moto', 'corrida', 'nitro', 'cidade'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/rocket-rise/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'CyberMoto',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '17',
+          slug: 'memory-match',
+          title: 'Magic Tiles',
+          description: 'Toque nas teclas do piano no ritmo das melhores canções clássicas e eletrônicas.',
+          category: 'Memória',
+          subcategories: ['Música', 'Ritmo', 'Piano'],
+          tags: ['musica', 'piano', 'ritmo', 'teclas'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'brain',
+          prefixUrl: '/games/memory-match/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'portrait',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'RhythmArts',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '18',
+          slug: 'sudoku-zen',
+          title: 'Island Builder',
+          description: 'Colonize ilhas tropicais paradisíacas criando portos, pontes e cidades sustentáveis.',
+          category: 'Família',
+          subcategories: ['Construção', 'Estratégia', 'Ilhas'],
+          tags: ['ilha', 'construcao', 'mar', 'familia'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'hash',
+          prefixUrl: '/games/sudoku-zen/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'TropicoStudios',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '19',
+          slug: 'math-run',
+          title: 'Dino Adventure',
+          description: 'Acompanhe dinossauros simpáticos em expedições pela selva pré-histórica cheia de enigmas.',
+          category: 'Educacional',
+          subcategories: ['Dinossauros', 'Aventura', 'Kids'],
+          tags: ['dino', 'jurassico', 'aventura', 'crianca'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1525877442103-5dd52293b455?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'plus',
+          prefixUrl: '/games/math-run/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'landscape',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'Prehistoric Corp',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '20',
+          slug: 'space-defense',
+          title: 'Soccer Stars',
+          description: 'Partidas de futebol disputadas com jogadas de botão, tabelas e gols nos acréscimos.',
+          category: 'Ação',
+          subcategories: ['Futebol', 'Esportes', 'Competição'],
+          tags: ['futebol', 'gol', 'chute', 'campeonato'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'rocket',
+          prefixUrl: '/games/space-defense/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+          orientation: 'landscape',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'GoalMaster Studios',
+          licenseName: 'Licença Comercial'
+        },
+        {
+          id: '21',
+          slug: 'math-run',
+          title: 'Forest Guardians',
+          description: 'Proteja os espíritos da floresta antiga contra as forças da sombra com enigmas de luz.',
+          category: 'Aventura',
+          subcategories: ['Magia', 'Natureza', 'Puzzle'],
+          tags: ['floresta', 'magia', 'guardiao', 'aventura'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1511497584788-87676104235f?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'plus',
+          prefixUrl: '/games/math-run/',
+          version: '1.0.0',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'GuardianGames',
+          licenseName: 'Licença Geral'
+        },
+        {
+          id: '22',
           slug: 'sudoku-zen',
           title: 'Sudoku Zen Master',
           description: 'Sudoku fácil para celular sem instalar grátis. O clássico tabuleiro matemático de lógica com trilha relaxante, excelente para manter o cérebro da terceira idade ativo.',
@@ -487,46 +851,46 @@ export default function App() {
           licenseName: 'Licença Comercial Ampla'
         },
         {
-          id: '6',
-          slug: 'bubble-pop',
-          title: 'Bolhas Mágicas',
-          description: 'Estoure as bolhas coloridas em um ambiente calmo e seguro. Jogo focado em causa e efeito, perfeito para o desenvolvimento motor de bebês e crianças pequenas.',
-          category: 'Bebês',
-          subcategories: ['Lúdico', 'Sensorial', 'Causa e Efeito'],
-          tags: ['bebes', 'bolhas', 'cores', 'sensorial', 'toddler'],
+          id: '23',
+          slug: 'math-run',
+          title: 'Super Math Run',
+          description: 'Jogos de soma e matemática online. Corra, pule obstáculos e responda contas e cálculos rápidos mentalmente para continuar avançando.',
+          category: 'Educacional',
+          subcategories: ['Corrida', 'Educacional', 'Matemática'],
+          tags: ['educacional', 'infantil', 'matematica', 'corrida', 'kids'],
           ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
+          bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
           iconUrl: 'plus',
-          prefixUrl: '/games/bubble-pop/',
-          version: '1.0.0',
-          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
-          orientation: 'both',
+          prefixUrl: '/games/math-run/',
+          version: '1.0.1',
+          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+          orientation: 'landscape',
           statusTechnical: 'aprovado',
           statusEditorial: 'publicado',
           statusDoc: 'aprovado',
-          author: 'Franguinhos Original',
-          licenseName: 'Proprietário'
+          author: 'EduPlay Corp',
+          licenseName: 'Licença Comercial Não Exclusiva'
         },
         {
-          id: '7',
-          slug: 'rocket-rise',
-          title: 'Rocket Rise',
-          description: 'Pilote uma nave espacial, desvie de meteoros, gerencie seu combustível e use turbos e escudos para subir o mais alto possível nesse viciante jogo de sobrevivência espacial!',
-          category: 'Arcade',
-          subcategories: ['Espaço', 'Sobrevivência', 'Casual'],
-          tags: ['foguete', 'espaco', 'obstaculos', 'moedas', 'climb'],
+          id: '24',
+          slug: 'memory-match',
+          title: 'Memory Training Neon',
+          description: 'Jogos gratuitos para exercitar a mente combinando cartas de neon vibrantes diretamente no navegador.',
+          category: 'Memória',
+          subcategories: ['Cognitivo', 'Educacional', 'Infantil'],
+          tags: ['memoria', 'educacional', 'mente', 'cartas', 'infantil', 'idoso'],
           ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
-          iconUrl: 'rocket',
-          prefixUrl: '/games/rocket-rise/',
-          version: '1.0.0',
-          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
-          orientation: 'both',
+          bannerUrl: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'brain',
+          prefixUrl: '/games/memory-match/',
+          version: '1.0.2',
+          controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+          orientation: 'portrait',
           statusTechnical: 'aprovado',
           statusEditorial: 'publicado',
           statusDoc: 'aprovado',
-          author: 'Franguinhos Games',
-          licenseName: 'Proprietário'
+          author: 'MindCare Software',
+          licenseName: 'Licença Comercial Geral'
         }
       ];
       setGames(mockGames);
@@ -1253,27 +1617,53 @@ export default function App() {
     return cat; // 'Arcade', 'Memória', 'Ação' mantêm-se iguais
   };
 
-  // Filtragem de Jogos baseada nas preferências ativas
+  // Filtragem de Jogos baseada nas preferências ativas e filtros dimensionais de exploração
   const getFilteredGames = () => {
     let result = [...games];
 
-    // 1. Filtragem por Preferência de Conteúdo (Educacional, Bebês, Terceira Idade)
-    if (agePreference === 'educacional') {
-      result = result.filter(g => g.ageRating === 'Livre' && (g.category === 'Educacional' || g.category === 'Infantil'));
-    } else if (agePreference === 'bebes') {
-      // Bloqueio rigoroso: No modo bebês, SOMENTE jogos da categoria "Bebês" podem aparecer
-      result = result.filter(g => g.category === 'Bebês');
-    } else if (agePreference === 'terceira_idade') {
-      // Priorizar puzzle, memória, sudoku zen
-      result = result.filter(g => g.category === 'Memória' || g.category === 'Terceira Idade' || g.tags.includes('mente'));
-    }
+    // Se estiver na tela Explorar, aplica os filtros da proposta oficial
+    if (view === 'explore') {
+      if (exploreAudience !== 'Todos') {
+        if (exploreAudience === 'Baby') result = result.filter(g => g.category === 'Bebês' || g.tags.includes('bebes'));
+        else if (exploreAudience === 'Kids') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('kids') || g.tags.includes('infantil'));
+        else if (exploreAudience === 'Play') result = result.filter(g => g.ageRating === 'Livre' || g.ageRating === '10+');
+        else if (exploreAudience === 'Family') result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
+        else if (exploreAudience === '60+') result = result.filter(g => g.category === 'Terceira Idade' || g.tags.includes('mente') || g.tags.includes('zen'));
+        else if (exploreAudience === 'Edu') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('educacional'));
+      }
 
-    // 2. Filtragem por Categoria (Engloba categorias especiais do monorepo de acordo com o mapeamento)
-    if (activeCategory !== 'Tudo') {
-      result = result.filter(g => {
-        const mappedCat = getMappedCategory(g.category);
-        return mappedCat === activeCategory;
-      });
+      if (exploreGenre !== 'Todos') {
+        result = result.filter(g => g.category === exploreGenre || g.subcategories.includes(exploreGenre) || g.tags.includes(exploreGenre.toLowerCase()));
+      }
+
+      if (exploreMoment !== 'Todos') {
+        if (exploreMoment === '5 minutos') result = result.filter(g => g.category === 'Arcade' || g.tags.includes('casual'));
+        else if (exploreMoment === 'Relaxar') result = result.filter(g => g.tags.includes('relaxante') || g.tags.includes('zen') || g.category === 'Bebês');
+        else if (exploreMoment === 'Desafio') result = result.filter(g => g.category === 'Ação' || g.category === 'Corrida');
+        else if (exploreMoment === 'Jogar junto') result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
+        else if (exploreMoment === 'Exercitar a mente') result = result.filter(g => g.category === 'Memória' || g.category === 'Puzzle' || g.tags.includes('mente'));
+      }
+    } else {
+      // 1. Filtragem por Preferência de Conteúdo (Home)
+      if (agePreference === 'educacional') {
+        result = result.filter(g => g.ageRating === 'Livre' && (g.category === 'Educacional' || g.category === 'Infantil'));
+      } else if (agePreference === 'bebes') {
+        result = result.filter(g => g.category === 'Bebês');
+      } else if (agePreference === 'terceira_idade') {
+        result = result.filter(g => g.category === 'Memória' || g.category === 'Terceira Idade' || g.tags.includes('mente'));
+      } else if (agePreference === 'family') {
+        result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
+      } else if (agePreference === 'edu') {
+        result = result.filter(g => g.category === 'Educacional' || g.tags.includes('educacional'));
+      }
+
+      // 2. Filtragem por Categoria
+      if (activeCategory !== 'Tudo') {
+        result = result.filter(g => {
+          const mappedCat = getMappedCategory(g.category);
+          return mappedCat === activeCategory;
+        });
+      }
     }
 
     // 3. Filtragem por Busca
@@ -1338,8 +1728,149 @@ export default function App() {
     return ['snake-retro', 'memory-match', 'space-defense', 'sudoku-zen', 'math-run', 'bubble-pop', 'rocket-rise'].includes(slug);
   };
 
+  // --- Helpers e Dados do Layout KRUUJ Oficial ---
+  const featuredGames = [
+    {
+      title: 'Corrida Espacial',
+      subtitle: 'Acelere nessa aventura intergaláctica e desvie dos asteroides!',
+      tag: 'KRUUJ recomenda',
+      slug: 'rocket-rise',
+      bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
+      category: 'Arcade / Corrida'
+    },
+    {
+      title: 'Cyber Space Defense',
+      subtitle: 'Proteja o núcleo estelar contra invasores do espaço profundo!',
+      tag: 'KRUUJ recomenda',
+      slug: 'space-defense',
+      bannerUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&auto=format&fit=crop&q=60',
+      category: 'Ação / Espaço'
+    },
+    {
+      title: 'Snake Retro Arcade',
+      subtitle: 'O clássico atemporal dos fliperamas em neon brilhante!',
+      tag: 'KRUUJ recomenda',
+      slug: 'snake-retro',
+      bannerUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=800&auto=format&fit=crop&q=60',
+      category: 'Arcade / Retrô'
+    },
+    {
+      title: 'Bubble Boom',
+      subtitle: 'Estoure bolhas mágicas coloridas e relaxe sua mente!',
+      tag: 'KRUUJ recomenda',
+      slug: 'bubble-pop',
+      bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
+      category: 'Baby / Lúdico'
+    }
+  ];
+
+  const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
+  const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
+
+  const handleOpenDetails = (game: Game) => {
+    setSelectedGame(game);
+    setView('details');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // 4 Prateleiras Oficiais do Layout Proposta
+  const shelfTrending = [
+    games.find(g => g.title === 'Super Kart Racer') || games[4],
+    games.find(g => g.title === 'Craft World') || games[5],
+    games.find(g => g.title === 'Bubble Boom') || games[3],
+    games.find(g => g.title === 'Monster Truck') || games[6],
+    games.find(g => g.title === 'Fruit Ninja') || games[7],
+    games.find(g => g.title === 'Sky Force') || games[8],
+  ].filter(Boolean) as Game[];
+
+  const shelfDiscoveries = [
+    games.find(g => g.title === 'Animal Rescue') || games[9],
+    games.find(g => g.title === 'Puzzle Quest') || games[10],
+    games.find(g => g.title === 'Color Match') || games[11],
+    games.find(g => g.title === 'Tiny Farmers') || games[12],
+    games.find(g => g.title === 'Dragon Run') || games[13],
+    games.find(g => g.title === 'Space Jump') || games[14],
+  ].filter(Boolean) as Game[];
+
+  const shelfNewReleases = [
+    games.find(g => g.title === 'Blaze Riders') || games[15],
+    games.find(g => g.title === 'Magic Tiles') || games[16],
+    games.find(g => g.title === 'Island Builder') || games[17],
+    games.find(g => g.title === 'Dino Adventure') || games[18],
+    games.find(g => g.title === 'Soccer Stars') || games[19],
+    games.find(g => g.title === 'Forest Guardians') || games[20],
+  ].filter(Boolean) as Game[];
+
+  const shelfMostPlayed = [
+    games.find(g => g.slug === 'snake-retro') || games[2],
+    games.find(g => g.slug === 'space-defense') || games[1],
+    games.find(g => g.slug === 'sudoku-zen') || games[21],
+    games.find(g => g.slug === 'math-run') || games[22],
+    games.find(g => g.slug === 'rocket-rise') || games[0],
+    games.find(g => g.slug === 'memory-match') || games[23],
+  ].filter(Boolean) as Game[];
+
   return (
     <div className={`flex flex-col min-h-screen ${agePreference === 'educacional' ? 'theme-edu' : agePreference === 'terceira_idade' ? 'theme-senior' : ''}`}>
+      
+      {/* --- TOPBAR KRUUJ OFICIAL (DESKTOP & MOBILE) --- */}
+      <header className="kruuj-topbar">
+        <div className="kruuj-topbar-left">
+          <div 
+            className="kruuj-logo-link"
+            onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
+          >
+            <img src="/kruuj-logo.png" alt="KRUUJ" />
+          </div>
+        </div>
+
+        <div className="kruuj-topbar-search">
+          <Search className="w-4 h-4 kruuj-topbar-search-icon" />
+          <input 
+            type="text" 
+            className="kruuj-topbar-search-input"
+            placeholder="Buscar jogos, categorias..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (view !== 'home' && view !== 'explore') {
+                setView('home');
+              }
+            }}
+          />
+        </div>
+
+        <div className="kruuj-topbar-actions">
+          <button 
+            className="kruuj-action-circle-btn"
+            onClick={() => { setView('favorites'); setSelectedGame(null); }}
+            title="Favoritos"
+          >
+            <Heart className={`w-4 h-4 ${favorites.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+            {favorites.length > 0 && (
+              <span className="kruuj-badge-count">{favorites.length}</span>
+            )}
+          </button>
+
+          <button 
+            className="kruuj-action-circle-btn"
+            onClick={() => { setView('profile'); setSelectedGame(null); }}
+            title="Perfil & Comunidade"
+          >
+            <User className="w-4 h-4" />
+          </button>
+
+          <div 
+            className="kruuj-avatar-trigger"
+            onClick={() => { setView('profile'); setSelectedGame(null); }}
+            title="Minha Conta"
+          >
+            <div className="kruuj-avatar-inner">
+              <img src="/kruuj-mascote.png" alt="Mascote" />
+            </div>
+          </div>
+        </div>
+      </header>
       
 
       {/* --- LATERAL SQUARE ADS STACK (Widescreen Only) --- */}
@@ -1370,721 +1901,902 @@ export default function App() {
           <div className="ad-slot-leaderboard mt-0 mb-8"></div>
         )}
 
-        {['home', 'favorites', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
-          <div className="bento-portal-wrapper">
+        {['home', 'explore', 'favorites', 'profile', 'details', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
+          <div className="kruuj-layout-framework">
             
-            {/* 1. COLUNA DA ESQUERDA: SIDEBAR DE NAVEGAÇÃO COMPACTA */}
-            <aside className="bento-sidebar-left">
-              <div className="bento-sidebar-section-title">Menu Principal</div>
-              <nav className="bento-sidebar-nav">
-                <button 
-                  className={`bento-nav-item ${view === 'home' && activeCategory === 'Tudo' ? 'active' : ''}`}
-                  onClick={() => { setView('home'); setActiveCategory('Tudo'); setSelectedGame(null); }}
-                >
-                  <Gamepad2 className="w-4 h-4" />
-                  <span>Início</span>
-                </button>
-                
-                <button 
-                 className={`bento-nav-item ${view === 'favorites' ? 'active' : ''}`}
-                 onClick={() => { setView('favorites'); setSelectedGame(null); }}
-                >
-                 <Heart className={`w-4 h-4 ${favorites.length > 0 || view === 'favorites' ? 'fill-pink-500 text-pink-500' : ''}`} />
-                 <span>Favoritos</span>
-                 {favorites.length > 0 && (
-                   <span className="bento-nav-badge bg-pink-600 text-white">
-                     {favorites.length}
-                   </span>
-                 )}
-                </button>
+            {/* SIDEBAR COMPACTA DA ESQUERDA (DESKTOP) */}
+            <aside className="kruuj-compact-sidebar">
+              <button 
+                className={`kruuj-sidebar-btn ${view === 'home' ? 'active' : ''}`}
+                onClick={() => { setView('home'); setSelectedGame(null); }}
+              >
+                <Gamepad2 className="w-4 h-4" />
+                <span>Início</span>
+              </button>
 
+              <button 
+                className={`kruuj-sidebar-btn ${view === 'explore' ? 'active' : ''}`}
+                onClick={() => { setView('explore'); setSelectedGame(null); }}
+              >
+                <Compass className="w-4 h-4" />
+                <span>Explorar</span>
+              </button>
+
+              <button 
+                className={`kruuj-sidebar-btn ${view === 'favorites' ? 'active' : ''}`}
+                onClick={() => { setView('favorites'); setSelectedGame(null); }}
+              >
+                <Heart className={`w-4 h-4 ${favorites.length > 0 ? 'fill-current' : ''}`} />
+                <span>Favoritos</span>
+                {favorites.length > 0 && (
+                  <span className="ml-auto text-[10px] font-black bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">
+                    {favorites.length}
+                  </span>
+                )}
+              </button>
+
+              <button 
+                className={`kruuj-sidebar-btn ${view === 'profile' ? 'active' : ''}`}
+                onClick={() => { setView('profile'); setSelectedGame(null); }}
+              >
+                <User className="w-4 h-4" />
+                <span>Perfil</span>
+              </button>
+
+              <div className="kruuj-sidebar-extra">
                 <button 
-                  className="bento-nav-item"
-                  onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
-                >
-                  <User className="w-4 h-4 text-gray-400" />
-                  <span>Conta</span>
-                </button>
-              </nav>
-
-              <div className="bento-sidebar-section-title flex items-center justify-between">
-                <span>Categorias</span>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-500 transform rotate-90" />
-              </div>
-              <div className="bento-sidebar-nav pl-2 space-y-1">
-                {categories.map((cat) => {
-                  if (cat === 'Tudo') return null;
-                  return (
-                    <button
-                      key={cat}
-                      className={`bento-nav-item-sub ${view === 'home' && activeCategory === cat ? 'active' : ''}`}
-                      onClick={() => { setView('home'); setActiveCategory(cat); setSelectedGame(null); }}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${view === 'home' && activeCategory === cat ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                      <span>{cat}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Espaçador flexível para empurrar configurações e suporte para o rodapé */}
-              <div className="flex-grow" />
-
-              <div className="bento-sidebar-section-title">Ajustes & Legal</div>
-              <div className="bento-sidebar-nav space-y-1">
-                <button 
-                  className={`bento-nav-item ${teaMode ? 'active bg-green-500/20 text-green-400 border-green-500/30' : ''}`}
+                  className={`kruuj-sidebar-sublink ${teaMode ? 'active' : ''}`}
                   onClick={() => setTeaMode(!teaMode)}
+                  title="Modo Calmo (TEA / Sem estímulos intensos)"
                 >
-                  <Settings className="w-4 h-4 text-green-400" />
-                  <span>KRUUJ Calmo: {teaMode ? 'ON' : 'OFF'}</span>
+                  <span className={`w-2 h-2 rounded-full ${teaMode ? 'bg-cyan-400 shadow-[0_0_8px_#38bdf8]' : 'bg-gray-600'}`} />
+                  <span>KRUUJ Calmo</span>
                 </button>
 
-                {/* Submenu de Modos Editoriais na Sidebar (Fidelidade / Usabilidade) */}
-                <div className="pl-2.5 pt-1 pb-2 border-l border-white/5 space-y-1 ml-4 my-2 select-none">
-                  <button
-                    className={`bento-nav-item-sub ${agePreference === 'geral' ? 'active' : ''}`}
-                    onClick={() => { setView('home'); setAgePreference('geral'); setSelectedGame(null); }}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'geral' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>KRUUJ Play</span>
-                  </button>
-                  <button
-                    className={`bento-nav-item-sub ${agePreference === 'educacional' ? 'active' : ''}`}
-                    onClick={() => { setView('home'); setAgePreference('educacional'); setSelectedGame(null); }}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'educacional' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>KRUUJ Kids</span>
-                  </button>
-                  <button
-                    className={`bento-nav-item-sub ${agePreference === 'bebes' ? 'active' : ''}`}
-                    onClick={() => { setView('home'); setAgePreference('bebes'); setSelectedGame(null); }}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'bebes' ? 'bg-pink-500 shadow-[0_0_6px_rgba(244,114,182,0.4)]' : 'bg-gray-600'}`} />
-                    <span>KRUUJ Baby</span>
-                  </button>
-                  <button
-                    className={`bento-nav-item-sub ${agePreference === 'terceira_idade' ? 'active' : ''}`}
-                    onClick={() => { setView('home'); setAgePreference('terceira_idade'); setSelectedGame(null); }}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${agePreference === 'terceira_idade' ? 'bg-cyan-400' : 'bg-gray-600'}`} />
-                    <span>KRUUJ 60+</span>
-                  </button>
-                </div>
+                <button 
+                  className="kruuj-sidebar-sublink"
+                  onClick={() => setView('privacy')}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Privacidade LGPD</span>
+                </button>
 
                 <button 
-                  className={`bento-nav-item ${view === 'privacy' ? 'active' : ''}`}
-                  onClick={() => { setView('privacy'); setSelectedGame(null); }}
+                  className="kruuj-sidebar-sublink"
+                  onClick={() => setView('terms')}
                 >
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span>Privacidade</span>
-                </button>
-                <button 
-                  className={`bento-nav-item ${view === 'terms' ? 'active' : ''}`}
-                  onClick={() => { setView('terms'); setSelectedGame(null); }}
-                >
-                  <FileText className="w-4 h-4 text-teal-400" />
+                  <FileText className="w-3.5 h-3.5" />
                   <span>Termos</span>
                 </button>
               </div>
             </aside>
 
-            {/* 2. COLUNA CENTRAL: CONTEÚDO DINÂMICO */}
-            <div className="bento-main-content">
-              
+                        {/* ÁREA DE CONTEÚDO PRINCIPAL KRUUJ */}
+            <div className="kruuj-content-body">
               {/* VIEW: HOME */}
               {view === 'home' && (
-                <div className="space-y-8">
-                  
-                  {/* Logotipo Centralizado de Alta Fidelidade (Mockup Alignment) */}
-                  {!searchQuery && activeCategory === 'Tudo' && (
-                    <div 
-                      style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        textAlign: 'center', 
-                        margin: '30px auto', 
-                        width: '100%',
-                        userSelect: 'none'
-                      }}
-                      className="animate-[fadeInUp_0.4s_ease-out_forwards]"
-                    >
-                      <div 
-                        style={{ 
-                          fontSize: '5.2rem',
-                          filter: 'drop-shadow(0 0 30px rgba(139, 92, 246, 0.45))',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          animation: 'float 4s ease-in-out infinite'
-                        }}
-                      >
-                        🦉
+                <>
+                  {searchQuery ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-black text-white">
+                          Resultados para "{searchQuery}"
+                        </h2>
+                        <button 
+                          className="text-xs text-cyan-400 font-bold hover:underline"
+                          onClick={() => setSearchQuery('')}
+                        >
+                          Limpar busca
+                        </button>
                       </div>
-                      <h1 
-                        style={{ 
-                          fontSize: '1.75rem', 
-                          fontWeight: '900', 
-                          color: '#fff', 
-                          letterSpacing: '0.22em', 
-                          textTransform: 'uppercase', 
-                          marginTop: '16px',
-                          fontFamily: "'Space Grotesk', 'Outfit', sans-serif" 
-                        }}
-                      >
-                        KRUUJ <span className="text-pink-500">Play</span>
-                      </h1>
-                      <div 
-                        style={{ 
-                          width: '96px', 
-                          height: '4px', 
-                          background: 'linear-gradient(90deg, #00f0ff 0%, #ff007f 100%)', 
-                          borderRadius: '4px', 
-                          marginTop: '10px', 
-                          opacity: 0.7 
-                        }} 
-                      />
-                    </div>
-                  )}
-
-                  {/* SLOT DE ANÚNCIO SUPERIOR */}
-                  {consentOptions.advertising && (
-                    <div className="ad-slot-leaderboard"></div>
-                  )}
-
-                  {/* Seletor de Acessibilidade Mobile (Menu de Modos de Interação no Topo, visível apenas em celulares e tablets) */}
-                  <div className="mobile-only-modes-bar select-none">
-                    <button 
-                      className={`pref-btn-mobile ${agePreference === 'geral' && !teaMode ? 'active-geral' : ''}`}
-                      onClick={() => { setAgePreference('geral'); setTeaMode(false); }}
-                    >
-                      <Grid style={{ width: '16px', height: '16px' }} />
-                      <span>Play</span>
-                    </button>
-                    <button 
-                      className={`pref-btn-mobile ${teaMode ? 'active-tea' : ''}`}
-                      onClick={() => setTeaMode(!teaMode)}
-                    >
-                      <Settings style={{ width: '16px', height: '16px' }} />
-                      <span>Calmo</span>
-                    </button>
-                    <button 
-                      className={`pref-btn-mobile ${agePreference === 'educacional' && !teaMode ? 'active-edu' : ''}`}
-                      onClick={() => { setAgePreference('educacional'); setTeaMode(false); }}
-                    >
-                      <Award style={{ width: '16px', height: '16px' }} />
-                      <span>Kids</span>
-                    </button>
-                    <button 
-                      className={`pref-btn-mobile ${agePreference === 'bebes' && !teaMode ? 'active-bebes' : ''}`}
-                      onClick={() => { setAgePreference('bebes'); setTeaMode(false); }}
-                    >
-                      <Sparkles style={{ width: '16px', height: '16px' }} />
-                      <span>Baby</span>
-                    </button>
-                    <button 
-                      className={`pref-btn-mobile ${agePreference === 'terceira_idade' && !teaMode ? 'active-senior' : ''}`}
-                      onClick={() => { setAgePreference('terceira_idade'); setTeaMode(false); }}
-                    >
-                      <Star style={{ width: '16px', height: '16px' }} />
-                      <span>60+</span>
-                    </button>
-
-                  </div>
-
-                  {/* Grid de Jogos */}
-                  <div className="space-y-4">
-                    <h2 className="text-xl font-extrabold text-cyan-300 flex flex-wrap items-center gap-2">
-                      <Grid className="w-6 h-6 text-cyan-400" />
-                      <span>
-                        {activeCategory === 'Tudo' ? 'Todos os Jogos' : `Jogos de ${activeCategory}`}
-                        {agePreference !== 'geral' && (
-                          <span className="text-pink-400">
-                            {' '}do Filtro {
-                              agePreference === 'educacional' ? 'KRUUJ Kids' : 
-                              agePreference === 'bebes' ? 'KRUUJ Baby' : 
-                              agePreference === 'terceira_idade' ? 'KRUUJ 60+' : 
-                              agePreference === 'family' ? 'KRUUJ Family' : 
-                              agePreference === 'edu' ? 'KRUUJ Edu' : 
-                              'KRUUJ Premium'
-                            }
-                          </span>
-                        )}
-                      </span>
-                    </h2>
-
-                    {isCatalogLoading ? (
-                      <div className="bento-grid-feed">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className="skeleton-card">
-                            <div className="skeleton-body" />
-                            <div className="skeleton-title" />
+                      <div className="kruuj-shelf-row">
+                        {getFilteredGames().map(game => (
+                          <div 
+                            key={game.id} 
+                            className="kruuj-game-card-clean"
+                            onClick={() => handleOpenDetails(game)}
+                          >
+                            <div className="kruuj-game-thumb">
+                              {renderGameCover(game)}
+                              <button
+                                className="kruuj-game-like-btn"
+                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                              >
+                                <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                              </button>
+                            </div>
+                            <div className="kruuj-game-title-clean">{game.title}</div>
                           </div>
                         ))}
                       </div>
-                    ) : getFilteredGames().length === 0 ? (
-                      <div className="glass-panel p-10 text-center text-gray-400 space-y-2">
-                        <p>Nenhum jogo encontrado com os filtros selecionados.</p>
-                        <button 
-                          className="text-cyan-400 hover:underline text-sm font-semibold"
-                          onClick={() => { setSearchQuery(''); setActiveCategory('Tudo'); setAgePreference('geral'); }}
+                    </div>
+                  ) : (
+                    <>
+                      {/* 1. Hero Card: Boas-vindas + Mascote */}
+                      <div className="kruuj-hero-welcome">
+                        <div className="kruuj-hero-text">
+                          <h1>
+                            Olá, <span className="kruuj-hero-gradient-text">Explorador!</span>
+                          </h1>
+                          <h2>O que você quer jogar hoje?</h2>
+                          <p>A KRUUJ encontra o jogo certo para você.</p>
+                        </div>
+                        <div className="kruuj-hero-mascot-wrapper">
+                          <img src="/kruuj-mascote.png" alt="Mascote KRUUJ" className="kruuj-hero-mascot-img" />
+                        </div>
+                      </div>
+
+                      {/* 2. Seletor de 6 Categorias (Públicos) em Pílulas 3D */}
+                      <div className="kruuj-categories-grid">
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-baby ${agePreference === 'bebes' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'bebes' ? 'geral' : 'bebes')}
                         >
-                          Resetar Filtros
+                          <div className="kruuj-cat-icon">🐱</div>
+                          <span className="kruuj-cat-title">Baby</span>
+                          <span className="kruuj-cat-sub">0 a 3 anos</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-kids ${agePreference === 'educacional' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'educacional' ? 'geral' : 'educacional')}
+                        >
+                          <div className="kruuj-cat-icon">👦</div>
+                          <span className="kruuj-cat-title">Kids</span>
+                          <span className="kruuj-cat-sub">4 a 12 anos</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-play ${agePreference === 'geral' ? 'active' : ''}`}
+                          onClick={() => setAgePreference('geral')}
+                        >
+                          <div className="kruuj-cat-icon">🎮</div>
+                          <span className="kruuj-cat-title">Play</span>
+                          <span className="kruuj-cat-sub">Todas as idades</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-family ${agePreference === 'family' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'family' ? 'geral' : 'family')}
+                        >
+                          <div className="kruuj-cat-icon">👨‍👩‍👧</div>
+                          <span className="kruuj-cat-title">Family</span>
+                          <span className="kruuj-cat-sub">Jogue junto</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-senior ${agePreference === 'terceira_idade' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'terceira_idade' ? 'geral' : 'terceira_idade')}
+                        >
+                          <div className="kruuj-cat-icon">👵</div>
+                          <span className="kruuj-cat-title">60+</span>
+                          <span className="kruuj-cat-sub">Mente ativa</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-edu ${agePreference === 'edu' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'edu' ? 'geral' : 'edu')}
+                        >
+                          <div className="kruuj-cat-icon">🎓</div>
+                          <span className="kruuj-cat-title">Edu</span>
+                          <span className="kruuj-cat-sub">Aprender jogando</span>
+                        </div>
+                      </div>
+
+                      {/* 3. Banner Carrossel Destaque (KRUUJ recomenda) */}
+                      <div className="kruuj-featured-banner">
+                        <button 
+                          className="kruuj-featured-arrow-left"
+                          onClick={prevFeatured}
+                          title="Anterior"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex flex-col z-10 pl-6 pr-4">
+                          <span className="kruuj-featured-badge">
+                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> {featuredGames[featuredIndex].tag}
+                          </span>
+                          <h2 className="kruuj-featured-title">
+                            {featuredGames[featuredIndex].title}
+                          </h2>
+                          <p className="kruuj-featured-desc">
+                            {featuredGames[featuredIndex].subtitle}
+                          </p>
+                          <div>
+                            <button 
+                              className="kruuj-featured-play-btn"
+                              onClick={() => {
+                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || games[0];
+                                handlePlayGame(matched);
+                              }}
+                            >
+                              <Play className="w-4 h-4 fill-current" /> Jogar agora
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center gap-6 z-10 pr-6">
+                          <img 
+                            src="/kruuj-mascote.png" 
+                            alt="Corujinha" 
+                            className="h-28 object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
+                          />
+                        </div>
+
+                        <button 
+                          className="kruuj-featured-arrow-right"
+                          onClick={nextFeatured}
+                          title="Próximo"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+
+                        <div className="kruuj-featured-dots">
+                          {featuredGames.map((_, i) => (
+                            <span 
+                              key={i} 
+                              className={`kruuj-dot ${featuredIndex === i ? 'active' : ''}`}
+                              onClick={() => setFeaturedIndex(i)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 4. Prateleiras de Jogos Oficiais */}
+                      {/* Prateleira 1: Em alta agora */}
+                      <section className="kruuj-shelf-section">
+                        <div className="kruuj-shelf-header">
+                          <h3 className="kruuj-shelf-title">
+                            <Flame className="w-5 h-5 text-orange-500 fill-orange-500/20" /> Em alta agora
+                          </h3>
+                          <span 
+                            className="kruuj-shelf-see-all"
+                            onClick={() => { setView('explore'); setExploreGenre('Ação'); }}
+                          >
+                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                        <div className="kruuj-shelf-row">
+                          {shelfTrending.map(game => (
+                            <div 
+                              key={game.id} 
+                              className="kruuj-game-card-clean"
+                              onClick={() => handleOpenDetails(game)}
+                            >
+                              <div className="kruuj-game-thumb">
+                                {renderGameCover(game)}
+                                <button
+                                  className="kruuj-game-like-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title="Favoritar"
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                </button>
+                              </div>
+                              <div className="kruuj-game-title-clean">{game.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Prateleira 2: Descobertas para você */}
+                      <section className="kruuj-shelf-section">
+                        <div className="kruuj-shelf-header">
+                          <h3 className="kruuj-shelf-title">
+                            <span>🦉</span> Descobertas para você
+                          </h3>
+                          <span 
+                            className="kruuj-shelf-see-all"
+                            onClick={() => { setView('explore'); setExploreMoment('Relaxar'); }}
+                          >
+                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                        <div className="kruuj-shelf-row">
+                          {shelfDiscoveries.map(game => (
+                            <div 
+                              key={game.id} 
+                              className="kruuj-game-card-clean"
+                              onClick={() => handleOpenDetails(game)}
+                            >
+                              <div className="kruuj-game-thumb">
+                                {renderGameCover(game)}
+                                <button
+                                  className="kruuj-game-like-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title="Favoritar"
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                </button>
+                              </div>
+                              <div className="kruuj-game-title-clean">{game.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Prateleira 3: Novidades da semana */}
+                      <section className="kruuj-shelf-section">
+                        <div className="kruuj-shelf-header">
+                          <h3 className="kruuj-shelf-title">
+                            <span className="text-xs bg-cyan-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded">NOVO</span> Novidades da semana
+                          </h3>
+                          <span 
+                            className="kruuj-shelf-see-all"
+                            onClick={() => { setView('explore'); setExploreMoment('5 minutos'); }}
+                          >
+                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                        <div className="kruuj-shelf-row">
+                          {shelfNewReleases.map(game => (
+                            <div 
+                              key={game.id} 
+                              className="kruuj-game-card-clean"
+                              onClick={() => handleOpenDetails(game)}
+                            >
+                              <div className="kruuj-game-thumb">
+                                {renderGameCover(game)}
+                                <button
+                                  className="kruuj-game-like-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title="Favoritar"
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                </button>
+                              </div>
+                              <div className="kruuj-game-title-clean">{game.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Prateleira 4: Mais jogados */}
+                      <section className="kruuj-shelf-section">
+                        <div className="kruuj-shelf-header">
+                          <h3 className="kruuj-shelf-title">
+                            <Trophy className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> Mais jogados
+                          </h3>
+                          <span 
+                            className="kruuj-shelf-see-all"
+                            onClick={() => { setView('explore'); setExploreAudience('Play'); }}
+                          >
+                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                        <div className="kruuj-shelf-row">
+                          {shelfMostPlayed.map(game => (
+                            <div 
+                              key={game.id} 
+                              className="kruuj-game-card-clean"
+                              onClick={() => handleOpenDetails(game)}
+                            >
+                              <div className="kruuj-game-thumb">
+                                {renderGameCover(game)}
+                                <button
+                                  className="kruuj-game-like-btn"
+                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                  title="Favoritar"
+                                >
+                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                </button>
+                              </div>
+                              <div className="kruuj-game-title-clean">{game.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* VIEW: DETALHES DO JOGO (WEB) */}
+              {view === 'details' && selectedGame && (
+                <div className="kruuj-details-panel">
+                  <div className="kruuj-details-top-bar">
+                    <button 
+                      className="btn-secondary py-2 px-4 text-xs" 
+                      onClick={() => setView('home')}
+                    >
+                      <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="kruuj-action-circle-btn"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(window.location.href);
+                          alert('Link do jogo copiado com sucesso!');
+                        }}
+                        title="Compartilhar"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        className={`kruuj-action-circle-btn ${favorites.includes(selectedGame.id) ? 'text-pink-500 border-pink-500/50' : ''}`}
+                        onClick={() => handleToggleFavorite(selectedGame.id)}
+                        title="Favoritar"
+                      >
+                        <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="kruuj-details-split">
+                    {/* Esquerda: Capa Grande + Botão de Ação */}
+                    <div className="flex flex-col gap-4">
+                      <div className="kruuj-details-cover-box">
+                        <img src={selectedGame.bannerUrl} alt={selectedGame.title} />
+                        <div className="kruuj-details-cover-overlay">
+                          <h2 className="text-2xl font-black text-white">{selectedGame.title}</h2>
+                          <p className="text-xs text-gray-300 mt-1">
+                            {selectedGame.author} • {selectedGame.category} • Class: {selectedGame.ageRating}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="kruuj-details-actions">
+                        <button 
+                          className="kruuj-featured-play-btn flex-1 justify-center py-3 text-sm"
+                          onClick={() => handlePlayGame(selectedGame)}
+                        >
+                          <Play className="w-4 h-4 fill-current" /> Jogar agora
+                        </button>
+                        <button 
+                          className="btn-secondary px-6 text-xs"
+                          onClick={() => handleToggleFavorite(selectedGame.id)}
+                        >
+                          <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                          {favorites.includes(selectedGame.id) ? 'Favoritado' : 'Favoritar'}
                         </button>
                       </div>
-                    ) : (
-                      <div className="bento-grid-feed">
-                        {getFilteredGames().map((game, index) => {
-                          let spanClass = 'bento-span-1x1';
-                          const mod = index % 5;
-                          if (mod === 0) spanClass = 'bento-span-2x1';
-                          else if (mod === 2) spanClass = 'bento-span-1x2';
-                          else if (mod === 3) spanClass = 'bento-span-2x2';
-                          
-                          return (
-                            <div 
-                              key={game.id}
-                              className={`bento-card-wrapper ${spanClass} cursor-pointer group`}
-                              onClick={() => handlePlayGame(game)}
-                            >
-                              <div className="bento-card-body glass-card">
-                                {/* Pílula do Topo "KRUUJ" */}
-                                <div className="bento-card-top-header">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                                  <span>KRUUJ Studio</span>
-                                </div>
+                    </div>
 
-                                <div className="bento-card-image-wrapper">
-                                  {renderGameCover(game)}
-                                  
-                                  <div 
-                                    className="game-card-like-pill"
-                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                    title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                                  >
-                                    <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                                    <span>{likesCount[game.id] || 0}</span>
-                                  </div>
-                                </div>
-
-                                <div className="bento-card-overlay">
-                                  <span className="bento-card-badge">
-                                    {game.category}
-                                  </span>
-                                  <p className="bento-card-desc">
-                                    {game.description}
-                                  </p>
-                                  <div className="bento-card-footer">
-                                    <span className="bento-card-rating">
-                                      Class: {game.ageRating}
-                                    </span>
-                                    <span className="bento-card-play-btn">
-                                      🎮 JOGAR
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Título de Altíssimo Contraste Debaixo do Card (Mockup Alignment) */}
-                              <div className="bento-card-title-under">
-                                {game.title}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {/* IN-FEED AD SLOT CARD - Bento Style */}
-                        {consentOptions.advertising && (
-                          <div className="bento-card ad-slot-card bento-span-2x1 flex-center">
-                            <div className="text-center p-4">
-                              <span className="text-[10px] text-gray-500 block uppercase font-bold tracking-widest mb-1">Anúncio Patrocinado</span>
-                              <p className="text-xs text-gray-400 font-semibold">Espaço Publicitário de Alta Fidelidade (RPM)</p>
-                            </div>
-                          </div>
-                        )}
+                    {/* Direita: Sobre o Jogo + Metadados */}
+                    <div className="kruuj-details-info-box">
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-2">Sobre o jogo</h3>
+                        <p className="text-xs text-gray-300 leading-relaxed">
+                          {selectedGame.description}
+                        </p>
                       </div>
-                    )}
+
+                      <div className="kruuj-meta-chips-grid">
+                        <div className="kruuj-meta-chip">
+                          <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-bold">
+                            <Clock className="w-3.5 h-3.5" /> Duração média
+                          </div>
+                          <span className="text-xs font-semibold text-white">5-10 min</span>
+                        </div>
+
+                        <div className="kruuj-meta-chip">
+                          <div className="flex items-center gap-1.5 text-purple-400 text-xs font-bold">
+                            <Users className="w-3.5 h-3.5" /> Jogadores
+                          </div>
+                          <span className="text-xs font-semibold text-white">1 Jogador</span>
+                        </div>
+
+                        <div className="kruuj-meta-chip">
+                          <div className="flex items-center gap-1.5 text-pink-400 text-xs font-bold">
+                            <Smartphone className="w-3.5 h-3.5" /> Plataforma
+                          </div>
+                          <span className="text-xs font-semibold text-white">Web / Mobile</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Jogos Relacionados */}
+                  <div className="pt-4 border-t border-white/5 space-y-3">
+                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Jogos Recomendados</h4>
+                    <div className="kruuj-shelf-row">
+                      {getRelatedGames(selectedGame).map(rel => (
+                        <div 
+                          key={rel.id} 
+                          className="kruuj-game-card-clean"
+                          onClick={() => handleOpenDetails(rel)}
+                        >
+                          <div className="kruuj-game-thumb">
+                            {renderGameCover(rel)}
+                          </div>
+                          <div className="kruuj-game-title-clean">{rel.title}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
 
-              {view === 'favorites' && (
+              {/* VIEW: EXPLORAR / CATEGORIAS */}
+              {view === 'explore' && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-extrabold text-pink-500 flex items-center gap-2">
-                    <Heart className="w-7 h-7 fill-current" /> Meus Favoritos
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                      <Compass className="w-6 h-6 text-cyan-400" /> Explorar Catálogo
+                    </h2>
+                    <span className="text-xs text-gray-400 font-semibold">
+                      {getFilteredGames().length} jogos disponíveis
+                    </span>
+                  </div>
 
-                  {games.filter(g => favorites.includes(g.id)).length === 0 ? (
-                    <div className="glass-panel p-10 text-center text-gray-400">
-                      Você ainda não adicionou nenhum jogo aos favoritos. Explore o catálogo para encontrar seus preferidos!
+                  {/* Filtro: Público */}
+                  <div className="kruuj-filter-group">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Público</span>
+                    <div className="kruuj-filter-chips">
+                      {['Todos', 'Baby', 'Kids', 'Play', 'Family', '60+', 'Edu'].map(aud => (
+                        <button
+                          key={aud}
+                          className={`kruuj-chip ${exploreAudience === aud ? 'active' : ''}`}
+                          onClick={() => setExploreAudience(aud)}
+                        >
+                          {aud === 'Baby' && '🐱 '}
+                          {aud === 'Kids' && '👦 '}
+                          {aud === 'Play' && '🎮 '}
+                          {aud === 'Family' && '👨‍👩‍👧 '}
+                          {aud === '60+' && '👵 '}
+                          {aud === 'Edu' && '🎓 '}
+                          {aud}
+                        </button>
+                      ))}
                     </div>
-                  ) : (
-                    <div className="bento-grid-feed">
-                      {games.filter(g => favorites.includes(g.id)).map((game, index) => {
-                        let spanClass = 'bento-span-1x1';
-                        const mod = index % 5;
-                        if (mod === 0) spanClass = 'bento-span-2x1';
-                        else if (mod === 2) spanClass = 'bento-span-1x2';
-                        else if (mod === 3) spanClass = 'bento-span-2x2';
-                        
-                        return (
-                          <div 
-                            key={game.id}
-                            className={`bento-card glass-card ${spanClass} cursor-pointer group`}
-                            onClick={() => handlePlayGame(game)}
-                          >
-                            <div className="bento-card-image-wrapper">
-                              {renderGameCover(game)}
-                              
-                              <div 
-                                className="game-card-like-pill"
-                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                              >
-                                <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-500 animate-heart" />
-                                <span>{likesCount[game.id] || 0}</span>
-                              </div>
-                            </div>
+                  </div>
 
-                            <div className="bento-card-overlay">
-                              <span className="bento-card-badge">
-                                {game.category}
-                              </span>
-                              <h3 className="bento-card-title">
-                                {game.title}
-                              </h3>
-                              <p className="bento-card-desc">
-                                {game.description}
-                              </p>
-                              <div className="bento-card-footer">
-                                <span className="bento-card-rating">
-                                  Class: {game.ageRating}
-                                </span>
-                                <span className="bento-card-play-btn text-pink-500">
-                                  🎮 JOGAR
-                                </span>
-                              </div>
-                            </div>
+                  {/* Filtro: Tipo de Jogo */}
+                  <div className="kruuj-filter-group">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tipo de jogo</span>
+                    <div className="kruuj-filter-chips">
+                      {['Todos', 'Ação', 'Corrida', 'Arcade', 'Puzzle', 'Memória', 'Educacional', 'Família'].map(genre => (
+                        <button
+                          key={genre}
+                          className={`kruuj-chip ${exploreGenre === genre ? 'active' : ''}`}
+                          onClick={() => setExploreGenre(genre)}
+                        >
+                          {genre}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Filtro: Momento */}
+                  <div className="kruuj-filter-group">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Momento</span>
+                    <div className="kruuj-filter-chips">
+                      {['Todos', '5 minutos', 'Relaxar', 'Desafio', 'Jogar junto', 'Exercitar a mente'].map(mom => (
+                        <button
+                          key={mom}
+                          className={`kruuj-chip ${exploreMoment === mom ? 'active' : ''}`}
+                          onClick={() => setExploreMoment(mom)}
+                        >
+                          {mom}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Grid de Resultados */}
+                  <div className="pt-4 border-t border-white/5">
+                    <div className="kruuj-shelf-row">
+                      {getFilteredGames().map(game => (
+                        <div 
+                          key={game.id} 
+                          className="kruuj-game-card-clean"
+                          onClick={() => handleOpenDetails(game)}
+                        >
+                          <div className="kruuj-game-thumb">
+                            {renderGameCover(game)}
+                            <button
+                              className="kruuj-game-like-btn"
+                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                            </button>
                           </div>
-                        );
-                      })}
+                          <div className="kruuj-game-title-clean">{game.title}</div>
+                          <span className="text-[10px] text-gray-400 font-medium">{game.category}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* VIEW: PERFIL & COMUNIDADE */}
+              {view === 'profile' && (
+                <div className="space-y-6">
+                  <div className="kruuj-profile-card-header">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 flex items-center justify-center">
+                        <img src="/kruuj-mascote.png" alt="Avatar" className="w-full h-full object-contain rounded-full bg-slate-900" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-black text-white">{user ? user.username : 'Explorer_123'}</h2>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                            Nível 5
+                          </span>
+                          <span className="text-xs text-gray-400 font-semibold">• 1.250 pontos XP</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {user ? (
+                        <button className="btn-secondary py-2 px-4 text-xs text-red-400 border-red-500/30" onClick={handleLogout}>
+                          <LogOut className="w-3.5 h-3.5" /> Sair
+                        </button>
+                      ) : (
+                        <button className="btn-primary py-2 px-4 text-xs" onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}>
+                          <LogIn className="w-3.5 h-3.5" /> Entrar / Cadastrar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Barra de Progresso de Nível */}
+                  <div className="bg-[#11172a] p-4 rounded-2xl border border-white/5 space-y-2">
+                    <div className="flex justify-between text-xs font-bold">
+                      <span className="text-gray-300">Progresso para o Nível 6</span>
+                      <span className="text-cyan-400">1.250 / 2.000 XP</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                      <div className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full" style={{ width: '62%' }} />
+                    </div>
+                  </div>
+
+                  {/* Abas */}
+                  <div className="flex gap-2 border-b border-white/5 pb-2">
+                    {(['conquistas', 'jogos', 'favoritos', 'config'] as const).map(tab => (
+                      <button
+                        key={tab}
+                        className={`py-2 px-4 rounded-xl text-xs font-bold transition capitalize ${profileTab === tab ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setProfileTab(tab)}
+                      >
+                        {tab === 'config' ? 'Configurações' : tab === 'jogos' ? 'Jogos Recentes' : tab}
+                      </button>
+                    ))}
+                  </div>
+
+                  {profileTab === 'conquistas' && (
+                    <div className="kruuj-achievements-grid">
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">🎮</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Primeira Jogada</h4>
+                          <p className="text-xs text-gray-400">Iniciou sua primeira partida no portal</p>
+                          <span className="text-[10px] text-amber-400 font-extrabold mt-1 block">+50 pts • Desbloqueado</span>
+                        </div>
+                      </div>
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">🧩</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Mestre dos Puzzles</h4>
+                          <p className="text-xs text-gray-400">Jogou e completou 3 quebra-cabeças</p>
+                          <span className="text-[10px] text-amber-400 font-extrabold mt-1 block">+150 pts • Desbloqueado</span>
+                        </div>
+                      </div>
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">🧭</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Explorador da Galáxia</h4>
+                          <p className="text-xs text-gray-400">Explorou mais de 5 categorias diferentes</p>
+                          <span className="text-[10px] text-amber-400 font-extrabold mt-1 block">+100 pts • Desbloqueado</span>
+                        </div>
+                      </div>
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">👨‍👩‍👧</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Jogador Família</h4>
+                          <p className="text-xs text-gray-400">Desafiou amigos ou familiares em um jogo</p>
+                          <span className="text-[10px] text-amber-400 font-extrabold mt-1 block">+200 pts • Desbloqueado</span>
+                        </div>
+                      </div>
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">⚡</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Reflexos Rápidos</h4>
+                          <p className="text-xs text-gray-400">Alcançou pontuação recorde no Arcade</p>
+                          <span className="text-[10px] text-amber-400 font-extrabold mt-1 block">+120 pts • Desbloqueado</span>
+                        </div>
+                      </div>
+                      <div className="kruuj-achievement-card">
+                        <div className="kruuj-achievement-icon">🦉</div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">Amigo da Coruja</h4>
+                          <p className="text-xs text-gray-400">Acesse o KRUUJ 7 dias consecutivos</p>
+                          <span className="text-[10px] text-purple-400 font-extrabold mt-1 block">+300 pts • 4 / 7 dias</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {profileTab === 'jogos' && (
+                    <div className="space-y-3">
+                      {recentGames.length === 0 ? (
+                        <p className="text-gray-400 text-sm p-4">Nenhum jogo no histórico ainda.</p>
+                      ) : (
+                        recentGames.map((hist, i) => {
+                          const g = games.find(item => item.id === hist.id);
+                          if (!g) return null;
+                          return (
+                            <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                              <div className="flex items-center gap-3">
+                                <img src={g.bannerUrl} alt={g.title} className="w-12 h-10 object-cover rounded-lg" />
+                                <div>
+                                  <h4 className="text-sm font-bold text-white">{g.title}</h4>
+                                  <span className="text-xs text-gray-400">{g.category}</span>
+                                </div>
+                              </div>
+                              <button className="btn-primary py-1.5 px-3 text-xs" onClick={() => handlePlayGame(g)}>
+                                Jogar Novamente
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+
+                  {profileTab === 'favoritos' && (
+                    <div className="kruuj-shelf-row">
+                      {games.filter(g => favorites.includes(g.id)).length === 0 ? (
+                        <p className="text-gray-400 text-sm p-4 col-span-full">Nenhum jogo favoritado ainda.</p>
+                      ) : (
+                        games.filter(g => favorites.includes(g.id)).map(g => (
+                          <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
+                            <div className="kruuj-game-thumb">
+                              {renderGameCover(g)}
+                            </div>
+                            <div className="kruuj-game-title-clean">{g.title}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {profileTab === 'config' && (
+                    <div className="bg-[#11172a] p-6 rounded-2xl border border-white/5 space-y-4 max-w-lg">
+                      <h3 className="text-base font-bold text-white">Acessibilidade e Preferências</h3>
+                      <label className="flex items-center justify-between p-3 rounded-xl bg-white/5 cursor-pointer">
+                        <div>
+                          <span className="text-sm font-bold text-white block">KRUUJ Calmo (Modo TEA)</span>
+                          <span className="text-xs text-gray-400">Reduz animações e sons intensos</span>
+                        </div>
+                        <input type="checkbox" checked={teaMode} onChange={(e) => setTeaMode(e.target.checked)} className="w-5 h-5 accent-cyan-400" />
+                      </label>
+                      <button className="btn-secondary w-full justify-center text-xs" onClick={() => setShowConsentBanner(true)}>
+                        Gerenciar Cookies e Privacidade
+                      </button>
                     </div>
                   )}
                 </div>
               )}
 
+              {/* VIEW: FAVORITOS */}
+              {view === 'favorites' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                      <Heart className="w-6 h-6 text-pink-500 fill-pink-500" /> Meus Favoritos ({favorites.length})
+                    </h2>
+                    <button className="btn-secondary py-1.5 px-3 text-xs" onClick={() => setView('home')}>
+                      Voltar ao Início
+                    </button>
+                  </div>
+                  {favorites.length === 0 ? (
+                    <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 space-y-3">
+                      <Heart className="w-12 h-12 text-gray-600 mx-auto" />
+                      <p className="text-gray-300 font-bold">Você ainda não favoritou nenhum jogo.</p>
+                      <p className="text-xs text-gray-400">Clique no coração de qualquer jogo para adicioná-lo aos seus favoritos!</p>
+                      <button className="btn-primary py-2 px-6 text-xs mx-auto" onClick={() => setView('home')}>
+                        Explorar Jogos
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="kruuj-shelf-row">
+                      {games.filter(g => favorites.includes(g.id)).map(g => (
+                        <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
+                          <div className="kruuj-game-thumb">
+                            {renderGameCover(g)}
+                            <button
+                              className="kruuj-game-like-btn"
+                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(g.id); }}
+                            >
+                              <Heart className="w-3.5 h-3.5 fill-pink-500 text-pink-500" />
+                            </button>
+                          </div>
+                          <div className="kruuj-game-title-clean">{g.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* VIEW: POLÍTICA DE PRIVACIDADE LGPD */}
               {view === 'privacy' && (
-                <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
-                  <h2 className="text-2xl font-extrabold text-cyan-300">Política de Privacidade (LGPD)</h2>
-                  <p className="text-sm text-gray-300 leading-relaxed">
-                    No **KRUUJ**, respeitamos rigorosamente a privacidade dos nossos visitantes e jogadores de conformidade com a Lei Geral de Proteção de Dados (LGPD) e o ECA. 
-                    Garantimos coleta mínima de dados: nenhuma informação pessoal é obrigatória para jogar ou se cadastrar (exigimos apenas nome de usuário e senha). 
-                    A declaração de faixa etária é opcional e serve exclusivamente para ajustar a curadoria editorial dos jogos na tela inicial.
+                <div className="card space-y-4 max-w-4xl text-left">
+                  <button className="btn-secondary py-1.5 px-3 text-xs mb-2" onClick={() => setView('home')}>
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                  </button>
+                  <h2 className="text-2xl font-extrabold text-cyan-400 flex items-center gap-2">
+                    <Shield className="w-6 h-6" /> Política de Privacidade & Proteção de Dados
+                  </h2>
+                  <p className="text-xs text-gray-300">
+                    O KRUUJ está em conformidade total com a Lei Geral de Proteção de Dados (LGPD) e o Estatuto da Criança e do Adolescente (ECA).
                   </p>
-                  <p className="text-sm text-gray-300 leading-relaxed">
-                    Para crianças menores de 12 anos, garantimos que a publicidade é estritamente não personalizada e nenhum profiling comportamental é realizado. 
-                    Você pode habilitar ou desabilitar cookies de analíticas e marketing a qualquer momento através do nosso painel de privacidade no rodapé.
+                  <p className="text-xs text-gray-400">
+                    Não coletamos dados biométricos, endereço, documentos pessoais ou números de telefone de jogadores.
                   </p>
-                  <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
                 </div>
               )}
 
+              {/* VIEW: TERMOS DE USO */}
               {view === 'terms' && (
-                <div className="glass-panel p-8 space-y-6 max-w-4xl mx-auto">
-                  <h2 className="text-2xl font-extrabold text-cyan-300">Termos de Uso</h2>
-                  <p className="text-sm text-gray-300 leading-relaxed">
-                    Ao utilizar o KRUUJ, você concorda com nossos termos. O portal oferece jogos casuais em formato HTML5 incorporados via iframe em sandbox isoladas para a sua segurança.
-                    Todos os jogos listados possuem licenciamento amplo comercial comprovado ou cessão patrimonial de direitos autorais de conformidade com a legislação brasileira (Lei nº 9.610/98 e Lei nº 9.609/98).
+                <div className="card space-y-4 max-w-4xl text-left">
+                  <button className="btn-secondary py-1.5 px-3 text-xs mb-2" onClick={() => setView('home')}>
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                  </button>
+                  <h2 className="text-2xl font-extrabold text-cyan-400 flex items-center gap-2">
+                    <FileText className="w-6 h-6" /> Termos de Uso do KRUUJ
+                  </h2>
+                  <p className="text-xs text-gray-300">
+                    O uso do portal KRUUJ implica na aceitação destes termos. Todos os jogos disponibilizados são licenciados ou de propriedade exclusiva.
                   </p>
-                  <p className="text-sm text-gray-300 leading-relaxed">
-                    É estritamente proibido tentar violar os sandboxes dos jogos, fazer scraping do portal ou distribuir os arquivos de jogos estáticos sem prévia autorização contratual por escrito dos autores.
-                  </p>
-                  <button className="btn-secondary py-2 px-4" onClick={() => setView('home')}>Voltar ao Portal</button>
                 </div>
               )}
 
+              {/* VIEW: FALE CONOSCO */}
               {view === 'contact' && (
-                <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
-                  <h2 className="text-2xl font-extrabold text-cyan-300">Fale Conosco</h2>
-                  <form onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso! Responderemos em até 48 horas.'); setView('home'); }} className="space-y-4">
+                <div className="card space-y-4 max-w-xl text-left">
+                  <button className="btn-secondary py-1.5 px-3 text-xs mb-2" onClick={() => setView('home')}>
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                  </button>
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-cyan-400" /> Fale Conosco
+                  </h2>
+                  <form onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso!'); setView('home'); }} className="space-y-4">
                     <div>
-                      <label className="text-sm text-gray-400 block mb-1">Nome:</label>
-                      <input type="text" className="input-field" required />
+                      <label className="text-xs text-gray-400 block mb-1">Seu Nome / Apelido</label>
+                      <input type="text" className="input-field w-full" required />
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 block mb-1">Assunto:</label>
-                      <input type="text" className="input-field" required />
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400 block mb-1">Mensagem:</label>
-                      <textarea rows={4} className="input-field resize-none" required></textarea>
+                      <label className="text-xs text-gray-400 block mb-1">Mensagem</label>
+                      <textarea className="input-field w-full h-24" required></textarea>
                     </div>
                     <button type="submit" className="btn-primary w-full justify-center">Enviar Mensagem</button>
                   </form>
                 </div>
               )}
 
+              {/* VIEW: DENÚNCIA */}
               {view === 'report' && (
-                <div className="glass-panel p-8 space-y-6 max-w-lg mx-auto">
-                  <h2 className="text-2xl font-extrabold text-pink-500">Denunciar Conteúdo</h2>
-                  <p className="text-xs text-gray-400">
-                    Valorizamos os direitos autorais e as licenças comerciais. Se você identificou qualquer jogo que viole direitos patrimoniais, informe no formulário abaixo com as devidas comprovações para remoção imediata.
-                  </p>
-                  <form onSubmit={(e) => { e.preventDefault(); alert('Denúncia recebida e registrada no workflow editorial para análise técnica e jurídica.'); setView('home'); }} className="space-y-4">
+                <div className="card space-y-4 max-w-xl text-left">
+                  <button className="btn-secondary py-1.5 px-3 text-xs mb-2" onClick={() => setView('home')}>
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                  </button>
+                  <h2 className="text-xl font-bold text-pink-400 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5" /> Canal de Denúncia & Moderação
+                  </h2>
+                  <form onSubmit={(e) => { e.preventDefault(); alert('Denúncia registrada com sucesso.'); setView('home'); }} className="space-y-4">
                     <div>
-                      <label className="text-sm text-gray-400 block mb-1">Seu Nome / Empresa:</label>
-                      <input type="text" className="input-field" required />
+                      <label className="text-xs text-gray-400 block mb-1">Motivo da Denúncia</label>
+                      <select className="input-field w-full">
+                        <option>Conteúdo Impróprio para a faixa etária</option>
+                        <option>Propriedade Intelectual / Copyright</option>
+                        <option>Erro técnico ou travamento grave</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="text-sm text-gray-400 block mb-1">URL / Título do Jogo:</label>
-                      <input type="text" className="input-field" required />
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-400 block mb-1">Detalhes da Violação / Licença Conflitante:</label>
-                      <textarea rows={4} className="input-field resize-none" required></textarea>
+                      <label className="text-xs text-gray-400 block mb-1">Detalhes</label>
+                      <textarea className="input-field w-full h-24" required></textarea>
                     </div>
                     <button type="submit" className="btn-primary w-full justify-center bg-pink-600 hover:bg-pink-700">Enviar Denúncia</button>
                   </form>
                 </div>
               )}
-
             </div>
-
-            {/* 3. COLUNA DA DIREITA: PAINEL SOCIAL / INTERATIVO */}
-            <aside className="bento-sidebar-right">
-              {/* Widget de Perfil do Usuário */}
-              <div className="bento-profile-card">
-                {user ? (
-                  <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
-                    {/* Linha 1: Avatar, Identidade e Sair */}
-                    <div className="flex items-center justify-between gap-2.5">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {/* Avatar Premium Circular Neon */}
-                        <div 
-                          style={{
-                            width: '34px',
-                            height: '34px',
-                            borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #00f0ff 0%, #ff007f 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontWeight: '900',
-                            fontSize: '0.78rem',
-                            border: '1.5px solid rgba(255, 255, 255, 0.1)',
-                            boxShadow: '0 0 8px rgba(0, 240, 255, 0.2)',
-                            flexShrink: 0
-                          }}
-                        >
-                          {user.username.substring(0, 2).toUpperCase()}
-                        </div>
-                        
-                        <div className="min-w-0">
-                          <div className="font-extrabold text-white text-xs truncate leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                            Olá, {user.username}!
-                          </div>
-                          <span className="text-[8px] text-cyan-400 font-extrabold uppercase tracking-widest block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                            {user.role === 'super_admin' ? 'Admin VIP' : 'Jogador VIP'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <button 
-                        onClick={handleLogout} 
-                        style={{
-                          background: 'rgba(255, 69, 101, 0.08)',
-                          border: '1px solid rgba(255, 69, 101, 0.2)',
-                          borderRadius: '50%',
-                          width: '28px',
-                          height: '28px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#ff4565',
-                          cursor: 'pointer',
-                          transition: 'all 0.25s',
-                          boxShadow: '0 0 8px rgba(255, 69, 101, 0.1)',
-                          flexShrink: 0
-                        }}
-                        className="hover-logout-btn"
-                        title="Sair da Conta"
-                      >
-                        <LogOut style={{ width: '11px', height: '11px' }} />
-                      </button>
-                    </div>
-                    
-                    {/* Linha 2: XP e Progresso de Nível Estendido */}
-                    <div className="space-y-1.5 flex-grow flex flex-col justify-end">
-                      <div className="flex justify-between items-center text-[8px] font-extrabold text-gray-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                        <span className="bg-white/5 border border-white/5 px-1.5 py-0.5 rounded text-[8px] text-cyan-400 font-bold">NÍVEL 12</span>
-                        <span className="text-gray-500">XP: <strong className="text-white font-mono">1420 / 2000</strong></span>
-                      </div>
-                      <div className="w-full h-1 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                        <div className="h-full bg-gradient-to-r from-cyan-400 via-[#8a2be2] to-pink-500 rounded-full" style={{ width: '70%', transition: 'width 1s ease' }} />
-                      </div>
-                    </div>
-
-                    {/* Linha 3: Atalho de Área Administrativa para Super Admins */}
-                    {user.role === 'super_admin' && (
-                      <button 
-                        onClick={() => { setView('admin'); setSelectedGame(null); }}
-                        style={{
-                          width: '100%',
-                          background: 'rgba(0, 240, 255, 0.08)',
-                          border: '1px solid rgba(0, 240, 255, 0.2)',
-                          borderRadius: '8px',
-                          padding: '5px',
-                          color: 'var(--accent-cyan)',
-                          fontWeight: '800',
-                          fontSize: '0.62rem',
-                          cursor: 'pointer',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          boxShadow: '0 0 8px rgba(0, 240, 255, 0.1)',
-                          transition: 'all 0.25s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          fontFamily: "'Outfit', sans-serif",
-                          marginTop: '6px'
-                        }}
-                        className="btn-admin-profile-shortcut"
-                        title="Abrir Cockpit Administrativo"
-                      >
-                        ⚙️ Área Administrativa
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-col h-full justify-between select-none" style={{ boxSizing: 'border-box', padding: '4px 0' }}>
-                    {/* Linha 1: Título e Status */}
-                    <div className="flex items-center gap-2.5">
-                      <div 
-                        style={{
-                          width: '34px',
-                          height: '34px',
-                          borderRadius: '50%',
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#8f9cae',
-                          flexShrink: 0
-                        }}
-                      >
-                        <User className="w-4 h-4" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-extrabold text-white text-xs leading-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                          Jogador Visitante
-                        </div>
-                        <span className="text-[9px] text-gray-500 block mt-0.5" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                          Crie uma conta para salvar dados!
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Linha 2: Vantagens Simplificadas */}
-                    <div className="text-left text-[9px] text-gray-500 font-medium px-1 leading-normal">
-                      🎁 Conecte-se para salvar seus jogos favoritos e gravar recordes nos rankings de pontuação.
-                    </div>
-                    
-                    {/* Linha 3: Botão Conectar */}
-                    <button 
-                      style={{
-                        width: '100%',
-                        background: 'linear-gradient(135deg, #00f0ff 0%, #8a2be2 100%)',
-                        border: 'none',
-                        borderRadius: '10px',
-                        padding: '8px',
-                        color: '#000',
-                        fontWeight: '900',
-                        fontSize: '0.68rem',
-                        cursor: 'pointer',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        boxShadow: '0 4px 12px rgba(0, 240, 255, 0.2)',
-                        transition: 'all 0.25s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '4px',
-                        fontFamily: "'Outfit', sans-serif"
-                      }}
-                      className="btn-connect-sidebar"
-                      onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
-                    >
-                      <LogIn style={{ width: '11px', height: '11px' }} />
-                      <span>Conectar Conta</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-
-
-              {/* Widget de Histórico de Jogos Recentes (Fase 1 - Requisito MVP) */}
-              <div className="bento-chat-card flex flex-col min-h-[260px]">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider mb-2 border-b border-white/5 pb-2 shrink-0">
-                  <FileText className="w-4 h-4 text-pink-500" />
-                  <span>Jogados Recentemente</span>
-                </div>
-
-                {/* Lista de Recentes */}
-                <div className="flex-grow overflow-y-auto max-h-[440px] space-y-2.5 pr-1 mb-2 bento-sidebar-scroll">
-                  {games.filter(g => recentGames.slice(0, 5).some(play => play.id === g.id)).length === 0 ? (
-                    <div className="text-center text-gray-500 text-xs py-10 select-none">
-                      Nenhum jogo jogado recentemente. Explore o catálogo!
-                    </div>
-                  ) : (
-                    // Renderiza estritamente os 5 últimos jogos jogados na barra lateral para economizar espaço
-                    recentGames
-                      .slice(0, 5)
-                      .map(play => ({ play, g: games.find(g => g.id === play.id) }))
-                      .filter((item): item is { play: RecentPlay, g: Game } => !!item.g)
-                      .map(({ play, g }) => (
-                        <div 
-                          key={g.id} 
-                          className="kruuj-history-item"
-                          onClick={() => handlePlayGame(g)}
-                        >
-                          {g.bannerUrl ? (
-                            <img 
-                              src={g.bannerUrl} 
-                              alt={g.title} 
-                              className="kruuj-history-cover"
-                            />
-                          ) : (
-                            <div className="kruuj-history-cover-fallback">
-                              <Gamepad2 style={{ width: '13px', height: '13px' }} />
-                            </div>
-                          )}
-                          <div className="flex-grow min-w-0 text-left">
-                            <div className="kruuj-history-title">{g.title}</div>
-                            <div className="flex items-center justify-between gap-2 mt-0.5">
-                              <div className="kruuj-history-category">{g.category}</div>
-                              <span className="text-[8px] text-gray-500 font-extrabold uppercase font-mono tracking-wider">{formatRelativeTime(play.timestamp)}</span>
-                            </div>
-                          </div>
-                          <button 
-                            className="kruuj-history-btn select-none shrink-0"
-                            onClick={(e) => { e.stopPropagation(); handlePlayGame(g); }}
-                          >
-                            JOGAR
-                          </button>
-                        </div>
-                      ))
-                  )}
-                </div>
-              </div>
-
-            </aside>
-
           </div>
         ) : (
           /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
@@ -2959,94 +3671,63 @@ export default function App() {
       </main>
 
 
-      {/* --- FOOTER (Reestruturado com 3 Colunas Premium) --- */}
-      <footer>
-        <div className="footer-grid">
-          
-          {/* Coluna 1: Logo & Resumo */}
-          <div className="footer-col">
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="text-sm">🦉</span>
-              <span className="font-extrabold text-[11px] tracking-widest bg-gradient-to-r from-pink-500 to-[#f59e0b] bg-clip-text text-transparent uppercase font-mono">
-                KRUUJ
-              </span>
+      {/* --- NOVO FOOTER KRUUJ COM LOGO OFICIAL E MASCOTE ESPIANDO --- */}
+      <footer className="kruuj-footer">
+        <div className="kruuj-footer-content">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <img src="/kruuj-logo.png" alt="KRUUJ" className="h-6 object-contain" />
+              <span className="text-xs text-gray-400 font-semibold">• Mais que jogos, um universo de experiências.</span>
             </div>
-            <p>
-              KRUUJ é uma plataforma de descoberta e jogos web responsiva, focada em segurança, acessibilidade cognitiva e total conformidade com a LGPD e o Estatuto da Criança e do Adolescente (ECA).
-            </p>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-2">
+              <button className="hover:text-cyan-400 transition" onClick={() => setView('privacy')}>Privacidade (LGPD)</button>
+              <button className="hover:text-cyan-400 transition" onClick={() => setView('terms')}>Termos de Uso</button>
+              <button className="hover:text-cyan-400 transition" onClick={() => setView('contact')}>Fale Conosco</button>
+              <button className="hover:text-pink-400 transition" onClick={() => setView('report')}>Denunciar Conteúdo</button>
+              {user && user.role !== 'user' && (
+                <button className="hover:text-purple-400 transition" onClick={() => setView('admin')}>Painel Admin</button>
+              )}
+            </div>
           </div>
 
-          {/* Coluna 2: Links Informativos */}
-          <div className="footer-col">
-            <h4>Navegação</h4>
-            <ul className="footer-links">
-              <li>
-                <button onClick={() => { setView('home'); setSelectedGame(null); }}>
-                  Início / Catálogo
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView('contact')}>
-                  Fale Conosco / Suporte
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { 
-                    if (user && user.role !== 'user') {
-                      setView('admin'); 
-                      setSelectedGame(null); 
-                    } else {
-                      setAuthMode('login');
-                      setShowAuthModal(true);
-                    }
-                  }}
-                >
-                  Área Administrativa
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Coluna 3: Políticas & Denúncia */}
-          <div className="footer-col">
-            <h4>Políticas Legais</h4>
-            <ul className="footer-links">
-              <li>
-                <button onClick={() => setView('privacy')}>
-                  Política de Privacidade (LGPD)
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView('terms')}>
-                  Termos de Uso
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setView('report')} className="text-pink-500">
-                  Denunciar Conteúdo
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setShowConsentBanner(true)} className="text-yellow-500">
-                  Preferências de Cookies
-                </button>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Linha Inferior com Copyright e Redes Sociais */}
-        <div className="footer-bottom">
-          <p>© 2026 KRUUJ. Todos os direitos reservados. Tema Space Dark Arcade.</p>
-          <div className="social-links">
-            <a href="#discord" className="social-icon" title="Comunidade Discord">DC</a>
-            <a href="#twitter" className="social-icon" title="Canal Twitter / X">TW</a>
-            <a href="#github" className="social-icon" title="Código-Fonte GitHub">GH</a>
-          </div>
+          <img src="/kruuj-mascote.png" alt="Mascote KRUUJ" className="kruuj-footer-mascot-peeking" />
         </div>
       </footer>
+
+      {/* --- MOBILE BOTTOM NAVIGATION BAR --- */}
+      <nav className="kruuj-bottom-bar">
+        <button 
+          className={`kruuj-bottom-btn ${view === 'home' ? 'active' : ''}`}
+          onClick={() => { setView('home'); setSelectedGame(null); }}
+        >
+          <Gamepad2 className="w-5 h-5" />
+          <span>Início</span>
+        </button>
+
+        <button 
+          className={`kruuj-bottom-btn ${view === 'explore' ? 'active' : ''}`}
+          onClick={() => { setView('explore'); setSelectedGame(null); }}
+        >
+          <Compass className="w-5 h-5" />
+          <span>Explorar</span>
+        </button>
+
+        <button 
+          className={`kruuj-bottom-btn ${view === 'favorites' ? 'active' : ''}`}
+          onClick={() => { setView('favorites'); setSelectedGame(null); }}
+        >
+          <Heart className={`w-5 h-5 ${favorites.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+          <span>Favoritos</span>
+        </button>
+
+        <button 
+          className={`kruuj-bottom-btn ${view === 'profile' ? 'active' : ''}`}
+          onClick={() => { setView('profile'); setSelectedGame(null); }}
+        >
+          <User className="w-5 h-5" />
+          <span>Perfil</span>
+        </button>
+      </nav>
 
 
 

@@ -1,0 +1,205 @@
+=== PAGE 2 ===
+KRUUJ    WHITE PAPER v1.0
+2
+1. Resumo executivo
+KRUUJ nasce com uma ambição simples de explicar e grande de executar: construir uma plataforma de jogos
+acessíveis diretamente pelo navegador, capaz de atender diferentes perfis de público sem tratar todos os
+jogadores da mesma maneira.
+Em vez de ser apenas um catálogo de jogos, KRUUJ pretende funcionar como uma camada de descoberta e
+inteligência entre jogadores, famílias, escolas, desenvolvedores e anunciantes. A plataforma organiza jogos por
+contexto e características, entende preferências de forma responsável e utiliza essas informações para melhorar
+a experiência de descoberta.
+A visão de longo prazo é transformar KRUUJ em um ecossistema internacional de entretenimento, educação e
+descoberta digital — com uma marca forte o suficiente para comportar produtos como KRUUJ Kids, KRUUJ Edu,
+KRUUJ Family, KRUUJ 60+ e KRUUJ Premium.
+Norte estratégico: não competir apenas por quantidade de jogos, mas pela qualidade
+da experiência de encontrar o jogo certo.
+2. Visão, missão e posicionamento
+Visão
+Ser uma das principais plataformas globais de jogos web, tornando o acesso, a descoberta e a personalização de
+experiências digitais simples para qualquer idade.
+Missão
+Conectar cada pessoa a experiências de jogo adequadas ao seu momento, interesse e contexto — com
+segurança, acessibilidade e diversão.
+Posicionamento
+KRUUJ é uma plataforma de descoberta e experiência em jogos web, organizada por pessoas e contextos, e não
+somente por títulos.
+3. Identidade da marca
+O nome KRUUJ é curto, proprietário e não limita a empresa ao conceito de “games”. A duplicação do “U” reforça
+diferenciação visual e digital, enquanto a pronúncia pode ser padronizada pela marca como “Kruj”. A estratégia
+recomendada é usar KRUUJ como marca-mãe e reservar “Studio” para a frente de desenvolvimento/publicação
+de jogos.
+3.1 O arquétipo da coruja
+A coruja é um ativo estratégico, não apenas um desenho. Ela representa descoberta, percepção, inteligência e
+orientação. Isso conversa diretamente com a proposta de KRUUJ: ajudar o jogador a descobrir o que combina
+com ele.
+Visualmente, a mascote deve ser simpática e expressiva o suficiente para crianças, mas sofisticada o suficiente
+para não infantilizar a marca. Ela pode mudar de expressão, roupa, acessórios e contexto sem perder sua
+identidade.
+3.2 Sistema visual
+
+
+=== PAGE 4 ===
+KRUUJ    WHITE PAPER v1.0
+4
+4. O produto
+A primeira versão será uma plataforma web responsiva. O jogador entra, encontra um jogo, joga imediatamente e
+pode retornar depois para continuar descobrindo experiências. O produto deve parecer mais próximo de uma
+plataforma moderna de entretenimento do que de um simples portal.
+Pilar
+Experiência
+Descoberta
+Em alta, novidades, destaques, categorias e recomendações.
+Jogo imediato
+Experiência otimizada para navegador, com modo de tela cheia e baixa fricção.
+Conta
+Favoritos, histórico, preferências e continuidade entre sessões.
+Busca
+Pesquisa por título, categoria, tema, público e características.
+Perfis
+Experiências diferenciadas para crianças, famílias, educação, adultos e público 60+.
+Personalização
+Recomendações baseadas em características dos jogos e sinais de preferência, dentro das regras
+de privacidade.
+5. O diferencial: Game DNA × Player DNA
+Game DNA é a ficha inteligente de cada jogo: idade indicada, gênero, dificuldade, duração média da sessão,
+ritmo, competitividade, demanda cognitiva, conteúdo educacional, dispositivo, acessibilidade e outros atributos.
+Player DNA representa preferências e padrões de uso permitidos: categorias mais acessadas, duração típica
+das sessões, jogos favoritos, contextos de uso e outros sinais relevantes.
+O motor de recomendação conecta os dois. A pergunta central deixa de ser “qual jogo
+temos?” e passa a ser “qual jogo faz sentido para esta pessoa agora?”.
+6. Arquitetura de públicos
+ Vertical
+Proposta
+KRUUJ Baby
+Experiências muito simples e seguras para primeira infância; navegação protegida e publicidade
+tratada de forma específica.
+KRUUJ Kids
+Jogos infantis, ambiente familiar, controles adequados e experiência orientada por faixa etária.
+KRUUJ Family
+Experiência compartilhada entre responsáveis e filhos, com perfis e preferências separadas.
+KRUUJ Play
+Hub geral de jogos para adolescentes/adultos, com descoberta e personalização.
+KRUUJ 60+
+Jogos de acessibilidade, memória, atenção, raciocínio e entretenimento casual.
+KRUUJ Edu
+Catálogo para escolas, professores e projetos educacionais.
+KRUUJ Premium
+Camada paga com benefícios de experiência e recursos exclusivos.
+
+
+=== PAGE 5 ===
+KRUUJ    WHITE PAPER v1.0
+5
+7. Modelo de negócio
+A estratégia financeira deve evitar dependência de uma única fonte de receita. Publicidade programática pode
+ser o motor inicial de monetização, mas KRUUJ deve construir múltiplas camadas de receita.
+Receita
+Como KRUUJ captura valor
+Publicidade
+Inventário dentro da experiência, com formatos adequados ao contexto e às regras de cada
+público.
+Patrocínios
+Marcas patrocinando categorias, eventos, desafios ou experiências específicas.
+Premium
+Assinatura com benefícios de produto e experiência.
+Educação/B2B
+Planos para escolas, projetos educacionais e organizações.
+Publishing
+Parcerias com desenvolvedores para distribuição e monetização de jogos.
+Experiências especiais
+Campanhas, eventos e conteúdos patrocinados com integração nativa.
+8. Segurança, confiança e responsabilidade
+Segurança não será um recurso adicional; será parte da arquitetura. A plataforma deverá diferenciar experiências
+infantis e adultas, limitar coleta e uso de dados conforme finalidade, implementar controles de responsável e
+estabelecer processos de moderação e retirada de conteúdo.
+No MVP, a recomendação estratégica é não lançar chat aberto entre jogadores.
+Comunicação em tempo real adicionaria uma camada de risco, moderação e operação
+desproporcional ao estágio inicial. O produto deve primeiro provar descoberta,
+retenção e monetização.
+9. Arquitetura tecnológica de referência
+A arquitetura deve nascer preparada para escala internacional, mesmo que o lançamento inicial seja brasileiro.
+Uma base possível é:
+Camada
+Diretriz
+Frontend
+React / Next.js, responsivo e orientado a performance.
+Backend
+Node.js + TypeScript, APIs e serviços desacoplados.
+Dados
+PostgreSQL para dados transacionais; Redis para cache e sessões.
+Jogos
+HTML5 como foco inicial; armazenamento e distribuição via CDN.
+Infra
+Cloud + CDN/WAF, observabilidade, backups e escalabilidade horizontal.
+Analytics
+Eventos de produto: impressão, clique, início, sessão, saída, favorito, busca e recomendação.
+IA
+Classificação/catalogação de jogos e, posteriormente, recomendação e automações.
+
+
+=== PAGE 6 ===
+KRUUJ    WHITE PAPER v1.0
+6
+10. Roadmap de execução
+ Etapa
+Objetivo
+Fase 0 — Fundação
+Marca, domínio, arquitetura, identidade visual, regras de conteúdo, primeiros jogos e
+instrumentação de analytics.
+Fase 1 — MVP
+Home, busca, categorias, página de jogo, fullscreen, conta, favoritos, histórico, catálogo inicial e
+monetização básica.
+Fase 2 — Retenção
+Recomendação, desafios, melhorias de descoberta, perfis familiares e expansão do catálogo.
+Fase 3 — Ecossistema
+KRUUJ Edu, publishing para desenvolvedores, patrocínios e Premium.
+Fase 4 — Escala
+Localização internacional, novos mercados, otimização de monetização e evolução do motor de
+personalização.
+11. KPIs que definem o sucesso
+ Dimensão
+Indicadores
+Aquisição
+Visitantes, origem do tráfego, taxa de retorno.
+Ativação
+Percentual de visitantes que iniciam um jogo.
+Engajamento
+Jogos por sessão, duração da sessão, profundidade de navegação.
+Retenção
+D1, D7 e D30; retorno por perfil.
+Descoberta
+CTR de recomendações, busca → início de jogo, favoritos.
+Monetização
+RPM, receita por sessão, receita por usuário e receita por mil sessões.
+12. Princípios de produto
+01 Jogar deve ser fácil.
+02 Descobrir deve ser divertido.
+03 A plataforma deve conhecer o contexto, não invadir a pessoa.
+04 Crianças exigem uma arquitetura de segurança própria.
+05 A mascote deve ser personagem, não decoração.
+06 Dados servem primeiro para melhorar a experiência.
+07 Monetização não pode destruir a experiência.
+08 O MVP deve provar comportamento antes de escalar tecnologia.
+13. Arquitetura da marca
+KRUUJ — marca-mãe e plataforma
+KRUUJ Kids — experiência infantil
+KRUUJ Baby — primeira infância
+KRUUJ Family — experiência familiar
+
+
+=== PAGE 7 ===
+KRUUJ    WHITE PAPER v1.0
+7
+KRUUJ Edu — educação
+KRUUJ 60+ — acessibilidade e jogos cognitivos
+KRUUJ Premium — assinatura
+KRUUJ Studio — desenvolvimento/publicação
+KRUUJ não precisa nascer grande. Precisa nascer certo — com uma marca
+memorável, um produto simples de usar e uma arquitetura capaz de crescer.
+Próximo marco: congelar a identidade e transformar este white paper em um documento operacional de
+produto: sitemap, requisitos do MVP, modelo de dados, eventos de analytics, backlog priorizado e plano de
+lançamento.
+Documento estratégico — KRUUJ White Paper v1.0 — Setembro de 2026
+
+

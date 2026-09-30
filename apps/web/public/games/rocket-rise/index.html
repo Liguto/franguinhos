@@ -318,6 +318,134 @@ h1{
 }
 
 
+/* =========================================================
+   CONTROLES MOBILE / TOUCH
+========================================================= */
+#mobileControls {
+    position: fixed;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 150;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.mobileDpad {
+    display: flex;
+    gap: 16px;
+    pointer-events: auto;
+}
+
+.mobileAction {
+    pointer-events: auto;
+}
+
+.touchBtn {
+    background: rgba(16, 20, 42, 0.75);
+    border: 2px solid rgba(53, 221, 255, 0.45);
+    color: #35ddff;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 26px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 0 16px rgba(53, 221, 255, 0.25), inset 0 0 10px rgba(53, 221, 255, 0.1);
+    transition: transform 0.1s, background 0.1s, border-color 0.1s, box-shadow 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+}
+
+.touchBtn:active, .touchBtn.active {
+    background: rgba(53, 221, 255, 0.35);
+    border-color: #35ddff;
+    transform: scale(0.92);
+    box-shadow: 0 0 25px rgba(53, 221, 255, 0.75), inset 0 0 16px rgba(53, 221, 255, 0.35);
+    color: #ffffff;
+}
+
+.touchThrustBtn {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255, 107, 43, 0.35) 0%, rgba(20, 16, 42, 0.85) 100%);
+    border: 2.5px solid #ff7b2b;
+    color: #ffaa5b;
+    box-shadow: 0 0 20px rgba(255, 123, 43, 0.4), inset 0 0 12px rgba(255, 123, 43, 0.2);
+}
+
+.touchThrustBtn:active, .touchThrustBtn.active {
+    background: radial-gradient(circle at center, rgba(255, 107, 43, 0.6) 0%, rgba(255, 165, 0, 0.3) 100%);
+    border-color: #ffd83d;
+    box-shadow: 0 0 35px rgba(255, 165, 0, 0.85), inset 0 0 20px rgba(255, 165, 0, 0.5);
+    color: #ffffff;
+    transform: scale(0.92);
+}
+
+.thrustIcon {
+    font-size: 26px;
+    line-height: 1;
+}
+
+.thrustLabel {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+.touchPauseBtn {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(16, 20, 42, 0.75);
+    border: 2px solid rgba(53, 221, 255, 0.4);
+    color: #35ddff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: transform 0.1s, background 0.1s;
+}
+
+.touchPauseBtn:active {
+    background: rgba(53, 221, 255, 0.3);
+    transform: scale(0.9);
+}
+
+/* Esconde controles touch em computadores com mouse/ponteiro fino em telas largas */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+    #mobileControls.auto-touch {
+        display: none !important;
+    }
+}
+
+
 /* ==============================
    INSTRUÇÕES
 ============================== */
@@ -536,6 +664,11 @@ h1{
             Pausar
         </div>
 
+        <div style="background: rgba(53, 221, 255, 0.15); border: 1px solid #35ddff;">
+            <span class="key" style="background: #35ddff; color: #02020b;">📱 TOQUE</span>
+            Use os botões na tela (◀ ▶ e 🚀 SUBIR)
+        </div>
+
     </div>
 
     <button
@@ -696,6 +829,35 @@ h1{
     ESC → pausa
 
 </div>
+
+
+<!-- ==========================================
+     CONTROLES TÁTEIS / MOBILE
+========================================== -->
+<div id="mobileControls" class="hidden">
+    <!-- D-Pad Direcional (Esquerda / Direita) -->
+    <div class="mobileDpad">
+        <button id="touchLeft" class="touchBtn" aria-label="Mover para esquerda">
+            <span>◀</span>
+        </button>
+        <button id="touchRight" class="touchBtn" aria-label="Mover para direita">
+            <span>▶</span>
+        </button>
+    </div>
+
+    <!-- Botão de Propulsor / Motor -->
+    <div class="mobileAction">
+        <button id="touchThrust" class="touchBtn touchThrustBtn" aria-label="Acionar Propulsor">
+            <span class="thrustIcon">🚀</span>
+            <span class="thrustLabel">SUBIR</span>
+        </button>
+    </div>
+</div>
+
+<!-- Botão de Pausa Mobile -->
+<button id="mobilePauseBtn" class="touchPauseBtn hidden" aria-label="Pausar jogo">
+    <span>⏸</span>
+</button>
 
 
 <!-- ==========================================
@@ -2167,15 +2329,15 @@ addEventListener(
             e.key.toLowerCase();
 
 
-        if(k==="a")
+        if(k==="a" || k==="arrowleft")
             keys.a=true;
 
 
-        if(k==="d")
+        if(k==="d" || k==="arrowright")
             keys.d=true;
 
 
-        if(e.code==="Space"){
+        if(e.code==="Space" || k==="arrowup"){
 
             e.preventDefault();
 
@@ -2204,16 +2366,16 @@ addEventListener(
             e.key.toLowerCase();
 
 
-        if(k==="a")
+        if(k==="a" || k==="arrowleft")
             keys.a=false;
 
 
-        if(k==="d")
+        if(k==="d" || k==="arrowright")
             keys.d=false;
 
 
         if(
-            e.code==="Space"
+            e.code==="Space" || k==="arrowup"
         )
             keys.space=false;
 
@@ -2651,6 +2813,14 @@ function startGame(){
         .getElementById("launchMessage")
         .style.display="block";
 
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 1024;
+    const lm = document.getElementById("launchMessage");
+    if(lm && isTouch) lm.innerText = "TOQUE EM SUBIR PARA LANÇAR";
+
+    const mc = document.getElementById("mobileControls");
+    if(mc) mc.classList.remove("hidden");
+    const mp = document.getElementById("mobilePauseBtn");
+    if(mp) mp.classList.remove("hidden");
 
     createStars();
 
@@ -2718,6 +2888,14 @@ function returnMenu(){
         .style.display="none";
 
 
+    const mc = document.getElementById("mobileControls");
+    if(mc) mc.classList.add("hidden");
+    const mp = document.getElementById("mobilePauseBtn");
+    if(mp) mp.classList.add("hidden");
+    keys.a = false;
+    keys.d = false;
+    keys.space = false;
+
     updateBest();
 
 }
@@ -2746,6 +2924,9 @@ function togglePause(){
             !paused
         );
 
+    const mc = document.getElementById("mobileControls");
+    if(mc) mc.classList.toggle("hidden", paused);
+
 }
 
 
@@ -2765,6 +2946,13 @@ function endGame(){
 
     gameRunning=false;
 
+    const mc = document.getElementById("mobileControls");
+    if(mc) mc.classList.add("hidden");
+    const mp = document.getElementById("mobilePauseBtn");
+    if(mp) mp.classList.add("hidden");
+    keys.a = false;
+    keys.d = false;
+    keys.space = false;
 
     stopEngine();
 
@@ -6000,12 +6188,107 @@ document
 
 
 /* =========================================================
+   CONTROLES MOBILE / TOUCH SETUP
+========================================================= */
+
+function setupMobileControls() {
+    const touchLeft = document.getElementById("touchLeft");
+    const touchRight = document.getElementById("touchRight");
+    const touchThrust = document.getElementById("touchThrust");
+    const mobilePauseBtn = document.getElementById("mobilePauseBtn");
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || window.innerWidth <= 1024;
+
+    if (touchLeft) {
+        const startLeft = (e) => { e.preventDefault(); e.stopPropagation(); keys.a = true; touchLeft.classList.add('active'); };
+        const endLeft = (e) => { e.preventDefault(); e.stopPropagation(); keys.a = false; touchLeft.classList.remove('active'); };
+        touchLeft.addEventListener("touchstart", startLeft, { passive: false });
+        touchLeft.addEventListener("touchend", endLeft, { passive: false });
+        touchLeft.addEventListener("touchcancel", endLeft, { passive: false });
+        touchLeft.addEventListener("mousedown", startLeft);
+        touchLeft.addEventListener("mouseup", endLeft);
+        touchLeft.addEventListener("mouseleave", endLeft);
+    }
+
+    if (touchRight) {
+        const startRight = (e) => { e.preventDefault(); e.stopPropagation(); keys.d = true; touchRight.classList.add('active'); };
+        const endRight = (e) => { e.preventDefault(); e.stopPropagation(); keys.d = false; touchRight.classList.remove('active'); };
+        touchRight.addEventListener("touchstart", startRight, { passive: false });
+        touchRight.addEventListener("touchend", endRight, { passive: false });
+        touchRight.addEventListener("touchcancel", endRight, { passive: false });
+        touchRight.addEventListener("mousedown", startRight);
+        touchRight.addEventListener("mouseup", endRight);
+        touchRight.addEventListener("mouseleave", endRight);
+    }
+
+    if (touchThrust) {
+        const startThrust = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            keys.space = true;
+            touchThrust.classList.add('active');
+            if (!player.started && gameRunning) {
+                player.started = true;
+                player.velocityY = -0.5;
+                launchSound();
+                const lm = document.getElementById("launchMessage");
+                if (lm) lm.style.display = "none";
+            }
+        };
+        const endThrust = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            keys.space = false;
+            touchThrust.classList.remove('active');
+        };
+        touchThrust.addEventListener("touchstart", startThrust, { passive: false });
+        touchThrust.addEventListener("touchend", endThrust, { passive: false });
+        touchThrust.addEventListener("touchcancel", endThrust, { passive: false });
+        touchThrust.addEventListener("mousedown", startThrust);
+        touchThrust.addEventListener("mouseup", endThrust);
+        touchThrust.addEventListener("mouseleave", endThrust);
+    }
+
+    if (mobilePauseBtn) {
+        const triggerPause = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            togglePause();
+        };
+        mobilePauseBtn.addEventListener("touchstart", triggerPause, { passive: false });
+        mobilePauseBtn.addEventListener("click", triggerPause);
+    }
+
+    // Toque direto no canvas para iniciar o foguete
+    canvas.addEventListener("touchstart", (e) => {
+        if (!gameRunning || paused || gameOver) return;
+        if (!player.started) {
+            player.started = true;
+            player.velocityY = -0.5;
+            launchSound();
+            const lm = document.getElementById("launchMessage");
+            if (lm) lm.style.display = "none";
+        }
+    }, { passive: true });
+
+    // Mensagem amigável de lançamento em touch screens
+    if (isTouch) {
+        const lm = document.getElementById("launchMessage");
+        if (lm) lm.innerText = "TOQUE EM SUBIR PARA LANÇAR";
+        const ctrl = document.getElementById("controls");
+        if (ctrl) ctrl.style.display = "none";
+    }
+}
+
+
+/* =========================================================
    INICIALIZAÇÃO
 ========================================================= */
 
 createStars();
 
 updateBest();
+
+setupMobileControls();
 
 loop();
 
