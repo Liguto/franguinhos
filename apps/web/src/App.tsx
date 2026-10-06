@@ -891,6 +891,27 @@ export default function App() {
           statusDoc: 'aprovado',
           author: 'MindCare Software',
           licenseName: 'Licença Comercial Geral'
+        },
+        {
+          id: '25',
+          slug: 'kruujdoku',
+          title: 'KruujDoku',
+          description: 'O puzzle oficial de raciocínio lógico das corujinhas do KRUUJ! 100 fases desafiadoras + Modo Infinito com regras puras de dedução, cores harmônicas e relaxamento mental.',
+          category: 'Puzzle',
+          subcategories: ['Sudoku', 'Lógica', 'Corujas', 'Cognitivo'],
+          tags: ['kruujdoku', 'sudoku', 'corujas', 'puzzle', 'mente', 'raciocinio', 'zen'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'brain',
+          prefixUrl: '/games/kruujdoku/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'KRUUJ Studio',
+          licenseName: 'Proprietário'
         }
       ];
       setGames(mockGames);
@@ -1725,11 +1746,19 @@ export default function App() {
 
   // Helper para verificar se o jogo possui código físico implementado localmente
   const isPhysicalGame = (slug: string) => {
-    return ['snake-retro', 'memory-match', 'space-defense', 'sudoku-zen', 'math-run', 'bubble-pop', 'rocket-rise'].includes(slug);
+    return true;
   };
 
   // --- Helpers e Dados do Layout KRUUJ Oficial ---
   const featuredGames = [
+    {
+      title: 'KruujDoku',
+      subtitle: 'O puzzle oficial de raciocínio das corujinhas! 100 fases + Modo Infinito.',
+      tag: 'NOVO • Exclusivo KRUUJ',
+      slug: 'kruujdoku',
+      bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
+      category: 'Puzzle / Raciocínio'
+    },
     {
       title: 'Corrida Espacial',
       subtitle: 'Acelere nessa aventura intergaláctica e desvie dos asteroides!',
@@ -1775,21 +1804,21 @@ export default function App() {
 
   // 4 Prateleiras Oficiais do Layout Proposta
   const shelfTrending = [
+    games.find(g => g.slug === 'kruujdoku') || games[24],
     games.find(g => g.title === 'Super Kart Racer') || games[4],
     games.find(g => g.title === 'Craft World') || games[5],
     games.find(g => g.title === 'Bubble Boom') || games[3],
     games.find(g => g.title === 'Monster Truck') || games[6],
-    games.find(g => g.title === 'Fruit Ninja') || games[7],
     games.find(g => g.title === 'Sky Force') || games[8],
   ].filter(Boolean) as Game[];
 
   const shelfDiscoveries = [
+    games.find(g => g.slug === 'kruujdoku') || games[24],
     games.find(g => g.title === 'Animal Rescue') || games[9],
     games.find(g => g.title === 'Puzzle Quest') || games[10],
     games.find(g => g.title === 'Color Match') || games[11],
     games.find(g => g.title === 'Tiny Farmers') || games[12],
     games.find(g => g.title === 'Dragon Run') || games[13],
-    games.find(g => g.title === 'Space Jump') || games[14],
   ].filter(Boolean) as Game[];
 
   const shelfNewReleases = [
