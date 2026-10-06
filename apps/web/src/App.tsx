@@ -928,6 +928,27 @@ export default function App() {
           statusDoc: 'aprovado',
           author: 'KRUUJ Studio',
           licenseName: 'Proprietário'
+        },
+        {
+          id: '26',
+          slug: 'kruujio',
+          title: 'KRUUJ.io Arena',
+          description: 'A grande arena competitiva das corujas! Entre no campo de batalha cósmico, colete energia estelar para crescer, use boost com sabedoria e derrote os rivais para alcançar o Rank #1.',
+          category: 'Ação',
+          subcategories: ['Arena', 'Multiplayer', 'Sobrevivência', 'Battle Royale'],
+          tags: ['kruujio', 'arena', 'acao', 'io', 'corujas', 'competitivo', 'multiplayer'],
+          ageRating: 'Livre',
+          bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
+          iconUrl: 'gamepad',
+          prefixUrl: '/games/kruujio/',
+          version: '1.0.0',
+          controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+          orientation: 'both',
+          statusTechnical: 'aprovado',
+          statusEditorial: 'publicado',
+          statusDoc: 'aprovado',
+          author: 'KRUUJ Studio',
+          licenseName: 'Proprietário'
         }
       ];
 
@@ -1793,6 +1814,14 @@ export default function App() {
   // --- Helpers e Dados do Layout KRUUJ Oficial ---
   const featuredGames = [
     {
+      title: 'KRUUJ.io Arena',
+      subtitle: 'Entre na grande arena cósmica! Colete energia, cresça e domine o topo do ranking!',
+      tag: 'NOVO • ARENA IO',
+      slug: 'kruujio',
+      bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
+      category: 'Ação / Arena'
+    },
+    {
       title: 'KruujDoku',
       subtitle: 'O puzzle oficial de raciocínio das corujinhas! 100 fases + Modo Infinito.',
       tag: 'NOVO • Exclusivo KRUUJ',
@@ -1845,12 +1874,12 @@ export default function App() {
 
   // 4 Prateleiras Oficiais do Layout Proposta
   const shelfTrending = [
+    games.find(g => g.slug === 'kruujio') || games[25],
     games.find(g => g.slug === 'kruujdoku') || games[24],
     games.find(g => g.title === 'Super Kart Racer') || games[4],
     games.find(g => g.title === 'Craft World') || games[5],
     games.find(g => g.title === 'Bubble Boom') || games[3],
     games.find(g => g.title === 'Monster Truck') || games[6],
-    games.find(g => g.title === 'Sky Force') || games[8],
   ].filter(Boolean) as Game[];
 
   const shelfDiscoveries = [
@@ -1863,21 +1892,21 @@ export default function App() {
   ].filter(Boolean) as Game[];
 
   const shelfNewReleases = [
+    games.find(g => g.slug === 'kruujio') || games[25],
     games.find(g => g.title === 'Blaze Riders') || games[15],
     games.find(g => g.title === 'Magic Tiles') || games[16],
     games.find(g => g.title === 'Island Builder') || games[17],
     games.find(g => g.title === 'Dino Adventure') || games[18],
     games.find(g => g.title === 'Soccer Stars') || games[19],
-    games.find(g => g.title === 'Forest Guardians') || games[20],
   ].filter(Boolean) as Game[];
 
   const shelfMostPlayed = [
+    games.find(g => g.slug === 'kruujio') || games[25],
     games.find(g => g.slug === 'snake-retro') || games[2],
     games.find(g => g.slug === 'space-defense') || games[1],
     games.find(g => g.slug === 'sudoku-zen') || games[21],
     games.find(g => g.slug === 'math-run') || games[22],
     games.find(g => g.slug === 'rocket-rise') || games[0],
-    games.find(g => g.slug === 'memory-match') || games[23],
   ].filter(Boolean) as Game[];
 
   return (

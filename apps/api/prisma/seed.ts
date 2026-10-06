@@ -912,6 +912,40 @@ async function main() {
         fixedPaymentAmount: 0.0,
         auditLog: `[2026-10-06T10:00:00Z] Jogo original KruujDoku homologado e registrado no catálogo oficial KRUUJ.\n`
       }
+    },
+    {
+      title: 'KRUUJ.io Arena',
+      slug: 'kruujio',
+      description: 'A grande arena competitiva das corujas! Entre no campo de batalha cósmico, colete energia estelar para crescer, use boost com sabedoria e derrote os rivais para alcançar o Rank #1.',
+      category: 'Ação',
+      subcategories: 'Arena,Multiplayer,Sobrevivência,Battle Royale',
+      tags: 'kruujio,arena,acao,io,corujas,competitivo,multiplayer',
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'gamepad',
+      prefixUrl: '/games/kruujio/',
+      version: '1.0.0',
+      mouse: true,
+      teclado: true,
+      toque: true,
+      gamepad: false,
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário',
+      contract: {
+        contractNumber: 'CON-2026-026',
+        signatoryCreator: 'KRUUJ Studio S/A',
+        termsAccepted: true,
+        licenseType: 'Proprietário Exclusivo',
+        exclusivityScope: 'Global',
+        durationMonths: 120,
+        revenueSharePercent: 0.0,
+        fixedPaymentAmount: 0.0,
+        auditLog: `[2026-10-06T11:00:00Z] Jogo original KRUUJ.io homologado e registrado no catálogo oficial KRUUJ.\n`
+      }
     }
   ];
 

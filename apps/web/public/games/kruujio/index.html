@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>KRUUJ.io</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07061a;--p:#8b5cff;--o:#ffb020;--c:#38e8ff;--t:#f3f0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font-family:'Baloo 2','Trebuchet MS',sans-serif;overflow:hidden}
+canvas#g{position:fixed;inset:0;width:100%;height:100%}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;background:radial-gradient(ellipse at 50% 30%,#2a1a6e99,#07061acc 70%);overflow:auto}
+.scr.on{display:flex}
+.logo{font-size:clamp(48px,12vw,110px);font-weight:800;line-height:1;background:linear-gradient(90deg,var(--c),var(--p),var(--o));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #8b5cff88)}
+h2{margin:0;font-size:clamp(28px,6vw,52px)}
+.sub{letter-spacing:.3em;color:var(--c);font-weight:600}
+button{font:inherit;font-weight:800;color:var(--t);background:#ffffff14;border:2px solid #ffffff30;border-radius:14px;padding:8px 22px;font-size:18px;cursor:pointer;touch-action:manipulation}
+button:hover{background:#ffffff26}
+button.big{font-size:28px;padding:12px 48px;background:linear-gradient(135deg,var(--p),#ff5ca8);border:0;box-shadow:0 0 28px #8b5cffaa}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:760px}
+.card{width:110px;padding:6px;border-radius:14px;background:#ffffff0f;border:2px solid #ffffff22;cursor:pointer;font-size:14px}
+.card.sel{border-color:var(--o);box-shadow:0 0 16px #ffb02088}.card.lock{opacity:.4}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;max-width:640px;text-align:left}
+.how div{background:#ffffff10;border-radius:12px;padding:8px 12px;font-size:14px}.how b{color:var(--o);display:block;font-size:18px}
+#hud{position:fixed;inset:0;pointer-events:none;display:none}#hud.on{display:block}
+#hud .tl{position:absolute;left:12px;top:calc(8px + env(safe-area-inset-top,0px))}
+#hud .tl .logo{font-size:28px}
+#sc{position:absolute;left:12px;top:calc(46px + env(safe-area-inset-top,0px));text-align:left;font-weight:800;font-size:20px;text-shadow:0 0 10px #000}
+#sc small{display:block;font-size:14px;color:var(--c)}
+#lb{position:absolute;right:10px;top:calc(8px + env(safe-area-inset-top,0px));background:#0008;border:1px solid #ffffff22;border-radius:12px;padding:6px 9px;font-size:11px;line-height:1.3;min-width:120px;max-width:150px;text-align:left}
+#lb .me{background:#ffffff1c;border-radius:6px;font-weight:800}#lbl{display:flex;flex-direction:column;gap:1px}#lbl>div{display:flex;flex-direction:row;justify-content:space-between;gap:8px;padding:0 3px}#lb i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}#lb span{white-space:nowrap}
+#rk{color:var(--o);font-weight:800;font-size:13px;margin-bottom:3px}
+#big{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(80px,25vw,200px);font-weight:800;pointer-events:none;text-shadow:0 0 40px var(--p)}
+#pz{position:fixed;left:12px;bottom:12px;display:none;pointer-events:auto}
+#joy{position:fixed;left:24px;bottom:30px;width:130px;height:130px;border-radius:50%;border:2px solid #ffffff44;background:#ffffff10;display:none}
+#knob{position:absolute;left:45px;top:45px;width:40px;height:40px;border-radius:50%;background:#ffffff77}
+#bst{position:fixed;right:24px;bottom:40px;width:96px;height:96px;border-radius:50%;display:none;background:linear-gradient(135deg,var(--o),#ff5ca8);border:0;font-size:18px}
+.touch #joy,.touch #bst{display:block}
+#fps{position:fixed;left:12px;bottom:50px;font-size:12px;color:#8f8}
+table{border-collapse:collapse}td{padding:3px 14px;text-align:left}td+td{text-align:right;color:var(--o);font-weight:800}
+label{display:flex;gap:10px;align-items:center;font-size:18px}
+.mrow{display:grid;grid-template-columns:repeat(4,170px);gap:10px}.mrow button{width:100%;height:48px;padding:0 6px;font-size:16px;white-space:nowrap}
+@media(max-width:760px){.mrow{grid-template-columns:repeat(2,1fr);width:min(340px,100%)}}
+.scr,.scr *{touch-action:pan-y}.scr{justify-content:flex-start}.scr>:first-child{margin-top:auto}.scr>:last-child{margin-bottom:auto}
+.how{width:100%;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+@media(max-width:600px){.how{grid-template-columns:1fr 1fr;gap:6px}.how div{font-size:12px;padding:6px 8px}.how b{font-size:15px}.cards .card{width:100px}}
+#pz{left:50%!important;bottom:auto!important;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%)}#pz button{font-size:13px;padding:4px 12px}
+#rot{display:none;position:fixed;inset:0;z-index:50;background:#07061af5;align-items:center;justify-content:center;flex-direction:column;font-size:26px;text-align:center;gap:8px}#rot b{font-size:60px}
+@media(orientation:portrait){body.touch.pl #rot{display:flex}}
+</style></head><body>
+<canvas id="g"></canvas>
+<div id="hud"><div class="tl"><span class="logo">KRUUJ</span></div>
+<div id="sc">SCORE: <span id="s1">0</span><small>SIZE: <span id="s2">0</span></small></div>
+<div id="lb"><div id="rk">RANK #1</div><div id="lbl"></div></div></div>
+<div id="pz"><button onclick="pause()">⏸ PAUSE</button></div>
+<div id="rot"><b>↻</b>Gire o celular<br>para jogar KRUUJ.io</div><div id="big"></div><div id="fps"></div>
+<div id="joy"><div id="knob"></div></div><button id="bst">BOOST</button>
+
+<div class="scr on" id="menu"><div class="logo">KRUUJ.io</div><div class="sub">ENTER THE KRUUJ ARENA</div>
+<canvas id="hero" width="220" height="220"></canvas>
+<button class="big" onclick="startGame()">PLAY NOW</button>
+<div class="mrow"><button onclick="show('chars')">CHARACTERS</button><button onclick="show('how')">HOW TO PLAY</button><button onclick="showBest()">LEADERBOARD</button><button onclick="show('set')">SETTINGS</button></div></div>
+
+<div class="scr" id="chars"><h2>CHOOSE YOUR KRUUJ</h2><div class="cards" id="cards"></div>
+<div class="row"><button class="big" onclick="startGame()">PLAY</button><button onclick="show('menu')">BACK</button></div></div>
+
+<div class="scr" id="how"><h2>HOW TO PLAY</h2><div class="how">
+<div><b>MOVE</b>Mouse / WASD / setas / joystick.</div><div><b>COLLECT</b>Colete KRUUJ ENERGY para crescer.</div>
+<div><b>BOOST</b>Clique / SPACE. Gasta tamanho!</div><div><b>SURVIVE</b>Quem é maior, devora o menor ao encostar.</div>
+<div><b>DOMINATE</b>Elimine rivais e roube a energia deles.</div><div><b>CLIMB</b>Chegue ao #1 e vire KRUUJ CHAMPION.</div></div>
+<button class="big" onclick="show('menu')">GOT IT!</button></div>
+
+<div class="scr" id="best"><h2>YOUR BEST</h2><table id="bt"></table><button onclick="show('menu')">BACK</button></div>
+
+<div class="scr" id="set"><h2>SETTINGS</h2>
+<label><input type="checkbox" id="o_sfx" checked> Sound Effects</label><label><input type="checkbox" id="o_shk" checked> Screen Shake</label>
+<label><input type="checkbox" id="o_fps"> Show FPS</label><label>Graphics <select id="o_q"><option value="1">High</option><option value=".6">Low</option></select></label>
+<button onclick="saveSet();show(prev||'menu')">OK</button></div>
+
+<div class="scr" id="paused"><h2>PAUSED</h2><div class="row"><button class="big" onclick="pause()">RESUME</button></div>
+<div class="row"><button onclick="startGame()">RESTART</button><button onclick="prev='paused';show('set')">SETTINGS</button><button onclick="quit()">QUIT</button></div></div>
+
+<div class="scr" id="over"><h2 id="ot">YOU WERE KRUUJ'D!</h2><canvas id="oc" width="140" height="140"></canvas><table id="ot2"></table>
+<div class="row"><button class="big" onclick="startGame()">PLAY AGAIN</button><button onclick="show('chars')">CHARACTERS</button><button onclick="show('menu')">MAIN MENU</button></div></div>
+
+<script>
+// ===== KRUUJ.io — módulos: Config/Skins · Estado · Física · Bots · Render · UI · Net (stub) =====
+const $=id=>document.getElementById(id),cv=$('g'),ctx=cv.getContext('2d');
+const R=Math.random,TAU=Math.PI*2,W=4200,H=4200;
+const SKINS=[['KRUUJ Original','#6a3df0','#3a1fa0','#ffb020'],['Cosmic KRUUJ','#2d6bff','#14308f','#7cf'],['Shadow KRUUJ','#3a3a55','#15151f','#c8f'],['Neon KRUUJ','#18e0b0','#0a6a64','#ff4fd8'],
+['Fire KRUUJ','#ff6a2a','#9a1e10','#ffe14a'],['Ice KRUUJ','#8fe4ff','#3a8ac0','#fff'],['Galaxy KRUUJ','#c040ff','#4a1a8a','#38e8ff'],['Robo KRUUJ','#9aa6b8','#4a5568','#3f6']];
+const LOCKED=[0,0,0,0,0,0,1,1]; // MVP: Galaxy/Robo = LOCKED (preparado p/ cosméticos futuros)
+const NM1=['Owl','Night','Kruuj','Moon','Pixel','Dark','Neon','Sky','Cosmic','Tiny','Mega','Star'],NM2=['Zilla','Byte','Master','Wing','Feather','Bird','Hoot','Blaze','Nova','Fan'];
+let S={},set=Object.assign({sfx:1,shk:1,fps:0,q:1},JSON.parse(localStorage.getItem('kruuj_set')||'{}')),
+best=Object.assign({score:0,size:0,rank:99,time:0,games:0,kills:0},JSON.parse(localStorage.getItem('kruuj_best')||'{}')),
+skin=+localStorage.getItem('kruuj_skin')||0,state='menu',prev='menu';
+// ===== UI =====
+function show(id){state=id;document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==id));if(id=='chars')buildCards();}
+function saveSet(){set={sfx:+$('o_sfx').checked,shk:+$('o_shk').checked,fps:+$('o_fps').checked,q:+$('o_q').value};localStorage.setItem('kruuj_set',JSON.stringify(set));}
+$('o_sfx').checked=!!set.sfx;$('o_shk').checked=!!set.shk;$('o_fps').checked=!!set.fps;$('o_q').value=set.q;
+const fmt=n=>Math.floor(n).toLocaleString('en-US').replace(/,/g,'.'),tm=t=>String(t/60|0).padStart(2,'0')+':'+String(t%60|0).padStart(2,'0');
+function showBest(){$('bt').innerHTML=`<tr><td>Best Score</td><td>${fmt(best.score)}</td></tr><tr><td>Best Size</td><td>${fmt(best.size)}</td></tr><tr><td>Best Rank</td><td>#${best.rank}</td></tr><tr><td>Best Time</td><td>${tm(best.time)}</td></tr><tr><td>Games</td><td>${best.games}</td></tr><tr><td>Eliminações</td><td>${best.kills}</td></tr>`;show('best');}
+function buildCards(){const c=$('cards');c.innerHTML='';SKINS.forEach((s,i)=>{const d=document.createElement('div');d.className='card'+(i==skin?' sel':'')+(LOCKED[i]?' lock':'');
+d.innerHTML=`<canvas width=90 height=90></canvas><br>${s[0]}${LOCKED[i]?'<br>🔒 LOCKED':''}`;const x=d.firstChild.getContext('2d');x.translate(45,48);owl(x,0,0,30,0,i,'n');
+d.onclick=()=>{if(LOCKED[i])return;skin=i;localStorage.setItem('kruuj_skin',i);buildCards();sfx(600,.08)};c.appendChild(d);});}
+// ===== Áudio (WebAudio simples) =====
+let AC;
+function sendEvent(type, data = {}) {
+  try {
+    window.parent.postMessage({ type, gameSlug: 'kruujio', ...data }, '*');
+  } catch (e) {}
+}
+sendEvent('game_loaded');
+
+function sfx(f,d=.1,type='sine',v=.06){if(!set.sfx)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);}catch(e){}}
+// ===== Coruja (render) — corpo, orelhas, fones, olhos laranja, bico =====
+function owl(c,x,y,r,ang,si,ex,t=0){const [,c1,c2,ac]=SKINS[si];c.save();c.translate(x,y);
+c.fillStyle=c2;[-1,1].forEach(s=>{c.beginPath();c.moveTo(s*.85*r,-.3*r);c.lineTo(s*.8*r,-1.3*r);c.lineTo(s*.2*r,-.85*r);c.fill();});
+const g=c.createRadialGradient(0,-.3*r,r*.1,0,0,r);g.addColorStop(0,c1);g.addColorStop(1,c2);c.fillStyle=g;c.beginPath();c.arc(0,0,r,0,TAU);c.fill();
+c.fillStyle='#14102e';c.strokeStyle=ac;c.lineWidth=Math.max(1,r*.07);[-1,1].forEach(s=>{c.beginPath();c.ellipse(s*r,.05*r,.2*r,.42*r,0,0,TAU);c.fill();c.stroke();});
+c.strokeStyle='#14102e';c.lineWidth=r*.12;c.beginPath();c.arc(0,0,r*1.02,Math.PI*1.08,Math.PI*1.92);c.stroke();
+c.fillStyle='#e6defa';[-1,1].forEach(s=>{c.beginPath();c.arc(s*.38*r,-.02*r,.36*r,0,TAU);c.fill();});
+const lx=Math.cos(ang)*.09*r,ly=Math.sin(ang)*.09*r,er=ex=='s'?.33:ex=='x'?.3:.27,pr=ex=='s'?.07:ex=='x'?.19:.14;
+[-1,1].forEach(s=>{const ex0=s*.38*r,cool=ex=='c';
+if(ex=='h'||(ex=='w'&&s==1)){c.strokeStyle='#241a4a';c.lineWidth=r*.09;c.beginPath();c.arc(ex0,.06*r,.2*r,Math.PI*1.1,Math.PI*1.9);c.stroke();}
+else if(!cool){c.fillStyle=ac;c.beginPath();c.arc(ex0,-.02*r,er*r,0,TAU);c.fill();c.fillStyle='#111';c.beginPath();c.arc(ex0+lx,-.02*r+ly,pr*r,0,TAU);c.fill();c.fillStyle='#fff';c.beginPath();c.arc(ex0+lx-.06*r,-.08*r+ly,.05*r,0,TAU);c.fill();}
+if(ex=='b'){c.strokeStyle='#14102e';c.lineWidth=r*.1;c.beginPath();c.moveTo(s*.1*r,-.4*r);c.lineTo(s*.65*r,-.2*r+(s>0?0:0));c.stroke();}});
+if(ex=='c'){c.fillStyle='#050510';c.fillRect(-.75*r,-.2*r,.65*r,.35*r);c.fillRect(.1*r,-.2*r,.65*r,.35*r);c.fillRect(-.12*r,-.12*r,.24*r,.06*r);}
+c.fillStyle='#ff9a1a';c.beginPath();c.moveTo(-.11*r,.2*r);c.lineTo(.11*r,.2*r);c.lineTo(0,.45*r);c.fill();c.restore();}
+// ===== Estado / entidades =====
+const mk=(name,si,bot,beh)=>{const p=sp();return{name,si,bot,beh,x:p.x,y:p.y,a:R()*TAU,m:bot?8+R()*20:10,score:0,boost:0,ex:'n',exT:0,imm:1.2,alive:1,tr:0,tx:0,ty:0,thk:0,kills:0,en:0,bestM:10}};
+function sp(){for(let k=0;k<30;k++){const x=300+R()*(W-600),y=300+R()*(H-600);if(!S.E||S.E.every(e=>!e.alive||(e.x-x)**2+(e.y-y)**2>500**2))return{x,y};}return{x:W/2,y:H/2};}
+const rad=m=>14+Math.sqrt(m)*3.6,spd=m=>250*(1+.02*Math.sqrt(m));
+function orb(x,y,v){S.O.push({x:x??60+R()*(W-120),y:y??60+R()*(H-120),v:v||1+R()*2|0,c:(R()*360)|0,ph:R()*6})}
+function add(e,p,txt){e.score+=p;if(e==S.me&&txt){fl(e.x,e.y-e.r-10,'+'+fmt(p),'#ffd54a');}}
+function landscape(){if(!touch)return;try{const d=document.documentElement;(d.requestFullscreen?d.requestFullscreen():Promise.reject()).then(()=>screen.orientation.lock('landscape')).catch(()=>{});screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}
+function startGame(){landscape();document.body.classList.add('pl');document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));AC&&AC.resume&&AC.resume();
+sendEvent('game_start');
+S={E:[],O:[],P:[],t:0,cd:3,shake:0,cam:{x:W/2,y:H/2,z:1},over:0,lbT:0,en:0,rank:1,low:set.q<1||touch};
+for(let i=0;i<(S.low?500:800);i++)orb();
+S.me=mk('YOU',skin,0);S.E.push(S.me);const B=['p','a','s'];
+for(let i=0;i<14;i++)S.E.push(mk(NM1[R()*12|0]+NM2[R()*10|0],R()*6|0,1,B[i%3]));
+S.me.r=rad(10);state='cd';$('hud').classList.add('on');$('pz').style.display='block';$('big').style.display='flex';last=performance.now();}
+function quit(){document.body.classList.remove('pl');try{screen.orientation.unlock();document.fullscreenElement&&document.exitFullscreen()}catch(e){};state='menu';S={};$('hud').classList.remove('on');$('pz').style.display='none';$('big').style.display='none';show('menu');}
+function pause(){if(state=='play'){state='paused';show('paused');state='paused';}else if(state=='paused'){document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));state='play';last=performance.now();}}
+// ===== Partículas / textos flutuantes (pool simples) =====
+function pt(x,y,c,n,sp0=120,l=.6){if(S.low)n=n>>1;for(let i=0;i<n&&S.P.length<500;i++){const a=R()*TAU,s=R()*sp0;S.P.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l,L:l,c,s:2+R()*3})}}
+function fl(x,y,t,c){S.P.push({x,y,vx:0,vy:-50,l:.9,L:.9,c,t})}
+function setEx(e,x,d=.5){if(e.ex!='b'||x=='x'){e.ex=x;e.exT=d}}
+// ===== Entrada =====
+const K={};let mx=0,my=0,mouseOn=0,ptr=0,jx=0,jy=0,boostIn=0,touch=0;
+addEventListener('keydown',e=>{K[e.code]=1;if(e.code=='Space'){boostIn=1;e.preventDefault()}if(e.code=='Escape')pause()});
+addEventListener('keyup',e=>{K[e.code]=0;if(e.code=='Space')boostIn=0});
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;mouseOn=1});
+cv.addEventListener('mousedown',()=>boostIn=1);addEventListener('mouseup',()=>boostIn=0);
+const joy=$('joy'),knob=$('knob');let jid=null;
+addEventListener('touchstart',e=>{if(!touch){touch=1;document.body.classList.add('touch')}for(const t of e.changedTouches){const b=joy.getBoundingClientRect();if(jid==null&&t.clientX<innerWidth*.5&&state=='play'){jid=t.identifier;jc=[t.clientX,t.clientY]}}},{passive:true});
+let jc=[0,0];
+addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier==jid){let dx=t.clientX-jc[0],dy=t.clientY-jc[1];const d=Math.hypot(dx,dy),m=50;if(d>m){dx*=m/d;dy*=m/d}jx=dx/m;jy=dy/m;knob.style.transform=`translate(${dx}px,${dy}px)`}},{passive:true});
+addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier==jid){jid=null;jx=jy=0;knob.style.transform=''}},{passive:true});
+$('bst').addEventListener('touchstart',e=>{boostIn=1;e.preventDefault()});$('bst').addEventListener('touchend',()=>boostIn=0);
+function playerDir(e){let dx=(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0),dy=(K.KeyS||K.ArrowDown?1:0)-(K.KeyW||K.ArrowUp?1:0);
+if(dx||dy)return Math.atan2(dy,dx);if(Math.hypot(jx,jy)>.15)return Math.atan2(jy,jx);if(mouseOn&&!touch){const sx=innerWidth/2,sy=innerHeight/2;if(Math.hypot(mx-sx,my-sy)>20)return Math.atan2(my-sy,mx-sx)}return e.a;}
+// ===== Bots (IA simples com 3 comportamentos) =====
+function think(b){const E=S.E;let tx=null,ty=null,fl_=null,ch=null,bd=1e9,fd=1e9;
+for(const e of E){if(e==b||!e.alive)continue;const d=Math.hypot(e.x-b.x,e.y-b.y);
+if(e.m>b.m*1.1&&d<(b.beh=='s'?520:300)&&d<fd){fd=d;fl_=e}
+if(e.m<b.m*.8&&d<(b.beh=='a'?700:200)&&d<bd){bd=d;ch=e}}
+b.wantB=0;
+if(fl_&&(b.beh!='p'||fd<220)){b.tx=b.x*2-fl_.x;b.ty=b.y*2-fl_.y;b.wantB=fd<200&&R()<.6&&b.m>14;}
+else if(ch&&b.beh!='s'||ch&&R()<.3){b.tx=ch.x+Math.cos(ch.a)*80;b.ty=ch.y+Math.sin(ch.a)*80;b.wantB=bd<260&&R()<.5&&b.m>16}
+else{let bo=null,d0=1e9;for(let i=0;i<S.O.length;i+=3){const o=S.O[(i+(R()*3|0))%S.O.length],d=(o.x-b.x)**2+(o.y-b.y)**2;if(d<d0){d0=d;bo=o}}
+if(bo){b.tx=bo.x;b.ty=bo.y}else{b.tx=W/2;b.ty=H/2}b.wantB=R()<.02&&b.m>25}
+if(b.x<250||b.x>W-250||b.y<250||b.y>H-250){b.tx=W/2+(R()-.5)*800;b.ty=H/2+(R()-.5)*800}
+b.thk=.25+R()*.4;b.err=(R()-.5)*(b.beh=='a'?.35:.7)}
+// ===== Atualização =====
+function kill(v,k){v.alive=0;pt(v.x,v.y,SKINS[v.si][1],40,300,.9);pt(v.x,v.y,'#fff',15,200,.5);
+const n=Math.min(40,Math.max(8,v.m/2|0)),val=Math.max(1,v.m*.7/n);for(let i=0;i<n;i++){const a=R()*TAU,d=R()*v.r*2.5;orb(v.x+Math.cos(a)*d,v.y+Math.sin(a)*d,val)}
+S.shake=v==S.me?14:k==S.me?8:S.shake;sfx(120,.4,'sawtooth',.08);
+if(k){k.m+=v.m*.25;k.kills++;add(k,v.m*30);if(k==S.me){fl(k.x,k.y-k.r-40,'KRUUJ DOWN!','#38e8ff');fl(k.x,k.y-k.r-10,'+'+fmt(v.m*30),'#ffd54a');setEx(k,'h',1);sfx(700,.3,'square')}}
+if(v==S.me)end(0);else v.respawn=3+R()*3;}
+function upd(dt){S.t+=dt;const me=S.me,E=S.E;
+for(const e of E){if(!e.alive){if(e.bot&&(e.respawn-=dt)<0){const n=mk(e.name,e.si,1,e.beh);Object.assign(e,n);}continue}
+e.r=rad(e.m);e.imm=Math.max(0,e.imm-dt);e.exT-=dt;if(e.exT<=0)e.ex='n';
+let da,bst;
+if(e==me){da=playerDir(e);bst=boostIn}else{if((e.thk-=dt)<=0)think(e);da=Math.atan2(e.ty-e.y,e.tx-e.x)+(e.err||0);bst=e.wantB}
+let df=Math.atan2(Math.sin(da-e.a),Math.cos(da-e.a));e.a+=Math.max(-1,Math.min(1,df*8))*Math.min(dt*7/(1+e.r/220),Math.abs(df)*1+.0001)*1;
+const boosting=bst&&e.m>9;e.boost=boosting;if(boosting){e.m-=dt*2.2+e.m*.012*dt;setEx(e,'b',.15);if(e==me&&(e.tr-=dt)<0){e.tr=.03;S.P.push({x:e.x-Math.cos(e.a)*e.r,y:e.y-Math.sin(e.a)*e.r,vx:0,vy:0,l:.5,L:.5,c:SKINS[e.si][3],s:e.r*.6})}}
+if(boosting&&e!=me&&R()<.3)S.P.push({x:e.x,y:e.y,vx:0,vy:0,l:.3,L:.3,c:SKINS[e.si][3],s:e.r*.4});
+const sp_=spd(e.m)*(boosting?1.8:1);e.vx=(e.vx||0)+(Math.cos(e.a)*sp_-(e.vx||0))*Math.min(1,dt*6);e.vy=(e.vy||0)+(Math.sin(e.a)*sp_-(e.vy||0))*Math.min(1,dt*6);
+e.x+=e.vx*dt;e.y+=e.vy*dt;
+const mg=e.r;if(e.x<mg){e.x=mg;e.vx=Math.abs(e.vx)*.3}if(e.x>W-mg){e.x=W-mg;e.vx=-Math.abs(e.vx)*.3}if(e.y<mg){e.y=mg;e.vy=Math.abs(e.vy)*.3}if(e.y>H-mg){e.y=H-mg;e.vy=-Math.abs(e.vy)*.3}
+add(e,dt*2);if(e.m>e.bestM)e.bestM=e.m;
+// coleta
+const oo=S.O;for(let i=oo.length-1;i>=0;i--){const o=oo[i],dx=o.x-e.x,dy=o.y-e.y,rr=e.r+8;if(dx*dx+dy*dy<rr*rr){e.m+=o.v*.9;add(e,o.v*15,e==me&&o.v>2);e.en++;
+if(e==me){pt(o.x,o.y,`hsl(${o.c},90%,65%)`,5,90,.4);setEx(e,'h',.3);sfx(500+R()*300,.06)}oo[i]=oo[oo.length-1];oo.pop();if(oo.length<(S.low?500:800))orb()}else if(e==me||dx*dx+dy*dy<(e.r*3)**2){const d=Math.sqrt(dx*dx+dy*dy);if(d<e.r*2.2&&d>0){o.x-=dx/d*dt*180;o.y-=dy/d*dt*180}}}
+if(e==me)for(const f of E)if(f!=e&&f.alive&&f.m>e.m*1.1&&(f.x-e.x)**2+(f.y-e.y)**2<(260+f.r)**2)setEx(e,'s',.2)}
+// colisões jogador x jogador: o maior (>=12%) devora o menor ao sobrepor
+for(let i=0;i<E.length;i++){const a=E[i];if(!a.alive)continue;for(let j=i+1;j<E.length;j++){if(!a.alive)break;const b=E[j];if(!b.alive)continue;const d=Math.hypot(a.x-b.x,a.y-b.y);
+if(d<(a.r+b.r)*.85&&a.imm<=0&&b.imm<=0){if(a.m>b.m*1.015)kill(b,a);else if(b.m>a.m*1.015)kill(a,b);else{const nx=(a.x-b.x)/d,ny=(a.y-b.y)/d;a.vx+=nx*200;a.vy+=ny*200;b.vx-=nx*200;b.vy-=ny*200}}}}
+if(me.m>650&&S.alive!==0)end(1);
+for(let i=S.P.length-1;i>=0;i--){const p=S.P[i];p.l-=dt;if(p.l<=0){S.P[i]=S.P[S.P.length-1];S.P.pop();continue}p.x+=p.vx*dt;p.y+=p.vy*dt}
+S.shake=Math.max(0,S.shake-dt*30);
+if((S.lbT-=dt)<=0){S.lbT=.25;lb()}}
+function lb(){const L=S.E.filter(e=>e.alive).sort((a,b)=>b.score-a.score),i=L.indexOf(S.me);S.rank=i<0?S.rank:i+1;if(i>=0){$('rk').textContent='RANK #'+S.rank;$('s1').textContent=fmt(S.me.score);$('s2').textContent=fmt(S.me.m*4)}
+const row=(e,k)=>`<div class="${e==S.me?'me':''}"><span style="color:${SKINS[e.si][3]}"><i style="background:${SKINS[e.si][1]};box-shadow:0 0 5px ${SKINS[e.si][3]}"></i>${k+1}. ${e==S.me?'YOU':e.name}</span><span style="color:${SKINS[e.si][3]}">${fmt(e.score)}</span></div>`;let h='';L.slice(0,5).forEach((e,k)=>h+=row(e,k));
+if(i>=5)h+=row(S.me,i);$('lbl').innerHTML=h}
+function end(win){if(S.over)return;S.over=1;const me=S.me;state='over';lb();const t=S.t,size=me.bestM*4,rank=win?1:S.rank;
+best.games++;best.kills+=me.kills;best.score=Math.max(best.score,me.score);best.size=Math.max(best.size,size);best.rank=Math.min(best.rank,rank);best.time=Math.max(best.time,t);localStorage.setItem('kruuj_best',JSON.stringify(best));
+sendEvent(win ? 'game_completed' : 'game_over', { score: me.score, size: me.bestM * 4, kills: me.kills });
+sfx(win?880:200,.6,'triangle');
+setTimeout(()=>{$('hud').classList.remove('on');$('pz').style.display='none';$('ot').textContent=win?'KRUUJ CHAMPION!':"YOU WERE KRUUJ'D!";
+$('ot2').innerHTML=`<tr><td>${win?'1ST PLACE':'RANK'}</td><td>#${rank}</td></tr><tr><td>SCORE</td><td>${fmt(me.score)}</td></tr><tr><td>SIZE</td><td>${fmt(size)}</td></tr><tr><td>TIME ALIVE</td><td>${tm(t)}</td></tr><tr><td>Energy collected</td><td>${me.en}</td></tr><tr><td>Players defeated</td><td>${me.kills}</td></tr>`;
+const c=$('oc').getContext('2d');c.clearRect(0,0,140,140);c.translate(70,76);owl(c,0,0,48,0,me.si,win?'c':'x');c.setTransform(1,0,0,1,0,0);document.body.classList.remove('pl');show('over');state='over'},win?1500:900)}
+// ===== Render =====
+const stars=Array.from({length:260},()=>({x:R()*W,y:R()*H,s:R()*2+.5,p:.2+R()*.6}));
+const deco=Array.from({length:22},(_,i)=>({x:200+R()*(W-400),y:200+R()*(H-400),r:30+R()*70,k:i%4,c:R()*360}));
+function draw(){const w=innerWidth,h=innerHeight,dpr=(set.q<1||touch)?1:Math.min(devicePixelRatio||1,2);
+if(cv.width!=w*dpr|0){cv.width=w*dpr;cv.height=h*dpr}
+ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#07061a';ctx.fillRect(0,0,w,h);
+const me=S.me,c=S.cam;if(!me){c.x=W/2+Math.sin(performance.now()/4000)*400;c.y=H/2;c.z=.7}
+else{const tz=Math.min(1.15,Math.max(.35,(Math.min(w,h)/(Math.max(380,rad(me.m)*11))))*(touch?.9:1));c.z+=(tz-c.z)*.04;c.x+=(me.x-c.x)*.15;c.y+=(me.y-c.y)*.15}
+const z=c.z,sh=set.shk?S.shake||0:0;ctx.save();ctx.translate(w/2+(R()-.5)*sh,h/2+(R()-.5)*sh);ctx.scale(z,z);ctx.translate(-c.x,-c.y);
+const vx0=c.x-w/2/z-100,vx1=c.x+w/2/z+100,vy0=c.y-h/2/z-100,vy1=c.y+h/2/z+100,t=performance.now()/1000;
+// arena + grid
+ctx.fillStyle='#0d0b2b';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#ffffff0d';ctx.lineWidth=2;ctx.beginPath();
+for(let x=Math.max(0,vx0-vx0%140);x<Math.min(W,vx1);x+=140){ctx.moveTo(x,Math.max(0,vy0));ctx.lineTo(x,Math.min(H,vy1))}
+for(let y=Math.max(0,vy0-vy0%140);y<Math.min(H,vy1);y+=140){ctx.moveTo(Math.max(0,vx0),y);ctx.lineTo(Math.min(W,vx1),y)}ctx.stroke();
+// estrelas com parallax leve
+ctx.fillStyle='#fff';for(const s of stars){const px=s.x+(c.x-W/2)*(s.p-.5)*.2,py=s.y+(c.y-H/2)*(s.p-.5)*.2;if(px<vx0||px>vx1||py<vy0||py>vy1)continue;ctx.globalAlpha=.4+.5*Math.sin(t*2+s.x);ctx.fillRect(px,py,s.s,s.s)}ctx.globalAlpha=1;
+// decoração: planetas, cristais, satélites, luas
+for(const d of deco){if(d.x<vx0-150||d.x>vx1+150||d.y<vy0-150||d.y>vy1+150)continue;ctx.globalAlpha=.35;ctx.fillStyle=`hsl(${d.c},60%,45%)`;ctx.strokeStyle=`hsl(${d.c},80%,70%)`;ctx.lineWidth=3;ctx.beginPath();
+if(d.k==0){ctx.arc(d.x,d.y,d.r,0,TAU);ctx.fill();ctx.beginPath();ctx.ellipse(d.x,d.y,d.r*1.6,d.r*.3,.4,0,TAU);ctx.stroke()}
+else if(d.k==1){ctx.moveTo(d.x,d.y-d.r);ctx.lineTo(d.x+d.r*.5,d.y);ctx.lineTo(d.x,d.y+d.r);ctx.lineTo(d.x-d.r*.5,d.y);ctx.closePath();ctx.fill();ctx.stroke()}
+else if(d.k==2){ctx.rect(d.x-d.r*.4,d.y-d.r*.4,d.r*.8,d.r*.8);ctx.fill();ctx.stroke();ctx.fillRect(d.x-d.r,d.y-5,d.r*.6,10);ctx.fillRect(d.x+d.r*.4,d.y-5,d.r*.6,10)}
+else{ctx.arc(d.x,d.y,d.r*.5,0,TAU);ctx.fill();ctx.fillStyle='#0d0b2b';ctx.beginPath();ctx.arc(d.x+d.r*.2,d.y-d.r*.1,d.r*.4,0,TAU);ctx.fill()}ctx.globalAlpha=1}
+// borda
+ctx.strokeStyle='#ff5ca8';ctx.lineWidth=14;ctx.shadowColor='#ff5ca8';ctx.shadowBlur=(S.O&&S.low)?0:30;ctx.strokeRect(0,0,W,H);ctx.shadowBlur=0;
+if(me){const dm=Math.min(me.x,me.y,W-me.x,H-me.y);if(dm<300){ctx.fillStyle='#ff5ca8';ctx.globalAlpha=(1-dm/300)*.25;ctx.fillRect(vx0,vy0,vx1-vx0,vy1-vy0);ctx.globalAlpha=1}}
+if(S.O){// energia
+for(const o of S.O){if(o.x<vx0||o.x>vx1||o.y<vy0||o.y>vy1)continue;const s=4+o.v*2+Math.sin(t*4+o.ph)*1.2;ctx.fillStyle=`hsl(${o.c},95%,65%)`;if(!S.low){ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=10}
+ctx.beginPath();ctx.moveTo(o.x,o.y-s*1.3);ctx.lineTo(o.x+s,o.y);ctx.lineTo(o.x,o.y+s*1.3);ctx.lineTo(o.x-s,o.y);ctx.fill()}ctx.shadowBlur=0;
+for(const p of S.P){if(p.t)continue;ctx.globalAlpha=p.l/p.L;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s*(p.l/p.L),0,TAU);ctx.fill()}ctx.globalAlpha=1;
+const L=S.E.filter(e=>e.alive&&e.x>vx0-200&&e.x<vx1+200&&e.y>vy0-200&&e.y<vy1+200).sort((a,b)=>a.m-b.m);
+for(const e of L){if(e.imm>0)ctx.globalAlpha=.5+.4*Math.sin(t*20);ctx.shadowColor=e.boost?SKINS[e.si][3]:SKINS[e.si][1];ctx.shadowBlur=S.low?0:e.boost?35:18;
+ctx.fillStyle='#0004';ctx.beginPath();ctx.ellipse(e.x+6,e.y+e.r*.9,e.r,e.r*.4,0,0,TAU);ctx.fill();
+owl(ctx,e.x,e.y,e.r,e.a,e.si,e.ex);ctx.shadowBlur=0;ctx.globalAlpha=1;
+ctx.fillStyle=e==me?'#ffb020':'#fff';ctx.font=`800 ${Math.max(14,e.r*.45)}px Baloo 2,sans-serif`;ctx.textAlign='center';ctx.fillText(e.name,e.x,e.y-e.r*1.35-4)}
+ctx.font='800 22px Baloo 2,sans-serif';for(const p of S.P)if(p.t){ctx.globalAlpha=p.l/p.L;ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y)}ctx.globalAlpha=1}
+ctx.restore();
+// vinheta
+const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.4,w/2,h/2,Math.max(w,h)*.8);g.addColorStop(0,'#0000');g.addColorStop(1,'#000a');ctx.fillStyle=g;ctx.fillRect(0,0,w,h)}
+// ===== Loop =====
+let last=performance.now(),fr=0,ft=0;
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.1,(now-last)/1000);last=now;
+const blk=touch&&innerHeight>innerWidth&&state!='over';if(blk)return draw();if(state=='cd'){S.cd-=dt;const n=Math.ceil(S.cd);$('big').textContent=S.cd>0?n:'GO!';if(S.cd<-.5){$('big').style.display='none';state='play'}else if(S.cd<=0)upd(dt*.0)}
+if(state=='play'||state=='over'&&S.E)upd(state=='over'?dt*.3:dt);
+draw();fr++;ft+=dt;if(ft>.5){$('fps').textContent=set.fps?Math.round(fr/ft)+' FPS':'';fr=0;ft=0}
+const hc=$('hero');if(state=='menu'){const c=hc.getContext('2d');c.clearRect(0,0,220,220);c.save();c.translate(110,115+Math.sin(now/300)*6);owl(c,0,0,70,Math.sin(now/700),skin,Math.sin(now/1500)>.92?'w':'n');c.restore()}}
+requestAnimationFrame(loop);
+// ===== Net (stub p/ multiplayer futuro): trocar S.E por snapshots do servidor =====
+const Net={connect(){/* WebSocket: join room, send input {a,boost}, receive state */},send(){}};
+addEventListener('resize',()=>{});
+</script></body></html>
