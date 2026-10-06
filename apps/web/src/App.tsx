@@ -367,12 +367,39 @@ export default function App() {
     metaDesc.setAttribute('content', pageDesc);
   }, [view, selectedGame, agePreference]);
 
+  // Carregamento de favoritos salvos (funciona para visitantes anônimos e usuários)
   useEffect(() => {
-    if (user && token) {
-      fetchFavorites();
-    } else {
-      setFavorites([]);
-    }
+    const loadSavedFavorites = async () => {
+      // 1. Carrega imediatamente do localStorage para resposta instantânea
+      const storageKey = user ? `kruuj_favorites_${user.username}` : 'kruuj_guest_favorites';
+      const local = localStorage.getItem(storageKey) || localStorage.getItem('kruuj_guest_favorites');
+      if (local) {
+        try {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed)) {
+            setFavorites(parsed);
+          }
+        } catch (e) {}
+      }
+
+      // 2. Se logado, sincroniza com o backend em nuvem
+      if (user && token) {
+        try {
+          const response = await fetch('/api/games/favorites', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const apiData = await response.json();
+            if (Array.isArray(apiData) && apiData.length > 0) {
+              const apiIds = apiData.map((g: any) => g.id || g.slug);
+              setFavorites(prev => Array.from(new Set([...prev, ...apiIds])));
+            }
+          }
+        } catch (e) {}
+      }
+    };
+
+    loadSavedFavorites();
   }, [user, token]);
 
   // Catálogo base de conformidade completa e contingência (25 jogos oficiais)
@@ -1385,44 +1412,53 @@ export default function App() {
     }
   };
 
-  // --- Funções de Ação ---
-  const handleToggleFavorite = async (gameId: string) => {
-    if (!user) {
-      setAuthMode('login');
-      setShowAuthModal(true);
-      return;
+  // Helper para checar se um jogo está favoritado (por id ou slug)
+  const isGameFavorited = (g: Game | null | undefined) => {
+    if (!g) return false;
+    return favorites.includes(g.id) || favorites.includes(g.slug);
+  };
+
+  // --- Função Universal de Favoritar (Funciona Imediatamente para Visitantes e Logados) ---
+  const handleToggleFavorite = async (gameIdOrSlug: string) => {
+    const game = games.find(g => g.id === gameIdOrSlug || g.slug === gameIdOrSlug) ||
+                 defaultGamesCatalog.find(g => g.id === gameIdOrSlug || g.slug === gameIdOrSlug);
+    const id = game ? game.id : gameIdOrSlug;
+    const slug = game ? game.slug : gameIdOrSlug;
+
+    const isFav = favorites.includes(id) || favorites.includes(slug);
+    let nextFavorites: string[];
+
+    if (isFav) {
+      nextFavorites = favorites.filter(f => f !== id && f !== slug);
+      setLikesCount(prev => ({ ...prev, [id]: Math.max(0, (prev[id] || 1) - 1) }));
+    } else {
+      nextFavorites = [...favorites, id];
+      setLikesCount(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+      logEvent('favorite_added', { gameId: id, slug });
     }
 
+    setFavorites(nextFavorites);
+
+    // Salva no localStorage para não perder em reloads (visitantes e usuários)
+    const storageKey = user ? `kruuj_favorites_${user.username}` : 'kruuj_guest_favorites';
     try {
-      const response = await fetch(`/api/games/${gameId}/favorite`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` 
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.favorited) {
-          setFavorites([...favorites, gameId]);
-          setLikesCount(prev => ({ ...prev, [gameId]: (prev[gameId] || 0) + 1 }));
-        } else {
-          setFavorites(favorites.filter(id => id !== gameId));
-          setLikesCount(prev => ({ ...prev, [gameId]: Math.max(0, (prev[gameId] || 1) - 1) }));
-        }
+      localStorage.setItem(storageKey, JSON.stringify(nextFavorites));
+      localStorage.setItem('kruuj_guest_favorites', JSON.stringify(nextFavorites));
+    } catch (e) {}
+
+    // Se estiver logado, sincroniza com o backend em nuvem
+    if (user && token && game) {
+      try {
+        await fetch(`/api/games/${game.id}/favorite`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          }
+        });
+      } catch (e) {
+        console.warn('Erro ao sincronizar favorito na nuvem:', e);
       }
-    } catch (e) {
-      // Offline fallback
-      let updatedFavs = [];
-      if (favorites.includes(gameId)) {
-        updatedFavs = favorites.filter(id => id !== gameId);
-        setLikesCount(prev => ({ ...prev, [gameId]: Math.max(0, (prev[gameId] || 1) - 1) }));
-      } else {
-        updatedFavs = [...favorites, gameId];
-        setLikesCount(prev => ({ ...prev, [gameId]: (prev[gameId] || 0) + 1 }));
-      }
-      setFavorites(updatedFavs);
-      localStorage.setItem(`favorites_${user.username}`, JSON.stringify(updatedFavs));
     }
   };
 
@@ -2036,7 +2072,7 @@ export default function App() {
                                 className="kruuj-game-like-btn"
                                 onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                               >
-                                <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                               </button>
                             </div>
                             <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2205,7 +2241,7 @@ export default function App() {
                                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                                   title="Favoritar"
                                 >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                                 </button>
                               </div>
                               <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2241,7 +2277,7 @@ export default function App() {
                                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                                   title="Favoritar"
                                 >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                                 </button>
                               </div>
                               <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2277,7 +2313,7 @@ export default function App() {
                                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                                   title="Favoritar"
                                 >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                                 </button>
                               </div>
                               <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2313,7 +2349,7 @@ export default function App() {
                                   onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                                   title="Favoritar"
                                 >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                                 </button>
                               </div>
                               <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2349,11 +2385,11 @@ export default function App() {
                         <Share2 className="w-4 h-4" />
                       </button>
                       <button 
-                        className={`kruuj-action-circle-btn ${favorites.includes(selectedGame.id) ? 'text-pink-500 border-pink-500/50' : ''}`}
+                        className={`kruuj-action-circle-btn ${isGameFavorited(selectedGame) ? 'text-pink-500 border-pink-500/50' : ''}`}
                         onClick={() => handleToggleFavorite(selectedGame.id)}
                         title="Favoritar"
                       >
-                        <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                        <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
                       </button>
                     </div>
                   </div>
@@ -2382,8 +2418,8 @@ export default function App() {
                           className="btn-secondary px-6 text-xs"
                           onClick={() => handleToggleFavorite(selectedGame.id)}
                         >
-                          <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                          {favorites.includes(selectedGame.id) ? 'Favoritado' : 'Favoritar'}
+                          <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                          {isGameFavorited(selectedGame) ? 'Favoritado' : 'Favoritar'}
                         </button>
                       </div>
                     </div>
@@ -2524,7 +2560,7 @@ export default function App() {
                               className="kruuj-game-like-btn"
                               onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
                             >
-                              <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                              <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
                             </button>
                           </div>
                           <div className="kruuj-game-title-clean">{game.title}</div>
@@ -2679,10 +2715,10 @@ export default function App() {
 
                   {profileTab === 'favoritos' && (
                     <div className="kruuj-shelf-row">
-                      {games.filter(g => favorites.includes(g.id)).length === 0 ? (
+                      {games.filter(isGameFavorited).length === 0 ? (
                         <p className="text-gray-400 text-sm p-4 col-span-full">Nenhum jogo favoritado ainda.</p>
                       ) : (
-                        games.filter(g => favorites.includes(g.id)).map(g => (
+                        games.filter(isGameFavorited).map(g => (
                           <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
                             <div className="kruuj-game-thumb">
                               {renderGameCover(g)}
@@ -2723,7 +2759,7 @@ export default function App() {
                       Voltar ao Início
                     </button>
                   </div>
-                  {favorites.length === 0 ? (
+                  {games.filter(isGameFavorited).length === 0 ? (
                     <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 space-y-3">
                       <Heart className="w-12 h-12 text-gray-600 mx-auto" />
                       <p className="text-gray-300 font-bold">Você ainda não favoritou nenhum jogo.</p>
@@ -2734,7 +2770,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="kruuj-shelf-row">
-                      {games.filter(g => favorites.includes(g.id)).map(g => (
+                      {games.filter(isGameFavorited).map(g => (
                         <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
                           <div className="kruuj-game-thumb">
                             {renderGameCover(g)}
