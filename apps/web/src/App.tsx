@@ -1595,6 +1595,12 @@ export default function App() {
       document.exitFullscreen().catch(() => {});
     }
 
+    try {
+      if (screen.orientation && (screen.orientation as any).unlock) {
+        (screen.orientation as any).unlock();
+      }
+    } catch (e) {}
+
     setIsScreenLocked(false);
 
     // Rola a página de volta para o topo (Garante que não fique perdida embaixo)
@@ -1699,6 +1705,20 @@ export default function App() {
       const authUser = user || (localStorage.getItem('arcade_user') ? JSON.parse(localStorage.getItem('arcade_user')!) : null);
       const isRealAuth = authToken && authToken !== 'fake-jwt-token';
       const slug = data.gameSlug || selectedGame?.slug;
+
+      // 0. Solicitação de orientação paisagem (Landscape) vinda do jogo
+      if (data.type === 'request_landscape') {
+        try {
+          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+        } catch(e) {}
+        try {
+          if (screen.orientation && (screen.orientation as any).lock) {
+            (screen.orientation as any).lock('landscape').catch(() => {});
+          }
+        } catch(e) {}
+      }
 
       // 1. O jogo acabou de carregar: envia save da nuvem para o jogo se houver
       if (data.type === 'game_loaded') {
@@ -3170,7 +3190,7 @@ export default function App() {
                        key={selectedGame.id}
                        src={getGameUrl(selectedGame)}
                        sandbox="allow-scripts allow-same-origin allow-forms"
-                       allow="fullscreen; autoplay"
+                       allow="fullscreen; autoplay; screen-wake-lock; orientation-lock"
                        allowFullScreen
                        title={selectedGame.title}
                         style={isScreenLocked ? {
