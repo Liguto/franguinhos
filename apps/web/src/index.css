@@ -3137,8 +3137,10 @@ animation: none !important;
 }
 
 .kruuj-logo-link img {
-  height: 30px;
+  height: 26px;
+  max-height: 26px;
   width: auto;
+  max-width: 130px;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
 }
@@ -3420,8 +3422,10 @@ animation: none !important;
 }
 
 .kruuj-hero-mascot-img {
-  width: 140px;
-  height: auto;
+  width: 110px;
+  max-width: 110px;
+  height: 110px;
+  max-height: 110px;
   object-fit: contain;
   filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.45));
   animation: float 4s ease-in-out infinite;
@@ -3935,8 +3939,9 @@ animation: none !important;
 .kruuj-footer-mascot-peeking {
   position: absolute;
   right: 40px;
-  bottom: -10px;
-  height: 90px;
+  bottom: -6px;
+  height: 70px;
+  max-height: 70px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.4));

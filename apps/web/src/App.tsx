@@ -1854,7 +1854,7 @@ export default function App() {
             className="kruuj-logo-link"
             onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
           >
-            <img src="/kruuj-logo.svg" alt="KRUUJ" />
+            <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '26px', maxHeight: '26px', width: 'auto', objectFit: 'contain' }} />
           </div>
         </div>
 
@@ -2154,7 +2154,7 @@ export default function App() {
                           <img 
                             src="/kruuj-mascote.png" 
                             alt="Corujinha" 
-                            className="h-28 object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]" 
+                            style={{ height: '95px', maxHeight: '95px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 15px rgba(139,92,246,0.5))' }} 
                           />
                         </div>
 
@@ -3707,7 +3707,7 @@ export default function App() {
         <div className="kruuj-footer-content">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <img src="/kruuj-logo.svg" alt="KRUUJ" className="h-6 object-contain" />
+              <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '22px', maxHeight: '22px', width: 'auto', objectFit: 'contain' }} />
               <span className="text-xs text-gray-400 font-semibold">• Mais que jogos, um universo de experiências.</span>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-2">
