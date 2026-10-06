@@ -321,12 +321,24 @@ export default function App() {
 
   // --- Efeitos e Inicialização ---
   useEffect(() => {
-    // Carregar dados de Autenticação do LocalStorage
+    // Carregar dados de Autenticação do LocalStorage (garante que apenas tokens reais sejam mantidos)
     const storedUser = localStorage.getItem('arcade_user');
     const storedToken = localStorage.getItem('arcade_token');
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
+      if (storedToken === 'fake-jwt-token' || (storedUser && JSON.parse(storedUser).id === 'fake-id')) {
+        localStorage.removeItem('arcade_user');
+        localStorage.removeItem('arcade_token');
+        setUser(null);
+        setToken(null);
+      } else {
+        try {
+          setUser(JSON.parse(storedUser));
+          setToken(storedToken);
+        } catch(e) {
+          localStorage.removeItem('arcade_user');
+          localStorage.removeItem('arcade_token');
+        }
+      }
     }
 
     // Carregar consentimento de Cookies
@@ -1553,32 +1565,8 @@ export default function App() {
         setAuthError(data.error || 'Ocorreu um erro.');
       }
     } catch (err) {
-      // Simulação Offline de Login / Registro
-      if (authMode === 'login') {
-        if (usernameInput === 'admin' && passwordInput === 'admin123') {
-          const fakeUser = { id: 'admin-id', username: 'admin', role: 'super_admin', status: 'ativo', agePreference: 'sem_preferencia' };
-          setUser(fakeUser);
-          setToken('fake-jwt-token');
-          localStorage.setItem('arcade_user', JSON.stringify(fakeUser));
-          localStorage.setItem('arcade_token', 'fake-jwt-token');
-          setShowAuthModal(false);
-        } else {
-          // Registrar como player novo simulado
-          const fakeUser = { id: 'fake-id', username: usernameInput, role: 'user', status: 'ativo', agePreference: 'sem_preferencia' };
-          setUser(fakeUser);
-          setToken('fake-jwt-token');
-          localStorage.setItem('arcade_user', JSON.stringify(fakeUser));
-          localStorage.setItem('arcade_token', 'fake-jwt-token');
-          setShowAuthModal(false);
-        }
-      } else {
-        const fakeUser = { id: 'fake-id', username: usernameInput, role: 'user', status: 'ativo', agePreference: 'sem_preferencia' };
-        setUser(fakeUser);
-        setToken('fake-jwt-token');
-        localStorage.setItem('arcade_user', JSON.stringify(fakeUser));
-        localStorage.setItem('arcade_token', 'fake-jwt-token');
-        setRecoveryPhrase(`REC-SAFE-ARCADE-OFFLINE-KEY`);
-      }
+      console.error('Erro de conexão:', err);
+      setAuthError('Não foi possível conectar ao servidor da nuvem. O serviço pode estar acordando (Render Free leva ~30s), por favor tente novamente em instantes.');
     }
   };
 
@@ -1707,6 +1695,11 @@ export default function App() {
       const data = event.data;
       if (!data || typeof data !== 'object') return;
 
+      const authToken = token || localStorage.getItem('arcade_token');
+      const authUser = user || (localStorage.getItem('arcade_user') ? JSON.parse(localStorage.getItem('arcade_user')!) : null);
+      const isRealAuth = authToken && authToken !== 'fake-jwt-token';
+      const slug = data.gameSlug || selectedGame?.slug;
+
       // 1. O jogo acabou de carregar: envia save da nuvem para o jogo se houver
       if (data.type === 'game_loaded') {
         if (cloudSaveDataRef.current && gameIframeRef.current?.contentWindow) {
@@ -1717,16 +1710,36 @@ export default function App() {
         }
       }
 
-      // 2. O jogo emitiu um save de progresso
+      // 2. Início de partida
+      if (data.type === 'game_start') {
+        logEvent('game_start', { gameSlug: slug });
+        if (isRealAuth && slug) {
+          try {
+            await fetch('/api/user/history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`
+              },
+              body: JSON.stringify({
+                gameSlug: slug,
+                gameTitle: selectedGame?.title || slug,
+                score: 0
+              })
+            });
+          } catch(e) {}
+        }
+      }
+
+      // 3. O jogo emitiu um save de progresso
       if (data.type === 'game_save' && data.saveData) {
-        const slug = data.gameSlug || selectedGame?.slug;
-        if (user && token && slug) {
+        if (isRealAuth && slug) {
           try {
             await fetch(`/api/user/progress/${slug}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${authToken}`
               },
               body: JSON.stringify({
                 saveData: data.saveData,
@@ -1738,7 +1751,7 @@ export default function App() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${authToken}`
               },
               body: JSON.stringify({
                 gameSlug: slug,
@@ -1752,16 +1765,16 @@ export default function App() {
         }
       }
 
-      // 3. Jogo concluído / Game Over
+      // 4. Jogo concluído / Game Over
       if (data.type === 'game_completed' || data.type === 'game_over') {
-        const slug = data.gameSlug || selectedGame?.slug;
-        if (user && token && slug) {
+        logEvent('game_completed', { gameSlug: slug, score: data.score || 0 });
+        if (isRealAuth && slug) {
           try {
             await fetch('/api/user/history', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${authToken}`
               },
               body: JSON.stringify({
                 gameSlug: slug,
@@ -1769,6 +1782,20 @@ export default function App() {
                 score: data.score || 0
               })
             });
+
+            if (data.saveData || data.score) {
+              await fetch(`/api/user/progress/${slug}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                  saveData: data.saveData || { score: data.score, completedAt: Date.now() },
+                  score: data.score || 0
+                })
+              });
+            }
           } catch (e) {}
         }
       }
@@ -1789,24 +1816,25 @@ export default function App() {
     }
   };
 
-  // Enviar Evento de Analítica (LGPD minimizado)
+  // Enviar Evento de Analítica (alimenta a tabela AnalyticsEvent no banco em conformidade com LGPD)
   const logEvent = async (type: string, payload: Record<string, any> = {}) => {
-    if (!consentOptions.analytics) {
-      console.log(`[Analytics bloqueado por preferências de privacidade]: Evento '${type}'`);
-      return;
+    const authUser = user || (localStorage.getItem('arcade_user') ? JSON.parse(localStorage.getItem('arcade_user')!) : null);
+    
+    let sessId = localStorage.getItem('kruuj_session_id');
+    if (!sessId) {
+      sessId = 'sess_' + Math.random().toString(36).substring(2, 11);
+      try { localStorage.setItem('kruuj_session_id', sessId); } catch(e) {}
     }
 
     const eventBody = {
       eventType: type,
-      sessionId: 'sess-local-browser',
-      userId: user?.id,
+      sessionId: sessId,
+      userId: authUser?.id || null,
       deviceType: window.innerWidth < 768 ? 'mobile' : 'desktop',
       browser: navigator.userAgent.substring(0, 40),
       consentGiven: true,
       ...payload
     };
-
-    console.log(`[Log Analytics Event]:`, eventBody);
 
     try {
       await fetch('/api/analytics/event', {

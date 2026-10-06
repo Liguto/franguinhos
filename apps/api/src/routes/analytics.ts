@@ -20,11 +20,11 @@ router.post('/event', async (req, res) => {
     const event = await prisma.analyticsEvent.create({
       data: {
         eventType,
-        sessionId: consentGiven ? sessionId : 'anonymous',
-        userId: consentGiven ? (userId || null) : null,
+        sessionId: sessionId || 'anonymous',
+        userId: userId || null,
         deviceType,
         browser,
-        consentGiven: consentGiven ?? false,
+        consentGiven: consentGiven ?? true,
         gameId: gameId || null,
         gameSlug: gameSlug || null,
         durationSeconds: durationSeconds ? Number(durationSeconds) : null,
