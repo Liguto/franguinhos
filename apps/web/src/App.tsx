@@ -375,43 +375,32 @@ export default function App() {
     }
   }, [user, token]);
 
-  const fetchGames = async () => {
-    try {
-      const response = await fetch('/api/games');
-      if (response.ok) {
-        const data = await response.json();
-        setGames(data);
-      } else {
-        throw new Error('Falha ao obter jogos');
-      }
-    } catch (err) {
-      console.warn('API não disponível no momento. Utilizando banco mock offline no frontend.');
-      // Banco Mock Offline de conformidade completa com a ficha semeada
-      const mockGames: Game[] = [
-        {
-          id: '1',
-          slug: 'rocket-rise',
-          title: 'Corrida Espacial',
-          description: 'Acelere nessa aventura intergaláctica cheia de adrenalina! Pilote sua nave espacial, desvie de chuvas de meteoros e colete energia estelar para cruzar a linha de chegada.',
-          category: 'Arcade',
-          subcategories: ['Corrida', 'Espaço', 'Ação'],
-          tags: ['corrida', 'espaco', 'arcade', 'foguete', 'velocidade'],
-          ageRating: 'Livre',
-          bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
-          iconUrl: 'rocket',
-          prefixUrl: '/games/rocket-rise/',
-          version: '1.2.0',
-          controls: { mouse: false, teclado: true, toque: true, gamepad: false },
-          orientation: 'both',
-          statusTechnical: 'aprovado',
-          statusEditorial: 'publicado',
-          statusDoc: 'aprovado',
-          author: 'KRUUJ Studio',
-          licenseName: 'Proprietário'
-        },
-        {
-          id: '2',
-          slug: 'space-defense',
+  // Catálogo base de conformidade completa e contingência (25 jogos oficiais)
+  const defaultGamesCatalog: Game[] = [
+    {
+      id: '1',
+      slug: 'rocket-rise',
+      title: 'Corrida Espacial',
+      description: 'Acelere nessa aventura intergaláctica cheia de adrenalina! Pilote sua nave espacial, desvie de chuvas de meteoros e colete energia estelar para cruzar a linha de chegada.',
+      category: 'Arcade',
+      subcategories: ['Corrida', 'Espaço', 'Ação'],
+      tags: ['corrida', 'espaco', 'arcade', 'foguete', 'velocidade'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'rocket',
+      prefixUrl: '/games/rocket-rise/',
+      version: '1.2.0',
+      controls: { mouse: false, teclado: true, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '2',
+      slug: 'space-defense',
           title: 'Cyber Space Defense',
           description: 'Jogo de tiro no espaço arcade gratuito. Defenda o núcleo central contra invasores cibernéticos do espaço profundo atirando sem parar! Jogue agora no PC ou mobile.',
           category: 'Ação',
@@ -914,7 +903,23 @@ export default function App() {
           licenseName: 'Proprietário'
         }
       ];
-      setGames(mockGames);
+
+  const fetchGames = async () => {
+    try {
+      const response = await fetch('/api/games');
+      if (response.ok) {
+        const apiGames: Game[] = await response.json();
+        // Mesclagem resiliente: garante que jogos originais e novos lançamentos (como KruujDoku)
+        // apareçam no site imediatamente mesmo se o banco no Supabase/Render ainda não tiver recebido o seed
+        const apiSlugs = new Set(apiGames.map(g => g.slug));
+        const missingFromApi = defaultGamesCatalog.filter(m => !apiSlugs.has(m.slug));
+        setGames([...apiGames, ...missingFromApi]);
+      } else {
+        throw new Error('Falha ao obter jogos');
+      }
+    } catch (err) {
+      console.warn('API não disponível no momento. Utilizando catálogo base no frontend.');
+      setGames(defaultGamesCatalog);
     }
   };
 
