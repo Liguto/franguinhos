@@ -6,6 +6,7 @@ import { authRouter } from './routes/auth';
 import { gamesRouter } from './routes/games';
 import { adminRouter } from './routes/admin';
 import { analyticsRouter } from './routes/analytics';
+import { userRouter } from './routes/user';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -38,6 +39,7 @@ app.get('/health', (req, res) => {
 // Registrar rotas da API
 app.use('/api/auth', authRouter);
 app.use('/api/games', gamesRouter);
+app.use('/api/user', userRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/analytics', analyticsRouter);
 

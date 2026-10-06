@@ -3011,6 +3011,8 @@ function endGame(){
 
     saveCustomization();
 
+    sendEvent('game_save', { saveData: { bestAltitude, bestScore, totalCoins }, score: Math.floor(bestScore) });
+
 
     document.getElementById(
         "finalAltitude"

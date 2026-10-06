@@ -93,6 +93,18 @@ const NM1=['Owl','Night','Kruuj','Moon','Pixel','Dark','Neon','Sky','Cosmic','Ti
 let S={},set=Object.assign({sfx:1,shk:1,fps:0,q:1},JSON.parse(localStorage.getItem('kruuj_set')||'{}')),
 best=Object.assign({score:0,size:0,rank:99,time:0,games:0,kills:0},JSON.parse(localStorage.getItem('kruuj_best')||'{}')),
 skin=+localStorage.getItem('kruuj_skin')||0,state='menu',prev='menu';
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+    try {
+      const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+      if (d) {
+        best = Object.assign(best, d);
+        localStorage.setItem('kruuj_best', JSON.stringify(best));
+      }
+    } catch(err){}
+  }
+});
 // ===== UI =====
 function show(id){state=id;document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==id));if(id=='chars')buildCards();}
 function saveSet(){set={sfx:+$('o_sfx').checked,shk:+$('o_shk').checked,fps:+$('o_fps').checked,q:+$('o_q').value};localStorage.setItem('kruuj_set',JSON.stringify(set));}
@@ -207,6 +219,7 @@ if(i>=5)h+=row(S.me,i);$('lbl').innerHTML=h}
 function end(win){if(S.over)return;S.over=1;const me=S.me;state='over';lb();const t=S.t,size=me.bestM*4,rank=win?1:S.rank;
 best.games++;best.kills+=me.kills;best.score=Math.max(best.score,me.score);best.size=Math.max(best.size,size);best.rank=Math.min(best.rank,rank);best.time=Math.max(best.time,t);localStorage.setItem('kruuj_best',JSON.stringify(best));
 sendEvent(win ? 'game_completed' : 'game_over', { score: me.score, size: me.bestM * 4, kills: me.kills });
+sendEvent('game_save', { saveData: best, score: me.score });
 sfx(win?880:200,.6,'triangle');
 setTimeout(()=>{$('hud').classList.remove('on');$('pz').style.display='none';$('ot').textContent=win?'KRUUJ CHAMPION!':"YOU WERE KRUUJ'D!";
 $('ot2').innerHTML=`<tr><td>${win?'1ST PLACE':'RANK'}</td><td>#${rank}</td></tr><tr><td>SCORE</td><td>${fmt(me.score)}</td></tr><tr><td>SIZE</td><td>${fmt(size)}</td></tr><tr><td>TIME ALIVE</td><td>${tm(t)}</td></tr><tr><td>Energy collected</td><td>${me.en}</td></tr><tr><td>Players defeated</td><td>${me.kills}</td></tr>`;

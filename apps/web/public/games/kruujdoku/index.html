@@ -125,7 +125,28 @@ lose(){[392,330,262,196].forEach((f,i)=>tone(f,i*.18,.35,'sawtooth',.08))}};
 // ---- progresso ----
 let level=1,score=0,max=1,done={},P,st,hearts,over,na,nh,streak=0,HS=null,dr=null,LC;
 try{const d=JSON.parse(localStorage.getItem('kruujdoku')||'{}');max=d.max||1;score=d.score||0;done=d.done||{};level=max}catch(e){}
-const save=()=>{try{localStorage.setItem('kruujdoku',JSON.stringify({max,score,done}))}catch(e){}};
+const save=()=>{
+  try{
+    localStorage.setItem('kruujdoku',JSON.stringify({max,score,done}));
+    sendEvent('game_save', { saveData: { max, score, done }, score });
+  }catch(e){}
+};
+
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+    try {
+      const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+      if (d && (d.max !== undefined || d.score !== undefined)) {
+        max = Math.max(max, d.max || 1);
+        score = Math.max(score, d.score || 0);
+        done = Object.assign({}, done, d.done || {});
+        level = max;
+        try { localStorage.setItem('kruujdoku', JSON.stringify({max, score, done})); } catch(err){}
+        startLevel(level);
+      }
+    } catch (err) {}
+  }
+});
 const pre={};let tk=0;
 function build(l){if(l<=100){const n=sizeFor(l),z=LV[l-1],g=[];for(let r=0;r<n;r++)g.push([...z.slice(r*n,r*n+n)].map(Number));return Promise.resolve({n,g,sol:sols(n,g)[0]})}
 return pre[l]||(pre[l]=genA(sizeFor(l),l*7919+13))}

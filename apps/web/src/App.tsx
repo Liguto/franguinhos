@@ -114,6 +114,10 @@ export default function App() {
   // Favoritos
   const [favorites, setFavorites] = useState<string[]>([]); // Array de IDs de jogos
 
+  // Refs de sincronização de saves em nuvem com o jogo
+  const gameIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const cloudSaveDataRef = useRef<any>(null);
+
   // --- Estados do Painel Administrativo Integrado ---
   const [adminTab, setAdminTab] = useState<'contracts' | 'dashboard' | 'users'>('contracts');
   const [adminCatalog, setAdminCatalog] = useState<any[]>([]);
@@ -263,38 +267,56 @@ export default function App() {
     return `${diffDays}d atrás`;
   };
 
-  // Efeito para carregar o histórico de jogos recentes de forma isolada (Usuário VIP vs Visitante Anônimo)
+  // Efeito para carregar o histórico de jogos recentes sincronizado na nuvem por conta de usuário
   useEffect(() => {
-    if (user) {
-      // Se houver um usuário conectado, carrega reativamente o seu histórico persistente
+    const loadUserHistory = async () => {
+      if (!user) {
+        setRecentGames([]);
+        return;
+      }
+
+      // 1. Tenta carregar do cache local primeiro para exibição instantânea
       const storedRecents = localStorage.getItem(`recents_${user.username}`);
       if (storedRecents) {
         try {
           const parsed = JSON.parse(storedRecents);
           if (Array.isArray(parsed)) {
-            // Normaliza os dados legados: se o item for uma string, converte-o para o novo formato de objeto com timestamp atual!
             const normalized = parsed.map(item => {
-              if (typeof item === 'string') {
-                return { id: item, timestamp: Date.now() };
-              }
-              if (item && typeof item === 'object' && item.id) {
-                return { id: item.id, timestamp: item.timestamp || Date.now() };
-              }
+              if (typeof item === 'string') return { id: item, timestamp: Date.now() };
+              if (item && typeof item === 'object' && item.id) return { id: item.id, timestamp: item.timestamp || Date.now() };
               return null;
             }).filter((item): item is RecentPlay => !!item);
-            
             setRecentGames(normalized);
-            return;
           }
-        } catch (e) {
-          setRecentGames([]);
-        }
+        } catch (e) {}
       }
-    }
-    
-    // Se for um visitante anônimo ou se o usuário deslogar, o histórico é resetado para vazio absoluto (Garantia de Privacidade LGPD)
-    setRecentGames([]);
-  }, [user]);
+
+      // 2. Sincroniza com a nuvem no Supabase (compartilhado entre Celular e PC)
+      if (token) {
+        try {
+          const res = await fetch('/api/user/history', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const cloudHistory = await res.json();
+            if (Array.isArray(cloudHistory) && cloudHistory.length > 0) {
+              const mapped: RecentPlay[] = cloudHistory.map((h: any) => {
+                const match = games.find(g => g.slug === h.gameSlug) || defaultGamesCatalog.find(g => g.slug === h.gameSlug);
+                return {
+                  id: match ? match.id : h.gameSlug,
+                  timestamp: new Date(h.lastPlayed).getTime()
+                };
+              });
+              setRecentGames(mapped);
+              localStorage.setItem(`recents_${user.username}`, JSON.stringify(mapped));
+            }
+          }
+        } catch (e) {}
+      }
+    };
+
+    loadUserHistory();
+  }, [user, token, games]);
 
 
   // --- Efeitos e Inicialização ---
@@ -382,17 +404,21 @@ export default function App() {
         } catch (e) {}
       }
 
-      // 2. Se logado, sincroniza com o backend em nuvem
+      // 2. Se logado, sincroniza com o backend em nuvem (Supabase)
       if (user && token) {
         try {
-          const response = await fetch('/api/games/favorites', {
+          const response = await fetch('/api/user/favorites', {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (response.ok) {
             const apiData = await response.json();
             if (Array.isArray(apiData) && apiData.length > 0) {
-              const apiIds = apiData.map((g: any) => g.id || g.slug);
-              setFavorites(prev => Array.from(new Set([...prev, ...apiIds])));
+              const apiSlugsOrIds = apiData.map((f: any) => f.gameSlug || f.gameId);
+              setFavorites(prev => {
+                const combined = Array.from(new Set([...prev, ...apiSlugsOrIds]));
+                localStorage.setItem(`kruuj_favorites_${user.username}`, JSON.stringify(combined));
+                return combined;
+              });
             }
           }
         } catch (e) {}
@@ -1467,10 +1493,10 @@ export default function App() {
       localStorage.setItem('kruuj_guest_favorites', JSON.stringify(nextFavorites));
     } catch (e) {}
 
-    // Se estiver logado, sincroniza com o backend em nuvem
+    // Se estiver logado, sincroniza com o backend em nuvem no Supabase
     if (user && token && game) {
       try {
-        await fetch(`/api/games/${game.id}/favorite`, {
+        await fetch(`/api/user/favorites/${game.slug}`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -1615,17 +1641,49 @@ export default function App() {
     }
   };
 
-  // Iniciar Jogo de forma instantânea e ultra-rápida (sem delays artificiais de anúncios)
+  // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
   const handlePlayGame = async (game: Game) => {
     setSelectedGame(game);
     setIsPlayingGame(true);
     setView('playing');
+    cloudSaveDataRef.current = null;
     logEvent('game_start', { gameId: game.id, gameSlug: game.slug });
 
-    // Gravação de históricos de jogos recentes (Fase 1 - MVP) - Histórico Total de até 30 jogos de todos os tempos
+    // Se estiver conectado na conta, recupera save em nuvem do Supabase e atualiza histórico
+    if (user && token) {
+      try {
+        const res = await fetch(`/api/user/progress/${game.slug}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const prog = await res.json();
+          if (prog.found && prog.saveData) {
+            cloudSaveDataRef.current = prog.saveData;
+          }
+        }
+      } catch (e) {}
+
+      // Registra no histórico em nuvem no Supabase
+      try {
+        await fetch('/api/user/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            gameSlug: game.slug,
+            gameTitle: game.title,
+            score: 0
+          })
+        });
+      } catch (e) {}
+    }
+
+    // Gravação de históricos de jogos recentes no estado e cache local
     setRecentGames(prev => {
       const filtered = prev.filter(play => play.id !== game.id);
-      const updated = [{ id: game.id, timestamp: Date.now() }, ...filtered].slice(0, 30); // guarda o histórico de até 30 partidas de todas as sessões
+      const updated = [{ id: game.id, timestamp: Date.now() }, ...filtered].slice(0, 30);
       const usernameKey = user ? user.username : 'visitante';
       if (user) {
         localStorage.setItem(`recents_${usernameKey}`, JSON.stringify(updated));
@@ -1642,6 +1700,83 @@ export default function App() {
       }
     }
   };
+
+  // Ouvinte global para mensagens do iframe dos jogos (save states em nuvem e telemetria)
+  useEffect(() => {
+    const handleGameMessage = async (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== 'object') return;
+
+      // 1. O jogo acabou de carregar: envia save da nuvem para o jogo se houver
+      if (data.type === 'game_loaded') {
+        if (cloudSaveDataRef.current && gameIframeRef.current?.contentWindow) {
+          gameIframeRef.current.contentWindow.postMessage({
+            type: 'load_cloud_save',
+            saveData: cloudSaveDataRef.current
+          }, '*');
+        }
+      }
+
+      // 2. O jogo emitiu um save de progresso
+      if (data.type === 'game_save' && data.saveData) {
+        const slug = data.gameSlug || selectedGame?.slug;
+        if (user && token && slug) {
+          try {
+            await fetch(`/api/user/progress/${slug}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                saveData: data.saveData,
+                score: data.score || 0
+              })
+            });
+
+            await fetch('/api/user/history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                gameSlug: slug,
+                gameTitle: selectedGame?.title || slug,
+                score: data.score || 0
+              })
+            });
+          } catch (e) {
+            console.warn('Erro ao salvar progresso em nuvem:', e);
+          }
+        }
+      }
+
+      // 3. Jogo concluído / Game Over
+      if (data.type === 'game_completed' || data.type === 'game_over') {
+        const slug = data.gameSlug || selectedGame?.slug;
+        if (user && token && slug) {
+          try {
+            await fetch('/api/user/history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                gameSlug: slug,
+                gameTitle: selectedGame?.title || slug,
+                score: data.score || 0
+              })
+            });
+          } catch (e) {}
+        }
+      }
+    };
+
+    window.addEventListener('message', handleGameMessage);
+    return () => window.removeEventListener('message', handleGameMessage);
+  }, [user, token, selectedGame]);
 
   const handleManualFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -3001,14 +3136,15 @@ export default function App() {
                   )}
 
                   {isPlayingGame ? (
-                    isPhysicalGame(selectedGame.slug) ? (
-                      <iframe
-                        key={selectedGame.id}
-                        src={getGameUrl(selectedGame)}
-                        sandbox="allow-scripts allow-same-origin allow-forms"
-                        allow="fullscreen; autoplay"
-                        allowFullScreen
-                        title={selectedGame.title}
+                   isPhysicalGame(selectedGame.slug) ? (
+                     <iframe
+                       ref={gameIframeRef}
+                       key={selectedGame.id}
+                       src={getGameUrl(selectedGame)}
+                       sandbox="allow-scripts allow-same-origin allow-forms"
+                       allow="fullscreen; autoplay"
+                       allowFullScreen
+                       title={selectedGame.title}
                         style={isScreenLocked ? {
                           position: 'absolute',
                           inset: 0,
