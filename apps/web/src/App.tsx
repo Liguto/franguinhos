@@ -1854,7 +1854,7 @@ export default function App() {
             className="kruuj-logo-link"
             onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
           >
-            <img src="/kruuj-logo.png" alt="KRUUJ" />
+            <img src="/kruuj-logo.svg" alt="KRUUJ" />
           </div>
         </div>
 
@@ -1900,7 +1900,7 @@ export default function App() {
             title="Minha Conta"
           >
             <div className="kruuj-avatar-inner">
-              <img src="/kruuj-mascote.png" alt="Mascote" />
+              <img src="/kruuj-avatar.png" alt="Mascote" />
             </div>
           </div>
         </div>
@@ -2542,7 +2542,7 @@ export default function App() {
                   <div className="kruuj-profile-card-header">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                        <img src="/kruuj-mascote.png" alt="Avatar" className="w-full h-full object-contain rounded-full bg-slate-900" />
+                        <img src="/kruuj-avatar.png" alt="Avatar" className="w-full h-full object-contain rounded-full bg-slate-900" />
                       </div>
                       <div>
                         <h2 className="text-xl font-black text-white">{user ? user.username : 'Explorer_123'}</h2>
@@ -3710,7 +3710,7 @@ export default function App() {
         <div className="kruuj-footer-content">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <img src="/kruuj-logo.png" alt="KRUUJ" className="h-6 object-contain" />
+              <img src="/kruuj-logo.svg" alt="KRUUJ" className="h-6 object-contain" />
               <span className="text-xs text-gray-400 font-semibold">• Mais que jogos, um universo de experiências.</span>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-2">
