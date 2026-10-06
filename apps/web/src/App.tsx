@@ -2836,8 +2836,48 @@ export default function App() {
           /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
           <>
             {view === 'playing' && selectedGame && (
-              <div className="space-y-6">
+              <div className="kruuj-playing-container">
                 
+                {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (EXTERNA, SEM SOBREPOR O JOGO) */}
+                {!isScreenLocked && (
+                  <div className="kruuj-playing-header-bar">
+                    {/* Botão de Voltar ao Portal */}
+                    <button 
+                      className="kruuj-playing-back-btn" 
+                      onClick={triggerExitGame}
+                      title="Voltar ao Portal"
+                    >
+                      <ArrowLeft className="w-4 h-4 text-cyan-400" />
+                      <span>Voltar ao Portal</span>
+                    </button>
+
+                    {/* Título do Jogo (Badge Central no Desktop) */}
+                    <div className="kruuj-playing-title-wrap">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                      <h2 className="kruuj-playing-title-text">{selectedGame.title}</h2>
+                    </div>
+
+                    {/* Ações: Curtir e Fullscreen */}
+                    <div className="kruuj-playing-actions-wrap">
+                      <button 
+                        className={`kruuj-playing-action-circle ${favorites.includes(selectedGame.id) ? 'active' : ''}`}
+                        onClick={() => handleToggleFavorite(selectedGame.id)}
+                        title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
+                      >
+                        <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                      </button>
+
+                      <button 
+                        className="kruuj-playing-action-circle"
+                        onClick={handleManualFullscreen}
+                        title="Tela Cheia"
+                      >
+                        <Maximize className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
                 <div 
                   className="iframe-container relative"
@@ -2858,84 +2898,37 @@ export default function App() {
                     }
                   }}
                 >
-                  {/* BARRA SUPERIOR FLUTUANTE DE CONTROLES DO JOGO (Visível no Mobile e Desktop) */}
-                  {!isScreenLocked && (
-                    <div className="kruuj-game-overlay-topbar">
-                      {/* Botão de Voltar ao Portal */}
-                      <button 
-                        className="kruuj-game-back-btn" 
-                        onClick={(e) => { e.stopPropagation(); triggerExitGame(); }}
-                        title="Voltar ao Portal"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                        <span>Voltar ao Portal</span>
-                      </button>
-
-                      {/* Título do Jogo (Badge Central) */}
-                      <div className="kruuj-game-title-badge">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                        <span>{selectedGame.title}</span>
-                      </div>
-
-                      {/* Ações da Direita */}
-                      <div className="kruuj-game-actions-group">
-                        <button 
-                          className={`kruuj-game-action-btn ${favorites.includes(selectedGame.id) ? 'active text-pink-500' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); handleToggleFavorite(selectedGame.id); }}
-                          title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
-                        >
-                          <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                        </button>
-
-                        <button 
-                          className="kruuj-game-action-btn"
-                          onClick={(e) => { e.stopPropagation(); handleManualFullscreen(); }}
-                          title="Tela Cheia"
-                        >
-                          <Maximize className="w-4 h-4" />
-                        </button>
-
-                        <button 
-                          className="kruuj-game-action-btn kruuj-game-action-close"
-                          onClick={(e) => { e.stopPropagation(); triggerExitGame(); }}
-                          title="Sair do Jogo"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Botão de Bloqueio Infantil Flutuante (Parental Lock) */}
-                  <button 
-                    className="bento-game-floating-lock"
-                    style={{ 
-                      right: '16px', 
-                      bottom: '16px',
-                      top: 'auto',
-                      zIndex: 100005,
-                      ...(isScreenLocked ? {
-                        backgroundColor: '#ef4444',
-                        borderColor: '#ef4444',
-                        boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
-                      } : {})
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isScreenLocked) {
-                        triggerExitGame();
-                      } else {
-                        setAgePreference('bebes');
-                        setIsScreenLocked(true);
-                        if (!document.fullscreenElement) {
-                          document.documentElement.requestFullscreen().catch(() => {});
+                  {/* Botão de Bloqueio Infantil Flutuante (Parental Lock no modo bebês) */}
+                  {agePreference === 'bebes' && (
+                    <button 
+                      className="bento-game-floating-lock"
+                      style={{ 
+                        right: '16px', 
+                        bottom: '16px',
+                        top: 'auto',
+                        zIndex: 100005,
+                        ...(isScreenLocked ? {
+                          backgroundColor: '#ef4444',
+                          borderColor: '#ef4444',
+                          boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
+                        } : {})
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isScreenLocked) {
+                          triggerExitGame();
+                        } else {
+                          setIsScreenLocked(true);
+                          if (!document.fullscreenElement) {
+                            document.documentElement.requestFullscreen().catch(() => {});
+                          }
                         }
-                      }
-                    }}
-                    title={isScreenLocked ? "Sair do Jogo (Protegido)" : "Bloquear Tela (Modo Bebês)"}
-                  >
-                    <Lock className="w-4 h-4" style={isScreenLocked ? { color: '#ffffff', filter: 'none', animation: 'none' } : {}} />
-                  </button>
+                      }}
+                      title={isScreenLocked ? "Sair do Jogo (Protegido)" : "Bloquear Tela (Modo Bebês)"}
+                    >
+                      <Lock className="w-4 h-4" style={isScreenLocked ? { color: '#ffffff', filter: 'none', animation: 'none' } : {}} />
+                    </button>
+                  )}
 
                   {isPlayingGame ? (
                     isPhysicalGame(selectedGame.slug) ? (

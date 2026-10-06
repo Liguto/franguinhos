@@ -512,13 +512,17 @@ header {
     padding: 0 12px !important;
   }
 
-  /* O jogo entra em modo Fullscreen Imersivo de Celular, cobrindo todo o viewport e escondendo o resto do site */
+  /* O jogo entra em tela cheia no celular LOGO ABAIXO da barra de navegação superior, sem sobrepor nada! */
   .iframe-container {
     position: fixed !important;
-    inset: 0 !important;
+    top: 52px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
-    z-index: 99999 !important; /* Fica por cima de qualquer elemento, inclusive headers e bottom-bar */
+    height: calc(100dvh - 52px) !important;
+    height: calc(100vh - 52px) !important;
+    z-index: 99999 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -529,127 +533,125 @@ header {
 }
 
 /* =========================================================
-   BARRA DE NAVEGAÇÃO E RETORNO DURANTE O JOGO (MOBILE & DESKTOP)
+   BARRA DEDICADA DE NAVEGAÇÃO DO JOGO (EXTERNA, SEM SOBREPOSIÇÃO)
 ========================================================= */
-.kruuj-game-overlay-topbar {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  z-index: 100005;
+.kruuj-playing-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.kruuj-playing-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  pointer-events: none;
-  gap: 12px;
+  gap: 16px;
+  background: #0c1222;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 10px 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
-.kruuj-game-back-btn {
-  pointer-events: auto;
-  display: flex;
+.kruuj-playing-back-btn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(10, 14, 28, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   color: #ffffff;
   font-family: var(--font-family);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 800;
   padding: 8px 18px;
   border-radius: 9999px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(56, 189, 248, 0.25);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.kruuj-game-back-btn:hover,
-.kruuj-game-back-btn:active {
-  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-  border-color: #38bdf8;
-  transform: scale(1.04);
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-}
-
-.kruuj-game-title-badge {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(10, 14, 28, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 9999px;
-  padding: 7px 18px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: #38bdf8;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-}
-
-.kruuj-game-actions-group {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.kruuj-game-action-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(10, 14, 28, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   -webkit-user-select: none;
 }
 
-.kruuj-game-action-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+.kruuj-playing-back-btn:hover,
+.kruuj-playing-back-btn:active {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  border-color: #38bdf8;
   color: #ffffff;
-  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
 }
 
-.kruuj-game-action-btn.active {
+.kruuj-playing-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kruuj-playing-title-text {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.kruuj-playing-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kruuj-playing-action-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.kruuj-playing-action-circle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: scale(1.06);
+}
+
+.kruuj-playing-action-circle.active {
   color: #ec4899;
-  border-color: rgba(236, 72, 153, 0.5);
+  border-color: rgba(236, 72, 153, 0.4);
 }
 
-.kruuj-game-action-close:hover {
-  background: rgba(239, 68, 68, 0.3) !important;
-  border-color: #ef4444 !important;
-  color: #ffffff !important;
-}
-
+/* COMPORTAMENTO NO MOBILE (CELULAR & TABLET) */
 @media (max-width: 768px) {
-  .kruuj-game-overlay-topbar {
+  .kruuj-playing-header-bar {
     position: fixed !important;
-    top: max(12px, env(safe-area-inset-top)) !important;
-    left: max(12px, env(safe-area-inset-left)) !important;
-    right: max(12px, env(safe-area-inset-right)) !important;
-    z-index: 100005 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 52px !important;
+    border-radius: 0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: #080e1a !important;
+    z-index: 100002 !important;
+    padding: 0 14px !important;
+    margin: 0 !important;
   }
 
-  .kruuj-game-title-badge {
+  .kruuj-playing-title-wrap {
     display: none !important;
   }
 
-  .kruuj-game-back-btn {
-    padding: 9px 16px !important;
-    font-size: 0.84rem !important;
+  .kruuj-playing-back-btn {
+    padding: 7px 16px !important;
+    font-size: 0.8rem !important;
   }
 }
 

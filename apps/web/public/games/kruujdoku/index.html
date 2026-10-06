@@ -46,7 +46,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-
 .hl{box-shadow:inset 0 0 0 4px #fff,0 0 0 2px var(--or);z-index:1;animation:glow .9s ease-in-out infinite alternate}
 @keyframes glow{to{filter:brightness(1.25)}}
 .hx{box-shadow:inset 0 0 0 4px var(--or);animation:glow .6s ease-in-out infinite alternate}
-.hx::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;color:#0b1030;opacity:.75}
+.hx::after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.7rem;font-weight:900;color:#fff;opacity:.85;text-shadow:0 0 3px rgba(0,0,0,.35)}
 #hb{display:none;position:fixed;z-index:35;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));width:min(94vw,440px);gap:10px;align-items:flex-end;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5))}
 #hbo{flex:none;animation:bob 1.4s ease-in-out infinite alternate}#hbo svg{width:50px;height:50px;display:block}
 @keyframes bob{to{transform:translateY(-4px)}}
@@ -64,7 +64,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-
 #hb{left:auto;right:2vw;transform:none;width:min(48vw,440px)}}
 </style></head><body><div id="stage"><div class="wrap">
 <div class="brand">KruujDoku</div>
-<div class="top"><div class="lt"><button class="ib" id="menu" title="Fases">☰</button></div><div class="mid"><div><small>Nível</small><b id="lv"></b></div><div><small>Pontuação</small><b id="sc">0</b></div></div><div class="rt"><button class="ib" id="snd" title="Som">🔊</button><button class="ib" id="fs" title="Tela cheia">⛶</button></div></div>
+<div class="top"><div class="lt"><button class="ib" id="menu" title="Fases">☰</button></div><div class="mid"><div><small>Nível</small><b id="lv"></b></div><div><small>Pontuação</small><b id="sc">0</b></div></div><div class="rt"><button class="ib" id="snd" title="Som">🔊</button></div></div>
 <div class="lives" id="hp"></div>
 <div class="rules">
 <div class="rl"><div class="mini"><i class="x">✕</i><i class="x">✕</i><i class="x">✕</i><i class="x">✕</i><i class="o"></i><i></i><i class="x">✕</i><i></i><i></i></div>1 coruja por cor</div>
@@ -98,8 +98,7 @@ const alt=s.find(x=>x.some((c,r)=>c!=sol[r])),cand=[];alt.forEach((c,r)=>{if(sol
 const[r,c]=cand[rnd(cand.length)],old=g[r][c],nb=[...new Set(D4.map(([a,b])=>(g[r+a]||[])[c+b]).filter(v=>v!==undefined&&v!=old))];
 if(!nb.length)continue;g[r][c]=nb[rnd(nb.length)];if(!conn(n,g,old))g[r][c]=old}}R=Math.random;return genA(n,seed+100003)}
 //ENDGEN
-const COL=['#8b45ff','#2196ff','#ffa31a','#d9d4ff','#4d5bd6','#ffd27a','#b58cff','#7cc4ff','#f2f2f8'];
-const LIGHT=[0,0,0,1,0,1,0,1,1];
+const COL=['#8b45ff','#2196ff','#f28c00','#2eaa54','#e53935','#e91e8c','#00a5a5','#6b7a90','#7f9a12'];
 const rn=n=>Math.floor(Math.random()*n);
 const $=id=>document.getElementById(id);
 const owl=(f='#8a5a3c')=>`<svg viewBox="0 0 64 64"><path d="M12 8l12 8h16l12-8v22c0 22-8 30-20 30S12 52 12 30z" fill="${f}"/><ellipse cx="32" cy="42" rx="12" ry="14" fill="#fff" opacity=".35"/><circle cx="22" cy="26" r="9" fill="#fff"/><circle cx="42" cy="26" r="9" fill="#fff"/><circle cx="22" cy="27" r="4.5" fill="#0b1030"/><circle cx="42" cy="27" r="4.5" fill="#0b1030"/><circle cx="23.5" cy="25" r="1.5" fill="#fff"/><circle cx="43.5" cy="25" r="1.5" fill="#fff"/><path d="M28 32h8l-4 8z" fill="#ffa31a"/></svg>`;
@@ -141,7 +140,7 @@ $('lv').textContent=level;$('sc').textContent=score;$('na').textContent=na;$('nh
 $('hp').innerHTML=[0,1,2].map(i=>`<span class="${i<hearts?'':'off'}">${owl()}</span>`).join('');
 $('tabs').innerHTML=P.sol.map((c,r)=>`<span class="${st[r][c]==2?'on':''}">${owl(COL[r])}</span>`).join('');
 for(let r=0;r<n;r++)for(let c=0;c<n;c++){const k=P.g[r][c],b=document.createElement('button');b.className='c'+(st[r][c]==2?' lk':'');b.style.background=COL[k];
-b.innerHTML=st[r][c]==2?owl():st[r][c]==1?XS(LIGHT[k]?'#0b1030':'#fff'):'';b.dataset.r=r;b.dataset.c=c;if(HS){if(HS.hl.some(p=>p[0]==r&&p[1]==c))b.classList.add('hl');if((HS.x||[]).some(p=>p[0]==r&&p[1]==c))b.classList.add('hx')}G.appendChild(b)}}
+b.innerHTML=st[r][c]==2?owl():st[r][c]==1?XS('#fff'):'';b.dataset.r=r;b.dataset.c=c;if(HS){if(HS.hl.some(p=>p[0]==r&&p[1]==c))b.classList.add('hl');if((HS.x||[]).some(p=>p[0]==r&&p[1]==c))b.classList.add('hx')}G.appendChild(b)}}
 function place(r,c,hint){clearHint();st[r][c]=2;if(!hint){streak++;score+=10*Math.min(streak,5)}draw();fx(r,c);sfx.hoot();setTimeout(sfx.nice,300);setTimeout(()=>nice(streak>=5?'Awesome!':streak>=3?'Great!':'Nice!'),150);
 if(st.every((row,i)=>row[P.sol[i]]==2)){over=true;setTimeout(()=>end(true),1500)}}
 let lt={t:0,r:-1,c:-1};
@@ -169,7 +168,7 @@ $('ob').onclick=()=>{if(win)startLevel(level+1);else reset()};$('ov').style.disp
 //HINT
 function clearHint(){HS=null;$('hb').style.display='none'}
 function buildLC(){const n=P.n;LC={R:[],C:[],G:[]};for(let i=0;i<n;i++){LC.R.push([]);LC.C.push([]);LC.G.push([])}for(let r=0;r<n;r++)for(let c=0;c<n;c++){LC.R[r].push([r,c]);LC.C[c].push([r,c]);LC.G[P.g[r][c]].push([r,c])}}
-const CN=['roxa','azul','laranja','lavanda','índigo','amarela','lilás','azul-clara','branca'];
+const CN=['roxa','azul','laranja','verde','vermelha','rosa','turquesa','cinza','oliva'];
 const PR=[['G','R'],['G','C'],['R','G'],['C','G'],['R','C'],['C','R']];
 const lo=(t,r,c)=>t=='R'?r:t=='C'?c:P.g[r][c];
 function nm(t,ix){const j=a=>a.length>1?a.slice(0,-1).join(', ')+' e '+a[a.length-1]:a[0],p=ix.length>1;return t=='R'?(p?'as linhas ':'a linha ')+j(ix.map(i=>i+1)):t=='C'?(p?'as colunas ':'a coluna ')+j(ix.map(i=>i+1)):(p?'as cores ':'a cor ')+j(ix.map(i=>CN[i]))}
@@ -194,7 +193,7 @@ return{hl:cand('G',g),text:`Sem jogada óbvia agora. A cor ${CN[g]} tem poucas c
 //ENDHINT
 // ---- arrastar para marcar ✕ ----
 const GR=$('grid');
-function setX(r,c,v){const cur=st[r][c];if(cur==2||cur==v)return;st[r][c]=v;const b=GR.children[r*P.n+c];b.innerHTML=v==1?XS(LIGHT[P.g[r][c]]?'#0b1030':'#fff'):'';v?sfx.tick():sfx.untick()}
+function setX(r,c,v){const cur=st[r][c];if(cur==2||cur==v)return;st[r][c]=v;const b=GR.children[r*P.n+c];b.innerHTML=v==1?XS('#fff'):'';v?sfx.tick():sfx.untick()}
 GR.addEventListener('pointerdown',e=>{const b=e.target.closest('.c');if(!b||over)return;ac();const r=+b.dataset.r,c=+b.dataset.c;dr={r,c,mode:st[r][c]==0?1:st[r][c]==1?0:null,moved:false,last:b}});
 GR.addEventListener('pointermove',e=>{if(!dr||dr.mode===null)return;const el=document.elementFromPoint(e.clientX,e.clientY),b=el&&el.closest&&el.closest('.c');if(!b||b===dr.last||!GR.contains(b))return;dr.last=b;
 if(!dr.moved){dr.moved=true;if(HS){clearHint();draw()}setX(dr.r,dr.c,dr.mode)}setX(+b.dataset.r,+b.dataset.c,dr.mode)});
@@ -202,9 +201,6 @@ function endDrag(){if(!dr)return;const d=dr;dr=null;if(over)return;if(d.moved)dr
 window.addEventListener('pointerup',endDrag);
 window.addEventListener('pointercancel',()=>{if(dr){const m=dr.moved;dr=null;if(m)draw()}});
 function toast(t,ms){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',ms||3200)}
-const DE=document.documentElement,canFS=!!(DE.requestFullscreen||DE.webkitRequestFullscreen);
-if(!canFS)$('fs').style.display='none';
-$('fs').onclick=()=>{const d=document;try{if(d.fullscreenElement||d.webkitFullscreenElement){const p=(d.exitFullscreen||d.webkitExitFullscreen).call(d);p&&p.catch&&p.catch(()=>{})}else{const p=(DE.requestFullscreen||DE.webkitRequestFullscreen).call(DE);p&&p.catch&&p.catch(()=>toast('Tela cheia indisponível aqui. Abra o jogo em uma aba própria e tente de novo.'))}}catch(e){toast('Tela cheia indisponível neste navegador.')}};
 // ---- seletor de fases ----
 function openLevels(){const g=$('lg');g.innerHTML='';if(max>100){const b=document.createElement('button');b.className='inf';b.textContent='∞ Modo infinito · fase '+max;b.onclick=()=>startLevel(max);g.appendChild(b)}for(let l=1;l<=100;l++){const b=document.createElement('button');b.textContent=l;if(done[l]){b.className='done';b.innerHTML+='<i>✓</i>'}if(l==level)b.className='cur';if(l>max)b.className='lock';if(l<=max)b.onclick=()=>{startLevel(l)};g.appendChild(b)}
 $('lo').style.display='flex';const cur=g.querySelector('.cur');if(cur)cur.scrollIntoView({block:'center'})}
