@@ -2541,8 +2541,13 @@ export default function App() {
                 <div className="space-y-6">
                   <div className="kruuj-profile-card-header">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full p-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 flex items-center justify-center">
-                        <img src="/kruuj-avatar.png" alt="Avatar" className="w-full h-full object-contain rounded-full bg-slate-900" />
+                      <div className="kruuj-profile-avatar-wrap" style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px' }}>
+                        <img 
+                          src="/kruuj-avatar.png" 
+                          alt="Avatar" 
+                          className="kruuj-profile-avatar-img" 
+                          style={{ width: '100%', height: '100%', maxWidth: '58px', maxHeight: '58px', borderRadius: '50%', objectFit: 'cover' }} 
+                        />
                       </div>
                       <div>
                         <h2 className="text-xl font-black text-white">{user ? user.username : 'Explorer_123'}</h2>
