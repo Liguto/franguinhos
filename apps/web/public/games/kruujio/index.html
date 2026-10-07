@@ -44,8 +44,6 @@ label{display:flex;gap:10px;align-items:center;font-size:18px}
 .how{width:100%;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 @media(max-width:600px){.how{grid-template-columns:1fr 1fr;gap:6px}.how div{font-size:12px;padding:6px 8px}.how b{font-size:15px}.cards .card{width:100px}}
 #pz{left:50%!important;bottom:auto!important;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%)}#pz button{font-size:13px;padding:4px 12px}
-#rot{display:none;position:fixed;inset:0;z-index:50;background:#07061af5;align-items:center;justify-content:center;flex-direction:column;font-size:26px;text-align:center;gap:8px}#rot b{font-size:60px}
-@media(orientation:portrait){body.touch.pl #rot{display:flex}}
 @media(orientation:landscape) and (max-height:520px){.scr{gap:6px;padding:8px 12px}.logo{font-size:clamp(32px,10vh,56px)}h2{font-size:clamp(20px,7vh,30px)}.sub{font-size:12px}#hero{width:84px;height:84px}#oc{width:72px;height:72px}button{font-size:15px;padding:6px 16px}button.big{font-size:22px;padding:8px 36px}.mrow{grid-template-columns:repeat(4,1fr);width:min(640px,100%);gap:8px}.mrow button{height:40px;font-size:13px}.cards{gap:6px}.cards .card{width:78px;font-size:11px;padding:4px}.card canvas{width:56px;height:56px}.how{grid-template-columns:repeat(3,1fr)}.how div{font-size:11px;padding:4px 8px}.how b{font-size:13px}td{padding:1px 12px;font-size:14px}label{font-size:15px}}
 #pname{font:inherit;font-weight:800;font-size:18px;text-align:center;color:var(--t);background:#ffffff14;border:2px solid #ffffff30;border-radius:14px;padding:8px 14px;width:min(260px,80%);outline:0;user-select:text;-webkit-user-select:text;touch-action:manipulation}#pname:focus{border-color:var(--o)}#pname::placeholder{color:#f3f0ff66}
 @media(orientation:landscape) and (max-height:520px){#pname{padding:5px 12px;font-size:15px}}
@@ -55,7 +53,7 @@ label{display:flex;gap:10px;align-items:center;font-size:18px}
 <div id="sc">SCORE: <span id="s1">0</span><small>SIZE: <span id="s2">0</span></small></div>
 <div id="lb"><div id="rk">RANK #1</div><div id="lbl"></div></div></div>
 <div id="pz"><button onclick="pause()">⏸ PAUSE</button></div>
-<div id="rot"><b>↻</b>Gire o celular<br>para jogar KRUUJ.io<br><button onclick="S.forcePortrait=1;document.body.classList.remove('pl');state='play';" style="margin-top:16px;font-size:15px;font-weight:800;padding:8px 22px;border-radius:9999px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);color:#fff;cursor:pointer;">Jogar em Pé (Retrato)</button></div><div id="big"></div><div id="fps"></div>
+<div id="big"></div><div id="fps"></div>
 <div id="joy"><div id="knob"></div></div><button id="bst">BOOST</button>
 
 <div class="scr on" id="menu"><div class="logo">KRUUJ.io</div><div class="sub">ENTER THE KRUUJ ARENA</div>
@@ -163,13 +161,17 @@ function orient(m){
   }catch(e){}
 }
 function landscape(){orient('landscape')}
-function startGame(){landscape();document.body.classList.add('pl');document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));AC&&AC.resume&&AC.resume();
-sendEvent('game_start');
-S={E:[],O:[],P:[],t:0,cd:3,shake:0,cam:{x:W/2,y:H/2,z:1},over:0,lbT:0,en:0,rank:1,low:set.q<1||touch};
-for(let i=0;i<(S.low?500:800);i++)orb();
-S.me=mk(playerName(),skin,0);S.me.imm=3;S.E.push(S.me);const B=['p','a','s'];
-for(let i=0;i<14;i++)S.E.push(mk(NM1[R()*12|0]+NM2[R()*10|0],R()*6|0,1,B[i%3]));
-S.me.r=rad(10);state='cd';$('hud').classList.add('on');$('pz').style.display='block';$('big').style.display='flex';last=performance.now();}
+function startGame(){
+  try { orient('landscape'); } catch(e){}
+  document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));
+  AC&&AC.resume&&AC.resume();
+  sendEvent('game_start');
+  S={E:[],O:[],P:[],t:0,cd:3,shake:0,cam:{x:W/2,y:H/2,z:1},over:0,lbT:0,en:0,rank:1,low:set.q<1||touch};
+  for(let i=0;i<(S.low?500:800);i++)orb();
+  S.me=mk(playerName(),skin,0);S.me.imm=3;S.E.push(S.me);const B=['p','a','s'];
+  for(let i=0;i<14;i++)S.E.push(mk(NM1[R()*12|0]+NM2[R()*10|0],R()*6|0,1,B[i%3]));
+  S.me.r=rad(10);state='cd';$('hud').classList.add('on');$('pz').style.display='block';$('big').style.display='flex';last=performance.now();
+}
 function quit(){document.body.classList.remove('pl');state='menu';S={};$('hud').classList.remove('on');$('pz').style.display='none';$('big').style.display='none';show('menu');}
 function pause(){if(state=='play'){state='paused';show('paused');state='paused';}else if(state=='paused'){document.querySelectorAll('.scr').forEach(e=>e.classList.remove('on'));state='play';last=performance.now();}}
 // ===== Partículas / textos flutuantes (pool simples) =====
@@ -287,7 +289,7 @@ if(!vg||vg.width!=Math.floor(w)||vg.height!=Math.floor(h)){vg=document.createEle
 // ===== Loop =====
 let last=performance.now(),fr=0,ft=0;
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.1,(now-last)/1000);last=now;DT=dt;
-const blk=touch&&innerHeight>innerWidth&&state!='over'&&!S.forcePortrait;if(blk)return draw();if(state=='cd'){S.cd-=dt;const n=Math.ceil(S.cd);$('big').textContent=S.cd>0?n:'GO!';if(S.cd<-.5){$('big').style.display='none';state='play';fl(S.me.x,S.me.y-S.me.r-40,'IMMUNE 3s','#38e8ff')}else if(S.cd<=0)upd(dt*.0)}
+if(state=='cd'){S.cd-=dt;const n=Math.ceil(S.cd);$('big').textContent=S.cd>0?n:'GO!';if(S.cd<-.5){$('big').style.display='none';state='play';fl(S.me.x,S.me.y-S.me.r-40,'IMMUNE 3s','#38e8ff')}else if(S.cd<=0)upd(dt*.0)}
 if(state=='play')upd(dt);else if(state=='over'&&S.E&&!S.fin)fx(dt);
 if(state=='over'&&S.fin&&S.fw==innerWidth&&S.fh==innerHeight)return;
 draw();if(S.fin){S.fw=innerWidth;S.fh=innerHeight}
