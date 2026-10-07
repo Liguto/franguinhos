@@ -458,6 +458,22 @@ export default function App() {
     loadSavedFavorites();
   }, [user, token]);
 
+  // Limpeza automática de IDs órfãos/fantasmas que não pertencem a nenhum jogo do catálogo
+  useEffect(() => {
+    if (games.length === 0 || favorites.length === 0) return;
+    const cleaned = favorites.filter(fav =>
+      games.some(g => g.id === fav || g.slug === fav)
+    );
+    if (cleaned.length !== favorites.length) {
+      setFavorites(cleaned);
+      const storageKey = user ? `kruuj_favorites_${user.username}` : 'kruuj_guest_favorites';
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(cleaned));
+        localStorage.setItem('kruuj_guest_favorites', JSON.stringify(cleaned));
+      } catch (e) {}
+    }
+  }, [games, favorites, user]);
+
   // Catálogo base de conformidade completa e contingência (25 jogos oficiais)
   const defaultGamesCatalog: Game[] = [
     {
@@ -1492,8 +1508,11 @@ export default function App() {
   // Helper para checar se um jogo está favoritado (por id ou slug)
   const isGameFavorited = (g: Game | null | undefined) => {
     if (!g) return false;
-    return favorites.includes(g.id) || favorites.includes(g.slug);
+    return favorites.some(fav => fav && (fav === g.id || fav === g.slug));
   };
+
+  // Lista real de jogos favoritados que realmente existem no catálogo (elimina IDs fantasmas)
+  const userFavoritesList = games.filter(isGameFavorited);
 
   // --- Função Universal de Favoritar (Funciona Imediatamente para Visitantes e Logados) ---
   const handleToggleFavorite = async (gameIdOrSlug: string) => {
@@ -2146,9 +2165,9 @@ export default function App() {
             onClick={() => { setView('favorites'); setSelectedGame(null); }}
             title="Favoritos"
           >
-            <Heart className={`w-4 h-4 ${favorites.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
-            {favorites.length > 0 && (
-              <span className="kruuj-badge-count">{favorites.length}</span>
+            <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+            {userFavoritesList.length > 0 && (
+              <span className="kruuj-badge-count">{userFavoritesList.length}</span>
             )}
           </button>
 
@@ -2226,11 +2245,11 @@ export default function App() {
                 className={`kruuj-sidebar-btn ${view === 'favorites' ? 'active' : ''}`}
                 onClick={() => { setView('favorites'); setSelectedGame(null); }}
               >
-                <Heart className={`w-4 h-4 ${favorites.length > 0 ? 'fill-current' : ''}`} />
+                <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-current' : ''}`} />
                 <span>Favoritos</span>
-                {favorites.length > 0 && (
+                {userFavoritesList.length > 0 && (
                   <span className="ml-auto text-[10px] font-black bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">
-                    {favorites.length}
+                    {userFavoritesList.length}
                   </span>
                 )}
               </button>
@@ -2983,13 +3002,13 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                      <Heart className="w-6 h-6 text-pink-500 fill-pink-500" /> Meus Favoritos ({favorites.length})
+                      <Heart className="w-6 h-6 text-pink-500 fill-pink-500" /> Meus Favoritos ({userFavoritesList.length})
                     </h2>
                     <button className="btn-secondary py-1.5 px-3 text-xs" onClick={() => setView('home')}>
                       Voltar ao Início
                     </button>
                   </div>
-                  {games.filter(isGameFavorited).length === 0 ? (
+                  {userFavoritesList.length === 0 ? (
                     <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 space-y-3">
                       <Heart className="w-12 h-12 text-gray-600 mx-auto" />
                       <p className="text-gray-300 font-bold">Você ainda não favoritou nenhum jogo.</p>
@@ -3000,7 +3019,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="kruuj-shelf-row">
-                      {games.filter(isGameFavorited).map(g => (
+                      {userFavoritesList.map(g => (
                         <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
                           <div className="kruuj-game-thumb">
                             {renderGameCover(g)}
@@ -4012,7 +4031,7 @@ export default function App() {
           className={`kruuj-bottom-btn ${view === 'favorites' ? 'active' : ''}`}
           onClick={() => { setView('favorites'); setSelectedGame(null); }}
         >
-          <Heart className={`w-5 h-5 ${favorites.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+          <Heart className={`w-5 h-5 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
           <span>Favoritos</span>
         </button>
 
