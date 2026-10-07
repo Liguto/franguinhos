@@ -4325,6 +4325,71 @@ animation: none !important;
 }
 
 @media (max-width: 768px) {
+  /* Topbar Mobile Responsivo e Fluido */
+  .kruuj-topbar {
+    height: 60px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .kruuj-topbar-left {
+    gap: 8px;
+  }
+
+  .kruuj-logo-link img {
+    height: 22px;
+    max-height: 22px;
+    max-width: 95px;
+  }
+
+  .kruuj-topbar-search {
+    min-width: 0;
+    max-width: none;
+    flex: 1;
+  }
+
+  .kruuj-topbar-search-input {
+    padding: 8px 12px 8px 32px;
+    font-size: 0.78rem;
+  }
+
+  .kruuj-topbar-search-icon {
+    left: 10px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .kruuj-topbar-actions {
+    gap: 6px;
+  }
+
+  /* No mobile, oculta botões duplicados de Favoritos e Perfil pois já estão no bottom bar fixo */
+  .kruuj-topbar-actions .kruuj-action-circle-btn {
+    display: none !important;
+  }
+
+  /* Compacta o botão de KRUUJ Calmo no mobile para caber perfeitamente */
+  .kruuj-calmo-pill-btn {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+
+  .kruuj-calmo-pill-text {
+    display: none; /* Oculta a palavra 'Calmo' no mobile, mantendo apenas 🍃 ON / OFF */
+  }
+
+  .kruuj-calmo-pill-badge {
+    font-size: 0.6rem;
+    padding: 1px 5px;
+  }
+
+  .kruuj-avatar-trigger {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+
   .kruuj-compact-sidebar {
     display: none;
   }
@@ -4397,6 +4462,27 @@ animation: none !important;
 }
 
 @media (max-width: 480px) {
+  .kruuj-topbar {
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  .kruuj-logo-link img {
+    max-width: 82px;
+    height: 20px;
+  }
+
+  .kruuj-topbar-search-input {
+    font-size: 0.74rem;
+    padding: 6px 8px 6px 26px;
+  }
+
+  .kruuj-topbar-search-icon {
+    left: 8px;
+    width: 12px;
+    height: 12px;
+  }
+
   .kruuj-categories-grid {
     grid-template-columns: repeat(2, 1fr);
   }
