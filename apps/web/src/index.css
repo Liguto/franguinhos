@@ -4418,8 +4418,45 @@ animation: none !important;
     gap: 10px;
   }
 
+  .kruuj-details-panel {
+    padding: 16px 14px;
+    border-radius: 20px;
+    gap: 16px;
+  }
+
   .kruuj-details-split {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .kruuj-details-cover-box {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    max-height: 200px;
+    border-radius: 16px;
+  }
+
+  .kruuj-details-cover-overlay {
+    padding: 14px;
+  }
+
+  .kruuj-details-cover-overlay h2 {
+    font-size: 1.3rem !important;
+  }
+
+  .kruuj-details-actions {
+    margin-top: 10px;
+  }
+
+  .kruuj-details-info-box {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+
+  .kruuj-meta-chips-grid {
+    margin-top: 14px;
+    padding-top: 14px;
+    gap: 8px;
   }
 
   .kruuj-achievements-grid {
@@ -4489,6 +4526,37 @@ animation: none !important;
 
   .kruuj-shelf-row {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kruuj-details-panel {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+
+  .kruuj-details-cover-box {
+    aspect-ratio: 16 / 9;
+    max-height: 175px;
+    border-radius: 14px;
+  }
+
+  .kruuj-details-cover-overlay {
+    padding: 10px 12px;
+  }
+
+  .kruuj-details-cover-overlay h2 {
+    font-size: 1.15rem !important;
+  }
+
+  .kruuj-meta-chips-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .kruuj-meta-chip {
+    padding: 8px 4px;
+    border-radius: 10px;
   }
 }
 
