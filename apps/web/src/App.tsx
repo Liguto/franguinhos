@@ -2255,7 +2255,7 @@ export default function App() {
 
 
       {/* --- CONTEÚDO PRINCIPAL --- */}
-            <main className="container flex-grow py-8">
+      <main className="kruuj-main-stage">
         
         {/* MASTER TOP LEADERBOARD AD (Maior Visibilidade - CPM Máximo) */}
         {consentOptions.advertising && (
