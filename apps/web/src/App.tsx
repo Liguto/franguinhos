@@ -3305,8 +3305,29 @@ export default function App() {
                       <h2 className="kruuj-playing-title-text">{selectedGame.title}</h2>
                     </div>
 
-                    {/* Ações: Curtir e Fullscreen */}
+                    {/* Ações: Curtir, Bloquear Tela e Fullscreen */}
                     <div className="kruuj-playing-actions-wrap">
+                      {/* Botão Bloquear Tela integrado de forma limpa na barra de ações para jogos de Bebê */}
+                      {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
+                        <button 
+                          className="kruuj-playing-action-circle"
+                          style={{ 
+                            borderColor: 'rgba(244, 114, 182, 0.45)', 
+                            background: 'rgba(244, 114, 182, 0.15)', 
+                            color: '#f472b6' 
+                          }}
+                          onClick={() => {
+                            setIsScreenLocked(true);
+                            if (!document.fullscreenElement) {
+                              document.documentElement.requestFullscreen().catch(() => {});
+                            }
+                          }}
+                          title="Bloquear Tela (Modo Bebês)"
+                        >
+                          <Lock className="w-4 h-4" />
+                        </button>
+                      )}
+
                       <button 
                         className={`kruuj-playing-action-circle ${favorites.includes(selectedGame.id) ? 'active' : ''}`}
                         onClick={() => handleToggleFavorite(selectedGame.id)}
@@ -3346,35 +3367,18 @@ export default function App() {
                     }
                   }}
                 >
-                  {/* Botão de Bloqueio Infantil Flutuante (Parental Lock no modo bebês) */}
-                  {agePreference === 'bebes' && (
+                  {/* Botão de Desbloqueio Seguro (Aparece SOMENTE quando a tela ESTIVER bloqueada no modo bebês) */}
+                  {isScreenLocked && (
                     <button 
-                      className="bento-game-floating-lock"
-                      style={{ 
-                        right: '16px', 
-                        bottom: '16px',
-                        top: 'auto',
-                        zIndex: 100005,
-                        ...(isScreenLocked ? {
-                          backgroundColor: '#ef4444',
-                          borderColor: '#ef4444',
-                          boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
-                        } : {})
-                      }}
+                      className="kruuj-locked-exit-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (isScreenLocked) {
-                          triggerExitGame();
-                        } else {
-                          setIsScreenLocked(true);
-                          if (!document.fullscreenElement) {
-                            document.documentElement.requestFullscreen().catch(() => {});
-                          }
-                        }
+                        triggerExitGame();
                       }}
-                      title={isScreenLocked ? "Sair do Jogo (Protegido)" : "Bloquear Tela (Modo Bebês)"}
+                      title="Sair do Jogo / Desbloquear"
                     >
-                      <Lock className="w-4 h-4" style={isScreenLocked ? { color: '#ffffff', filter: 'none', animation: 'none' } : {}} />
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Desbloquear</span>
                     </button>
                   )}
 
