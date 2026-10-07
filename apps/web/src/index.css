@@ -4040,15 +4040,128 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 /* 7. Perfil & Conquistas */
+.kruuj-profile-view-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .kruuj-profile-card-header {
   background: linear-gradient(135deg, #0f1629 0%, #171d38 50%, #1f143a 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  padding: 28px;
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
+}
+
+.kruuj-profile-username {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.kruuj-profile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.kruuj-profile-level-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.kruuj-profile-xp-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.kruuj-profile-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-family: var(--font-family);
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.kruuj-profile-action-btn.login {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.kruuj-profile-action-btn.login:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+
+.kruuj-profile-action-btn.logout {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.kruuj-profile-action-btn.logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+}
+
+.kruuj-profile-progress-box {
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kruuj-profile-progress-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.kruuj-achievement-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.kruuj-achievement-desc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+}
+
+.kruuj-achievement-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  margin-top: 4px;
+  display: block;
 }
 
 .kruuj-profile-avatar-wrap {
@@ -4334,6 +4447,78 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   pointer-events: none;
 }
 
+/* Links Estilizados em Pílulas no Footer */
+.kruuj-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.kruuj-footer-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-family: var(--font-family);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+.kruuj-footer-link-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.kruuj-footer-link-btn.privacy:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.kruuj-footer-link-btn.terms:hover {
+  border-color: #818cf8;
+  color: #818cf8;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.2);
+}
+
+.kruuj-footer-link-btn.contact:hover {
+  border-color: #34d399;
+  color: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+.kruuj-footer-link-btn.report:hover {
+  border-color: #f472b6;
+  color: #f472b6;
+  box-shadow: 0 0 10px rgba(244, 114, 182, 0.2);
+}
+
+.kruuj-footer-link-btn.admin {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #c084fc;
+}
+
+.kruuj-footer-link-btn.admin:hover {
+  background: rgba(168, 85, 247, 0.25);
+  border-color: #c084fc;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
+}
+
 /* 9. Mobile Bottom Navigation Bar */
 .kruuj-bottom-bar {
   display: none;
@@ -4610,6 +4795,165 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
   .kruuj-achievements-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Perfil Mobile Proporcional e Delicado */
+  .kruuj-profile-view-wrapper {
+    gap: 12px;
+  }
+
+  .kruuj-profile-card-header {
+    padding: 12px 14px;
+    border-radius: 16px;
+    gap: 10px;
+  }
+
+  .kruuj-profile-avatar-wrap {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 2px !important;
+  }
+
+  .kruuj-profile-avatar-img {
+    max-width: 44px !important;
+    max-height: 44px !important;
+  }
+
+  .kruuj-profile-username {
+    font-size: 1rem !important;
+  }
+
+  .kruuj-profile-meta-row {
+    margin-top: 2px !important;
+    gap: 6px !important;
+  }
+
+  .kruuj-profile-level-badge {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .kruuj-profile-xp-text {
+    font-size: 0.68rem !important;
+  }
+
+  .kruuj-profile-action-btn {
+    padding: 6px 12px !important;
+    font-size: 0.72rem !important;
+    border-radius: 8px !important;
+  }
+
+  .kruuj-profile-progress-box {
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    gap: 6px !important;
+  }
+
+  .kruuj-profile-progress-text {
+    font-size: 0.7rem !important;
+  }
+
+  .kruuj-profile-tabs-bar {
+    padding: 4px !important;
+    gap: 4px !important;
+  }
+
+  .kruuj-profile-tab-btn {
+    padding: 7px 12px !important;
+    font-size: 0.72rem !important;
+    gap: 5px !important;
+    border-radius: 10px !important;
+  }
+
+  .kruuj-tab-count-badge {
+    font-size: 0.6rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .kruuj-achievement-card {
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    gap: 10px !important;
+  }
+
+  .kruuj-achievement-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1.15rem !important;
+    border-radius: 10px !important;
+  }
+
+  .kruuj-achievement-title {
+    font-size: 0.8rem !important;
+  }
+
+  .kruuj-achievement-desc {
+    font-size: 0.68rem !important;
+  }
+
+  .kruuj-achievement-badge {
+    font-size: 0.62rem !important;
+  }
+
+  .kruuj-recent-game-card {
+    padding: 10px 12px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .kruuj-recent-thumb-wrap {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 10px !important;
+  }
+
+  .kruuj-recent-title {
+    font-size: 0.82rem !important;
+  }
+
+  .kruuj-recent-tag {
+    font-size: 0.62rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .kruuj-recent-btn {
+    padding: 6px 12px !important;
+    font-size: 0.72rem !important;
+    border-radius: 8px !important;
+  }
+
+  /* Footer Mobile */
+  .kruuj-footer {
+    padding: 24px 14px 84px 14px !important;
+  }
+
+  .kruuj-footer-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .kruuj-footer-mascot-peeking {
+    right: 14px;
+    bottom: -4px;
+    height: 50px;
+    max-height: 50px;
+  }
+
+  .kruuj-footer-links {
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .kruuj-footer-link-btn {
+    padding: 5px 11px;
+    font-size: 0.68rem;
   }
 
   .kruuj-bottom-bar {

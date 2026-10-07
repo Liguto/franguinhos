@@ -2927,48 +2927,47 @@ export default function App() {
 
               {/* VIEW: PERFIL & COMUNIDADE */}
               {view === 'profile' && (
-                <div className="space-y-6">
+                <div className="kruuj-profile-view-wrapper">
                   <div className="kruuj-profile-card-header">
-                    <div className="flex items-center gap-4">
-                      <div className="kruuj-profile-avatar-wrap" style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px' }}>
+                    <div className="flex items-center gap-3">
+                      <div className="kruuj-profile-avatar-wrap">
                         <img 
                           src="/kruuj-avatar.png" 
                           alt="Avatar" 
                           className="kruuj-profile-avatar-img" 
-                          style={{ width: '100%', height: '100%', maxWidth: '58px', maxHeight: '58px', borderRadius: '50%', objectFit: 'cover' }} 
                         />
                       </div>
                       <div>
-                        <h2 className="text-xl font-black text-white">{user ? user.username : 'Explorer_123'}</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                        <h2 className="kruuj-profile-username">{user ? user.username : 'Explorer_123'}</h2>
+                        <div className="kruuj-profile-meta-row">
+                          <span className="kruuj-profile-level-badge">
                             Nível 5
                           </span>
-                          <span className="text-xs text-gray-400 font-semibold">• 1.250 pontos XP</span>
+                          <span className="kruuj-profile-xp-text">• 1.250 pontos XP</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       {user ? (
-                        <button className="btn-secondary py-2 px-4 text-xs text-red-400 border-red-500/30" onClick={handleLogout}>
-                          <LogOut className="w-3.5 h-3.5" /> Sair
+                        <button className="kruuj-profile-action-btn logout" onClick={handleLogout}>
+                          <LogOut className="w-3.5 h-3.5" /> <span>Sair</span>
                         </button>
                       ) : (
-                        <button className="btn-primary py-2 px-4 text-xs" onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}>
-                          <LogIn className="w-3.5 h-3.5" /> Entrar / Cadastrar
+                        <button className="kruuj-profile-action-btn login" onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}>
+                          <LogIn className="w-3.5 h-3.5" /> <span>Entrar</span>
                         </button>
                       )}
                     </div>
                   </div>
 
                   {/* Barra de Progresso de Nível */}
-                  <div className="bg-[#11172a] p-4 rounded-2xl border border-white/5 space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
+                  <div className="kruuj-profile-progress-box">
+                    <div className="flex justify-between kruuj-profile-progress-text">
                       <span className="text-gray-300">Progresso para o Nível 6</span>
-                      <span className="text-cyan-400">1.250 / 2.000 XP</span>
+                      <span className="text-cyan-400 font-bold">1.250 / 2.000 XP</span>
                     </div>
-                    <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                    <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
                       <div className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full" style={{ width: '62%' }} />
                     </div>
                   </div>
@@ -4156,13 +4155,28 @@ export default function App() {
               <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '22px', maxHeight: '22px', width: 'auto', objectFit: 'contain' }} />
               <span className="text-xs text-gray-400 font-semibold">• Mais que jogos, um universo de experiências.</span>
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 mt-2">
-              <button className="hover:text-cyan-400 transition" onClick={() => setView('privacy')}>Privacidade (LGPD)</button>
-              <button className="hover:text-cyan-400 transition" onClick={() => setView('terms')}>Termos de Uso</button>
-              <button className="hover:text-cyan-400 transition" onClick={() => setView('contact')}>Fale Conosco</button>
-              <button className="hover:text-pink-400 transition" onClick={() => setView('report')}>Denunciar Conteúdo</button>
+            <div className="kruuj-footer-links">
+              <button className="kruuj-footer-link-btn privacy" onClick={() => setView('privacy')}>
+                <Shield className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Privacidade (LGPD)</span>
+              </button>
+              <button className="kruuj-footer-link-btn terms" onClick={() => setView('terms')}>
+                <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Termos de Uso</span>
+              </button>
+              <button className="kruuj-footer-link-btn contact" onClick={() => setView('contact')}>
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Fale Conosco</span>
+              </button>
+              <button className="kruuj-footer-link-btn report" onClick={() => setView('report')}>
+                <ShieldAlert className="w-3.5 h-3.5 text-pink-400" />
+                <span>Denunciar Conteúdo</span>
+              </button>
               {user && user.role !== 'user' && (
-                <button className="hover:text-purple-400 transition" onClick={() => setView('admin')}>Painel Admin</button>
+                <button className="kruuj-footer-link-btn admin" onClick={() => setView('admin')}>
+                  <Cpu className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Painel Admin</span>
+                </button>
               )}
             </div>
           </div>
