@@ -2892,17 +2892,46 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Abas */}
-                  <div className="flex gap-2 border-b border-white/5 pb-2">
-                    {(['conquistas', 'jogos', 'favoritos', 'config'] as const).map(tab => (
-                      <button
-                        key={tab}
-                        className={`py-2 px-4 rounded-xl text-xs font-bold transition capitalize ${profileTab === tab ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-gray-400 hover:text-white'}`}
-                        onClick={() => setProfileTab(tab)}
-                      >
-                        {tab === 'config' ? 'Configurações' : tab === 'jogos' ? 'Jogos Recentes' : tab}
-                      </button>
-                    ))}
+                  {/* Abas Estilizadas Premium com Ícones e Contadores */}
+                  <div className="kruuj-profile-tabs-bar">
+                    <button
+                      className={`kruuj-profile-tab-btn ${profileTab === 'conquistas' ? 'active' : ''}`}
+                      onClick={() => setProfileTab('conquistas')}
+                    >
+                      <Trophy className="w-4 h-4 text-amber-400" />
+                      <span>Conquistas</span>
+                      <span className="kruuj-tab-count-badge">6</span>
+                    </button>
+
+                    <button
+                      className={`kruuj-profile-tab-btn ${profileTab === 'jogos' ? 'active' : ''}`}
+                      onClick={() => setProfileTab('jogos')}
+                    >
+                      <Gamepad2 className="w-4 h-4 text-cyan-400" />
+                      <span>Jogos Recentes</span>
+                      {recentGames.length > 0 && (
+                        <span className="kruuj-tab-count-badge">{recentGames.length}</span>
+                      )}
+                    </button>
+
+                    <button
+                      className={`kruuj-profile-tab-btn ${profileTab === 'favoritos' ? 'active' : ''}`}
+                      onClick={() => setProfileTab('favoritos')}
+                    >
+                      <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
+                      <span>Favoritos</span>
+                      {userFavoritesList.length > 0 && (
+                        <span className="kruuj-tab-count-badge">{userFavoritesList.length}</span>
+                      )}
+                    </button>
+
+                    <button
+                      className={`kruuj-profile-tab-btn ${profileTab === 'config' ? 'active' : ''}`}
+                      onClick={() => setProfileTab('config')}
+                    >
+                      <Settings className="w-4 h-4 text-purple-400" />
+                      <span>Configurações</span>
+                    </button>
                   </div>
 
                   {profileTab === 'conquistas' && (
@@ -2959,24 +2988,40 @@ export default function App() {
                   )}
 
                   {profileTab === 'jogos' && (
-                    <div className="space-y-3">
+                    <div className="kruuj-recent-games-list">
                       {recentGames.length === 0 ? (
-                        <p className="text-gray-400 text-sm p-4">Nenhum jogo no histórico ainda.</p>
+                        <div className="text-center py-10 bg-white/5 rounded-2xl border border-white/5 space-y-2">
+                          <Gamepad2 className="w-10 h-10 text-gray-600 mx-auto" />
+                          <p className="text-gray-400 text-sm font-bold">Nenhum jogo no histórico ainda.</p>
+                          <p className="text-xs text-gray-500">Jogue qualquer partida no portal para registrar seu histórico!</p>
+                        </div>
                       ) : (
                         recentGames.map((hist, i) => {
-                          const g = games.find(item => item.id === hist.id);
+                          const g = games.find(item => item.id === hist.id || item.slug === hist.id || (hist as any).slug === item.slug);
                           if (!g) return null;
                           return (
-                            <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-                              <div className="flex items-center gap-3">
-                                <img src={g.bannerUrl} alt={g.title} className="w-12 h-10 object-cover rounded-lg" />
-                                <div>
-                                  <h4 className="text-sm font-bold text-white">{g.title}</h4>
-                                  <span className="text-xs text-gray-400">{g.category}</span>
+                            <div key={i} className="kruuj-recent-game-card">
+                              <div className="kruuj-recent-game-left">
+                                <div className="kruuj-recent-thumb-wrap">
+                                  {g.bannerUrl ? (
+                                    <img src={g.bannerUrl} alt={g.title} className="kruuj-recent-thumb-img" />
+                                  ) : (
+                                    <Gamepad2 className="w-5 h-5 text-cyan-400" />
+                                  )}
+                                </div>
+                                <div className="kruuj-recent-info">
+                                  <h4 className="kruuj-recent-title">{g.title}</h4>
+                                  <div className="kruuj-recent-meta">
+                                    <span className="kruuj-recent-tag">{g.category}</span>
+                                    {hist.timestamp && (
+                                      <span className="kruuj-recent-score">🕒 {formatRelativeTime(hist.timestamp)}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                              <button className="btn-primary py-1.5 px-3 text-xs" onClick={() => handlePlayGame(g)}>
-                                Jogar Novamente
+                              <button className="kruuj-recent-btn" onClick={() => handlePlayGame(g)}>
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>Jogar</span>
                               </button>
                             </div>
                           );
