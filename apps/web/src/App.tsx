@@ -1948,16 +1948,45 @@ export default function App() {
       }
     } else {
       // 1. Filtragem por Preferência de Conteúdo (Home)
-      if (agePreference === 'educacional') {
-        result = result.filter(g => g.ageRating === 'Livre' && (g.category === 'Educacional' || g.category === 'Infantil'));
-      } else if (agePreference === 'bebes') {
-        result = result.filter(g => g.category === 'Bebês');
-      } else if (agePreference === 'terceira_idade') {
-        result = result.filter(g => g.category === 'Memória' || g.category === 'Terceira Idade' || g.tags.includes('mente'));
+      if (agePreference === 'bebes') {
+        result = result.filter(g => 
+          g.category === 'Bebês' || 
+          g.tags.some(t => ['bebes', 'bebe', 'ludico', 'cores'].includes(t.toLowerCase())) || 
+          g.slug === 'bubble-pop' || 
+          g.slug === 'memory-match'
+        );
+      } else if (agePreference === 'educacional') { // Kids
+        result = result.filter(g => 
+          g.category === 'Educacional' || 
+          g.category === 'Infantil' || 
+          g.category === 'Memória' || 
+          g.tags.some(t => ['kids', 'infantil', 'desenho', 'crianca', 'cores'].includes(t.toLowerCase())) || 
+          g.slug === 'math-run' || 
+          g.slug === 'memory-match'
+        );
       } else if (agePreference === 'family') {
-        result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
+        result = result.filter(g => 
+          g.category === 'Família' || 
+          g.tags.some(t => ['familia', 'casual', 'coop', 'amigos'].includes(t.toLowerCase())) || 
+          g.category === 'Corrida' || 
+          g.slug === 'kruujio'
+        );
+      } else if (agePreference === 'terceira_idade') { // 60+
+        result = result.filter(g => 
+          g.category === 'Terceira Idade' || 
+          g.category === 'Memória' || 
+          g.category === 'Puzzle' || 
+          g.tags.some(t => ['mente', 'zen', 'cerebro', 'raciocinio', 'tabuleiro', 'memoria'].includes(t.toLowerCase())) || 
+          g.slug === 'sudoku-zen' || 
+          g.slug === 'kruujdoku'
+        );
       } else if (agePreference === 'edu') {
-        result = result.filter(g => g.category === 'Educacional' || g.tags.includes('educacional'));
+        result = result.filter(g => 
+          g.category === 'Educacional' || 
+          g.tags.some(t => ['educacional', 'educativo', 'aprendizado', 'matematica', 'logica', 'escola'].includes(t.toLowerCase())) || 
+          g.slug === 'math-run' || 
+          g.slug === 'kruujdoku'
+        );
       }
 
       // 2. Filtragem por Categoria
@@ -2425,7 +2454,57 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* 3. Banner Carrossel Destaque (KRUUJ recomenda) */}
+                      {/* Se houver uma categoria específica selecionada (Baby, Kids, Family, 60+, Edu), exibe a lista filtrada */}
+                      {agePreference !== 'geral' ? (
+                        <section className="kruuj-shelf-section" style={{ marginTop: '20px' }}>
+                          <div className="kruuj-shelf-header" style={{ alignItems: 'center' }}>
+                            <div>
+                              <h3 className="kruuj-shelf-title" style={{ fontSize: '1.25rem' }}>
+                                {agePreference === 'bebes' && '🐱 Jogos para Bebês (0 a 3 anos)'}
+                                {agePreference === 'educacional' && '👦 Jogos Kids & Infantis (4 a 12 anos)'}
+                                {agePreference === 'family' && '👨‍👩‍👧 Jogos em Família (Jogue Junto)'}
+                                {agePreference === 'terceira_idade' && '👵 Jogos 60+ (Mente Ativa & Zen)'}
+                                {agePreference === 'edu' && '🎓 Jogos Educativos & Aprendizado'}
+                              </h3>
+                              <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8' }}>
+                                {getFilteredGames().length} jogos selecionados para este público
+                              </p>
+                            </div>
+                            <button
+                              className="btn-secondary py-1.5 px-3 text-xs"
+                              onClick={() => setAgePreference('geral')}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            >
+                              <span>Mostrar todos</span>
+                              <span style={{ fontSize: '12px' }}>✕</span>
+                            </button>
+                          </div>
+
+                          <div className="kruuj-shelf-row" style={{ marginTop: '16px' }}>
+                            {getFilteredGames().map(game => (
+                              <div 
+                                key={game.id} 
+                                className="kruuj-game-card-clean"
+                                onClick={() => handleOpenDetails(game)}
+                              >
+                                <div className="kruuj-game-thumb">
+                                  {renderGameCover(game)}
+                                  <button
+                                    className="kruuj-game-like-btn"
+                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                    title="Favoritar"
+                                  >
+                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  </button>
+                                </div>
+                                <div className="kruuj-game-title-clean">{game.title}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      ) : (
+                        <>
+                          {/* 3. Banner Carrossel Destaque (KRUUJ recomenda) */}
                       <div className="kruuj-featured-banner">
                         <button 
                           className="kruuj-featured-arrow-left"
@@ -2629,6 +2708,8 @@ export default function App() {
                           ))}
                         </div>
                       </section>
+                        </>
+                      )}
                     </>
                   )}
                 </>
