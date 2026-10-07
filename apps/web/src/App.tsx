@@ -353,6 +353,24 @@ export default function App() {
     fetchGames();
   }, []);
 
+  // --- Prevenir que setas do teclado e espaço rolem a página do navegador durante a partida ---
+  useEffect(() => {
+    if (view !== 'playing') return;
+
+    const handleKeyDownPreventScroll = (e: KeyboardEvent) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        const target = e.target as HTMLElement;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+          return;
+        }
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDownPreventScroll, { passive: false });
+    return () => window.removeEventListener('keydown', handleKeyDownPreventScroll);
+  }, [view]);
+
   // --- Injeção de Tema Dinâmico no Root (Body) ---
   useEffect(() => {
     // Reseta as classes antigas

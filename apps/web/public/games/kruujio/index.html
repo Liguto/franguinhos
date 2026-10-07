@@ -179,7 +179,13 @@ function fl(x,y,t,c){S.P.push({x,y,vx:0,vy:-50,l:.9,L:.9,c,t})}
 function setEx(e,x,d=.5){if(e.ex!='b'||x=='x'){e.ex=x;e.exT=d}}
 // ===== Entrada =====
 const K={};let mx=0,my=0,mouseOn=0,ptr=0,jx=0,jy=0,boostIn=0,touch=0;
-addEventListener('keydown',e=>{if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;K[e.code]=1;if(e.code=='Space'){boostIn=1;e.preventDefault()}if(e.code=='Escape')pause()});
+addEventListener('keydown',e=>{
+  if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+  K[e.code]=1;
+  if(e.code=='Space')boostIn=1;
+  if(e.code=='Escape')pause();
+});
 addEventListener('keyup',e=>{K[e.code]=0;if(e.code=='Space')boostIn=0});
 addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;mouseOn=1});
 cv.addEventListener('mousedown',()=>boostIn=1);addEventListener('mouseup',()=>boostIn=0);
