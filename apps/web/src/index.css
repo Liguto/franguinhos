@@ -3324,7 +3324,154 @@ animation: none !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================================
+   WIDGET KRUUJ CALMO (ACESSIBILIDADE SENSORIAL / TEA)
+========================================================= */
+.kruuj-calmo-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.kruuj-calmo-card:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}
+
+.kruuj-calmo-card.active {
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.3) 0%, rgba(30, 58, 138, 0.4) 100%);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.kruuj-calmo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kruuj-calmo-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: -0.01em;
+}
+
+.kruuj-calmo-desc {
+  margin: 4px 0 0 0;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.kruuj-calmo-card.active .kruuj-calmo-desc {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+/* Chave Seletora Switch ON/OFF */
+.kruuj-calmo-switch {
+  width: 52px;
+  height: 26px;
+  border-radius: 9999px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.kruuj-calmo-switch.off {
+  background: #334155;
+  justify-content: flex-start;
+}
+
+.kruuj-calmo-switch.on {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  justify-content: flex-end;
+}
+
+.kruuj-calmo-switch-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease;
+}
+
+.kruuj-calmo-status-text {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin: 0 4px;
+  color: #ffffff;
+}
+
+/* Pílula no Topbar (para acesso instantâneo em Desktop e Mobile) */
+.kruuj-calmo-pill-btn {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-family);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.kruuj-calmo-pill-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.kruuj-calmo-pill-btn.active {
+  background: rgba(8, 145, 178, 0.25);
+  border-color: #06b6d4;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+}
+
+.kruuj-calmo-pill-text {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #e2e8f0;
+}
+
+.kruuj-calmo-pill-badge {
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+.kruuj-calmo-pill-badge.off {
+  background: #334155;
+  color: #94a3b8;
+}
+
+.kruuj-calmo-pill-badge.on {
+  background: #06b6d4;
+  color: #042f2e;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
 }
 
 .kruuj-sidebar-sublink {

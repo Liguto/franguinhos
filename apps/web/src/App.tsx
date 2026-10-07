@@ -2160,6 +2160,17 @@ export default function App() {
         </div>
 
         <div className="kruuj-topbar-actions">
+          {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
+          <button 
+            className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
+            onClick={() => setTeaMode(!teaMode)}
+            title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
+          >
+            <span className="text-xs">🍃</span>
+            <span className="kruuj-calmo-pill-text">Calmo</span>
+            <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
+          </button>
+
           <button 
             className="kruuj-action-circle-btn"
             onClick={() => { setView('favorites'); setSelectedGame(null); }}
@@ -2263,14 +2274,26 @@ export default function App() {
               </button>
 
               <div className="kruuj-sidebar-extra">
-                <button 
-                  className={`kruuj-sidebar-sublink ${teaMode ? 'active' : ''}`}
+                {/* Widget Acessibilidade KRUUJ Calmo com Chave ON/OFF */}
+                <div 
+                  className={`kruuj-calmo-card ${teaMode ? 'active' : ''}`}
                   onClick={() => setTeaMode(!teaMode)}
-                  title="Modo Calmo (TEA / Sem estímulos intensos)"
+                  title="Ativar/Desativar modo de acessibilidade sensorial e TEA"
                 >
-                  <span className={`w-2 h-2 rounded-full ${teaMode ? 'bg-cyan-400 shadow-[0_0_8px_#38bdf8]' : 'bg-gray-600'}`} />
-                  <span>KRUUJ Calmo</span>
-                </button>
+                  <div className="kruuj-calmo-header">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm">🍃</span>
+                      <span className="kruuj-calmo-label">KRUUJ Calmo</span>
+                    </div>
+                    <div className={`kruuj-calmo-switch ${teaMode ? 'on' : 'off'}`}>
+                      <span className="kruuj-calmo-status-text">{teaMode ? 'ON' : 'OFF'}</span>
+                      <span className="kruuj-calmo-switch-knob"></span>
+                    </div>
+                  </div>
+                  <p className="kruuj-calmo-desc">
+                    {teaMode ? '✓ Modo calmo ativado (TEA)' : 'Acessibilidade TEA (menos estímulos)'}
+                  </p>
+                </div>
 
                 <button 
                   className="kruuj-sidebar-sublink"
@@ -2964,10 +2987,10 @@ export default function App() {
 
                   {profileTab === 'favoritos' && (
                     <div className="kruuj-shelf-row">
-                      {games.filter(isGameFavorited).length === 0 ? (
+                      {userFavoritesList.length === 0 ? (
                         <p className="text-gray-400 text-sm p-4 col-span-full">Nenhum jogo favoritado ainda.</p>
                       ) : (
-                        games.filter(isGameFavorited).map(g => (
+                        userFavoritesList.map(g => (
                           <div key={g.id} className="kruuj-game-card-clean" onClick={() => handleOpenDetails(g)}>
                             <div className="kruuj-game-thumb">
                               {renderGameCover(g)}
@@ -2982,13 +3005,22 @@ export default function App() {
                   {profileTab === 'config' && (
                     <div className="bg-[#11172a] p-6 rounded-2xl border border-white/5 space-y-4 max-w-lg">
                       <h3 className="text-base font-bold text-white">Acessibilidade e Preferências</h3>
-                      <label className="flex items-center justify-between p-3 rounded-xl bg-white/5 cursor-pointer">
+                      <div 
+                        className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors"
+                        onClick={() => setTeaMode(!teaMode)}
+                      >
                         <div>
-                          <span className="text-sm font-bold text-white block">KRUUJ Calmo (Modo TEA)</span>
-                          <span className="text-xs text-gray-400">Reduz animações e sons intensos</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm">🍃</span>
+                            <span className="text-sm font-bold text-white block">KRUUJ Calmo (Modo TEA)</span>
+                          </div>
+                          <span className="text-xs text-gray-400 mt-0.5 block">Reduz animações, saturação e sons intensos</span>
                         </div>
-                        <input type="checkbox" checked={teaMode} onChange={(e) => setTeaMode(e.target.checked)} className="w-5 h-5 accent-cyan-400" />
-                      </label>
+                        <div className={`kruuj-calmo-switch ${teaMode ? 'on' : 'off'}`}>
+                          <span className="kruuj-calmo-status-text">{teaMode ? 'ON' : 'OFF'}</span>
+                          <span className="kruuj-calmo-switch-knob"></span>
+                        </div>
+                      </div>
                       <button className="btn-secondary w-full justify-center text-xs" onClick={() => setShowConsentBanner(true)}>
                         Gerenciar Cookies e Privacidade
                       </button>
