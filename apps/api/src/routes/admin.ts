@@ -357,5 +357,67 @@ router.get('/ai-insights', async (req, res) => {
   }
 });
 
+// GET /api/admin/users - Listar usuários cadastrados no portal
+router.get('/users', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        status: true,
+        agePreference: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return res.json(users);
+  } catch (error) {
+    console.error('Erro ao listar usuários admin:', error);
+    return res.status(500).json({ error: 'Erro ao carregar lista de usuários.' });
+  }
+});
+
+// PUT /api/admin/users/:id/role - Alterar papel/permissão de um usuário (RBAC)
+router.put('/users/:id/role', async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  const validRoles = ['super_admin', 'editor', 'moderador', 'analista', 'marketing', 'suporte', 'financeiro', 'user'];
+  if (!role || !validRoles.includes(role)) {
+    return res.status(400).json({ error: 'Papel de usuário inválido.' });
+  }
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+
+    if (targetUser.username === 'admin' && role !== 'super_admin') {
+      return res.status(403).json({ error: 'Não é permitido revogar o papel do administrador raiz.' });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        status: true,
+        agePreference: true,
+        createdAt: true
+      }
+    });
+
+    return res.json(updated);
+  } catch (error) {
+    console.error('Erro ao alterar permissão do usuário:', error);
+    return res.status(500).json({ error: 'Erro ao atualizar permissão do usuário.' });
+  }
+});
+
 export default router;
 export { router as adminRouter };

@@ -2163,69 +2163,71 @@ export default function App() {
       
       {/* --- TOPBAR KRUUJ OFICIAL (DESKTOP & MOBILE) --- */}
       <header className="kruuj-topbar">
-        <div className="kruuj-topbar-left">
-          <div 
-            className="kruuj-logo-link"
-            onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
-          >
-            <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '26px', maxHeight: '26px', width: 'auto', objectFit: 'contain' }} />
+        <div className="kruuj-topbar-inner">
+          <div className="kruuj-topbar-left">
+            <div 
+              className="kruuj-logo-link"
+              onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
+            >
+              <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '26px', maxHeight: '26px', width: 'auto', objectFit: 'contain' }} />
+            </div>
           </div>
-        </div>
 
-        <div className="kruuj-topbar-search">
-          <Search className="w-4 h-4 kruuj-topbar-search-icon" />
-          <input 
-            type="text" 
-            className="kruuj-topbar-search-input"
-            placeholder="Buscar jogos, categorias..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (view !== 'home' && view !== 'explore') {
-                setView('home');
-              }
-            }}
-          />
-        </div>
+          <div className="kruuj-topbar-search">
+            <Search className="w-4 h-4 kruuj-topbar-search-icon" />
+            <input 
+              type="text" 
+              className="kruuj-topbar-search-input"
+              placeholder="Buscar jogos, categorias..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (view !== 'home' && view !== 'explore') {
+                  setView('home');
+                }
+              }}
+            />
+          </div>
 
-        <div className="kruuj-topbar-actions">
-          {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
-          <button 
-            className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
-            onClick={() => setTeaMode(!teaMode)}
-            title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
-          >
-            <span className="text-xs">🍃</span>
-            <span className="kruuj-calmo-pill-text">Calmo</span>
-            <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
-          </button>
+          <div className="kruuj-topbar-actions">
+            {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
+            <button 
+              className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
+              onClick={() => setTeaMode(!teaMode)}
+              title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
+            >
+              <span className="text-xs">🍃</span>
+              <span className="kruuj-calmo-pill-text">Calmo</span>
+              <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
+            </button>
 
-          <button 
-            className="kruuj-action-circle-btn"
-            onClick={() => { setView('favorites'); setSelectedGame(null); }}
-            title="Favoritos"
-          >
-            <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
-            {userFavoritesList.length > 0 && (
-              <span className="kruuj-badge-count">{userFavoritesList.length}</span>
-            )}
-          </button>
+            <button 
+              className="kruuj-action-circle-btn"
+              onClick={() => { setView('favorites'); setSelectedGame(null); }}
+              title="Favoritos"
+            >
+              <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+              {userFavoritesList.length > 0 && (
+                <span className="kruuj-badge-count">{userFavoritesList.length}</span>
+              )}
+            </button>
 
-          <button 
-            className="kruuj-action-circle-btn"
-            onClick={() => { setView('profile'); setSelectedGame(null); }}
-            title="Perfil & Comunidade"
-          >
-            <User className="w-4 h-4" />
-          </button>
+            <button 
+              className="kruuj-action-circle-btn"
+              onClick={() => { setView('profile'); setSelectedGame(null); }}
+              title="Perfil & Comunidade"
+            >
+              <User className="w-4 h-4" />
+            </button>
 
-          <div 
-            className="kruuj-avatar-trigger"
-            onClick={() => { setView('profile'); setSelectedGame(null); }}
-            title="Minha Conta"
-          >
-            <div className="kruuj-avatar-inner">
-              <img src="/kruuj-avatar.png" alt="Mascote" />
+            <div 
+              className="kruuj-avatar-trigger"
+              onClick={() => { setView('profile'); setSelectedGame(null); }}
+              title="Minha Conta"
+            >
+              <div className="kruuj-avatar-inner">
+                <img src="/kruuj-avatar.png" alt="Mascote" />
+              </div>
             </div>
           </div>
         </div>
@@ -3549,38 +3551,49 @@ export default function App() {
 
             {view === 'admin' && user && user.role !== 'user' && (
               <div className="space-y-6 text-left">
-                {/* Header com Abas em formato de Cápsula Segmentada Premium */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#07080e]/90 p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
-                  <button 
-                    className="btn-secondary py-2 px-4 flex items-center gap-2 text-xs font-bold border border-white/10 hover:border-cyan-500/30 text-gray-300 hover:text-white transition rounded-xl shrink-0" 
-                    onClick={() => setView('home')}
-                  >
-                    <ArrowLeft className="w-4 h-4 text-cyan-400" /> Voltar ao Portal
-                  </button>
-                  
-                  <h2 className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2 font-mono">
-                    <Settings className="w-4 h-4 text-cyan-400 animate-spin-slow shrink-0" />
-                    <span>Cockpit de Administração</span>
-                  </h2>
-                  
-                  <div className="flex bg-black/50 p-1 rounded-full border border-white/5 gap-1 shrink-0">
+                {/* Header com Abas Estilizadas em Pílula Premium */}
+                <div className="kruuj-admin-header-card">
+                  <div className="flex items-center gap-3">
                     <button 
-                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'contracts' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      className="btn-secondary py-1.5 px-3 text-xs"
+                      onClick={() => setView('home')}
+                      title="Sair do Cockpit"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" /> <span>Voltar ao Portal</span>
+                    </button>
+                    
+                    <h2 className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2 font-mono">
+                      <Settings className="w-4 h-4 text-cyan-400 animate-spin-slow shrink-0" />
+                      <span>Cockpit Admin</span>
+                    </h2>
+                  </div>
+                  
+                  <div className="kruuj-admin-tabs-bar">
+                    <button 
+                      className={`kruuj-admin-tab-btn ${adminTab === 'contracts' ? 'active' : ''}`}
                       onClick={() => { setAdminTab('contracts'); setAdminViewMode('list'); }}
                     >
-                      <FileSignature className="w-3.5 h-3.5" /> Contratos & Jogos
+                      <FileSignature className="w-3.5 h-3.5" />
+                      <span>Contratos & Jogos</span>
                     </button>
                     <button 
-                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'dashboard' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      className={`kruuj-admin-tab-btn ${adminTab === 'dashboard' ? 'active' : ''}`}
                       onClick={() => { setAdminTab('dashboard'); setAdminViewMode('list'); }}
                     >
-                      <BarChart3 className="w-3.5 h-3.5" /> Analytics & IA
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      <span>Analytics & IA</span>
                     </button>
                     <button 
-                      className={`text-[10px] uppercase tracking-wider font-extrabold py-1.5 px-4 rounded-full transition-all duration-300 flex items-center gap-1.5 ${adminTab === 'users' ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)] font-black' : 'text-gray-400 hover:text-white'}`}
+                      className={`kruuj-admin-tab-btn ${adminTab === 'users' ? 'active' : ''}`}
                       onClick={() => { setAdminTab('users'); setAdminViewMode('list'); }}
                     >
-                      <Users className="w-3.5 h-3.5" /> Usuários
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Usuários</span>
+                      {adminUsers.length > 0 && (
+                        <span className="text-[10px] font-black bg-cyan-500/20 text-cyan-400 px-1.5 py-0.2 rounded-full">
+                          {adminUsers.length}
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -4137,6 +4150,112 @@ export default function App() {
                         </div>
                       </div>
 
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: GESTÃO DE USUÁRIOS E CONTROLE DE ACESSO (RBAC) */}
+                {adminTab === 'users' && (
+                  <div className="space-y-6">
+                    <div className="glass-panel p-6 space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
+                        <div>
+                          <h3 className="text-md font-bold text-white uppercase tracking-wider" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                            Gestão de Usuários & Controle de Acesso (RBAC)
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            Supervisione contas registradas, atribua permissões administrativas e audite perfis conforme a LGPD.
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1.5 rounded-full">
+                            {adminUsers.length} Usuários Cadastrados
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Usuário</th>
+                              <th>Papel Atual</th>
+                              <th>Status</th>
+                              <th>Preferência</th>
+                              <th>Criado em</th>
+                              <th className="text-right">Alterar Papel</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminUsers.length === 0 ? (
+                              <tr>
+                                <td colSpan={6} className="text-center py-8 text-gray-400 text-xs">
+                                  Nenhum usuário cadastrado no momento.
+                                </td>
+                              </tr>
+                            ) : (
+                              adminUsers.map((u) => (
+                                <tr key={u.id}>
+                                  <td>
+                                    <div className="flex items-center gap-2.5">
+                                      <div className="w-8 h-8 rounded-full bg-cyan-950/80 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-xs shrink-0">
+                                        {u.username.charAt(0).toUpperCase()}
+                                      </div>
+                                      <div>
+                                        <div className="font-bold text-white text-xs">{u.username}</div>
+                                        <div className="text-[9px] text-gray-500 font-mono">ID: {u.id.slice(0, 8)}...</div>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {u.role === 'super_admin' && (
+                                      <span className="badge badge-purple flex items-center gap-1 w-fit">
+                                        👑 Super Admin
+                                      </span>
+                                    )}
+                                    {u.role === 'editor' && (
+                                      <span className="badge badge-cyan flex items-center gap-1 w-fit">
+                                        ✍️ Editor
+                                      </span>
+                                    )}
+                                    {u.role === 'user' && (
+                                      <span className="badge bg-white/10 text-gray-300 border border-white/10 flex items-center gap-1 w-fit">
+                                        🎮 Jogador
+                                      </span>
+                                    )}
+                                    {u.role !== 'super_admin' && u.role !== 'editor' && u.role !== 'user' && (
+                                      <span className="badge bg-purple-950/60 text-purple-300 border border-purple-500/30 flex items-center gap-1 w-fit capitalize">
+                                        🛡️ {u.role}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td>
+                                    <span className="badge badge-green">✓ {u.status || 'Ativo'}</span>
+                                  </td>
+                                  <td>
+                                    <span className="text-xs text-gray-300 capitalize">{u.agePreference || 'Geral'}</span>
+                                  </td>
+                                  <td className="text-xs text-gray-400 font-mono">
+                                    {u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : 'Hoje'}
+                                  </td>
+                                  <td className="text-right">
+                                    <select
+                                      value={u.role}
+                                      onChange={(e) => handleAdminUpdateRole(u.id, e.target.value)}
+                                      className="bg-black/60 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-cyan-400 font-bold focus:border-cyan-500 outline-none cursor-pointer"
+                                      disabled={u.username === user.username && u.role === 'super_admin'}
+                                    >
+                                      <option value="user">Jogador (user)</option>
+                                      <option value="editor">Editor (editor)</option>
+                                      <option value="super_admin">Super Admin (super_admin)</option>
+                                    </select>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 )}
