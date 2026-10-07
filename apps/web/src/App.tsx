@@ -1863,11 +1863,16 @@ export default function App() {
   }, [user, token, selectedGame]);
 
   const handleManualFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    const target = document.getElementById('game-fullscreen-target') || document.querySelector('.iframe-container');
+    if (!document.fullscreenElement && target) {
+      if (target.requestFullscreen) {
+        target.requestFullscreen().catch(() => {});
+      } else if ((target as any).webkitRequestFullscreen) {
+        (target as any).webkitRequestFullscreen();
+      }
     } else {
       // SÓ permite sair do fullscreen se o lockscreen estiver DESATIVADO!
-      if (!isScreenLocked) {
+      if (!isScreenLocked && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
     }
@@ -3350,6 +3355,7 @@ export default function App() {
 
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
                 <div 
+                  id="game-fullscreen-target"
                   className="iframe-container relative"
                   style={isScreenLocked ? {
                     position: 'fixed',
