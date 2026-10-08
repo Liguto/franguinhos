@@ -4,16 +4,18 @@
   <meta charset="utf-8">
   <title>KRUUJ ORBIT: Salto Gravitacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07061a;
+      --bg: #070914;
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
       --pink: #ff5ca8;
-      --text: #f3f0ff;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -22,6 +24,7 @@
       -webkit-user-select: none;
       touch-action: none;
     }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -30,6 +33,7 @@
       color: var(--text);
       font-family: 'Baloo 2', sans-serif;
     }
+
     canvas {
       position: fixed;
       inset: 0;
@@ -37,24 +41,27 @@
       height: 100%;
       display: block;
     }
+
+    /* Interface Superior (HUD Sobreposto ao Canvas) */
     .hud {
       position: fixed;
-      top: 14px;
-      left: 14px;
-      right: 14px;
+      top: 16px;
+      left: 16px;
+      right: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
       z-index: 10;
     }
-    .score-badge {
-      background: rgba(13, 18, 36, 0.75);
+
+    .hud-badge {
+      background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
       border-radius: 9999px;
-      padding: 6px 16px;
-      font-size: 1rem;
+      padding: 6px 18px;
+      font-size: 1.05rem;
       font-weight: 800;
       color: #fff;
       display: flex;
@@ -62,14 +69,35 @@
       gap: 8px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
-    .score-badge span {
-      color: var(--gold);
+
+    .hud-badge span {
+      color: var(--cyan);
     }
-    .overlay {
+
+    .hint-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(56, 232, 255, 0.3);
+      padding: 8px 24px;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(56, 232, 255, 0.25);
+      pointer-events: none;
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    /* Tela de Início / Fim de Jogo (Overlay) */
+    .game-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.88) 0%, rgba(7, 6, 26, 0.98) 100%);
-      backdrop-filter: blur(12px);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 9, 20, 0.98) 100%);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -81,27 +109,61 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .overlay.active {
+
+    .game-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     h1 {
-      font-size: clamp(30px, 8vw, 52px);
+      font-size: clamp(32px, 8vw, 54px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
     }
+
     p {
       font-size: clamp(14px, 4vw, 17px);
-      color: #cbd5e1;
+      color: var(--text-muted);
       max-width: 440px;
-      line-height: 1.4;
+      line-height: 1.45;
       margin-bottom: 24px;
     }
-    .btn-play {
+
+    .stats-table {
+      margin-bottom: 22px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 12px 28px;
+      display: flex;
+      gap: 32px;
+    }
+
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stats-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .stats-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .btn-action {
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
       border: none;
@@ -117,711 +179,611 @@
       align-items: center;
       gap: 10px;
     }
-    .btn-play:hover {
+
+    .btn-action:hover {
       transform: scale(1.05);
       box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
-    }
-    .stats-table {
-      margin-bottom: 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
-      padding: 12px 24px;
-      display: flex;
-      gap: 28px;
-    }
-    .stats-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .stats-label {
-      font-size: 0.72rem;
-      color: #94a3b8;
-      text-transform: uppercase;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-    }
-    .stats-val {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--cyan);
-    }
-    .instructions-hint {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(13, 18, 36, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 8px 22px;
-      border-radius: 9999px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #38e8ff;
-      pointer-events: none;
-      white-space: nowrap;
-      z-index: 5;
-      box-shadow: 0 0 15px rgba(56, 232, 255, 0.2);
     }
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
+  <!-- HUD Superior com Score e Recorde -->
   <div class="hud">
-    <div class="score-badge">PENAS: <span id="scoreVal">0</span> 🪶</div>
-    <div class="score-badge" style="font-size: 0.95rem;">RECORDE: <span id="bestVal" style="color: var(--cyan);">0</span></div>
+    <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
+    <div class="hud-badge" style="font-size: 0.95rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
   </div>
 
-  <div class="instructions-hint" id="hint">Toque ou ESPAÇO para a Coruja voar para o próximo planeta!</div>
+  <div class="hint-bar" id="hintBar">Pressione ESPAÇO ou Toque na tela para saltar!</div>
 
-  <!-- Tela Inicial / Game Over -->
-  <div class="overlay active" id="overlay">
+  <!-- Overlay de Início e Game Over -->
+  <div class="game-overlay active" id="gameOverlay">
     <h1 id="ovTitle">KRUUJ ORBIT</h1>
-    <p id="ovDesc">Guie a Coruja Mascote do KRUUJ através das órbitas gravitacionais do cosmos! Salte no momento exato e resgate as penas estelares.</p>
+    <p id="ovDesc">Salto Gravitacional: seu personagem gira pela órbita dos planetas. No momento certo, solte o estilingue tangencial para alcançar a próxima gravidade!</p>
+    
     <div class="stats-table" id="ovStats" style="display: none;">
       <div class="stats-item">
-        <span class="stats-label">Penas Coletadas</span>
+        <span class="stats-label">Pontuação</span>
         <span class="stats-val" id="ovScore">0</span>
       </div>
       <div class="stats-item">
-        <span class="stats-label">Melhor Voo</span>
+        <span class="stats-label">Melhor Score</span>
         <span class="stats-val" id="ovBest">0</span>
       </div>
     </div>
-    <button class="btn-play" id="btnPlay" onclick="startGame()">DECOLAR 🦉</button>
+
+    <button class="btn-action" id="btnPlay" onclick="window.orbitGame.startGame()">JOGAR AGORA 🪐</button>
   </div>
 
+  <!-- ================================================================= -->
+  <!-- LÓGICA DO JOGO EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
+  <!-- ================================================================= -->
   <script>
-    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
-    function sendEvent(type, data = {}) {
-      try {
-        window.parent.postMessage({ type, gameSlug: 'kruuj-orbit', ...data }, '*');
-      } catch (e) {}
-    }
-    sendEvent('game_loaded');
-
-    let bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
-    document.getElementById('bestVal').textContent = bestScore;
-
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
-        try {
-          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
-          if (d && d.bestScore) {
-            bestScore = Math.max(bestScore, d.bestScore);
-            localStorage.setItem('kruuj_orbit_best', String(bestScore));
-            document.getElementById('bestVal').textContent = bestScore;
-          }
-        } catch(err){}
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundController {
+      constructor() {
+        this.ctx = null;
       }
-    });
 
-    // ===== Som Temático Sintético de Coruja (WebAudio) =====
-    let audioCtx = null;
-    function getAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-    // Piado autêntico de coruja ("Hoo-Hoo!")
-    function playOwlHoot(isExcited = false) {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
+      // Som de impulso do estilingue tangencial ao soltar
+      playLaunch() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
 
-        const baseFreq = isExcited ? 520 : 380;
-        osc.frequency.setValueAtTime(baseFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.15, now + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.9, now + 0.22);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.15, now + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
-
-        // Segundo "Hoo" do piado
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(baseFreq * 1.1, now + 0.16);
-        osc2.frequency.exponentialRampToValueAtTime(baseFreq * 0.85, now + 0.38);
-
-        gain2.gain.setValueAtTime(0.001, now + 0.16);
-        gain2.gain.linearRampToValueAtTime(0.18, now + 0.22);
-        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start(now + 0.16);
-        osc2.stop(now + 0.4);
-      } catch (e) {}
-    }
-
-    // Som de bater de asas aerodinâmico
-    function playWingFlap() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(320, now + 0.1);
-        osc.frequency.exponentialRampToValueAtTime(90, now + 0.2);
-
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      } catch (e) {}
-    }
-
-    // Som de coleta de pena mágica (harpa + piadinho agudo)
-    function playFeatherChime() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        [880, 1100, 1320].forEach((freq, idx) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(740, now + 0.15);
 
-          gain.gain.setValueAtTime(0.08, now + idx * 0.04);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.18);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
           osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now + idx * 0.04);
-          osc.stop(now + idx * 0.04 + 0.18);
-        });
-      } catch(e) {}
-    }
-
-    // Piado triste de colisão
-    function playSadHoot() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(70, now + 0.4);
-
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.4);
-      } catch (e) {}
-    }
-
-    // ===== Engine do Jogo =====
-    const cv = document.getElementById('c');
-    const ctx = cv.getContext('2d');
-    let W = cv.width = window.innerWidth;
-    let H = cv.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      W = cv.width = window.innerWidth;
-      H = cv.height = window.innerHeight;
-    });
-
-    let state = 'menu';
-    let score = 0;
-    let cameraY = 0;
-    let wingFlapAnim = 0;
-    let blinkTimer = 0;
-
-    let owl = {
-      x: 0, y: 0, vx: 0, vy: 0, r: 18,
-      currentPlanet: null,
-      angle: 0,
-      orbitSpeed: 0.038,
-      orbitRadius: 80,
-      trail: [],
-      isFlapping: false
-    };
-
-    let planets = [];
-    let stars = [];
-    let particles = [];
-    let feathers = [];
-
-    // Fundo de estrelas cintilantes
-    for (let i = 0; i < 160; i++) {
-      stars.push({
-        x: Math.random() * 2000 - 1000,
-        y: Math.random() * 4000 - 2000,
-        s: Math.random() * 2.2 + 0.6,
-        alpha: Math.random() * 0.7 + 0.3
-      });
-    }
-
-    function createPlanet(index, y) {
-      const colors = [
-        ['#38e8ff', '#0284c7'],
-        ['#8b5cff', '#581c87'],
-        ['#ffb020', '#b45309'],
-        ['#ff5ca8', '#be185d'],
-        ['#10b981', '#047857']
-      ];
-      const pal = colors[index % colors.length];
-      const r = 38 + Math.random() * 16;
-      const x = (index === 0) ? W / 2 : W / 2 + (Math.random() * 240 - 120);
-      return {
-        x, y, r,
-        orbitRadius: r + 42 + Math.random() * 12,
-        orbitSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.032 + Math.random() * 0.016),
-        color1: pal[0],
-        color2: pal[1],
-        glow: pal[0],
-        ring: Math.random() > 0.65,
-        visited: index === 0
-      };
-    }
-
-    function initWorld() {
-      score = 0;
-      cameraY = 0;
-      particles = [];
-      feathers = [];
-      planets = [];
-      document.getElementById('scoreVal').textContent = score;
-
-      let currentY = H * 0.75;
-      planets.push(createPlanet(0, currentY));
-
-      for (let i = 1; i < 14; i++) {
-        currentY -= (185 + Math.random() * 55);
-        const p = createPlanet(i, currentY);
-        planets.push(p);
-
-        // Penas cósmicas no percurso
-        if (Math.random() > 0.35) {
-          feathers.push({
-            x: p.x + (Math.random() * 100 - 50),
-            y: p.y + 85,
-            collected: false
-          });
-        }
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch(e) {}
       }
 
-      owl.currentPlanet = planets[0];
-      owl.angle = -Math.PI / 2;
-      owl.orbitRadius = planets[0].orbitRadius;
-      owl.orbitSpeed = planets[0].orbitSpeed;
-      owl.vx = 0;
-      owl.vy = 0;
-      owl.trail = [];
-    }
+      // Som de captura no campo gravitacional do novo planeta
+      playOrbitCapture() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
 
-    function launchOwl() {
-      if (state !== 'play') return;
-      if (!owl.currentPlanet) return;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.exponentialRampToValueAtTime(920, now + 0.12);
 
-      playWingFlap();
-      playOwlHoot(true);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
 
-      const speed = 12.8;
-      owl.vx = -Math.sin(owl.angle) * speed * (owl.orbitSpeed > 0 ? 1 : -1);
-      owl.vy = Math.cos(owl.angle) * speed * (owl.orbitSpeed > 0 ? 1 : -1);
-      owl.currentPlanet = null;
-      owl.isFlapping = true;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } catch(e) {}
+      }
 
-      // Rajada de penas e luz
-      for (let i = 0; i < 14; i++) {
-        particles.push({
-          x: owl.x,
-          y: owl.y,
-          vx: (Math.random() - 0.5) * 6 - owl.vx * 0.25,
-          vy: (Math.random() - 0.5) * 6 - owl.vy * 0.25,
-          r: Math.random() * 4 + 2,
-          c: Math.random() > 0.5 ? '#8b5cff' : '#38e8ff',
-          life: 1
-        });
+      // Som de Game Over / Colisão
+      playCrash() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(35, now + 0.35);
+
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } catch(e) {}
       }
     }
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Enter') {
-        e.preventDefault();
-        if (state === 'play') launchOwl();
-        else if (state === 'over' || state === 'menu') startGame();
+    // ===== 2. SISTEMA DE PARTÍCULAS VISUAIS (RASTRO & EFEITOS) =====
+    class Particle {
+      constructor(x, y, color, vx, vy, life = 1.0, radius = 3) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+        this.life = life;
+        this.maxLife = life;
+        this.radius = radius;
       }
-    });
 
-    window.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('#overlay') || e.target.closest('button')) return;
-      if (state === 'play') launchOwl();
-    });
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.035;
+      }
 
-    function startGame() {
-      initWorld();
-      state = 'play';
-      sendEvent('game_start');
-      document.getElementById('overlay').classList.remove('active');
-      document.getElementById('hint').style.display = 'block';
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
-    function gameOver() {
-      state = 'over';
-      playSadHoot();
-      bestScore = Math.max(bestScore, score);
-      localStorage.setItem('kruuj_orbit_best', String(bestScore));
-      document.getElementById('bestVal').textContent = bestScore;
+    // ===== 3. PLANETA COM NÚCLEO E ANEL ORBITAL PONTILHADO =====
+    class Planet {
+      constructor(index, x, y, options = {}) {
+        this.index = index;
+        this.x = x;
+        this.y = y;
+        this.coreRadius = options.coreRadius || (36 + Math.random() * 16);
+        this.gravityRadius = this.coreRadius + 44 + Math.random() * 12; // Campo gravitacional
+        this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.034 + Math.random() * 0.012);
+        this.visited = index === 0;
 
-      sendEvent('game_over', { score, bestScore });
-      sendEvent('game_save', { saveData: { bestScore }, score });
+        // Paleta de cores cósmicas KRUUJ
+        const palettes = [
+          ['#38e8ff', '#0284c7'],
+          ['#8b5cff', '#581c87'],
+          ['#ffb020', '#b45309'],
+          ['#ff5ca8', '#be185d'],
+          ['#10b981', '#047857']
+        ];
+        const pal = palettes[index % palettes.length];
+        this.color1 = pal[0];
+        this.color2 = pal[1];
+        this.hasRing = Math.random() > 0.65;
+      }
 
-      document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
-      document.getElementById('ovDesc').textContent = 'A corujinha se perdeu no espaço profundo. Mire na órbita do próximo planeta e pegue o impulso perfeito!';
-      document.getElementById('ovScore').textContent = score;
-      document.getElementById('ovBest').textContent = bestScore;
-      document.getElementById('ovStats').style.display = 'flex';
-      document.getElementById('btnPlay').textContent = 'VOAR DE NOVO 🦉';
-      document.getElementById('overlay').classList.add('active');
-      document.getElementById('hint').style.display = 'none';
-    }
+      render(ctx) {
+        ctx.save();
 
-    // Desenha o Mascote KRUUJ animado (Coruja Oficial no Canvas)
-    function drawOwlMascot(x, y, r, angle, isFlying) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle + Math.PI / 2);
-
-      wingFlapAnim += 0.2;
-      blinkTimer++;
-      const isBlinking = (blinkTimer % 180) > 170;
-
-      // Asas da Coruja (Batendo ativamente se estiver em voo livre)
-      const wingSpread = isFlying ? Math.sin(wingFlapAnim) * 8 : 0;
-      [-1, 1].forEach(side => {
-        ctx.fillStyle = '#6d28d9';
+        // 1. Linha Pontilhada ao Redor (Campo Gravitacional / Anel Orbital)
+        ctx.strokeStyle = this.visited ? 'rgba(56, 232, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1.6;
+        ctx.setLineDash([6, 8]); // Linha pontilhada solicitada
         ctx.beginPath();
-        ctx.ellipse(side * (r * 0.95 + wingSpread * 0.3), 2, 7 + Math.abs(wingSpread), 14, side * 0.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Penas de destaque ciano na ponta das asas
-        ctx.fillStyle = '#38e8ff';
-        ctx.beginPath();
-        ctx.ellipse(side * (r * 1.1 + wingSpread * 0.4), 6, 3, 6, side * 0.4, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Arco dos Fones de Ouvido Cibernéticos
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(0, 0, r + 2, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.stroke();
-
-      // Almofadas dos Fones com LED Ciano Neon
-      [-1, 1].forEach(side => {
-        ctx.fillStyle = '#1e1b4b';
-        ctx.strokeStyle = '#38e8ff';
-        ctx.lineWidth = 2.5;
-        ctx.shadowColor = '#38e8ff';
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.ellipse(side * (r + 3), 0, 5, 9, 0, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(this.x, this.y, this.gravityRadius, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.shadowBlur = 0;
-      });
+        ctx.setLineDash([]); // Reseta linha sólida para os próximos desenhos
 
-      // Corpo da Coruja KRUUJ (Gradiente Roxo Cósmico)
-      const grad = ctx.createRadialGradient(0, -4, 3, 0, 0, r);
-      grad.addColorStop(0, '#8b5cff');
-      grad.addColorStop(0.7, '#6d28d9');
-      grad.addColorStop(1, '#3b0764');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.fill();
+        // 2. Núcleo Visual do Planeta (Obstáculo) com Gradiente e Brilho
+        ctx.shadowColor = this.color1;
+        ctx.shadowBlur = 16;
+        const grad = ctx.createRadialGradient(
+          this.x - this.coreRadius * 0.3,
+          this.y - this.coreRadius * 0.3,
+          this.coreRadius * 0.1,
+          this.x,
+          this.y,
+          this.coreRadius
+        );
+        grad.addColorStop(0, this.color1);
+        grad.addColorStop(1, this.color2);
 
-      // Penas das Orelhinhas
-      ctx.fillStyle = '#4c1d95';
-      [-1, 1].forEach(side => {
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.moveTo(side * (r * 0.65), -r * 0.4);
-        ctx.lineTo(side * (r * 0.75), -r * 1.35);
-        ctx.lineTo(side * (r * 0.2), -r * 0.85);
-        ctx.fill();
-      });
-
-      // Olhos Grandes e Expressivos
-      if (!isBlinking) {
-        [-1, 1].forEach(side => {
-          // Esclera
-          ctx.fillStyle = '#f8fafc';
-          ctx.beginPath();
-          ctx.arc(side * (r * 0.38), -r * 0.12, r * 0.36, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Íris Âmbar Dourada KRUUJ
-          ctx.fillStyle = '#ffb020';
-          ctx.beginPath();
-          ctx.arc(side * (r * 0.38), -r * 0.12, r * 0.25, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Pupila
-          ctx.fillStyle = '#0f172a';
-          ctx.beginPath();
-          ctx.arc(side * (r * 0.38), -r * 0.12, r * 0.14, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Brilho Estelar no Olhar
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(side * (r * 0.38) - 2, -r * 0.12 - 2, r * 0.08, 0, Math.PI * 2);
-          ctx.fill();
-        });
-      } else {
-        // Olhinhos fechados fofos (Piscada)
-        ctx.strokeStyle = '#ffb020';
-        ctx.lineWidth = 2.5;
-        [-1, 1].forEach(side => {
-          ctx.beginPath();
-          ctx.arc(side * (r * 0.38), -r * 0.08, r * 0.22, 0, Math.PI);
-          ctx.stroke();
-        });
-      }
-
-      // Bico Dourado Triangular
-      ctx.fillStyle = '#f59e0b';
-      ctx.beginPath();
-      ctx.moveTo(-3, 2);
-      ctx.lineTo(3, 2);
-      ctx.lineTo(0, 9);
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    // Desenha a Pena Cósmica Coletável
-    function drawGoldenFeather(x, y) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.shadowColor = '#ffb020';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#ffb020';
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 5, 12, 0.3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Haste da pena
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, -10);
-      ctx.lineTo(0, 10);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Loop
-    function loop() {
-      requestAnimationFrame(loop);
-
-      ctx.fillStyle = '#07061a';
-      ctx.fillRect(0, 0, W, H);
-
-      // Atualização
-      if (state === 'play') {
-        if (owl.currentPlanet) {
-          const p = owl.currentPlanet;
-          owl.angle += owl.orbitSpeed;
-          owl.x = p.x + Math.cos(owl.angle) * owl.orbitRadius;
-          owl.y = p.y + Math.sin(owl.angle) * owl.orbitRadius;
-        } else {
-          owl.x += owl.vx;
-          owl.y += owl.vy;
-
-          owl.trail.push({ x: owl.x, y: owl.y, alpha: 0.8 });
-          if (owl.trail.length > 20) owl.trail.shift();
-
-          // Colisões e captura
-          for (let p of planets) {
-            const dx = owl.x - p.x;
-            const dy = owl.y - p.y;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist < p.r + owl.r) {
-              gameOver();
-              return;
-            }
-
-            if (dist <= p.orbitRadius + 20 && dist >= p.r + 10) {
-              owl.currentPlanet = p;
-              owl.orbitRadius = dist;
-              owl.orbitSpeed = p.orbitSpeed;
-              owl.angle = Math.atan2(dy, dx);
-              owl.isFlapping = false;
-              playOwlHoot(false);
-
-              if (!p.visited) {
-                p.visited = true;
-                score += 10;
-                document.getElementById('scoreVal').textContent = score;
-
-                // Celebração
-                for (let i = 0; i < 18; i++) {
-                  particles.push({
-                    x: owl.x, y: owl.y,
-                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
-                    r: Math.random() * 3 + 2, c: p.color1, life: 1
-                  });
-                }
-
-                const lastP = planets[planets.length - 1];
-                const nextY = lastP.y - (185 + Math.random() * 55);
-                planets.push(createPlanet(planets.length, nextY));
-              }
-              break;
-            }
-          }
-
-          // Coleta de penas
-          for (let f of feathers) {
-            if (!f.collected && Math.hypot(owl.x - f.x, owl.y - f.y) < owl.r + 14) {
-              f.collected = true;
-              score += 20;
-              document.getElementById('scoreVal').textContent = score;
-              playFeatherChime();
-              for (let k = 0; k < 10; k++) {
-                particles.push({
-                  x: f.x, y: f.y,
-                  vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
-                  r: 3, c: '#ffb020', life: 1
-                });
-              }
-            }
-          }
-
-          if (owl.x < -120 || owl.x > W + 120 || owl.y > (cameraY + H + 120)) {
-            gameOver();
-            return;
-          }
-        }
-
-        const targetCamY = owl.y - H * 0.65;
-        cameraY += (targetCamY - cameraY) * 0.1;
-      }
-
-      // RENDERIZAÇÃO
-      ctx.save();
-      ctx.translate(0, -cameraY);
-
-      // Estrelas de fundo
-      stars.forEach(s => {
-        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Linha tracejada preditiva de mira quando está em órbita
-      if (state === 'play' && owl.currentPlanet) {
-        const tangentAngle = owl.angle + (owl.orbitSpeed > 0 ? Math.PI / 2 : -Math.PI / 2);
-        ctx.strokeStyle = 'rgba(56, 232, 255, 0.4)';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 6]);
-        ctx.beginPath();
-        ctx.moveTo(owl.x, owl.y);
-        ctx.lineTo(owl.x + Math.cos(tangentAngle) * 90, owl.y + Math.sin(tangentAngle) * 90);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      // Planetas e seus anéis orbitais
-      planets.forEach(p => {
-        ctx.strokeStyle = p.visited ? 'rgba(56, 232, 255, 0.25)' : 'rgba(255, 255, 255, 0.12)';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([6, 8]);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.orbitRadius, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        ctx.shadowColor = p.glow;
-        ctx.shadowBlur = 18;
-        const g = ctx.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.1, p.x, p.y, p.r);
-        g.addColorStop(0, p.color1);
-        g.addColorStop(1, p.color2);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        if (p.ring) {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        // 3. Anel Planetário Opcional
+        if (this.hasRing) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
           ctx.lineWidth = 3;
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y, p.r * 1.5, p.r * 0.35, 0.3, 0, Math.PI * 2);
+          ctx.ellipse(this.x, this.y, this.coreRadius * 1.5, this.coreRadius * 0.35, 0.3, 0, Math.PI * 2);
           ctx.stroke();
         }
-      });
 
-      // Penas Cósmicas
-      feathers.forEach(f => {
-        if (!f.collected) drawGoldenFeather(f.x, f.y);
-      });
-
-      // Rastro da coruja
-      owl.trail.forEach(t => {
-        ctx.fillStyle = `rgba(56, 232, 255, ${t.alpha})`;
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, 7 * t.alpha, 0, Math.PI * 2);
-        ctx.fill();
-        t.alpha -= 0.04;
-      });
-
-      // Partículas
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const pt = particles[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.life -= 0.03;
-        if (pt.life <= 0) {
-          particles.splice(i, 1);
-          continue;
-        }
-        ctx.fillStyle = pt.c;
-        ctx.globalAlpha = pt.life;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.restore();
       }
-
-      // Mascote KRUUJ animado
-      if (state === 'play') {
-        const angle = owl.currentPlanet ? owl.angle : Math.atan2(owl.vy, owl.vx);
-        drawOwlMascot(owl.x, owl.y, owl.r, angle, !owl.currentPlanet);
-      }
-
-      ctx.restore();
     }
 
-    loop();
+    // ===== 4. PERSONAGEM (ESFERA / CÁPSULA COM FÍSICA VETORIAL) =====
+    class Player {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.radius = 16; // Raio do personagem (preparado para sprite)
+        this.currentPlanet = null;
+        this.angle = -Math.PI / 2;
+        this.orbitRadius = 80;
+        this.orbitSpeed = 0.038;
+        this.trail = [];
+      }
+
+      // Conecta o personagem à órbita de um planeta
+      enterOrbit(planet, interceptAngle) {
+        this.currentPlanet = planet;
+        this.orbitRadius = planet.gravityRadius;
+        this.orbitSpeed = planet.orbitSpeed;
+        this.angle = interceptAngle;
+        this.vx = 0;
+        this.vy = 0;
+      }
+
+      // Atualiza rotação orbital contínua usando trigonometria vetorial
+      updateOrbit() {
+        if (!this.currentPlanet) return;
+        this.angle += this.orbitSpeed;
+        this.x = this.currentPlanet.x + Math.cos(this.angle) * this.orbitRadius;
+        this.y = this.currentPlanet.y + Math.sin(this.angle) * this.orbitRadius;
+      }
+
+      // Desprende da órbita: lançamento tangencial retilíneo uniforme (Estilingue)
+      launch(launchSpeed) {
+        if (!this.currentPlanet) return;
+
+        // Vetor tangencial perpendicular ao raio orbital
+        const dir = this.orbitSpeed > 0 ? 1 : -1;
+        const tangentX = -Math.sin(this.angle) * dir;
+        const tangentY = Math.cos(this.angle) * dir;
+
+        this.vx = tangentX * launchSpeed;
+        this.vy = tangentY * launchSpeed;
+        this.currentPlanet = null;
+      }
+
+      // Movimento retilíneo uniforme após o lançamento
+      updateFlight() {
+        if (this.currentPlanet) return;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Histórico do rastro de partículas
+        this.trail.push({ x: this.x, y: this.y, alpha: 0.8 });
+        if (this.trail.length > 18) this.trail.shift();
+      }
+
+      render(ctx) {
+        ctx.save();
+
+        // 1. Rastro de partículas da cápsula
+        this.trail.forEach(t => {
+          ctx.fillStyle = `rgba(56, 232, 255, ${t.alpha})`;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, 6 * t.alpha, 0, Math.PI * 2);
+          ctx.fill();
+          t.alpha -= 0.04;
+        });
+
+        // 2. Renderização da Cápsula do Personagem (Formas geométricas limpas)
+        ctx.translate(this.x, this.y);
+
+        // Se estiver em voo, orienta na direção do vetor velocidade
+        const rot = this.currentPlanet ? (this.angle + Math.PI / 2) : Math.atan2(this.vy, this.vx);
+        ctx.rotate(rot);
+
+        // Aura de energia externa
+        ctx.fillStyle = 'rgba(56, 232, 255, 0.2)';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Corpo esférico com gradiente cósmico KRUUJ (Roxo e Ciano)
+        const g = ctx.createRadialGradient(-3, -3, 2, 0, 0, this.radius);
+        g.addColorStop(0, '#38e8ff');
+        g.addColorStop(0.5, '#8b5cff');
+        g.addColorStop(1, '#3b0764');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fone / Viseira geométrica decorativa
+        ctx.fillStyle = '#ffb020';
+        ctx.beginPath();
+        ctx.arc(5, -2, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 5. GERENCIADOR DA CÂMERA VERTICAL (SMOOTH SCROLL) =====
+    class Camera {
+      constructor() {
+        this.y = 0;
+        this.targetY = 0;
+      }
+
+      update(playerY, viewportHeight) {
+        // Acompanha suavemente o progresso vertical da subida
+        this.targetY = playerY - viewportHeight * 0.65;
+        this.y += (this.targetY - this.y) * 0.1;
+      }
+    }
+
+    // ===== 6. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.sound = new SoundController();
+        this.camera = new Camera();
+
+        this.state = 'menu'; // 'menu', 'play', 'over'
+        this.score = 0;
+        this.bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
+        this.baseLaunchSpeed = 12.8;
+
+        this.player = null;
+        this.planets = [];
+        this.particles = [];
+        this.stars = [];
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Fundo estrelado infinito
+        for (let i = 0; i < 180; i++) {
+          this.stars.push({
+            x: Math.random() * 2000 - 1000,
+            y: Math.random() * 4000 - 2000,
+            size: Math.random() * 2.2 + 0.5,
+            alpha: Math.random() * 0.7 + 0.3
+          });
+        }
+
+        // Input com Barra de Espaço e Toque / Clique na tela
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+            e.preventDefault();
+            this.handleAction();
+          }
+        });
+
+        window.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('#gameOverlay') || e.target.closest('button')) return;
+          this.handleAction();
+        });
+
+        // Atualiza recorde no HUD
+        document.getElementById('bestVal').textContent = this.bestScore;
+
+        // Loop principal a 60 FPS
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+
+        // Telemetria oficial da plataforma KRUUJ
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*');
+        } catch(e) {}
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+
+      handleAction() {
+        if (this.state === 'play') {
+          if (this.player && this.player.currentPlanet) {
+            // Arremesso tangencial (Estilingue)
+            const speed = this.baseLaunchSpeed + Math.min(4, this.score * 0.15);
+            this.player.launch(speed);
+            this.sound.playLaunch();
+            this.spawnLaunchParticles();
+          }
+        } else if (this.state === 'over' || this.state === 'menu') {
+          this.startGame();
+        }
+      }
+
+      startGame() {
+        this.sound.init();
+        this.state = 'play';
+        this.score = 0;
+        this.particles = [];
+        this.planets = [];
+        this.camera.y = 0;
+
+        document.getElementById('scoreVal').textContent = this.score;
+        document.getElementById('gameOverlay').classList.remove('active');
+        document.getElementById('hintBar').style.display = 'block';
+
+        // 1. Gera o primeiro planeta na parte inferior
+        let curY = this.canvas.height * 0.75;
+        const initialPlanet = new Planet(0, this.canvas.width / 2, curY);
+        this.planets.push(initialPlanet);
+
+        // 2. Instancia o jogador orbitando o planeta inicial
+        this.player = new Player(initialPlanet.x, initialPlanet.y);
+        this.player.enterOrbit(initialPlanet, -Math.PI / 2);
+
+        // 3. Gera os próximos 12 planetas em subida vertical
+        for (let i = 1; i < 14; i++) {
+          curY -= (185 + Math.random() * 60);
+          const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
+          this.planets.push(new Planet(i, px, curY));
+        }
+
+        try {
+          window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-orbit' }, '*');
+        } catch(e) {}
+      }
+
+      spawnLaunchParticles() {
+        for (let i = 0; i < 12; i++) {
+          const vx = (Math.random() - 0.5) * 5 - this.player.vx * 0.2;
+          const vy = (Math.random() - 0.5) * 5 - this.player.vy * 0.2;
+          this.particles.push(new Particle(this.player.x, this.player.y, '#ffb020', vx, vy, 0.8, 3.5));
+        }
+      }
+
+      spawnCaptureParticles(x, y, color) {
+        for (let i = 0; i < 16; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = 2 + Math.random() * 4;
+          this.particles.push(new Particle(x, y, color, Math.cos(angle) * spd, Math.sin(angle) * spd, 1.0, 3));
+        }
+      }
+
+      gameOver() {
+        this.state = 'over';
+        this.sound.playCrash();
+
+        // Atualiza recorde
+        this.bestScore = Math.max(this.bestScore, this.score);
+        localStorage.setItem('kruuj_orbit_best', String(this.bestScore));
+        document.getElementById('bestVal').textContent = this.bestScore;
+
+        // Atualiza UI do Modal
+        document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
+        document.getElementById('ovDesc').textContent = 'Você errou a trajetória ou colidiu diretamente com o núcleo do planeta. Acerte o timing exato do estilingue!';
+        document.getElementById('ovScore').textContent = this.score;
+        document.getElementById('ovBest').textContent = this.bestScore;
+        document.getElementById('ovStats').style.display = 'flex';
+        document.getElementById('btnPlay').textContent = 'JOGAR NOVAMENTE 🪐';
+        document.getElementById('gameOverlay').classList.add('active');
+        document.getElementById('hintBar').style.display = 'none';
+
+        // Telemetria e persistência em nuvem
+        try {
+          window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-orbit', score: this.score, bestScore: this.bestScore }, '*');
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { bestScore: this.bestScore }, score: this.score }, '*');
+        } catch(e) {}
+      }
+
+      // Loop de Física e Renderização
+      loop() {
+        requestAnimationFrame(this.loop);
+
+        // 1. Limpa o Canvas
+        this.ctx.fillStyle = '#070914';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 2. Atualização da Física
+        if (this.state === 'play' && this.player) {
+          if (this.player.currentPlanet) {
+            this.player.updateOrbit();
+          } else {
+            this.player.updateFlight();
+
+            // Checa colisão com planetas
+            for (let planet of this.planets) {
+              const dx = this.player.x - planet.x;
+              const dy = this.player.y - planet.y;
+              const dist = Math.hypot(dx, dy);
+
+              // 2.1 Colisão com o núcleo do planeta (Obstáculo -> Game Over)
+              if (dist <= planet.coreRadius + this.player.radius) {
+                this.gameOver();
+                return;
+              }
+
+              // 2.2 Interceptação da órbita gravitacional do próximo planeta
+              if (dist <= planet.gravityRadius + 18 && dist >= planet.coreRadius + 8) {
+                const interceptAngle = Math.atan2(dy, dx);
+                this.player.enterOrbit(planet, interceptAngle);
+                this.sound.playOrbitCapture();
+                this.spawnCaptureParticles(this.player.x, this.player.y, planet.color1);
+
+                if (!planet.visited) {
+                  planet.visited = true;
+                  this.score++;
+                  document.getElementById('scoreVal').textContent = this.score;
+
+                  // Gera dinamicamente novos planetas no topo contínuo
+                  const lastP = this.planets[this.planets.length - 1];
+                  const nextY = lastP.y - (185 + Math.random() * 60);
+                  const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
+                  this.planets.push(new Planet(this.planets.length, px, nextY));
+                }
+                break;
+              }
+            }
+
+            // 2.3 Saiu dos limites da tela -> Game Over
+            if (
+              this.player.x < -120 || 
+              this.player.x > this.canvas.width + 120 || 
+              this.player.y > (this.camera.y + this.canvas.height + 150)
+            ) {
+              this.gameOver();
+              return;
+            }
+          }
+
+          // Câmera vertical fluida
+          this.camera.update(this.player.y, this.canvas.height);
+        }
+
+        // 3. Renderização com Câmera (Scroll Vertical)
+        this.ctx.save();
+        this.ctx.translate(0, -this.camera.y);
+
+        // Fundo estrelado com parallax
+        this.stars.forEach(s => {
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+          this.ctx.beginPath();
+          this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          this.ctx.fill();
+        });
+
+        // Renderiza todos os planetas visíveis
+        this.planets.forEach(p => {
+          if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+            p.render(this.ctx);
+          }
+        });
+
+        // Partículas
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.update();
+          if (pt.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            pt.render(this.ctx);
+          }
+        }
+
+        // Renderiza o Jogador
+        if (this.state === 'play' && this.player) {
+          this.player.render(this.ctx);
+        }
+
+        this.ctx.restore();
+      }
+    }
+
+    // Instanciação Global
+    window.addEventListener('DOMContentLoaded', () => {
+      window.orbitGame = new Game();
+    });
   </script>
 </body>
 </html>

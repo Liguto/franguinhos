@@ -4,25 +4,29 @@
   <meta charset="utf-8">
   <title>KRUUJ MATCH: Alquimia Estelar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07061a;
+      --bg: #070914;
+      --bg-panel: #0d1224;
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
-      --pink: #ff5ca8;
+      --red: #ef4444;
       --green: #10b981;
-      --text: #f3f0ff;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
+      touch-action: manipulation;
     }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -33,26 +37,36 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px 16px 14px;
+      justify-content: center;
     }
-    .header {
-      width: 100%;
-      max-width: 440px;
+
+    /* Container Superior da Interface */
+    .hud-bar {
+      width: min(92vw, 440px);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 4px;
       z-index: 10;
     }
-    .title-logo {
-      font-size: 1.35rem;
+
+    .game-logo {
+      font-size: 1.3rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.01em;
     }
-    .stats-pill {
+
+    .stats-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .stat-chip {
       background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(10px);
@@ -60,50 +74,65 @@
       padding: 4px 14px;
       font-size: 0.88rem;
       font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .stat-chip span {
+      color: #fff;
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #cbd5e1;
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .stats-pill span {
-      color: var(--gold);
+
+    .btn-reset:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #f87171;
     }
-    .mascot-stage {
-      width: 100%;
-      max-width: 420px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+
+    /* Tabuleiro 8x8 Canvas */
+    #board-container {
       position: relative;
-    }
-    canvas#mascotCanvas {
-      width: 120px;
-      height: 70px;
-    }
-    #game-container {
-      position: relative;
-      width: min(88vw, 390px);
-      height: min(88vw, 390px);
+      width: min(92vw, 440px);
+      height: min(92vw, 440px);
       background: rgba(13, 18, 36, 0.75);
-      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.15);
       overflow: hidden;
     }
-    canvas#c {
+
+    canvas#gameCanvas {
       width: 100%;
       height: 100%;
       display: block;
+      cursor: pointer;
     }
-    .footer-bar {
-      font-size: 0.82rem;
-      color: #94a3b8;
+
+    .hint-text {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
       font-weight: 700;
       text-align: center;
     }
-    .overlay {
+
+    /* Overlay de Fim de Jogo */
+    .game-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
-      backdrop-filter: blur(12px);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -115,506 +144,763 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .overlay.active {
+
+    .game-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     h1 {
-      font-size: clamp(28px, 7vw, 44px);
+      font-size: clamp(30px, 7vw, 48px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 8px;
     }
+
     p {
       font-size: 0.95rem;
-      color: #cbd5e1;
-      max-width: 380px;
+      color: var(--text-muted);
+      max-width: 400px;
       line-height: 1.4;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
+
+    .stats-summary {
+      display: flex;
+      gap: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 28px;
+      margin-bottom: 24px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-item .label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stat-item .val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
     .btn-action {
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 12px 36px;
-      font-size: 1.1rem;
+      padding: 12px 40px;
+      font-size: 1.15rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
       transition: all 0.2s;
     }
+
     .btn-action:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="title-logo">KRUUJ MATCH</div>
-    <div class="stats-pill">PONTOS: <span id="score">0</span> 🪶</div>
-    <div class="stats-pill" style="font-size: 0.82rem;">RECORDE: <span id="best" style="color: var(--cyan);">0</span></div>
+  <!-- HUD Superior -->
+  <div class="hud-bar">
+    <div class="game-logo">KRUUJ MATCH</div>
+    <div class="stats-group">
+      <div class="stat-chip">PONTOS: <span id="scoreVal" style="color: var(--cyan);">0</span></div>
+      <div class="stat-chip">MOVIMENTOS: <span id="movesVal" style="color: var(--gold);">30</span></div>
+      <button class="btn-reset" onclick="window.matchGame.resetGame()">Reset</button>
+    </div>
   </div>
 
-  <div class="mascot-stage">
-    <canvas id="mascotCanvas" width="120" height="70"></canvas>
+  <!-- Tabuleiro Canvas -->
+  <div id="board-container">
+    <canvas id="gameCanvas"></canvas>
   </div>
 
-  <div id="game-container">
-    <canvas id="c"></canvas>
+  <div class="hint-text">Toque em uma peça e depois em uma vizinha para trocar!</div>
+
+  <!-- Overlay de Fim de Jogo -->
+  <div class="game-overlay" id="endOverlay">
+    <h1 id="ovTitle">MOVIMENTOS ESGOTADOS!</h1>
+    <p id="ovDesc">Você utilizou todos os 30 movimentos na Alquimia Estelar. Veja sua pontuação final e tente bater seu recorde!</p>
+    <div class="stats-summary">
+      <div class="stat-item">
+        <span class="label">Pontos Finais</span>
+        <span class="val" id="ovFinalScore">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Melhor Score</span>
+        <span class="val" id="ovBestScore" style="color: var(--gold);">0</span>
+      </div>
+    </div>
+    <button class="btn-action" onclick="window.matchGame.resetGame()">JOGAR NOVAMENTE 🔮</button>
   </div>
 
-  <div class="footer-bar">Combine 3 runas da Coruja Cósmica para ativar a alquimia!</div>
-
-  <!-- Overlay -->
-  <div class="overlay active" id="ov">
-    <h1 id="ovTitle">KRUUJ MATCH</h1>
-    <p id="ovDesc">Alinhe cristais e runas da Coruja Cósmica! Forme combinações de 4 ou 5 para desencadear o poder das Asas de Luz.</p>
-    <button class="btn-action" onclick="startGame()">COMBINAR 🦉</button>
-  </div>
-
+  <!-- ================================================================= -->
+  <!-- LÓGICA DO MATCH-3 EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)        -->
+  <!-- ================================================================= -->
   <script>
-    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
-    function sendEvent(type, data = {}) {
-      try {
-        window.parent.postMessage({ type, gameSlug: 'kruuj-match', ...data }, '*');
-      } catch (e) {}
-    }
-    sendEvent('game_loaded');
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+      }
 
-    let bestScore = parseInt(localStorage.getItem('kruuj_match_best') || '0', 10);
-    document.getElementById('best').textContent = bestScore;
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+      // Som de clique/seleção
+      playSelect() {
         try {
-          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
-          if (d && d.bestScore) {
-            bestScore = Math.max(bestScore, d.bestScore);
-            localStorage.setItem('kruuj_match_best', String(bestScore));
-            document.getElementById('best').textContent = bestScore;
-          }
-        } catch(err){}
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(540, now);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch(e) {}
       }
-    });
 
-    // ===== Som Temático de Coruja (WebAudio) =====
-    let audioCtx = null;
-    function getAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
+      // Som de Match / Explosão de cristais (Acorde cristalino harmônico)
+      playMatch(combo = 1) {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const baseFreq = 440 + Math.min(8, combo) * 65;
+          [baseFreq, baseFreq * 1.25, baseFreq * 1.5].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.03);
+            gain.gain.setValueAtTime(0.08, now + i * 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.25);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.03);
+            osc.stop(now + i * 0.03 + 0.25);
+          });
+        } catch(e) {}
+      }
+
+      // Som de troca inválida (Vai e volta)
+      playInvalidSwap() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch(e) {}
+      }
     }
 
-    // Piadinho alegre de combo
-    function playOwlChirp(combo = 1) {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
+    // ===== 2. SISTEMA DE PARTÍCULAS (POEIRA ESTELAR MÁGICA) =====
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 4.5;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.life = 1.0;
+        this.radius = 2.5 + Math.random() * 2.5;
+      }
 
-        const freq = 520 + combo * 90;
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.35, now + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.1, now + 0.18);
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.04;
+      }
 
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.14, now + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.22);
-      } catch (e) {}
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
-    function playSwapFail() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(220, now);
-        osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+    // ===== 3. PEÇA / CRISTAL RÚNICO =====
+    class Piece {
+      constructor(row, col, type, tileSize) {
+        this.row = row;
+        this.col = col;
+        this.type = type;
+        this.tileSize = tileSize;
 
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        // Posição visual na tela (em pixels) para animação suave
+        this.x = col * tileSize;
+        this.y = row * tileSize;
+        this.targetX = this.x;
+        this.targetY = this.y;
 
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      } catch (e) {}
+        this.scale = 1.0;
+        this.alpha = 1.0;
+      }
+
+      // Atualiza interpolação suave da posição (Lerp)
+      update() {
+        this.x += (this.targetX - this.x) * 0.28;
+        this.y += (this.targetY - this.y) * 0.28;
+      }
+
+      isMoving() {
+        return Math.hypot(this.targetX - this.x, this.targetY - this.y) > 0.8;
+      }
+
+      setGridPosition(row, col) {
+        this.row = row;
+        this.col = col;
+        this.targetX = col * this.tileSize;
+        this.targetY = row * this.tileSize;
+      }
+
+      // Renderiza as 5 Formas Geométricas Simples no Canvas (Pronto para sprites)
+      render(ctx, isSelected = false) {
+        if (this.alpha <= 0) return;
+
+        const cx = this.x + this.tileSize / 2;
+        const cy = this.y + this.tileSize / 2;
+        const r = (this.tileSize * 0.38) * this.scale;
+
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+
+        // Borda de seleção destacada
+        if (isSelected) {
+          ctx.strokeStyle = '#38e8ff';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(this.x + 4, this.y + 4, this.tileSize - 8, this.tileSize - 8);
+        }
+
+        // As 5 formas/cores geométricas solicitadas:
+        // 0: Diamante Ciano (◆)
+        // 1: Ametista Roxa (▲)
+        // 2: Estrela Dourada (★)
+        // 3: Rubi Vermelho (●)
+        // 4: Esmeralda Verde (✦)
+        switch (this.type) {
+          case 0: // Diamante Ciano
+            ctx.fillStyle = '#38e8ff';
+            ctx.shadowColor = '#38e8ff';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - r);
+            ctx.lineTo(cx + r, cy);
+            ctx.lineTo(cx, cy + r);
+            ctx.lineTo(cx - r, cy);
+            ctx.closePath();
+            ctx.fill();
+            break;
+
+          case 1: // Ametista Roxa (Triângulo)
+            ctx.fillStyle = '#8b5cff';
+            ctx.shadowColor = '#8b5cff';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - r);
+            ctx.lineTo(cx + r, cy + r * 0.85);
+            ctx.lineTo(cx - r, cy + r * 0.85);
+            ctx.closePath();
+            ctx.fill();
+            break;
+
+          case 2: // Estrela Dourada (Estrela de 4 pontas geométrica)
+            ctx.fillStyle = '#ffb020';
+            ctx.shadowColor = '#ffb020';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+              const rad = (i * Math.PI) / 4;
+              const len = i % 2 === 0 ? r : r * 0.45;
+              const px = cx + Math.cos(rad) * len;
+              const py = cy + Math.sin(rad) * len;
+              if (i === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            break;
+
+          case 3: // Rubi Vermelho (Círculo)
+            ctx.fillStyle = '#ef4444';
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 4: // Esmeralda Verde (Quadrado Chanfrado)
+            ctx.fillStyle = '#10b981';
+            ctx.shadowColor = '#10b981';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.roundRect(cx - r * 0.85, cy - r * 0.85, r * 1.7, r * 1.7, 6);
+            ctx.fill();
+            break;
+        }
+
+        // Brilho facetado interno
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.25, cy - r * 0.25, r * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
     }
 
-    // ===== Lógica do KRUUJ Match =====
-    const cv = document.getElementById('c');
-    const ctx = cv.getContext('2d');
-    const mascotCanvas = document.getElementById('mascotCanvas');
-    const mCtx = mascotCanvas.getContext('2d');
+    // ===== 4. TABULEIRO 8x8 (MATRIZ BIDIMENSIONAL) =====
+    class Board {
+      constructor(rows, cols, tileSize) {
+        this.rows = rows;
+        this.cols = cols;
+        this.tileSize = tileSize;
+        this.typesCount = 5; // 5 tipos de cristais
+        this.grid = []; // Matriz 2D
+        this.initGridWithoutMatches();
+      }
 
-    const ROWS = 7;
-    const COLS = 7;
-    let tileSize = 0;
-    let grid = [];
-    let score = 0;
-    let isSwapping = false;
-    let particles = [];
-    let state = 'menu';
-    let mascotHappyTimer = 0;
-
-    // As 5 Runas Oficiais do Universo KRUUJ
-    const GEMS = [
-      { name: 'pena', color: '#ffb020', glow: '#ffb020', icon: '🪶', label: 'Pena' },
-      { name: 'fone', color: '#38e8ff', glow: '#38e8ff', icon: '🎧', label: 'Fone' },
-      { name: 'coruja', color: '#8b5cff', glow: '#8b5cff', icon: '🦉', label: 'Olho' },
-      { name: 'ovo', color: '#ff5ca8', glow: '#ff5ca8', icon: '🥚', label: 'Ovo' },
-      { name: 'folha', color: '#10b981', glow: '#10b981', icon: '🍃', label: 'Folha' }
-    ];
-
-    function resize() {
-      const container = document.getElementById('game-container');
-      const w = container.clientWidth;
-      cv.width = w;
-      cv.height = w;
-      tileSize = w / COLS;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    function initGrid() {
-      grid = [];
-      score = 0;
-      document.getElementById('score').textContent = score;
-
-      for (let r = 0; r < ROWS; r++) {
-        grid[r] = [];
-        for (let c = 0; c < COLS; c++) {
-          let type;
-          do {
-            type = Math.floor(Math.random() * GEMS.length);
-          } while (
-            (c >= 2 && grid[r][c - 1]?.type === type && grid[r][c - 2]?.type === type) ||
-            (r >= 2 && grid[r - 1][c]?.type === type && grid[r - 2][c]?.type === type)
-          );
-          grid[r][c] = { type, r, c };
+      resize(tileSize) {
+        this.tileSize = tileSize;
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (this.grid[r][c]) {
+              this.grid[r][c].tileSize = tileSize;
+              this.grid[r][c].setGridPosition(r, c);
+            }
+          }
         }
       }
-    }
 
-    function checkMatches() {
-      let matches = new Set();
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS - 2; c++) {
-          const t = grid[r][c].type;
-          if (t !== null && t === grid[r][c + 1]?.type && t === grid[r][c + 2]?.type) {
-            matches.add(`${r},${c}`);
-            matches.add(`${r},${c + 1}`);
-            matches.add(`${r},${c + 2}`);
+      // Garante que o tabuleiro comece SEM combinações de 3 peças já prontas
+      initGridWithoutMatches() {
+        this.grid = [];
+        for (let r = 0; r < this.rows; r++) {
+          this.grid[r] = [];
+          for (let c = 0; c < this.cols; c++) {
+            let type;
+            do {
+              type = Math.floor(Math.random() * this.typesCount);
+            } while (
+              (c >= 2 && this.grid[r][c - 1]?.type === type && this.grid[r][c - 2]?.type === type) ||
+              (r >= 2 && this.grid[r - 1][c]?.type === type && this.grid[r - 2][c]?.type === type)
+            );
+            this.grid[r][c] = new Piece(r, c, type, this.tileSize);
           }
         }
       }
-      for (let c = 0; c < COLS; c++) {
-        for (let r = 0; r < ROWS - 2; r++) {
-          const t = grid[r][c].type;
-          if (t !== null && t === grid[r + 1][c]?.type && t === grid[r + 2][c]?.type) {
-            matches.add(`${r},${c}`);
-            matches.add(`${r + 1},${c}`);
-            matches.add(`${r + 2},${c}`);
+
+      getPiece(r, c) {
+        if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+          return this.grid[r][c];
+        }
+        return null;
+      }
+
+      // Verifica se duas posições são vizinhas ortogonais (acima, abaixo, esquerda ou direita)
+      isAdjacent(p1, p2) {
+        const dRow = Math.abs(p1.row - p2.row);
+        const dCol = Math.abs(p1.col - p2.col);
+        return (dRow === 1 && dCol === 0) || (dRow === 0 && dCol === 1);
+      }
+
+      // Identifica todas as combinações de 3 ou mais peças na horizontal e vertical
+      findMatches() {
+        const matches = new Set();
+
+        // 1. Horizontal
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols - 2; c++) {
+            const p = this.grid[r][c];
+            if (!p) continue;
+            const t = p.type;
+            if (t === this.grid[r][c + 1]?.type && t === this.grid[r][c + 2]?.type) {
+              matches.add(`${r},${c}`);
+              matches.add(`${r},${c + 1}`);
+              matches.add(`${r},${c + 2}`);
+              // Se tiver 4 ou 5 em linha
+              if (t === this.grid[r][c + 3]?.type) matches.add(`${r},${c + 3}`);
+              if (t === this.grid[r][c + 4]?.type) matches.add(`${r},${c + 4}`);
+            }
           }
         }
-      }
-      return Array.from(matches).map(pos => {
-        const [r, c] = pos.split(',').map(Number);
-        return { r, c };
-      });
-    }
 
-    async function processMatches() {
-      let matches = checkMatches();
-      let combo = 0;
-
-      while (matches.length > 0) {
-        combo++;
-        playOwlChirp(combo);
-        mascotHappyTimer = 40; // Mascote comemora!
-
-        score += matches.length * 15 * combo;
-        document.getElementById('score').textContent = score;
-
-        matches.forEach(m => {
-          const tile = grid[m.r][m.c];
-          const color = GEMS[tile.type]?.color || '#fff';
-          for (let i = 0; i < 7; i++) {
-            particles.push({
-              x: m.c * tileSize + tileSize / 2,
-              y: m.r * tileSize + tileSize / 2,
-              vx: (Math.random() - 0.5) * 6,
-              vy: (Math.random() - 0.5) * 6,
-              r: Math.random() * 4 + 2,
-              c: color,
-              life: 1
-            });
+        // 2. Vertical
+        for (let c = 0; c < this.cols; c++) {
+          for (let r = 0; r < this.rows - 2; r++) {
+            const p = this.grid[r][c];
+            if (!p) continue;
+            const t = p.type;
+            if (t === this.grid[r + 1][c]?.type && t === this.grid[r + 2][c]?.type) {
+              matches.add(`${r},${c}`);
+              matches.add(`${r + 1},${c}`);
+              matches.add(`${r + 2},${c}`);
+              if (t === this.grid[r + 3]?.[c]?.type) matches.add(`${r + 3},${c}`);
+              if (t === this.grid[r + 4]?.[c]?.type) matches.add(`${r + 4},${c}`);
+            }
           }
-          grid[m.r][m.c].type = null;
+        }
+
+        return Array.from(matches).map(pos => {
+          const [row, col] = pos.split(',').map(Number);
+          return { row, col, piece: this.grid[row][col] };
         });
+      }
 
-        // Queda
-        for (let c = 0; c < COLS; c++) {
-          let emptyRow = ROWS - 1;
-          for (let r = ROWS - 1; r >= 0; r--) {
-            if (grid[r][c].type !== null) {
+      // Troca duas peças na matriz
+      swap(p1, p2) {
+        this.grid[p1.row][p1.col] = p2;
+        this.grid[p2.row][p2.col] = p1;
+
+        const r1 = p1.row, c1 = p1.col;
+        p1.setGridPosition(p2.row, p2.col);
+        p2.setGridPosition(r1, c1);
+      }
+
+      // Aplica gravidade e preenche o topo (Refill/Cascade)
+      applyGravityAndRefill() {
+        let hasFallen = false;
+
+        for (let c = 0; c < this.cols; c++) {
+          let emptyRow = this.rows - 1;
+
+          // Desce peças existentes
+          for (let r = this.rows - 1; r >= 0; r--) {
+            if (this.grid[r][c] !== null) {
               if (emptyRow !== r) {
-                grid[emptyRow][c].type = grid[r][c].type;
-                grid[r][c].type = null;
+                this.grid[emptyRow][c] = this.grid[r][c];
+                this.grid[emptyRow][c].setGridPosition(emptyRow, c);
+                this.grid[r][c] = null;
+                hasFallen = true;
               }
               emptyRow--;
             }
           }
+
+          // Spawna novas peças no topo
           for (let r = emptyRow; r >= 0; r--) {
-            grid[r][c].type = Math.floor(Math.random() * GEMS.length);
+            const newType = Math.floor(Math.random() * this.typesCount);
+            const piece = new Piece(r, c, newType, this.tileSize);
+            piece.y = -((emptyRow - r + 1) * this.tileSize); // Começa acima da tela
+            this.grid[r][c] = piece;
+            hasFallen = true;
           }
         }
 
-        await new Promise(res => setTimeout(res, 210));
-        matches = checkMatches();
+        return hasFallen;
       }
 
-      if (score > bestScore) {
-        bestScore = score;
-        localStorage.setItem('kruuj_match_best', String(bestScore));
-        document.getElementById('best').textContent = bestScore;
-        sendEvent('game_save', { saveData: { bestScore }, score });
+      isAnyPieceMoving() {
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            if (this.grid[r][c]?.isMoving()) return true;
+          }
+        }
+        return false;
       }
-      isSwapping = false;
-    }
 
-    async function swapTiles(t1, t2) {
-      isSwapping = true;
-      const type1 = t1.type;
-      t1.type = t2.type;
-      t2.type = type1;
-
-      const matches = checkMatches();
-      if (matches.length === 0) {
-        playSwapFail();
-        await new Promise(res => setTimeout(res, 180));
-        t2.type = t1.type;
-        t1.type = type1;
-        isSwapping = false;
-      } else {
-        await processMatches();
-      }
-    }
-
-    let pointerStart = null;
-    cv.addEventListener('pointerdown', (e) => {
-      if (isSwapping || state !== 'play') return;
-      const rect = cv.getBoundingClientRect();
-      const col = Math.floor((e.clientX - rect.left) / tileSize);
-      const row = Math.floor((e.clientY - rect.top) / tileSize);
-      if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-        pointerStart = { r: row, c: col, x: e.clientX, y: e.clientY };
-      }
-    });
-
-    cv.addEventListener('pointerup', (e) => {
-      if (!pointerStart || isSwapping || state !== 'play') return;
-      const dx = e.clientX - pointerStart.x;
-      const dy = e.clientY - pointerStart.y;
-      if (Math.hypot(dx, dy) > 15) {
-        let tr = pointerStart.r;
-        let tc = pointerStart.c;
-        if (Math.abs(dx) > Math.abs(dy)) tc += dx > 0 ? 1 : -1;
-        else tr += dy > 0 ? 1 : -1;
-
-        if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) {
-          swapTiles(grid[pointerStart.r][pointerStart.c], grid[tr][tc]);
+      update() {
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            this.grid[r][c]?.update();
+          }
         }
       }
-      pointerStart = null;
-    });
 
-    function startGame() {
-      initGrid();
-      state = 'play';
-      sendEvent('game_start');
-      document.getElementById('ov').classList.remove('active');
-    }
-
-    // Desenha o Mascote KRUUJ animado no topo (Reação viva aos combos)
-    function drawTopMascot() {
-      mCtx.clearRect(0, 0, mascotCanvas.width, mascotCanvas.height);
-      const cx = 60;
-      const cy = 38;
-      const r = 20;
-
-      if (mascotHappyTimer > 0) mascotHappyTimer--;
-      const isHappy = mascotHappyTimer > 0;
-
-      // Galho / Puleiro Cósmico
-      mCtx.fillStyle = '#1e1b4b';
-      mCtx.strokeStyle = 'rgba(56, 232, 255, 0.4)';
-      mCtx.lineWidth = 2;
-      mCtx.beginPath();
-      mCtx.roundRect(10, cy + 16, 100, 6, 3);
-      mCtx.fill();
-      mCtx.stroke();
-
-      // Asas (Batendo se estiver feliz com combo)
-      const wingW = isHappy ? Math.sin(Date.now() * 0.03) * 6 : 0;
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#6d28d9';
-        mCtx.beginPath();
-        mCtx.ellipse(cx + side * (r + 2 + wingW), cy + 2, 6, 12, side * 0.3, 0, Math.PI * 2);
-        mCtx.fill();
-      });
-
-      // Arco dos Fones
-      mCtx.strokeStyle = '#0f172a';
-      mCtx.lineWidth = 3;
-      mCtx.beginPath();
-      mCtx.arc(cx, cy, r + 2, Math.PI * 1.15, Math.PI * 1.85);
-      mCtx.stroke();
-
-      // Fones de ouvido Ciano
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#1e1b4b';
-        mCtx.strokeStyle = '#38e8ff';
-        mCtx.lineWidth = 2;
-        mCtx.beginPath();
-        mCtx.ellipse(cx + side * (r + 2), cy, 4, 8, 0, 0, Math.PI * 2);
-        mCtx.fill();
-        mCtx.stroke();
-      });
-
-      // Corpo da Coruja
-      const g = mCtx.createRadialGradient(cx, cy - 3, 2, cx, cy, r);
-      g.addColorStop(0, '#8b5cff');
-      g.addColorStop(1, '#3b0764');
-      mCtx.fillStyle = g;
-      mCtx.beginPath();
-      mCtx.arc(cx, cy, r, 0, Math.PI * 2);
-      mCtx.fill();
-
-      // Orelhinhas
-      mCtx.fillStyle = '#4c1d95';
-      [-1, 1].forEach(side => {
-        mCtx.beginPath();
-        mCtx.moveTo(cx + side * (r * 0.65), cy - r * 0.4);
-        mCtx.lineTo(cx + side * (r * 0.75), cy - r * 1.3);
-        mCtx.lineTo(cx + side * (r * 0.2), cy - r * 0.8);
-        mCtx.fill();
-      });
-
-      // Olhos
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#fff';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.34, 0, Math.PI * 2);
-        mCtx.fill();
-
-        mCtx.fillStyle = '#ffb020';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.24, 0, Math.PI * 2);
-        mCtx.fill();
-
-        mCtx.fillStyle = '#0f172a';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.12, 0, Math.PI * 2);
-        mCtx.fill();
-      });
-
-      // Bico
-      mCtx.fillStyle = '#f59e0b';
-      mCtx.beginPath();
-      mCtx.moveTo(cx - 3, cy + 2);
-      mCtx.lineTo(cx + 3, cy + 2);
-      mCtx.lineTo(cx, cy + 8);
-      mCtx.fill();
-    }
-
-    // Loop
-    function loop() {
-      requestAnimationFrame(loop);
-      drawTopMascot();
-
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      ctx.fillStyle = '#0a0d1f';
-      ctx.fillRect(0, 0, cv.width, cv.height);
-
-      // Grade sutil
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= COLS; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * tileSize, 0);
-        ctx.lineTo(i * tileSize, cv.height);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i * tileSize);
-        ctx.lineTo(cv.width, i * tileSize);
-        ctx.stroke();
-      }
-
-      // Desenha as pedras rúnicas
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const tile = grid[r]?.[c];
-          if (!tile || tile.type === null) continue;
-
-          const gem = GEMS[tile.type];
-          const x = c * tileSize + tileSize / 2;
-          const y = r * tileSize + tileSize / 2;
-          const radius = tileSize * 0.38;
-
-          ctx.save();
-          ctx.shadowColor = gem.glow;
-          ctx.shadowBlur = 10;
-
-          // Runa circular suave
-          ctx.fillStyle = gem.color;
+      render(ctx, selectedPiece) {
+        // Grade sutil de fundo
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= this.cols; i++) {
           ctx.beginPath();
-          ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Símbolo temático da Coruja
-          ctx.font = `${tileSize * 0.42}px 'Baloo 2', sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(gem.icon, x, y + 2);
-          ctx.restore();
+          ctx.moveTo(i * this.tileSize, 0);
+          ctx.lineTo(i * this.tileSize, this.rows * this.tileSize);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, i * this.tileSize);
+          ctx.lineTo(this.cols * this.tileSize, i * this.tileSize);
+          ctx.stroke();
         }
-      }
 
-      // Partículas
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const pt = particles[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.life -= 0.035;
-        if (pt.life <= 0) {
-          particles.splice(i, 1);
-          continue;
+        // Renderiza peças
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const p = this.grid[r][c];
+            if (p) p.render(ctx, p === selectedPiece);
+          }
         }
-        ctx.fillStyle = pt.c;
-        ctx.globalAlpha = pt.life;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
       }
     }
 
-    loop();
+    // ===== 5. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.sound = new SoundController();
+
+        this.rows = 8;
+        this.cols = 8;
+        this.tileSize = 50;
+
+        this.board = new Board(this.rows, this.cols, this.tileSize);
+        this.selectedPiece = null;
+        this.isBusy = false; // Trava de clique enquanto anima
+
+        this.score = 0;
+        this.movesLeft = 30; // Limite de 30 movimentos especificado
+        this.bestScore = parseInt(localStorage.getItem('kruuj_match_best') || '0', 10);
+        this.particles = [];
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+
+        this.updateUI();
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-match' }, '*');
+        } catch(e) {}
+      }
+
+      resize() {
+        const container = document.getElementById('board-container');
+        const size = container.clientWidth;
+        this.canvas.width = size;
+        this.canvas.height = size;
+        this.tileSize = size / this.cols;
+        this.board.resize(this.tileSize);
+      }
+
+      async onPointerDown(e) {
+        // Bloqueio de cliques durante animação de queda ou explosão
+        if (this.isBusy || this.movesLeft <= 0) return;
+
+        this.sound.init();
+        const rect = this.canvas.getBoundingClientRect();
+        const col = Math.floor((e.clientX - rect.left) / this.tileSize);
+        const row = Math.floor((e.clientY - rect.top) / this.tileSize);
+
+        const clicked = this.board.getPiece(row, col);
+        if (!clicked) return;
+
+        // 1. Primeiro clique: Seleciona a peça
+        if (!this.selectedPiece) {
+          this.selectedPiece = clicked;
+          this.sound.playSelect();
+          return;
+        }
+
+        // Se clicou na mesma peça: Desmarca
+        if (this.selectedPiece === clicked) {
+          this.selectedPiece = null;
+          return;
+        }
+
+        // 2. Segundo clique: Verifica se é vizinha ortogonal
+        if (this.board.isAdjacent(this.selectedPiece, clicked)) {
+          const pieceA = this.selectedPiece;
+          const pieceB = clicked;
+          this.selectedPiece = null;
+
+          await this.attemptSwap(pieceA, pieceB);
+        } else {
+          // Se clicou em uma peça distante, muda a seleção para ela
+          this.selectedPiece = clicked;
+          this.sound.playSelect();
+        }
+      }
+
+      // Executa a lógica de troca com validação e "vai e volta" se inválida
+      async attemptSwap(p1, p2) {
+        this.isBusy = true; // Trava o clique do jogador
+
+        // 1. Faz a troca visual
+        this.board.swap(p1, p2);
+        await this.waitForBoardMovement();
+
+        // 2. Verifica se a troca resultou em match
+        const matches = this.board.findMatches();
+
+        if (matches.length > 0) {
+          // Troca válida!
+          this.movesLeft--;
+          this.updateUI();
+          await this.processBoardCascades();
+        } else {
+          // Troca INVÁLIDA: Animação rápida de "vai e volta" (Desfaz a troca)
+          this.sound.playInvalidSwap();
+          await new Promise(r => setTimeout(r, 120));
+
+          this.board.swap(p1, p2);
+          await this.waitForBoardMovement();
+        }
+
+        // Checa se os movimentos acabaram
+        if (this.movesLeft <= 0) {
+          this.gameOver();
+        }
+
+        this.isBusy = false; // Libera o clique do jogador
+      }
+
+      // Aguarda as peças terminarem o deslocamento visual suave
+      async waitForBoardMovement() {
+        while (this.board.isAnyPieceMoving()) {
+          await new Promise(r => setTimeout(r, 16));
+        }
+      }
+
+      // Processa a destruição, cascata e novos combos em cadeia
+      async processBoardCascades() {
+        let matches = this.board.findMatches();
+        let comboCount = 0;
+
+        while (matches.length > 0) {
+          comboCount++;
+          this.sound.playMatch(comboCount);
+
+          // Pontuação por combo
+          this.score += matches.length * 15 * comboCount;
+          this.updateUI();
+
+          // Destrói peças combinadas e gera explosão de poeira estelar
+          matches.forEach(m => {
+            const piece = this.board.grid[m.row][m.col];
+            if (piece) {
+              const colors = ['#38e8ff', '#8b5cff', '#ffb020', '#ef4444', '#10b981'];
+              this.spawnExplosion(piece.x + this.tileSize / 2, piece.y + this.tileSize / 2, colors[piece.type]);
+              this.board.grid[m.row][m.col] = null;
+            }
+          });
+
+          await new Promise(r => setTimeout(r, 140));
+
+          // Queda de peças e novos cristais no topo (Cascade/Refill)
+          this.board.applyGravityAndRefill();
+          await this.waitForBoardMovement();
+
+          // Aguarda um instante e re-checa se surgiram novos combos
+          await new Promise(r => setTimeout(r, 100));
+          matches = this.board.findMatches();
+        }
+      }
+
+      spawnExplosion(x, y, color) {
+        for (let i = 0; i < 9; i++) {
+          this.particles.push(new Particle(x, y, color));
+        }
+      }
+
+      resetGame() {
+        this.score = 0;
+        this.movesLeft = 30;
+        this.selectedPiece = null;
+        this.isBusy = false;
+        this.particles = [];
+        this.board.initGridWithoutMatches();
+        document.getElementById('endOverlay').classList.remove('active');
+        this.updateUI();
+      }
+
+      gameOver() {
+        this.bestScore = Math.max(this.bestScore, this.score);
+        localStorage.setItem('kruuj_match_best', String(this.bestScore));
+
+        document.getElementById('ovFinalScore').textContent = this.score;
+        document.getElementById('ovBestScore').textContent = this.bestScore;
+        document.getElementById('endOverlay').classList.add('active');
+
+        try {
+          window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-match', score: this.score, bestScore: this.bestScore }, '*');
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-match', saveData: { bestScore: this.bestScore }, score: this.score }, '*');
+        } catch(e) {}
+      }
+
+      updateUI() {
+        document.getElementById('scoreVal').textContent = this.score;
+        document.getElementById('movesVal').textContent = this.movesLeft;
+      }
+
+      loop() {
+        requestAnimationFrame(this.loop);
+
+        // 1. Limpa o Canvas
+        this.ctx.fillStyle = '#0a0d1f';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 2. Atualiza e Renderiza o Tabuleiro
+        this.board.update();
+        this.board.render(this.ctx, this.selectedPiece);
+
+        // 3. Atualiza e Renderiza Partículas de Explosão
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.update();
+          if (pt.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            pt.render(this.ctx);
+          }
+        }
+      }
+    }
+
+    // Instanciação Global
+    window.addEventListener('DOMContentLoaded', () => {
+      window.matchGame = new Game();
+    });
   </script>
 </body>
 </html>
