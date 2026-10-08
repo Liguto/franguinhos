@@ -9,8 +9,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Corrida,Espaço,Ação',
     tags: 'corrida,espaco,arcade,foguete,velocidade',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'rocket',
+    bannerUrl: '/banners/rocket-rise.jpg',
+    iconUrl: '/icons/rocket-rise.jpg',
     prefixUrl: '/games/rocket-rise/',
     version: '1.2.0',
     mouse: false,
@@ -76,7 +76,7 @@ export const REAL_14_GAMES = [
   {
     title: 'Bubble Boom',
     slug: 'bubble-pop',
-    description: 'Estoure bolhas mágicas coloridas em um ambiente vibrante, calmo e seguro. Perfeito para relaxar e exercitar a coordenação motora de bebês e crianças.',
+    description: 'Estoure bolhas mágicas coloridas em um ambiente vibrante, calmo e seguro. Perfeito para relaxar e exercitar a coordenação motora de crianças e bebês.',
     category: 'Bebês',
     subcategories: 'Lúdico,Sensorial,Cores',
     tags: 'bebes,bolhas,cores,sensorial,relaxante',
@@ -177,8 +177,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Sudoku,Lógica,Corujas,Cognitivo',
     tags: 'kruujdoku,sudoku,corujas,puzzle,mente,raciocinio,zen',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'brain',
+    bannerUrl: '/banners/kruujdoku.jpg',
+    iconUrl: '/icons/kruujdoku.png',
     prefixUrl: '/games/kruujdoku/',
     version: '1.0.0',
     mouse: true,
@@ -201,8 +201,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Arena,Multiplayer,Sobrevivência,Battle Royale',
     tags: 'kruujio,arena,acao,io,corujas,competitivo,multiplayer',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'gamepad',
+    bannerUrl: '/banners/kruujio.png',
+    iconUrl: '/icons/kruujio.png',
     prefixUrl: '/games/kruujio/',
     version: '1.0.0',
     mouse: true,
@@ -225,8 +225,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Arcade,Gravidade,Espaço,One-Touch',
     tags: 'orbit,kruuj,espaco,arcade,gravidade,corujas,salto,kids',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'compass',
+    bannerUrl: '/banners/kruuj-orbit.jpg',
+    iconUrl: '/icons/kruuj-orbit.png',
     prefixUrl: '/games/kruuj-orbit/',
     version: '1.0.0',
     mouse: true,
@@ -249,8 +249,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Match-3,Puzzle,Zen,Lógica',
     tags: 'match3,kruuj,puzzle,zen,alquimia,mente,relaxar,idoso,familia',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'sparkles',
+    bannerUrl: '/banners/kruuj-match.jpg',
+    iconUrl: '/icons/kruuj-match.png',
     prefixUrl: '/games/kruuj-match/',
     version: '1.0.0',
     mouse: true,
@@ -273,8 +273,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Tower Defense,Estratégia,Ação,Defesa',
     tags: 'defense,kruuj,torres,estrategia,guardioes,acao,familia',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'shield',
+    bannerUrl: '/banners/kruuj-defense.jpg',
+    iconUrl: '/icons/kruuj-defense.png',
     prefixUrl: '/games/kruuj-defense/',
     version: '1.0.0',
     mouse: true,
@@ -297,8 +297,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Runner,Endless,Cyberpunk,Velocidade',
     tags: 'runner,kruuj,corrida,parkour,cyberpunk,acao,infinito',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'zap',
+    bannerUrl: '/banners/kruuj-runner.jpg',
+    iconUrl: '/icons/kruuj-runner.png',
     prefixUrl: '/games/kruuj-runner/',
     version: '1.0.0',
     mouse: true,
@@ -321,8 +321,8 @@ export const REAL_14_GAMES = [
     subcategories: 'Palavras,Lógica,Vocabulário,Educativo',
     tags: 'palavras,kruuj,educacional,letras,vocabulario,enigma,kids,infantil',
     ageRating: 'Livre',
-    bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
-    iconUrl: 'book',
+    bannerUrl: '/banners/kruuj-words.jpg',
+    iconUrl: '/icons/kruuj-words.png',
     prefixUrl: '/games/kruuj-words/',
     version: '1.0.0',
     mouse: true,
@@ -339,10 +339,7 @@ export const REAL_14_GAMES = [
   }
 ];
 
-let syncExecuted = false;
-
 export async function syncDatabaseWithCatalog() {
-  if (syncExecuted) return;
   try {
     const validSlugs = new Set(REAL_14_GAMES.map(g => g.slug));
 
@@ -356,7 +353,7 @@ export async function syncDatabaseWithCatalog() {
       }
     });
 
-    // 2. Renomear e atualizar "Rocket Rise" e garantir os 14 jogos no banco
+    // 2. Atualizar todos os 14 jogos no banco com títulos, banners e ícones oficiais
     for (const item of REAL_14_GAMES) {
       const existing = await prisma.game.findUnique({
         where: { slug: item.slug }
@@ -388,20 +385,21 @@ export async function syncDatabaseWithCatalog() {
           }
         });
       } else {
-        // Atualiza título se necessário (ex: Corrida Espacial -> Rocket Rise)
+        // Atualiza TUDO: título, bannerUrl, iconUrl, descrição e prefixUrl
         await prisma.game.update({
           where: { slug: item.slug },
           data: {
             title: item.title,
             description: item.description,
+            bannerUrl: item.bannerUrl,
+            iconUrl: item.iconUrl,
             statusEditorial: 'publicado',
             prefixUrl: item.prefixUrl
           }
         });
       }
     }
-    syncExecuted = true;
-    console.log('[Supabase Sync] Catálogo limpo! Apenas os 14 jogos físicos reais estão ativos.');
+    console.log('[Supabase Sync] Catálogo limpo! 14 jogos físicos reais sincronizados com banners e ícones oficiais.');
   } catch (err: any) {
     console.warn('[Supabase Sync] Aviso na sincronização:', err?.message);
   }
