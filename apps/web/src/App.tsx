@@ -1775,11 +1775,17 @@ export default function App() {
 
   // Helper para renderizar a imagem de capa (foto real) ou ícone do jogo
   const renderGameCover = (game: Game) => {
-    const hasRealImage = game.bannerUrl && game.bannerUrl.startsWith('http');
-    if (hasRealImage) {
+    const validImage = 
+      (game.bannerUrl && (game.bannerUrl.startsWith('http') || game.bannerUrl.startsWith('/'))) 
+        ? game.bannerUrl 
+        : ((game.iconUrl && (game.iconUrl.startsWith('http') || game.iconUrl.startsWith('/'))) 
+          ? game.iconUrl 
+          : null);
+
+    if (validImage) {
       return (
         <img 
-          src={game.bannerUrl} 
+          src={validImage} 
           alt={game.title} 
           className="w-full h-full object-cover transition duration-300 group-hover:scale-105" 
           loading="lazy"
@@ -2349,11 +2355,11 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="hidden md:flex items-center gap-6 z-10 pr-6">
+                        <div className="flex items-center gap-4 z-10 pr-4 shrink-0">
                           <img 
                             src="/kruuj-mascote.png" 
                             alt="Corujinha" 
-                            style={{ height: '95px', maxHeight: '95px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 15px rgba(139,92,246,0.5))' }} 
+                            style={{ height: '75px', maxHeight: '75px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 15px rgba(139,92,246,0.5))' }} 
                           />
                         </div>
 
