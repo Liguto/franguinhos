@@ -7,6 +7,7 @@ import { gamesRouter } from './routes/games';
 import { adminRouter } from './routes/admin';
 import { analyticsRouter } from './routes/analytics';
 import { userRouter } from './routes/user';
+import { syncDatabaseWithCatalog } from './catalogSync';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -52,4 +53,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.listen(PORT, () => {
   console.log(`🚀 Servidor da API rodando com sucesso em http://localhost:${PORT}`);
   console.log(`   Health check disponível em http://localhost:${PORT}/health`);
+  // Sincroniza jogos oficiais no Supabase PostgreSQL de forma idempotente e segura
+  syncDatabaseWithCatalog();
 });

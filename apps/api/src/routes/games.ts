@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth';
+import { syncDatabaseWithCatalog } from '../catalogSync';
 
 const router = Router();
 
@@ -24,6 +25,9 @@ router.get('/', async (req, res) => {
   const { category, tag, search, orientation, ageRating } = req.query;
 
   try {
+    // Sincroniza jogos novos no Supabase sob demanda
+    await syncDatabaseWithCatalog();
+
     const whereClause: any = {
       statusEditorial: 'publicado'
     };

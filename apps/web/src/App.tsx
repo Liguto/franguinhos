@@ -2174,17 +2174,57 @@ export default function App() {
   // --- Helpers e Dados do Layout KRUUJ Oficial ---
   const featuredGames = [
     {
+      title: 'KRUUJ Orbit',
+      subtitle: 'Salte entre órbitas planetárias com física cósmica e pegue o impulso certo!',
+      tag: 'NOVO • ARCADE CÓSMICO',
+      slug: 'kruuj-orbit',
+      bannerUrl: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=800&auto=format&fit=crop&q=60',
+      category: 'Arcade / Gravidade'
+    },
+    {
       title: 'KRUUJ.io Arena',
       subtitle: 'Entre na grande arena cósmica! Colete energia, cresça e domine o topo do ranking!',
-      tag: 'NOVO • ARENA IO',
+      tag: 'POPULAR • ARENA IO',
       slug: 'kruujio',
       bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
       category: 'Ação / Arena'
     },
     {
+      title: 'Kruuj Match',
+      subtitle: 'Alquimia estelar relaxante! Combine 3 cristais rúnicos e liberte super poderes!',
+      tag: 'NOVO • PUZZLE ZEN',
+      slug: 'kruuj-match',
+      bannerUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=60',
+      category: 'Puzzle / Match-3'
+    },
+    {
+      title: 'KRUUJ Guardians',
+      subtitle: 'Tower defense tático! Posicione Corujas Guardiãs e defenda o ninho sagrado!',
+      tag: 'NOVO • ESTRATÉGIA',
+      slug: 'kruuj-defense',
+      bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
+      category: 'Estratégia / Defesa'
+    },
+    {
+      title: 'KRUUJ Runner',
+      subtitle: 'Corra pelos telhados cyberpunk em alta velocidade, salte e plane com estilo!',
+      tag: 'NOVO • ENDLESS RUNNER',
+      slug: 'kruuj-runner',
+      bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
+      category: 'Ação / Parkour'
+    },
+    {
+      title: 'Kruuj Word',
+      subtitle: 'O enigma das corujas! Conecte letras cósmicas e descubra as palavras secretas!',
+      tag: 'NOVO • EDUCACIONAL',
+      slug: 'kruuj-words',
+      bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
+      category: 'Educacional / Palavras'
+    },
+    {
       title: 'KruujDoku',
       subtitle: 'O puzzle oficial de raciocínio das corujinhas! 100 fases + Modo Infinito.',
-      tag: 'NOVO • Exclusivo KRUUJ',
+      tag: 'Exclusivo KRUUJ',
       slug: 'kruujdoku',
       bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
       category: 'Puzzle / Raciocínio'
@@ -2196,30 +2236,6 @@ export default function App() {
       slug: 'rocket-rise',
       bannerUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=60',
       category: 'Arcade / Corrida'
-    },
-    {
-      title: 'Cyber Space Defense',
-      subtitle: 'Proteja o núcleo estelar contra invasores do espaço profundo!',
-      tag: 'KRUUJ recomenda',
-      slug: 'space-defense',
-      bannerUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&auto=format&fit=crop&q=60',
-      category: 'Ação / Espaço'
-    },
-    {
-      title: 'Snake Retro Arcade',
-      subtitle: 'O clássico atemporal dos fliperamas em neon brilhante!',
-      tag: 'KRUUJ recomenda',
-      slug: 'snake-retro',
-      bannerUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?w=800&auto=format&fit=crop&q=60',
-      category: 'Arcade / Retrô'
-    },
-    {
-      title: 'Bubble Boom',
-      subtitle: 'Estoure bolhas mágicas coloridas e relaxe sua mente!',
-      tag: 'KRUUJ recomenda',
-      slug: 'bubble-pop',
-      bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
-      category: 'Baby / Lúdico'
     }
   ];
 
@@ -2234,39 +2250,39 @@ export default function App() {
 
   // 4 Prateleiras Oficiais do Layout Proposta
   const shelfTrending = [
-    games.find(g => g.slug === 'kruujio') || games[25],
-    games.find(g => g.slug === 'kruujdoku') || games[24],
-    games.find(g => g.title === 'Super Kart Racer') || games[4],
-    games.find(g => g.title === 'Craft World') || games[5],
-    games.find(g => g.title === 'Bubble Boom') || games[3],
-    games.find(g => g.title === 'Monster Truck') || games[6],
+    games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[26],
+    games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[25],
+    games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[27],
+    games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[24],
+    games.find(g => g.slug === 'kruuj-runner') || defaultGamesCatalog[29],
+    games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[28],
   ].filter(Boolean) as Game[];
 
   const shelfDiscoveries = [
-    games.find(g => g.slug === 'kruujdoku') || games[24],
+    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[30],
+    games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[27],
+    games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[26],
+    games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[24],
     games.find(g => g.title === 'Animal Rescue') || games[9],
-    games.find(g => g.title === 'Puzzle Quest') || games[10],
     games.find(g => g.title === 'Color Match') || games[11],
-    games.find(g => g.title === 'Tiny Farmers') || games[12],
-    games.find(g => g.title === 'Dragon Run') || games[13],
   ].filter(Boolean) as Game[];
 
   const shelfNewReleases = [
-    games.find(g => g.slug === 'kruujio') || games[25],
-    games.find(g => g.title === 'Blaze Riders') || games[15],
-    games.find(g => g.title === 'Magic Tiles') || games[16],
-    games.find(g => g.title === 'Island Builder') || games[17],
-    games.find(g => g.title === 'Dino Adventure') || games[18],
-    games.find(g => g.title === 'Soccer Stars') || games[19],
+    games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[26],
+    games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[27],
+    games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[28],
+    games.find(g => g.slug === 'kruuj-runner') || defaultGamesCatalog[29],
+    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[30],
+    games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[25],
   ].filter(Boolean) as Game[];
 
   const shelfMostPlayed = [
-    games.find(g => g.slug === 'kruujio') || games[25],
+    games.find(g => g.slug === 'kruuj-runner') || defaultGamesCatalog[29],
+    games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[25],
+    games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[26],
+    games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[24],
+    games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[28],
     games.find(g => g.slug === 'snake-retro') || games[2],
-    games.find(g => g.slug === 'space-defense') || games[1],
-    games.find(g => g.slug === 'sudoku-zen') || games[21],
-    games.find(g => g.slug === 'math-run') || games[22],
-    games.find(g => g.slug === 'rocket-rise') || games[0],
   ].filter(Boolean) as Game[];
 
   return (
