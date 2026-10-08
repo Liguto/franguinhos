@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Runner: Fuga dos Meteoros</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07061a;
+      --cyan: #38e8ff;
+      --purple: #8b5cff;
+      --gold: #ffb020;
+      --pink: #ff5ca8;
+      --text: #f3f0ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Baloo 2', sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-badge {
+      background: rgba(13, 18, 36, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.9) 0%, rgba(7, 6, 26, 0.98) 100%);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    h1 {
+      font-size: clamp(32px, 8vw, 52px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    p {
+      font-size: 1rem;
+      color: #cbd5e1;
+      max-width: 440px;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 14px 44px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div class="hud">
+    <div class="hud-badge">DISTÂNCIA: <span id="dist" style="color: var(--cyan);">0m</span></div>
+    <div class="hud-badge">PENAS: <span id="feathers" style="color: var(--gold);">0</span> 🪶</div>
+    <div class="hud-badge">RECORDE: <span id="best" style="color: var(--pink);">0m</span></div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay active" id="ov">
+    <h1 id="ovTitle">KRUUJ RUNNER</h1>
+    <p id="ovDesc">Corra pelos telhados cibernéticos da cidade cósmica! Toque ou aperte ESPAÇO para pular, pule duas vezes e segure para planar suavemente.</p>
+    <button class="btn-action" onclick="startGame()">CORRER AGORA</button>
+  </div>
+
+  <script>
+    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
+    function sendEvent(type, data = {}) {
+      try {
+        window.parent.postMessage({ type, gameSlug: 'kruuj-runner', ...data }, '*');
+      } catch (e) {}
+    }
+    sendEvent('game_loaded');
+
+    let bestDist = parseInt(localStorage.getItem('kruuj_runner_best') || '0', 10);
+    document.getElementById('best').textContent = bestDist + 'm';
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+        try {
+          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+          if (d && d.bestDist) {
+            bestDist = Math.max(bestDist, d.bestDist);
+            localStorage.setItem('kruuj_runner_best', String(bestDist));
+            document.getElementById('best').textContent = bestDist + 'm';
+          }
+        } catch(err){}
+      }
+    });
+
+    // ===== Áudio WebAudio Sintético =====
+    let audioCtx = null;
+    function playSfx(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'jump') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(350, now);
+          osc.frequency.exponentialRampToValueAtTime(750, now + 0.12);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'coin') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'crash') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        }
+      } catch (e) {}
+    }
+
+    // ===== Engine Endless Runner =====
+    const cv = document.getElementById('c');
+    const ctx = cv.getContext('2d');
+    let W = cv.width = window.innerWidth;
+    let H = cv.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      W = cv.width = window.innerWidth;
+      H = cv.height = window.innerHeight;
+    });
+
+    let state = 'menu';
+    let speed = 6;
+    let distance = 0;
+    let feathers = 0;
+    let isHoldingJump = false;
+
+    let owl = {
+      x: 100, y: 300, vy: 0, r: 18,
+      onGround: false,
+      jumpsLeft: 2
+    };
+
+    let platforms = [];
+    let obstacles = [];
+    let items = [];
+    let particles = [];
+    let bgBuildings = [];
+
+    // Fundo urbano cyberpunk
+    for (let i = 0; i < 20; i++) {
+      bgBuildings.push({
+        x: i * 110,
+        w: 80 + Math.random() * 50,
+        h: 150 + Math.random() * 200,
+        c: i % 2 === 0 ? '#101428' : '#141a34'
+      });
+    }
+
+    function initGame() {
+      speed = 6.5;
+      distance = 0;
+      feathers = 0;
+      owl.y = H * 0.5;
+      owl.vy = 0;
+      owl.jumpsLeft = 2;
+      platforms = [];
+      obstacles = [];
+      items = [];
+      particles = [];
+
+      // Primeira plataforma longa sob o jogador
+      let currentX = 50;
+      platforms.push({ x: currentX, y: H * 0.7, w: W * 0.9, h: 22 });
+
+      currentX += W * 0.9;
+      // Gera próximas plataformas
+      for (let i = 0; i < 6; i++) {
+        currentX += 80 + Math.random() * 70; // gap
+        const platW = 200 + Math.random() * 220;
+        const platY = H * 0.55 + (Math.random() * 120 - 60);
+        platforms.push({ x: currentX, y: platY, w: platW, h: 22 });
+
+        // Obstáculo ou item
+        if (Math.random() > 0.5) {
+          obstacles.push({
+            x: currentX + platW * 0.5,
+            y: platY - 26,
+            w: 18, h: 26,
+            type: 'laser'
+          });
+        }
+        if (Math.random() > 0.3) {
+          items.push({
+            x: currentX + platW * 0.25,
+            y: platY - 40,
+            r: 10,
+            collected: false
+          });
+        }
+        currentX += platW;
+      }
+    }
+
+    function jump() {
+      if (state !== 'play') return;
+      if (owl.jumpsLeft > 0) {
+        owl.vy = -11.5;
+        owl.jumpsLeft--;
+        owl.onGround = false;
+        playSfx('jump');
+
+        for (let i = 0; i < 8; i++) {
+          particles.push({
+            x: owl.x, y: owl.y + owl.r,
+            vx: (Math.random() - 0.5) * 4 - speed * 0.3,
+            vy: Math.random() * 3,
+            r: 3, c: '#38e8ff', life: 0.8
+          });
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        e.preventDefault();
+        isHoldingJump = true;
+        if (state === 'play') jump();
+        else if (state === 'over' || state === 'menu') startGame();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        isHoldingJump = false;
+      }
+    });
+
+    window.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('#ov') || e.target.closest('button')) return;
+      isHoldingJump = true;
+      if (state === 'play') jump();
+    });
+
+    window.addEventListener('pointerup', () => {
+      isHoldingJump = false;
+    });
+
+    function startGame() {
+      initGame();
+      state = 'play';
+      sendEvent('game_start');
+      document.getElementById('ov').classList.remove('active');
+    }
+
+    function gameOver() {
+      state = 'over';
+      playSfx('crash');
+      bestDist = Math.max(bestDist, Math.floor(distance));
+      localStorage.setItem('kruuj_runner_best', String(bestDist));
+      document.getElementById('best').textContent = bestDist + 'm';
+
+      const finalScore = Math.floor(distance) + feathers * 25;
+      sendEvent('game_over', { distance: Math.floor(distance), feathers, score: finalScore });
+      sendEvent('game_save', { saveData: { bestDist }, score: finalScore });
+
+      document.getElementById('ovTitle').textContent = 'FIM DA CORRIDA!';
+      document.getElementById('ovDesc').textContent = `Você correu ${Math.floor(distance)}m e resgatou ${feathers} penas cósmicas! Desvie dos lasers e plane entre os prédios!`;
+      document.getElementById('ov').classList.add('active');
+    }
+
+    // Loop
+    function loop() {
+      requestAnimationFrame(loop);
+
+      ctx.fillStyle = '#07061a';
+      ctx.fillRect(0, 0, W, H);
+
+      // Fundo dos prédios (Parallax)
+      bgBuildings.forEach(b => {
+        b.x -= speed * 0.2;
+        if (b.x + b.w < 0) b.x = W + Math.random() * 40;
+        ctx.fillStyle = b.c;
+        ctx.fillRect(b.x, H - b.h, b.w, b.h);
+
+        // Luzinhas nas janelas
+        ctx.fillStyle = 'rgba(56, 232, 255, 0.15)';
+        for (let j = 0; j < 4; j++) {
+          ctx.fillRect(b.x + 12 + j * 16, H - b.h + 20, 8, 12);
+        }
+      });
+
+      if (state === 'play') {
+        distance += speed * 0.05;
+        speed += 0.0008; // Aceleração gradual
+        document.getElementById('dist').textContent = Math.floor(distance) + 'm';
+
+        // Gravidade com efeito de planar segurando pulo
+        const gravity = (isHoldingJump && owl.vy > 0) ? 0.28 : 0.65;
+        owl.vy += gravity;
+        owl.y += owl.vy;
+        owl.onGround = false;
+
+        // Plataformas
+        for (let i = platforms.length - 1; i >= 0; i--) {
+          const p = platforms[i];
+          p.x -= speed;
+
+          // Colisão com o topo da plataforma
+          if (
+            owl.x + owl.r > p.x &&
+            owl.x - owl.r < p.x + p.w &&
+            owl.y + owl.r >= p.y &&
+            owl.y - owl.r < p.y + p.h &&
+            owl.vy > 0
+          ) {
+            owl.y = p.y - owl.r;
+            owl.vy = 0;
+            owl.onGround = true;
+            owl.jumpsLeft = 2;
+          }
+
+          // Recicla plataforma
+          if (p.x + p.w < -50) {
+            platforms.splice(i, 1);
+            const lastPlat = platforms[platforms.length - 1];
+            const nextX = lastPlat.x + lastPlat.w + 90 + Math.random() * 80;
+            const nextW = 200 + Math.random() * 240;
+            const nextY = Math.min(H * 0.75, Math.max(H * 0.45, lastPlat.y + (Math.random() * 100 - 50)));
+            platforms.push({ x: nextX, y: nextY, w: nextW, h: 22 });
+
+            if (Math.random() > 0.45) {
+              obstacles.push({ x: nextX + nextW * 0.5, y: nextY - 26, w: 18, h: 26, type: 'laser' });
+            }
+            if (Math.random() > 0.3) {
+              items.push({ x: nextX + nextW * 0.3, y: nextY - 40, r: 10, collected: false });
+            }
+          }
+        }
+
+        // Queda no abismo
+        if (owl.y > H + 50) {
+          gameOver();
+          return;
+        }
+
+        // Obstáculos
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const ob = obstacles[i];
+          ob.x -= speed;
+
+          // Colisão
+          if (
+            owl.x + owl.r > ob.x &&
+            owl.x - owl.r < ob.x + ob.w &&
+            owl.y + owl.r > ob.y &&
+            owl.y - owl.r < ob.y + ob.h
+          ) {
+            gameOver();
+            return;
+          }
+
+          if (ob.x < -50) obstacles.splice(i, 1);
+        }
+
+        // Itens (Penas)
+        for (let i = items.length - 1; i >= 0; i--) {
+          const it = items[i];
+          it.x -= speed;
+
+          if (!it.collected && Math.hypot(owl.x - it.x, owl.y - it.y) < owl.r + it.r) {
+            it.collected = true;
+            feathers++;
+            document.getElementById('feathers').textContent = feathers;
+            playSfx('coin');
+
+            for (let k = 0; k < 6; k++) {
+              particles.push({
+                x: it.x, y: it.y,
+                vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+                r: 3, c: '#ffb020', life: 0.8
+              });
+            }
+          }
+
+          if (it.x < -50) items.splice(i, 1);
+        }
+      }
+
+      // RENDERIZAÇÃO
+      // Desenha plataformas neon
+      platforms.forEach(p => {
+        ctx.fillStyle = '#171d38';
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+
+        // Borda de neon
+        ctx.fillStyle = '#38e8ff';
+        ctx.shadowColor = '#38e8ff';
+        ctx.shadowBlur = 8;
+        ctx.fillRect(p.x, p.y, p.w, 4);
+        ctx.shadowBlur = 0;
+      });
+
+      // Desenha obstáculos (Laser Vermelho)
+      obstacles.forEach(ob => {
+        ctx.fillStyle = '#ff4757';
+        ctx.shadowColor = '#ff4757';
+        ctx.shadowBlur = 12;
+        ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+        ctx.shadowBlur = 0;
+      });
+
+      // Desenha itens (Pena Dourada)
+      items.forEach(it => {
+        if (!it.collected) {
+          ctx.save();
+          ctx.translate(it.x, it.y);
+          ctx.fillStyle = '#ffb020';
+          ctx.shadowColor = '#ffb020';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 6, 12, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.life -= 0.04;
+        if (pt.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = pt.c;
+        ctx.globalAlpha = pt.life;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Desenha Coruja Correndo / Planando
+      if (state === 'play') {
+        ctx.save();
+        ctx.translate(owl.x, owl.y);
+
+        // Asas abertas se estiver planando
+        if (!owl.onGround) {
+          ctx.fillStyle = '#8b5cff';
+          ctx.beginPath();
+          ctx.ellipse(-14, 0, 16, 6, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Corpo da coruja
+        ctx.fillStyle = '#8b5cff';
+        ctx.beginPath();
+        ctx.arc(0, 0, owl.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Olho
+        ctx.fillStyle = '#ffb020';
+        ctx.beginPath();
+        ctx.arc(6, -2, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.arc(7, -2, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bico
+        ctx.fillStyle = '#ff9a1a';
+        ctx.beginPath();
+        ctx.moveTo(12, 1);
+        ctx.lineTo(20, 4);
+        ctx.lineTo(12, 7);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    loop();
+  </script>
+</body>
+</html>

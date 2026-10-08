@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Kruuj Word: O Enigma das Corujas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07061a;
+      --cyan: #38e8ff;
+      --purple: #8b5cff;
+      --gold: #ffb020;
+      --pink: #ff5ca8;
+      --text: #f3f0ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Baloo 2', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 14px 20px 14px;
+    }
+    .header {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-badge {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .level-badge {
+      background: rgba(13, 18, 36, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      padding: 4px 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+    .slots-container {
+      flex: 1;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .word-slot-row {
+      display: flex;
+      gap: 6px;
+    }
+    .char-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: transparent;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .char-box.revealed {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(139, 92, 246, 0.35));
+      border-color: var(--cyan);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(56, 232, 255, 0.4);
+      transform: scale(1.05);
+    }
+    .current-word-preview {
+      height: 32px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(255, 176, 32, 0.5);
+    }
+    .wheel-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin-bottom: 10px;
+    }
+    canvas#wheelCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    h1 {
+      font-size: clamp(28px, 7vw, 44px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    p {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      max-width: 380px;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 38px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-badge">KRUUJ WORD</div>
+    <div class="level-badge" id="levelBadge">FASE 1</div>
+  </div>
+
+  <div class="slots-container" id="slots"></div>
+
+  <div class="current-word-preview" id="wordPreview"></div>
+
+  <div class="wheel-container">
+    <canvas id="wheelCanvas" width="220" height="220"></canvas>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay active" id="ov">
+    <h1 id="ovTitle">ENIGMA DAS CORUJAS</h1>
+    <p id="ovDesc">Deslize o dedo ou mouse conectando as letras cósmicas para descobrir todas as palavras secretas!</p>
+    <button class="btn-action" onclick="startGame()">DESVENDAR</button>
+  </div>
+
+  <script>
+    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
+    function sendEvent(type, data = {}) {
+      try {
+        window.parent.postMessage({ type, gameSlug: 'kruuj-words', ...data }, '*');
+      } catch (e) {}
+    }
+    sendEvent('game_loaded');
+
+    let currentLevel = parseInt(localStorage.getItem('kruuj_words_level') || '1', 10);
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+        try {
+          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+          if (d && d.currentLevel) {
+            currentLevel = Math.max(currentLevel, d.currentLevel);
+            localStorage.setItem('kruuj_words_level', String(currentLevel));
+            document.getElementById('levelBadge').textContent = 'FASE ' + currentLevel;
+          }
+        } catch(err){}
+      }
+    });
+
+    // ===== Áudio WebAudio Sintético =====
+    let audioCtx = null;
+    function playTone(freq = 500) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } catch(e) {}
+    }
+
+    // Níveis de Palavras
+    const LEVELS = [
+      {
+        letters: ['A', 'R', 'C', 'O'],
+        words: ['ARCO', 'COR', 'OCA', 'ROCA']
+      },
+      {
+        letters: ['V', 'O', 'O', 'C', 'S'],
+        words: ['VOO', 'VOOS', 'COSO', 'SUCO']
+      },
+      {
+        letters: ['N', 'E', 'O', 'N'],
+        words: ['NEON', 'NOVE', 'ONDE']
+      },
+      {
+        letters: ['C', 'O', 'S', 'M', 'O'],
+        words: ['COSMO', 'SOM', 'MOCO', 'SOCO']
+      },
+      {
+        letters: ['C', 'O', 'R', 'U', 'J', 'A'],
+        words: ['CORUJA', 'ARCO', 'JATO', 'ROCA', 'JOGO']
+      }
+    ];
+
+    let lvlIndex = 0;
+    let targetWords = [];
+    let foundWords = new Set();
+    let wheelLetters = [];
+    let selectedIndices = [];
+    let isDragging = false;
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const cx = 110, cy = 110, radius = 75;
+
+    function loadLevel(idx) {
+      lvlIndex = idx % LEVELS.length;
+      document.getElementById('levelBadge').textContent = 'FASE ' + (lvlIndex + 1);
+      const lvl = LEVELS[lvlIndex];
+      targetWords = lvl.words;
+      foundWords = new Set();
+      wheelLetters = [];
+
+      // Monta posições das letras na roda
+      const n = lvl.letters.length;
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        wheelLetters.push({
+          char: lvl.letters[i],
+          x: cx + Math.cos(angle) * radius,
+          y: cy + Math.sin(angle) * radius,
+          r: 24
+        });
+      }
+
+      // Constrói caixas das palavras na tela
+      const slotsEl = document.getElementById('slots');
+      slotsEl.innerHTML = '';
+      targetWords.forEach(w => {
+        const row = document.createElement('div');
+        row.className = 'word-slot-row';
+        row.dataset.word = w;
+        for (let i = 0; i < w.length; i++) {
+          const b = document.createElement('div');
+          b.className = 'char-box';
+          b.textContent = w[i];
+          row.appendChild(b);
+        }
+        slotsEl.appendChild(row);
+      });
+
+      drawWheel();
+    }
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, 220, 220);
+
+      // Círculo base da roda
+      ctx.fillStyle = 'rgba(13, 18, 36, 0.7)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius + 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Linhas de conexão
+      if (selectedIndices.length > 1) {
+        ctx.strokeStyle = '#38e8ff';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowColor = '#38e8ff';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        selectedIndices.forEach((idx, i) => {
+          const l = wheelLetters[idx];
+          if (i === 0) ctx.moveTo(l.x, l.y);
+          else ctx.lineTo(l.x, l.y);
+        });
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      // Letras
+      wheelLetters.forEach((l, idx) => {
+        const isSel = selectedIndices.includes(idx);
+
+        ctx.save();
+        ctx.fillStyle = isSel ? '#8b5cff' : 'rgba(255, 255, 255, 0.08)';
+        ctx.strokeStyle = isSel ? '#38e8ff' : 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2;
+        if (isSel) {
+          ctx.shadowColor = '#8b5cff';
+          ctx.shadowBlur = 15;
+        }
+
+        ctx.beginPath();
+        ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = "800 20px 'Baloo 2'";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(l.char, l.x, l.y + 1);
+        ctx.restore();
+      });
+    }
+
+    function checkCurrentWord() {
+      const currentWord = selectedIndices.map(i => wheelLetters[i].char).join('');
+      if (targetWords.includes(currentWord) && !foundWords.has(currentWord)) {
+        foundWords.add(currentWord);
+        playTone(880);
+
+        // Revela palavra nos slots
+        const row = document.querySelector(`.word-slot-row[data-word="${currentWord}"]`);
+        if (row) {
+          row.querySelectorAll('.char-box').forEach(b => b.classList.add('revealed'));
+        }
+
+        // Se completou a fase
+        if (foundWords.size === targetWords.length) {
+          playTone(1100);
+          setTimeout(() => {
+            currentLevel++;
+            localStorage.setItem('kruuj_words_level', String(currentLevel));
+            sendEvent('game_completed', { level: currentLevel, score: currentLevel * 100 });
+            sendEvent('game_save', { saveData: { currentLevel }, score: currentLevel * 100 });
+            loadLevel(lvlIndex + 1);
+          }, 800);
+        }
+      } else {
+        playTone(300);
+      }
+
+      selectedIndices = [];
+      document.getElementById('wordPreview').textContent = '';
+      drawWheel();
+    }
+
+    // Touch / Mouse na roda
+    function getLetterAt(x, y) {
+      for (let i = 0; i < wheelLetters.length; i++) {
+        const l = wheelLetters[i];
+        if (Math.hypot(l.x - x, l.y - y) < l.r + 10) return i;
+      }
+      return -1;
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const idx = getLetterAt(x, y);
+
+      if (idx !== -1) {
+        isDragging = true;
+        selectedIndices = [idx];
+        playTone(440);
+        document.getElementById('wordPreview').textContent = wheelLetters[idx].char;
+        drawWheel();
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const idx = getLetterAt(x, y);
+
+      if (idx !== -1 && !selectedIndices.includes(idx)) {
+        selectedIndices.push(idx);
+        playTone(440 + selectedIndices.length * 60);
+        document.getElementById('wordPreview').textContent = selectedIndices.map(i => wheelLetters[i].char).join('');
+        drawWheel();
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (isDragging) {
+        isDragging = false;
+        checkCurrentWord();
+      }
+    });
+
+    function startGame() {
+      loadLevel(currentLevel - 1);
+      sendEvent('game_start');
+      document.getElementById('ov').classList.remove('active');
+    }
+  </script>
+</body>
+</html>

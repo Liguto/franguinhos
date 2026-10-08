@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Orbit: Salto Gravitacional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07061a;
+      --cyan: #38e8ff;
+      --purple: #8b5cff;
+      --gold: #ffb020;
+      --pink: #ff5ca8;
+      --text: #f3f0ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Baloo 2', sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .score-badge {
+      background: rgba(13, 18, 36, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      padding: 6px 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    .score-badge span {
+      color: var(--gold);
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.85) 0%, rgba(7, 6, 26, 0.95) 100%);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    h1 {
+      font-size: clamp(32px, 8vw, 54px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+    }
+    p {
+      font-size: clamp(14px, 4vw, 17px);
+      color: #cbd5e1;
+      max-width: 440px;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+    .btn-play {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 14px 44px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-play:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
+    }
+    .stats-table {
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 24px;
+      display: flex;
+      gap: 28px;
+    }
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stats-label {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+    .stats-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+    .instructions-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 18, 36, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #94a3b8;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div class="hud">
+    <div class="score-badge">PONTOS: <span id="scoreVal">0</span></div>
+    <div class="score-badge" style="font-size: 0.95rem;">RECORDE: <span id="bestVal" style="color: var(--cyan);">0</span></div>
+  </div>
+
+  <div class="instructions-hint" id="hint">Toque ou Pressione ESPAÇO para saltar da órbita</div>
+
+  <!-- Tela Inicial / Game Over -->
+  <div class="overlay active" id="overlay">
+    <h1 id="ovTitle">KRUUJ ORBIT</h1>
+    <p id="ovDesc">Salte entre órbitas planetárias com a física da coruja cósmica. Toque para se soltar e capture o campo gravitacional do próximo planeta!</p>
+    <div class="stats-table" id="ovStats" style="display: none;">
+      <div class="stats-item">
+        <span class="stats-label">Pontos</span>
+        <span class="stats-val" id="ovScore">0</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Melhor</span>
+        <span class="stats-val" id="ovBest">0</span>
+      </div>
+    </div>
+    <button class="btn-play" id="btnPlay" onclick="startGame()">JOGAR AGORA</button>
+  </div>
+
+  <script>
+    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
+    function sendEvent(type, data = {}) {
+      try {
+        window.parent.postMessage({ type, gameSlug: 'kruuj-orbit', ...data }, '*');
+      } catch (e) {}
+    }
+    sendEvent('game_loaded');
+
+    let bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
+    document.getElementById('bestVal').textContent = bestScore;
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+        try {
+          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+          if (d && d.bestScore) {
+            bestScore = Math.max(bestScore, d.bestScore);
+            localStorage.setItem('kruuj_orbit_best', String(bestScore));
+            document.getElementById('bestVal').textContent = bestScore;
+          }
+        } catch(err){}
+      }
+    });
+
+    // ===== Áudio WebAudio Sintético =====
+    let audioCtx = null;
+    function playSfx(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'launch') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'orbit') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'coin') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(980, now);
+          osc.frequency.exponentialRampToValueAtTime(1400, now + 0.1);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'crash') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {}
+    }
+
+    // ===== Engine do Jogo =====
+    const cv = document.getElementById('c');
+    const ctx = cv.getContext('2d');
+    let W = cv.width = window.innerWidth;
+    let H = cv.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      W = cv.width = window.innerWidth;
+      H = cv.height = window.innerHeight;
+    });
+
+    let state = 'menu'; // menu, play, over
+    let score = 0;
+    let cameraY = 0;
+    let owl = {
+      x: 0, y: 0, vx: 0, vy: 0, r: 16,
+      currentPlanet: null,
+      angle: 0,
+      orbitSpeed: 0.04,
+      orbitRadius: 75,
+      trail: []
+    };
+
+    let planets = [];
+    let stars = [];
+    let particles = [];
+    let orbs = [];
+
+    // Fundo estrelado
+    for (let i = 0; i < 150; i++) {
+      stars.push({
+        x: Math.random() * 2000 - 1000,
+        y: Math.random() * 4000 - 2000,
+        s: Math.random() * 2 + 0.5,
+        alpha: Math.random() * 0.7 + 0.3
+      });
+    }
+
+    function createPlanet(index, y) {
+      const colors = [
+        ['#38e8ff', '#0284c7'],
+        ['#8b5cff', '#581c87'],
+        ['#ffb020', '#b45309'],
+        ['#ff5ca8', '#be185d'],
+        ['#10b981', '#047857']
+      ];
+      const pal = colors[index % colors.length];
+      const r = 36 + Math.random() * 18;
+      const x = (index === 0) ? W / 2 : W / 2 + (Math.random() * 260 - 130);
+      return {
+        x, y, r,
+        orbitRadius: r + 38 + Math.random() * 14,
+        orbitSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.032 + Math.random() * 0.018),
+        color1: pal[0],
+        color2: pal[1],
+        glow: pal[0],
+        ring: Math.random() > 0.6,
+        visited: index === 0
+      };
+    }
+
+    function initWorld() {
+      score = 0;
+      cameraY = 0;
+      particles = [];
+      orbs = [];
+      planets = [];
+      document.getElementById('scoreVal').textContent = score;
+
+      // Primeiro planeta no centro inferior
+      let currentY = H * 0.75;
+      planets.push(createPlanet(0, currentY));
+
+      // Gera os 10 primeiros planetas subindo verticalmente
+      for (let i = 1; i < 12; i++) {
+        currentY -= (180 + Math.random() * 60);
+        const p = createPlanet(i, currentY);
+        planets.push(p);
+
+        // Adiciona orbes coletáveis entre planetas
+        if (Math.random() > 0.4) {
+          orbs.push({
+            x: p.x + (Math.random() * 120 - 60),
+            y: p.y + 90,
+            r: 7,
+            collected: false
+          });
+        }
+      }
+
+      // Conecta a coruja ao primeiro planeta
+      owl.currentPlanet = planets[0];
+      owl.angle = -Math.PI / 2;
+      owl.orbitRadius = planets[0].orbitRadius;
+      owl.orbitSpeed = planets[0].orbitSpeed;
+      owl.vx = 0;
+      owl.vy = 0;
+      owl.trail = [];
+    }
+
+    function launchOwl() {
+      if (state !== 'play') return;
+      if (!owl.currentPlanet) return;
+
+      playSfx('launch');
+
+      // Velocidade tangencial ao soltar
+      const speed = 12.5;
+      owl.vx = -Math.sin(owl.angle) * speed * (owl.orbitSpeed > 0 ? 1 : -1);
+      owl.vy = Math.cos(owl.angle) * speed * (owl.orbitSpeed > 0 ? 1 : -1);
+      owl.currentPlanet = null;
+
+      // Partículas de propulsão
+      for (let i = 0; i < 12; i++) {
+        particles.push({
+          x: owl.x,
+          y: owl.y,
+          vx: (Math.random() - 0.5) * 5 - owl.vx * 0.2,
+          vy: (Math.random() - 0.5) * 5 - owl.vy * 0.2,
+          r: Math.random() * 4 + 2,
+          c: '#ffb020',
+          life: 1
+        });
+      }
+    }
+
+    // Input listeners
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Enter') {
+        e.preventDefault();
+        if (state === 'play') launchOwl();
+        else if (state === 'over' || state === 'menu') startGame();
+      }
+    });
+
+    window.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('#overlay') || e.target.closest('button')) return;
+      if (state === 'play') launchOwl();
+    });
+
+    function startGame() {
+      initWorld();
+      state = 'play';
+      sendEvent('game_start');
+      document.getElementById('overlay').classList.remove('active');
+      document.getElementById('hint').style.display = 'block';
+    }
+
+    function gameOver() {
+      state = 'over';
+      playSfx('crash');
+      bestScore = Math.max(bestScore, score);
+      localStorage.setItem('kruuj_orbit_best', String(bestScore));
+      document.getElementById('bestVal').textContent = bestScore;
+
+      sendEvent('game_over', { score, bestScore });
+      sendEvent('game_save', { saveData: { bestScore }, score });
+
+      // Mostra tela de fim de jogo
+      document.getElementById('ovTitle').textContent = 'FIM DE JOGO!';
+      document.getElementById('ovDesc').textContent = 'A coruja cósmica se perdeu no vácuo espacial. Salte com o timing perfeito para capturar a próxima gravidade!';
+      document.getElementById('ovScore').textContent = score;
+      document.getElementById('ovBest').textContent = bestScore;
+      document.getElementById('ovStats').style.display = 'flex';
+      document.getElementById('btnPlay').textContent = 'JOGAR NOVAMENTE';
+      document.getElementById('overlay').classList.add('active');
+      document.getElementById('hint').style.display = 'none';
+    }
+
+    // Desenha a Coruja Cósmica KRUUJ estilizada
+    function drawOwl(x, y, r, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle + Math.PI / 2);
+
+      // Fones de ouvido
+      ctx.fillStyle = '#14102e';
+      ctx.strokeStyle = '#38e8ff';
+      ctx.lineWidth = 3;
+      [-1, 1].forEach(side => {
+        ctx.beginPath();
+        ctx.ellipse(side * (r + 2), 0, 4, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // Arco dos fones
+      ctx.strokeStyle = '#14102e';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 2, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+
+      // Corpo da coruja
+      const grad = ctx.createRadialGradient(0, -3, 2, 0, 0, r);
+      grad.addColorStop(0, '#8b5cff');
+      grad.addColorStop(1, '#3b1c87');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orelhinhas penadas
+      ctx.fillStyle = '#3b1c87';
+      [-1, 1].forEach(side => {
+        ctx.beginPath();
+        ctx.moveTo(side * (r * 0.7), -r * 0.3);
+        ctx.lineTo(side * (r * 0.7), -r * 1.25);
+        ctx.lineTo(side * (r * 0.2), -r * 0.75);
+        ctx.fill();
+      });
+
+      // Olhos grandes e brilhantes
+      ctx.fillStyle = '#e6defa';
+      [-1, 1].forEach(side => {
+        ctx.beginPath();
+        ctx.arc(side * (r * 0.4), -r * 0.1, r * 0.38, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Íris dourada
+        ctx.fillStyle = '#ffb020';
+        ctx.beginPath();
+        ctx.arc(side * (r * 0.4), -r * 0.1, r * 0.24, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pupila
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.arc(side * (r * 0.4), -r * 0.1, r * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Brilho da pupila
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(side * (r * 0.4) - 2, -r * 0.1 - 2, r * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Bico âmbar
+      ctx.fillStyle = '#ff9a1a';
+      ctx.beginPath();
+      ctx.moveTo(-3, 3);
+      ctx.lineTo(3, 3);
+      ctx.lineTo(0, 8);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Loop de animação principal (60 FPS)
+    function loop() {
+      requestAnimationFrame(loop);
+
+      ctx.fillStyle = '#07061a';
+      ctx.fillRect(0, 0, W, H);
+
+      // Atualização de física
+      if (state === 'play') {
+        if (owl.currentPlanet) {
+          // Em órbita
+          const p = owl.currentPlanet;
+          owl.angle += owl.orbitSpeed;
+          owl.x = p.x + Math.cos(owl.angle) * owl.orbitRadius;
+          owl.y = p.y + Math.sin(owl.angle) * owl.orbitRadius;
+        } else {
+          // Em voo livre no espaço
+          owl.x += owl.vx;
+          owl.y += owl.vy;
+
+          // Rastro da coruja
+          owl.trail.push({ x: owl.x, y: owl.y, alpha: 0.8 });
+          if (owl.trail.length > 18) owl.trail.shift();
+
+          // Verifica captura por gravidade de algum planeta à frente
+          for (let p of planets) {
+            const dx = owl.x - p.x;
+            const dy = owl.y - p.y;
+            const dist = Math.hypot(dx, dy);
+
+            // Colisão com o núcleo do planeta
+            if (dist < p.r + owl.r) {
+              gameOver();
+              return;
+            }
+
+            // Captura pelo campo gravitacional
+            if (dist <= p.orbitRadius + 18 && dist >= p.r + 10) {
+              owl.currentPlanet = p;
+              owl.orbitRadius = dist;
+              owl.orbitSpeed = p.orbitSpeed;
+              owl.angle = Math.atan2(dy, dx);
+              playSfx('orbit');
+
+              if (!p.visited) {
+                p.visited = true;
+                score += 10;
+                document.getElementById('scoreVal').textContent = score;
+
+                // Partículas de celebração
+                for (let i = 0; i < 15; i++) {
+                  particles.push({
+                    x: owl.x,
+                    y: owl.y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    r: Math.random() * 3 + 2,
+                    c: p.color1,
+                    life: 1
+                  });
+                }
+
+                // Gera novos planetas no topo continuamente
+                const lastP = planets[planets.length - 1];
+                const nextY = lastP.y - (180 + Math.random() * 60);
+                planets.push(createPlanet(planets.length, nextY));
+              }
+              break;
+            }
+          }
+
+          // Coleta de orbes estelares
+          for (let o of orbs) {
+            if (!o.collected) {
+              const d = Math.hypot(owl.x - o.x, owl.y - o.y);
+              if (d < o.r + owl.r) {
+                o.collected = true;
+                score += 15;
+                document.getElementById('scoreVal').textContent = score;
+                playSfx('coin');
+                for (let i = 0; i < 8; i++) {
+                  particles.push({
+                    x: o.x, y: o.y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    r: 3, c: '#ffb020', life: 0.8
+                  });
+                }
+              }
+            }
+          }
+
+          // Morte por sair da tela lateral ou cair muito para baixo
+          if (owl.x < -100 || owl.x > W + 100 || owl.y > (cameraY + H + 100)) {
+            gameOver();
+            return;
+          }
+        }
+
+        // Câmera vertical suave seguindo a subida da coruja
+        const targetCamY = owl.y - H * 0.65;
+        cameraY += (targetCamY - cameraY) * 0.1;
+      }
+
+      // RENDERIZAÇÃO COM CÂMERA
+      ctx.save();
+      ctx.translate(0, -cameraY);
+
+      // Estrelas com parallax
+      stars.forEach(s => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Planetas e seus campos de gravidade
+      planets.forEach(p => {
+        // Círculo orbital tracejado
+        ctx.strokeStyle = p.visited ? 'rgba(56, 232, 255, 0.25)' : 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 8]);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.orbitRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Brilho suave
+        ctx.shadowColor = p.glow;
+        ctx.shadowBlur = 18;
+
+        // Corpo do planeta
+        const g = ctx.createRadialGradient(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.1, p.x, p.y, p.r);
+        g.addColorStop(0, p.color1);
+        g.addColorStop(1, p.color2);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Anel planetário se houver
+        if (p.ring) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, p.r * 1.5, p.r * 0.35, 0.3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+
+      // Orbes de pontuação
+      orbs.forEach(o => {
+        if (!o.collected) {
+          ctx.fillStyle = '#ffb020';
+          ctx.shadowColor = '#ffb020';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      });
+
+      // Rastro da coruja
+      owl.trail.forEach(t => {
+        ctx.fillStyle = `rgba(56, 232, 255, ${t.alpha})`;
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 6 * t.alpha, 0, Math.PI * 2);
+        ctx.fill();
+        t.alpha -= 0.04;
+      });
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.life -= 0.03;
+        if (pt.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = pt.c;
+        ctx.globalAlpha = pt.life;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Desenha a coruja
+      if (state === 'play') {
+        const angle = owl.currentPlanet ? owl.angle : Math.atan2(owl.vy, owl.vx);
+        drawOwl(owl.x, owl.y, owl.r, angle);
+      }
+
+      ctx.restore();
+    }
+
+    loop();
+  </script>
+</body>
+</html>

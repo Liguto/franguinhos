@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Guardians: Defesa Cósmica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07061a;
+      --cyan: #38e8ff;
+      --purple: #8b5cff;
+      --gold: #ffb020;
+      --pink: #ff5ca8;
+      --text: #f3f0ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Baloo 2', sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-pill {
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .towers-dock {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 8px 14px;
+      z-index: 10;
+    }
+    .tower-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid transparent;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .tower-btn.selected {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.15);
+      box-shadow: 0 0 12px rgba(56, 232, 255, 0.3);
+    }
+    .tower-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .tower-icon {
+      font-size: 1.3rem;
+    }
+    .tower-cost {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    h1 {
+      font-size: clamp(28px, 7vw, 48px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      max-width: 420px;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 36px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+
+  <div class="hud">
+    <div class="hud-pill">ENERGIA: <span id="energy" style="color: var(--gold);">100</span> ⭐</div>
+    <div class="hud-pill">VIDA DO NINHO: <span id="lives" style="color: #ff5ca8;">10</span> ❤️</div>
+    <div class="hud-pill">ONDA: <span id="wave" style="color: var(--cyan);">1</span></div>
+  </div>
+
+  <div class="towers-dock">
+    <button class="tower-btn selected" id="btnT1" onclick="selectTower(0)">
+      <span class="tower-icon">⚡</span>
+      <span style="font-size: 0.72rem; font-weight: 800;">Raio</span>
+      <span class="tower-cost">50 ⭐</span>
+    </button>
+    <button class="tower-btn" id="btnT2" onclick="selectTower(1)">
+      <span class="tower-icon">❄️</span>
+      <span style="font-size: 0.72rem; font-weight: 800;">Gelo</span>
+      <span class="tower-cost">80 ⭐</span>
+    </button>
+    <button class="tower-btn" id="btnT3" onclick="selectTower(2)">
+      <span class="tower-icon">💥</span>
+      <span style="font-size: 0.72rem; font-weight: 800;">Cosmo</span>
+      <span class="tower-cost">120 ⭐</span>
+    </button>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay active" id="ov">
+    <h1 id="ovTitle">DEFESA CÓSMICA</h1>
+    <p id="ovDesc">Posicione Corujas Guardiãs nas plataformas ao lado do caminho para proteger o Ovo Cósmico contra ondas de drones invasores!</p>
+    <button class="btn-action" onclick="startGame()">DEFENDER NINHO</button>
+  </div>
+
+  <script>
+    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
+    function sendEvent(type, data = {}) {
+      try {
+        window.parent.postMessage({ type, gameSlug: 'kruuj-defense', ...data }, '*');
+      } catch (e) {}
+    }
+    sendEvent('game_loaded');
+
+    let bestWave = parseInt(localStorage.getItem('kruuj_defense_best') || '1', 10);
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+        try {
+          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+          if (d && d.bestWave) {
+            bestWave = Math.max(bestWave, d.bestWave);
+            localStorage.setItem('kruuj_defense_best', String(bestWave));
+          }
+        } catch(err){}
+      }
+    });
+
+    // ===== Áudio WebAudio Sintético =====
+    let audioCtx = null;
+    function playSfx(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'laser') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'freeze') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'explode') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(120, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    // ===== Engine Tower Defense =====
+    const cv = document.getElementById('c');
+    const ctx = cv.getContext('2d');
+    let W = cv.width = window.innerWidth;
+    let H = cv.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      W = cv.width = window.innerWidth;
+      H = cv.height = window.innerHeight;
+      buildWaypoints();
+    });
+
+    let state = 'menu';
+    let energy = 100;
+    let lives = 10;
+    let wave = 1;
+    let selectedTowerType = 0;
+    let waypoints = [];
+    let enemies = [];
+    let towers = [];
+    let projectiles = [];
+    let particles = [];
+    let spawnTimer = 0;
+    let enemiesToSpawn = 0;
+
+    const TOWER_TYPES = [
+      { name: 'Raio', cost: 50, range: 110, rate: 12, damage: 18, color: '#38e8ff', sfx: 'laser', icon: '⚡' },
+      { name: 'Gelo', cost: 80, range: 95, rate: 25, damage: 12, slow: 0.5, color: '#a78bfa', sfx: 'freeze', icon: '❄️' },
+      { name: 'Cosmo', cost: 120, range: 140, rate: 45, damage: 45, splash: 40, color: '#ffb020', sfx: 'explode', icon: '💥' }
+    ];
+
+    function selectTower(type) {
+      selectedTowerType = type;
+      [0, 1, 2].forEach(i => {
+        document.getElementById('btnT' + (i + 1)).classList.toggle('selected', i === type);
+      });
+    }
+
+    function buildWaypoints() {
+      waypoints = [
+        { x: -20, y: H * 0.25 },
+        { x: W * 0.35, y: H * 0.25 },
+        { x: W * 0.35, y: H * 0.65 },
+        { x: W * 0.75, y: H * 0.65 },
+        { x: W * 0.75, y: H * 0.35 },
+        { x: W + 20, y: H * 0.35 }
+      ];
+    }
+    buildWaypoints();
+
+    function startGame() {
+      state = 'play';
+      energy = 100;
+      lives = 10;
+      wave = 1;
+      enemies = [];
+      towers = [];
+      projectiles = [];
+      particles = [];
+      enemiesToSpawn = 6;
+      spawnTimer = 0;
+
+      updateHud();
+      sendEvent('game_start');
+      document.getElementById('ov').classList.remove('active');
+    }
+
+    function updateHud() {
+      document.getElementById('energy').textContent = energy;
+      document.getElementById('lives').textContent = lives;
+      document.getElementById('wave').textContent = wave;
+    }
+
+    // Posicionar torre com clique
+    cv.addEventListener('pointerdown', (e) => {
+      if (state !== 'play') return;
+      if (e.clientY > H - 80) return; // Barra inferior
+
+      const tDef = TOWER_TYPES[selectedTowerType];
+      if (energy < tDef.cost) return;
+
+      // Impede colocar diretamente em cima do caminho dos inimigos
+      for (let i = 0; i < waypoints.length - 1; i++) {
+        const p1 = waypoints[i];
+        const p2 = waypoints[i + 1];
+        const dist = distToSegment({ x: e.clientX, y: e.clientY }, p1, p2);
+        if (dist < 32) return;
+      }
+
+      // Impede sobrepor outra torre
+      for (let t of towers) {
+        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 36) return;
+      }
+
+      energy -= tDef.cost;
+      updateHud();
+
+      towers.push({
+        x: e.clientX,
+        y: e.clientY,
+        type: selectedTowerType,
+        cooldown: 0,
+        target: null
+      });
+
+      // Efeito de colocação
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x: e.clientX, y: e.clientY,
+          vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+          r: 3, c: tDef.color, life: 1
+        });
+      }
+    });
+
+    function distToSegment(p, v, w) {
+      const l2 = (v.x - w.x) ** 2 + (v.y - w.y) ** 2;
+      if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+      let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+    }
+
+    function spawnEnemy() {
+      const hp = 40 + wave * 22;
+      enemies.push({
+        x: waypoints[0].x,
+        y: waypoints[0].y,
+        hp: hp,
+        maxHp: hp,
+        speed: 1.6 + Math.random() * 0.4,
+        targetWp: 1,
+        slowTimer: 0,
+        r: 12
+      });
+    }
+
+    function gameOver() {
+      state = 'over';
+      bestWave = Math.max(bestWave, wave);
+      localStorage.setItem('kruuj_defense_best', String(bestWave));
+
+      sendEvent('game_over', { wave, bestWave });
+      sendEvent('game_save', { saveData: { bestWave }, score: wave * 100 });
+
+      document.getElementById('ovTitle').textContent = 'OVO CÓSMICO CAPTURADO!';
+      document.getElementById('ovDesc').textContent = `Você resistiu bravamente até a Onda ${wave}! Melhore o posicionamento de raios e gelo para vencer.`;
+      document.getElementById('ov').classList.add('active');
+    }
+
+    // Loop
+    function loop() {
+      requestAnimationFrame(loop);
+
+      ctx.fillStyle = '#07061a';
+      ctx.fillRect(0, 0, W, H);
+
+      // Desenha o caminho galáctico
+      ctx.strokeStyle = 'rgba(56, 232, 255, 0.15)';
+      ctx.lineWidth = 38;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      waypoints.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Ninho no fim do caminho
+      const endPt = waypoints[waypoints.length - 1];
+      ctx.save();
+      ctx.fillStyle = '#ff5ca8';
+      ctx.shadowColor = '#ff5ca8';
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(W - 25, endPt.y, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (state === 'play') {
+        // Spawn de inimigos
+        if (enemiesToSpawn > 0) {
+          spawnTimer++;
+          if (spawnTimer > 45) {
+            spawnTimer = 0;
+            spawnEnemy();
+            enemiesToSpawn--;
+          }
+        } else if (enemies.length === 0) {
+          // Próxima onda
+          wave++;
+          energy += 40 + wave * 15;
+          enemiesToSpawn = 6 + wave * 2;
+          updateHud();
+        }
+
+        // Atualiza inimigos
+        for (let i = enemies.length - 1; i >= 0; i--) {
+          const e = enemies[i];
+          const target = waypoints[e.targetWp];
+          const dx = target.x - e.x;
+          const dy = target.y - e.y;
+          const dist = Math.hypot(dx, dy);
+
+          const currentSpeed = e.slowTimer > 0 ? e.speed * 0.5 : e.speed;
+          if (e.slowTimer > 0) e.slowTimer--;
+
+          if (dist < 5) {
+            e.targetWp++;
+            if (e.targetWp >= waypoints.length) {
+              // Chegou ao ninho
+              lives--;
+              updateHud();
+              enemies.splice(i, 1);
+              if (lives <= 0) {
+                gameOver();
+                return;
+              }
+              continue;
+            }
+          } else {
+            e.x += (dx / dist) * currentSpeed;
+            e.y += (dy / dist) * currentSpeed;
+          }
+
+          // Desenha inimigo (Drone cibernético)
+          ctx.save();
+          ctx.fillStyle = e.slowTimer > 0 ? '#38e8ff' : '#ff4757';
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Barra de vida
+          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillRect(e.x - 12, e.y - 18, 24, 4);
+          ctx.fillStyle = '#2ed573';
+          ctx.fillRect(e.x - 12, e.y - 18, 24 * (e.hp / e.maxHp), 4);
+          ctx.restore();
+        }
+
+        // Atualiza torres e mira
+        towers.forEach(t => {
+          const tDef = TOWER_TYPES[t.type];
+          t.cooldown--;
+
+          // Acha inimigo no alcance
+          let bestTarget = null;
+          let bestDist = tDef.range;
+
+          for (let e of enemies) {
+            const d = Math.hypot(e.x - t.x, e.y - t.y);
+            if (d < bestDist) {
+              bestTarget = e;
+              bestDist = d;
+            }
+          }
+
+          t.target = bestTarget;
+
+          // Disparo
+          if (t.target && t.cooldown <= 0) {
+            t.cooldown = tDef.rate;
+            playSfx(tDef.sfx);
+
+            projectiles.push({
+              x: t.x,
+              y: t.y,
+              target: t.target,
+              speed: 9,
+              damage: tDef.damage,
+              color: tDef.color,
+              slow: tDef.slow || 0,
+              splash: tDef.splash || 0
+            });
+          }
+
+          // Desenha Torre (Plataforma da Coruja)
+          ctx.save();
+          ctx.fillStyle = 'rgba(20, 26, 46, 0.9)';
+          ctx.strokeStyle = tDef.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Ícone da torre
+          ctx.font = '16px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(tDef.icon, t.x, t.y + 1);
+
+          ctx.restore();
+        });
+
+        // Atualiza projéteis
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+          const p = projectiles[i];
+          const dx = p.target.x - p.x;
+          const dy = p.target.y - p.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < 10 || !enemies.includes(p.target)) {
+            // Impacto
+            p.target.hp -= p.damage;
+            if (p.slow) p.target.slowTimer = 40;
+
+            if (p.target.hp <= 0) {
+              energy += 12;
+              updateHud();
+              const idx = enemies.indexOf(p.target);
+              if (idx !== -1) enemies.splice(idx, 1);
+            }
+
+            // Partículas
+            for (let k = 0; k < 6; k++) {
+              particles.push({
+                x: p.x, y: p.y,
+                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                r: 3, c: p.color, life: 0.8
+              });
+            }
+
+            projectiles.splice(i, 1);
+          } else {
+            p.x += (dx / dist) * p.speed;
+            p.y += (dy / dist) * p.speed;
+
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.life -= 0.04;
+        if (pt.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = pt.c;
+        ctx.globalAlpha = pt.life;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    loop();
+  </script>
+</body>
+</html>

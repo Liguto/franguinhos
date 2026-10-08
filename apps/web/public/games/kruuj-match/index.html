@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Kruuj Match: Alquimia Estelar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07061a;
+      --cyan: #38e8ff;
+      --purple: #8b5cff;
+      --gold: #ffb020;
+      --pink: #ff5ca8;
+      --green: #10b981;
+      --text: #f3f0ff;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Baloo 2', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .header {
+      width: 100%;
+      max-width: 440px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .title-logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
+    }
+    .stats-pill {
+      background: rgba(13, 18, 36, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 4px 14px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+    .stats-pill span {
+      color: var(--gold);
+    }
+    #game-container {
+      position: relative;
+      width: min(92vw, 420px);
+      height: min(92vw, 420px);
+      background: rgba(13, 18, 36, 0.65);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15);
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .footer-bar {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.9) 0%, rgba(7, 6, 26, 0.98) 100%);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    h1 {
+      font-size: clamp(28px, 7vw, 44px);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      max-width: 380px;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .btn-action {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 36px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title-logo">KRUUJ MATCH</div>
+    <div class="stats-pill">PONTOS: <span id="score">0</span></div>
+    <div class="stats-pill" style="font-size: 0.82rem;">RECORDE: <span id="best" style="color: var(--cyan);">0</span></div>
+  </div>
+
+  <div id="game-container">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div class="footer-bar">Arraste pedras vizinhas para combinar 3 ou mais</div>
+
+  <!-- Overlay de Início e Nível Concluído -->
+  <div class="overlay active" id="ov">
+    <h1 id="ovTitle">ALQUIMIA ESTELAR</h1>
+    <p id="ovDesc">Combine 3 ou mais cristais rúnicos cósmicos. Crie combinações de 4 ou 5 para liberar a energia mágica da Coruja!</p>
+    <button class="btn-action" id="btnStart" onclick="startGame()">JOGAR</button>
+  </div>
+
+  <script>
+    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
+    function sendEvent(type, data = {}) {
+      try {
+        window.parent.postMessage({ type, gameSlug: 'kruuj-match', ...data }, '*');
+      } catch (e) {}
+    }
+    sendEvent('game_loaded');
+
+    let bestScore = parseInt(localStorage.getItem('kruuj_match_best') || '0', 10);
+    document.getElementById('best').textContent = bestScore;
+
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+        try {
+          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
+          if (d && d.bestScore) {
+            bestScore = Math.max(bestScore, d.bestScore);
+            localStorage.setItem('kruuj_match_best', String(bestScore));
+            document.getElementById('best').textContent = bestScore;
+          }
+        } catch(err){}
+      }
+    });
+
+    // ===== Áudio WebAudio Zen Sintético =====
+    let audioCtx = null;
+    function playChime(freq = 520) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.25);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } catch(e) {}
+    }
+
+    // ===== Lógica do Match-3 =====
+    const cv = document.getElementById('c');
+    const ctx = cv.getContext('2d');
+    const ROWS = 7;
+    const COLS = 7;
+    let tileSize = 0;
+    let grid = [];
+    let score = 0;
+    let isSwapping = false;
+    let selectedTile = null;
+    let particles = [];
+    let state = 'menu';
+
+    // Tipos de cristais rúnicos (0 a 4)
+    const GEMS = [
+      { name: 'cyan', color: '#38e8ff', glow: 'rgba(56, 232, 255, 0.4)', icon: '◆' },
+      { name: 'purple', color: '#8b5cff', glow: 'rgba(139, 92, 246, 0.4)', icon: '▲' },
+      { name: 'gold', color: '#ffb020', glow: 'rgba(255, 176, 32, 0.4)', icon: '★' },
+      { name: 'pink', color: '#ff5ca8', glow: 'rgba(255, 92, 168, 0.4)', icon: '●' },
+      { name: 'green', color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)', icon: '✦' }
+    ];
+
+    function resize() {
+      const container = document.getElementById('game-container');
+      const w = container.clientWidth;
+      cv.width = w;
+      cv.height = w;
+      tileSize = w / COLS;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function initGrid() {
+      grid = [];
+      score = 0;
+      document.getElementById('score').textContent = score;
+
+      for (let r = 0; r < ROWS; r++) {
+        grid[r] = [];
+        for (let c = 0; c < COLS; c++) {
+          let type;
+          do {
+            type = Math.floor(Math.random() * GEMS.length);
+          } while (
+            (c >= 2 && grid[r][c - 1]?.type === type && grid[r][c - 2]?.type === type) ||
+            (r >= 2 && grid[r - 1][c]?.type === type && grid[r - 2][c]?.type === type)
+          );
+          grid[r][c] = {
+            type,
+            r, c,
+            x: c * tileSize,
+            y: r * tileSize,
+            targetX: c * tileSize,
+            targetY: r * tileSize,
+            scale: 1,
+            alpha: 1
+          };
+        }
+      }
+    }
+
+    // Identifica linhas e colunas com 3 ou mais iguais
+    function checkMatches() {
+      let matches = new Set();
+
+      // Horizontal
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS - 2; c++) {
+          const t = grid[r][c].type;
+          if (t !== null && t === grid[r][c + 1]?.type && t === grid[r][c + 2]?.type) {
+            matches.add(`${r},${c}`);
+            matches.add(`${r},${c + 1}`);
+            matches.add(`${r},${c + 2}`);
+          }
+        }
+      }
+
+      // Vertical
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS - 2; r++) {
+          const t = grid[r][c].type;
+          if (t !== null && t === grid[r + 1][c]?.type && t === grid[r + 2][c]?.type) {
+            matches.add(`${r},${c}`);
+            matches.add(`${r + 1},${c}`);
+            matches.add(`${r + 2},${c}`);
+          }
+        }
+      }
+
+      return Array.from(matches).map(pos => {
+        const [r, c] = pos.split(',').map(Number);
+        return { r, c };
+      });
+    }
+
+    // Resolve as combinações e faz cascata
+    async function processMatches() {
+      let matches = checkMatches();
+      let comboCount = 0;
+
+      while (matches.length > 0) {
+        comboCount++;
+        playChime(440 + comboCount * 70);
+
+        // Pontuação e partículas
+        score += matches.length * 10 * comboCount;
+        document.getElementById('score').textContent = score;
+
+        matches.forEach(m => {
+          const tile = grid[m.r][m.c];
+          // Partículas
+          for (let i = 0; i < 6; i++) {
+            particles.push({
+              x: tile.x + tileSize / 2,
+              y: tile.y + tileSize / 2,
+              vx: (Math.random() - 0.5) * 6,
+              vy: (Math.random() - 0.5) * 6,
+              r: Math.random() * 4 + 2,
+              c: GEMS[tile.type]?.color || '#fff',
+              life: 1
+            });
+          }
+          grid[m.r][m.c].type = null;
+        });
+
+        // Gravidade (as pedras caem para baixo)
+        for (let c = 0; c < COLS; c++) {
+          let emptyRow = ROWS - 1;
+          for (let r = ROWS - 1; r >= 0; r--) {
+            if (grid[r][c].type !== null) {
+              if (emptyRow !== r) {
+                grid[emptyRow][c].type = grid[r][c].type;
+                grid[r][c].type = null;
+              }
+              emptyRow--;
+            }
+          }
+          // Preenche os vazios do topo
+          for (let r = emptyRow; r >= 0; r--) {
+            grid[r][c].type = Math.floor(Math.random() * GEMS.length);
+          }
+        }
+
+        // Aguarda animação de cascata
+        await new Promise(res => setTimeout(res, 220));
+        matches = checkMatches();
+      }
+
+      // Atualiza recorde
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('kruuj_match_best', String(bestScore));
+        document.getElementById('best').textContent = bestScore;
+        sendEvent('game_save', { saveData: { bestScore }, score });
+      }
+      isSwapping = false;
+    }
+
+    // Troca 2 pedras
+    async function swapTiles(t1, t2) {
+      isSwapping = true;
+      const type1 = t1.type;
+      t1.type = t2.type;
+      t2.type = type1;
+
+      const matches = checkMatches();
+      if (matches.length === 0) {
+        // Desfaz se não formar combinação
+        await new Promise(res => setTimeout(res, 180));
+        t2.type = t1.type;
+        t1.type = type1;
+        isSwapping = false;
+      } else {
+        await processMatches();
+      }
+    }
+
+    // Input touch / mouse
+    let pointerStart = null;
+
+    cv.addEventListener('pointerdown', (e) => {
+      if (isSwapping || state !== 'play') return;
+      const rect = cv.getBoundingClientRect();
+      const col = Math.floor((e.clientX - rect.left) / tileSize);
+      const row = Math.floor((e.clientY - rect.top) / tileSize);
+      if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+        pointerStart = { r: row, c: col, x: e.clientX, y: e.clientY };
+      }
+    });
+
+    cv.addEventListener('pointerup', (e) => {
+      if (!pointerStart || isSwapping || state !== 'play') return;
+      const dx = e.clientX - pointerStart.x;
+      const dy = e.clientY - pointerStart.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 15) {
+        let targetR = pointerStart.r;
+        let targetC = pointerStart.c;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+          targetC += dx > 0 ? 1 : -1;
+        } else {
+          targetR += dy > 0 ? 1 : -1;
+        }
+
+        if (targetR >= 0 && targetR < ROWS && targetC >= 0 && targetC < COLS) {
+          swapTiles(grid[pointerStart.r][pointerStart.c], grid[targetR][targetC]);
+        }
+      }
+      pointerStart = null;
+    });
+
+    function startGame() {
+      initGrid();
+      state = 'play';
+      sendEvent('game_start');
+      document.getElementById('ov').classList.remove('active');
+    }
+
+    // Loop de Renderização
+    function loop() {
+      requestAnimationFrame(loop);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+
+      // Fundo e grade sutil
+      ctx.fillStyle = '#0a0d1f';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= COLS; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * tileSize, 0);
+        ctx.lineTo(i * tileSize, cv.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * tileSize);
+        ctx.lineTo(cv.width, i * tileSize);
+        ctx.stroke();
+      }
+
+      // Desenha as pedras
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const tile = grid[r]?.[c];
+          if (!tile || tile.type === null) continue;
+
+          const gem = GEMS[tile.type];
+          const x = c * tileSize + tileSize / 2;
+          const y = r * tileSize + tileSize / 2;
+          const radius = tileSize * 0.38;
+
+          // Efeito de brilho
+          ctx.save();
+          ctx.shadowColor = gem.color;
+          ctx.shadowBlur = 10;
+
+          // Corpo da pedra rúnica (Squircle chanfrado)
+          ctx.fillStyle = gem.color;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Símbolo central
+          ctx.fillStyle = '#ffffff';
+          ctx.font = `800 ${tileSize * 0.4}px 'Baloo 2'`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(gem.icon, x, y + 1);
+
+          ctx.restore();
+        }
+      }
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const pt = particles[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.life -= 0.035;
+        if (pt.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = pt.c;
+        ctx.globalAlpha = pt.life;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    loop();
+  </script>
+</body>
+</html>
