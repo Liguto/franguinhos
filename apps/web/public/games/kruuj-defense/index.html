@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ GUARDIANS: Tower Defense</title>
+  <title>KRUUJ GUARDIANS: Bloons TD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -10,7 +10,7 @@
       --bg-dark: #070914;
       --bg-sidebar: #0d1224;
       --bg-card: rgba(22, 28, 54, 0.7);
-      --border-color: rgba(255, 255, 255, 0.1);
+      --border-color: rgba(255, 255, 255, 0.12);
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
@@ -18,6 +18,7 @@
       --red: #ef4444;
       --blue: #3b82f6;
       --green: #10b981;
+      --yellow: #eab308;
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -40,7 +41,7 @@
       font-family: 'Baloo 2', sans-serif;
     }
 
-    /* Container Principal com Divisão de Tela (Canvas + Sidebar) */
+    /* Layout Principal Responsivo (Web PC: Sidebar | Mobile: Bottom Dock) */
     #app-layout {
       display: flex;
       width: 100vw;
@@ -48,7 +49,6 @@
       position: relative;
     }
 
-    /* Área do Canvas do Jogo */
     #canvas-container {
       flex: 1;
       position: relative;
@@ -64,32 +64,116 @@
       cursor: crosshair;
     }
 
-    /* Barra Superior com Informações no Canvas (Mobile Friendly) */
-    .top-hud {
+    /* Barra Superior do Canvas (HUD de Recursos e Controles Rápidos) */
+    .canvas-top-bar {
       position: absolute;
       top: 12px;
       left: 12px;
+      right: 12px;
       display: flex;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
       pointer-events: none;
       z-index: 10;
     }
 
+    .hud-chips {
+      display: flex;
+      gap: 8px;
+    }
+
     .hud-chip {
-      background: rgba(13, 18, 36, 0.85);
+      background: rgba(13, 18, 36, 0.88);
       border: 1px solid var(--border-color);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
       padding: 5px 14px;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 6px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      color: #fff;
     }
 
-    /* Menu Lateral / Loja (Desktop e Tablet) */
+    .hud-controls {
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .ctrl-btn {
+      background: rgba(13, 18, 36, 0.88);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .ctrl-btn.active {
+      background: rgba(56, 232, 255, 0.2);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Barra de Vida do Boss (Aparece em Rodadas Redondas 10/20/30) */
+    #boss-hud {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(90vw, 380px);
+      background: rgba(13, 18, 36, 0.9);
+      border: 1.5px solid #ef4444;
+      border-radius: 12px;
+      padding: 6px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 10;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .boss-name {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #f87171;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .boss-hp-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .boss-hp-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+      transition: width 0.15s ease-out;
+    }
+
+    /* Menu Lateral / Loja (Sidebar Web PC) */
     #sidebar-ui {
       width: 320px;
       height: 100%;
@@ -98,7 +182,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 18px 16px;
+      padding: 16px;
       box-sizing: border-box;
       z-index: 20;
       box-shadow: -6px 0 25px rgba(0, 0, 0, 0.5);
@@ -107,60 +191,76 @@
     .sidebar-header {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .game-logo {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.01em;
     }
 
-    .stats-panel {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .objective-chip {
+      background: rgba(56, 232, 255, 0.1);
+      border: 1px solid rgba(56, 232, 255, 0.25);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Menu de Botões da Enciclopédia/Fases */
+    .menu-nav-row {
+      display: flex;
+      gap: 6px;
       margin-top: 4px;
     }
 
-    .stat-box {
-      background: var(--bg-card);
+    .nav-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
+      color: #cbd5e1;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
     }
 
-    .stat-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-    }
-
-    .stat-value {
-      font-size: 1.15rem;
-      font-weight: 800;
+    .nav-btn:hover {
+      background: rgba(56, 232, 255, 0.15);
+      border-color: var(--cyan);
       color: #fff;
     }
 
-    /* Lista de Torres na Loja */
+    /* Loja de Torres ("Macacos Bloons TD") */
     .shop-section {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin: 14px 0;
+      margin: 10px 0;
       overflow-y: auto;
     }
 
     .shop-title {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 800;
       text-transform: uppercase;
       color: var(--cyan);
@@ -170,17 +270,21 @@
     .tower-card-btn {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       background: var(--bg-card);
       border: 1.5px solid var(--border-color);
-      border-radius: 14px;
-      padding: 8px 12px;
+      border-radius: 12px;
+      padding: 8px 10px;
       color: #fff;
-      cursor: pointer;
+      cursor: grab;
       font-family: inherit;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: left;
-      position: relative;
+      touch-action: none;
+    }
+
+    .tower-card-btn:active {
+      cursor: grabbing;
     }
 
     .tower-card-btn:hover:not(:disabled) {
@@ -196,19 +300,19 @@
     }
 
     .tower-card-btn:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
-      filter: grayscale(0.6);
+      filter: grayscale(0.7);
     }
 
     .tower-avatar-preview {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       background: rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -222,7 +326,7 @@
     }
 
     .tower-name {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
@@ -230,63 +334,68 @@
     }
 
     .tower-desc {
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       color: var(--text-muted);
-      line-height: 1.2;
+      line-height: 1.15;
     }
 
     .tower-price {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       color: var(--gold);
     }
 
-    /* Painel Inferior de Controles / Ações */
+    /* Rodapé da Sidebar */
     .sidebar-footer {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    .round-actions-row {
+      display: flex;
+      gap: 8px;
     }
 
     .btn-start-round {
+      flex: 1;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #fff;
       border: none;
       border-radius: 12px;
-      padding: 12px 18px;
-      font-size: 1rem;
+      padding: 10px 14px;
+      font-size: 0.95rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
       transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-start-round:hover:not(:disabled) {
       transform: scale(1.02);
-      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);
     }
 
     .btn-start-round:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      filter: grayscale(0.5);
     }
 
-    /* Card de Inspeção de Torre Selecionada */
+    /* Painel de Inspeção e Venda */
     #tower-inspector {
       background: rgba(22, 28, 54, 0.95);
       border: 1.5px solid var(--cyan);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border-radius: 12px;
+      padding: 8px 12px;
       display: none;
       flex-direction: column;
-      gap: 6px;
-      box-shadow: 0 0 20px rgba(56, 232, 255, 0.25);
+      gap: 4px;
+      margin-bottom: 6px;
     }
 
     .inspector-header {
@@ -295,81 +404,125 @@
       align-items: center;
     }
 
-    .inspector-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
     .btn-sell-tower {
       background: rgba(239, 68, 68, 0.2);
       border: 1px solid #ef4444;
       color: #f87171;
       border-radius: 9999px;
-      padding: 3px 10px;
-      font-size: 0.72rem;
+      padding: 2px 8px;
+      font-size: 0.7rem;
       font-weight: 800;
       cursor: pointer;
     }
 
-    /* Overlay de Fim de Jogo ou Vitória */
-    .game-overlay {
-      position: absolute;
+    /* Modais Popups (Enciclopédia, Fases, Como Jogar, Vitória) */
+    .modal-backdrop {
+      position: fixed;
       inset: 0;
       background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 9, 20, 0.98) 100%);
       backdrop-filter: blur(12px);
-      display: flex;
-      flex-direction: column;
+      display: none;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      text-align: center;
+      padding: 16px;
       z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
+      box-sizing: border-box;
     }
 
-    .game-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
+    .modal-backdrop.active {
+      display: flex;
     }
 
-    .game-overlay h1 {
-      font-size: clamp(32px, 6vw, 48px);
+    .modal-card {
+      width: min(92vw, 520px);
+      max-height: 85vh;
+      background: #0d1224;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-    }
-
-    .game-overlay p {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      max-width: 440px;
-      line-height: 1.4;
-      margin-bottom: 22px;
-    }
-
-    .btn-restart {
-      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-close-modal {
+      background: transparent;
       border: none;
-      border-radius: 9999px;
-      padding: 12px 38px;
-      font-size: 1.1rem;
+      color: #94a3b8;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .track-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .track-header {
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .phases-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .phase-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 4px;
+      color: #fff;
+      font-size: 0.75rem;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      text-align: center;
       transition: all 0.2s;
     }
 
-    .btn-restart:hover {
-      transform: scale(1.05);
+    .phase-btn:hover {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.2);
     }
 
-    /* Responsividade para Celulares (< 768px): Sidebar vira Bottom Dock */
+    .phase-btn.active {
+      border-color: var(--gold);
+      background: rgba(255, 176, 32, 0.2);
+      color: var(--gold);
+    }
+
+    .encyclopedia-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    /* Responsividade Mobile (< 768px) */
     @media (max-width: 768px) {
       #app-layout {
         flex-direction: column;
@@ -380,32 +533,32 @@
         height: auto;
         border-left: none;
         border-top: 1px solid var(--border-color);
-        padding: 10px 12px;
-        flex-direction: column;
-        gap: 8px;
+        padding: 8px 10px;
+        gap: 6px;
       }
 
       .shop-section {
         flex-direction: row;
         overflow-x: auto;
         gap: 6px;
-        margin: 4px 0;
-        padding-bottom: 4px;
+        margin: 2px 0;
+        padding-bottom: 2px;
       }
 
       .tower-card-btn {
         flex-direction: column;
-        padding: 6px 10px;
-        min-width: 80px;
+        padding: 6px 8px;
+        min-width: 75px;
         text-align: center;
+        gap: 3px;
       }
 
       .tower-desc {
         display: none;
       }
 
-      .stats-panel {
-        display: none; /* No mobile fica no top-hud do canvas */
+      .logo-row {
+        display: none;
       }
     }
   </style>
@@ -414,63 +567,82 @@
   <div id="app-layout">
     <!-- 1. Canvas do Jogo -->
     <div id="canvas-container">
-      <div class="top-hud">
-        <div class="hud-chip">💰 <span id="hud-money" style="color: var(--gold);">$650</span></div>
-        <div class="hud-chip">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
-        <div class="hud-chip">🎈 Round <span id="hud-round" style="color: var(--cyan);">1</span></div>
+      <div class="canvas-top-bar">
+        <div class="hud-chips">
+          <div class="hud-chip">💰 <span id="hud-money" style="color: var(--gold);">$650</span></div>
+          <div class="hud-chip">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
+          <div class="hud-chip">🎈 Onda <span id="hud-round" style="color: var(--cyan);">1</span></div>
+        </div>
+
+        <div class="hud-controls">
+          <!-- Botão de Velocidade 2x -->
+          <button class="ctrl-btn" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()">
+            <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
+          </button>
+          <!-- Botão de Início Automático -->
+          <button class="ctrl-btn" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()">
+            <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Vida do Boss / Balão Titã (Rounds 10, 20, 30) -->
+      <div id="boss-hud">
+        <div class="boss-name">
+          <span>👾 TITÃ CÓSMICO</span>
+          <span id="boss-hp-text">80 / 80 HP</span>
+        </div>
+        <div class="boss-hp-track">
+          <div class="boss-hp-fill" id="boss-hp-bar"></div>
+        </div>
       </div>
 
       <canvas id="gameCanvas"></canvas>
-
-      <!-- Overlay de Vitória / Fim de Jogo -->
-      <div class="game-overlay" id="endOverlay">
-        <h1 id="ovTitle">FIM DE JOGO!</h1>
-        <p id="ovDesc">Os balões cósmicos ultrapassaram suas defesas. Posicione suas corujas estrategicamente nos cantos do percurso!</p>
-        <button class="btn-restart" onclick="window.gameInstance.restartGame()">JOGAR NOVAMENTE 🦉</button>
-      </div>
     </div>
 
-    <!-- 2. UI / Loja Lateral (Estilo Bloons TD) -->
+    <!-- 2. UI Lateral / Loja das Torres -->
     <aside id="sidebar-ui">
       <div class="sidebar-header">
-        <div class="game-logo">KRUUJ GUARDIANS</div>
-        <div class="stats-panel">
-          <div class="stat-box">
-            <span class="stat-label">Dinheiro</span>
-            <span class="stat-value" id="side-money" style="color: var(--gold);">$650</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-label">Vidas</span>
-            <span class="stat-value" id="side-lives" style="color: var(--pink);">20</span>
-          </div>
+        <div class="logo-row">
+          <div class="game-logo">KRUUJ GUARDIANS</div>
+          <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;" id="track-name-badge">CÓSMICA</span>
+        </div>
+
+        <div class="objective-chip">
+          <span id="objective-text">🎯 Meta: Vencer Onda 10</span>
+          <span style="color: var(--gold);" id="phase-label">Fase 1</span>
+        </div>
+
+        <div class="menu-nav-row">
+          <button class="nav-btn" onclick="window.guardiansGame.openModal('phases')">🗺️ Fases</button>
+          <button class="nav-btn" onclick="window.guardiansGame.openModal('encyclopedia')">🦉 Corujas</button>
+          <button class="nav-btn" onclick="window.guardiansGame.openModal('howto')">📖 Como Jogar</button>
         </div>
       </div>
 
       <!-- Card de Inspeção de Torre Selecionada -->
       <div id="tower-inspector">
         <div class="inspector-header">
-          <span class="inspector-title" id="insp-name">Coruja</span>
-          <button class="btn-sell-tower" id="btn-sell" onclick="window.gameInstance.sellSelectedTower()">Vender ($140)</button>
+          <span style="font-size: 0.82rem; font-weight: 800; color: #fff;" id="insp-name">Coruja</span>
+          <button class="btn-sell-tower" onclick="window.guardiansGame.sellSelectedTower()">Vender ($140)</button>
         </div>
-        <div style="font-size: 0.72rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
       </div>
 
-      <!-- Loja das 5 Torres ("Macacos") -->
+      <!-- Loja das 5 Torres (Suporta Arrastar e Soltar / Drag & Drop) -->
       <div class="shop-section">
-        <div class="shop-title">Torres Guardiãs</div>
+        <div class="shop-title">Arraste para o Mapa</div>
 
-        <!-- Torre 1: Básica (Meu Avatar) -->
-        <button class="tower-card-btn" id="btn-tower-0" onclick="window.gameInstance.selectTowerForPurchase(0)">
+        <button class="tower-card-btn" id="shop-btn-0" data-index="0">
           <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
           <div class="tower-meta">
             <span class="tower-name">Coruja Avatar (1)</span>
-            <span class="tower-desc">Tiro único equilibrado</span>
+            <span class="tower-desc">Tiro único balanceado</span>
           </div>
           <span class="tower-price">$200</span>
         </button>
 
-        <!-- Torre 2: Rápida (Meu Mascote) -->
-        <button class="tower-card-btn" id="btn-tower-1" onclick="window.gameInstance.selectTowerForPurchase(1)">
+        <button class="tower-card-btn" id="shop-btn-1" data-index="1">
           <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
           <div class="tower-meta">
             <span class="tower-name">Mascote Ninja (2)</span>
@@ -479,8 +651,7 @@
           <span class="tower-price">$300</span>
         </button>
 
-        <!-- Torre 3: Longo Alcance -->
-        <button class="tower-card-btn" id="btn-tower-2" onclick="window.gameInstance.selectTowerForPurchase(2)">
+        <button class="tower-card-btn" id="shop-btn-2" data-index="2">
           <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
           <div class="tower-meta">
             <span class="tower-name">Sniper Cósmico (3)</span>
@@ -489,8 +660,7 @@
           <span class="tower-price">$400</span>
         </button>
 
-        <!-- Torre 4: Área / Explosivo -->
-        <button class="tower-card-btn" id="btn-tower-3" onclick="window.gameInstance.selectTowerForPurchase(3)">
+        <button class="tower-card-btn" id="shop-btn-3" data-index="3">
           <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
           <div class="tower-meta">
             <span class="tower-name">Canhão Explosivo (4)</span>
@@ -499,28 +669,175 @@
           <span class="tower-price">$500</span>
         </button>
 
-        <!-- Torre 5: Suporte / Desacelerador -->
-        <button class="tower-card-btn" id="btn-tower-4" onclick="window.gameInstance.selectTowerForPurchase(4)">
+        <button class="tower-card-btn" id="shop-btn-4" data-index="4">
           <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
           <div class="tower-meta">
             <span class="tower-name">Coruja Glacial (5)</span>
-            <span class="tower-desc">Reduz 50% vel. por 2s</span>
+            <span class="tower-desc">Desacelera 50% por 2s</span>
           </div>
           <span class="tower-price">$250</span>
         </button>
       </div>
 
+      <!-- Ações da Rodada -->
       <div class="sidebar-footer">
-        <button class="btn-start-round" id="btn-start-round" onclick="window.gameInstance.startNextRound()">
-          <span>INICIAR ROUND</span>
+        <button class="btn-start-round" id="btn-start-round" onclick="window.guardiansGame.startNextRound()">
+          <span>INICIAR ONDA</span>
           <span id="round-indicator">1</span> 🎈
         </button>
       </div>
     </aside>
   </div>
 
+  <!-- ===== MODAIS POPUPS ===== -->
+
+  <!-- Modal 1: Seletor de Trilhas & Fases -->
+  <div class="modal-backdrop" id="modal-phases">
+    <div class="modal-card">
+      <div class="modal-title">
+        <span>🗺️ Trilhas & Fases Temáticas</span>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+      </div>
+
+      <!-- Trilha 1: Cósmica -->
+      <div class="track-card">
+        <div class="track-header" style="color: var(--cyan);">
+          <span>🪐 Trilha Cósmica (Espaço Profundo)</span>
+          <span style="font-size: 0.72rem;">5 Fases</span>
+        </div>
+        <div class="phases-grid">
+          <button class="phase-btn active" onclick="window.guardiansGame.selectTrackPhase(0, 0)">Fase 1</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(0, 1)">Fase 2</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(0, 2)">Fase 3</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(0, 3)">Fase 4</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(0, 4)">Fase 5 👑</button>
+        </div>
+      </div>
+
+      <!-- Trilha 2: Vulcânica (Fogo) -->
+      <div class="track-card">
+        <div class="track-header" style="color: #f97316;">
+          <span>🔥 Trilha de Fogo (Reino Vulcânico)</span>
+          <span style="font-size: 0.72rem;">5 Fases</span>
+        </div>
+        <div class="phases-grid">
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(1, 0)">Fase 1</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(1, 1)">Fase 2</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(1, 2)">Fase 3</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(1, 3)">Fase 4</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(1, 4)">Fase 5 👑</button>
+        </div>
+      </div>
+
+      <!-- Trilha 3: Glacial (Gelo) -->
+      <div class="track-card">
+        <div class="track-header" style="color: #60a5fa;">
+          <span>❄️ Trilha Glacial (Picos Congelados)</span>
+          <span style="font-size: 0.72rem;">5 Fases</span>
+        </div>
+        <div class="phases-grid">
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 0)">Fase 1</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 1)">Fase 2</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 2)">Fase 3</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 3)">Fase 4</button>
+          <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 4)">Fase 5 👑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Enciclopédia das Corujas -->
+  <div class="modal-backdrop" id="modal-encyclopedia">
+    <div class="modal-card">
+      <div class="modal-title">
+        <span>🦉 Grimório das Corujas Guardiãs</span>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+      </div>
+
+      <div class="encyclopedia-item">
+        <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
+        <div>
+          <div style="font-weight: 800;">Coruja Avatar ($200)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Alcance médio (130px), cadência média. Excelente escolha para o início de jogo em esquinas.</div>
+        </div>
+      </div>
+
+      <div class="encyclopedia-item">
+        <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
+        <div>
+          <div style="font-weight: 800;">Mascote Ninja ($300)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Cadência ultra rápida (12 frames). Estoura enxames densos de balões vermelhos e azuis com facilidade.</div>
+        </div>
+      </div>
+
+      <div class="encyclopedia-item">
+        <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
+        <div>
+          <div style="font-weight: 800;">Sniper Cósmico ($400)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Alcance colossal (240px) e Dano 3. Crucial para eliminar balões cerâmicos e o Titã de longe.</div>
+        </div>
+      </div>
+
+      <div class="encyclopedia-item">
+        <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
+        <div>
+          <div style="font-weight: 800;">Canhão Explosivo ($500)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Dano em área (AOE raio 55px). Destrói aglomerados de balões com uma única ogiva estelar.</div>
+        </div>
+      </div>
+
+      <div class="encyclopedia-item">
+        <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
+        <div>
+          <div style="font-weight: 800;">Coruja Glacial ($250)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Congela e reduz 50% da velocidade por 2 segundos. Dobra o tempo que outras corujas têm para atirar!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Como Jogar -->
+  <div class="modal-backdrop" id="modal-howto">
+    <div class="modal-card">
+      <div class="modal-title">
+        <span>📖 Guia Estratégico</span>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
+        <p>🎈 <b>Balões em Camadas:</b> Cada golpe remove uma camada. Balões Verdes (3 vidas) viram Azuis (2 vidas) e depois Vermelhos (1 vida). Balões Dourados são ultra velozes!</p>
+        <p>👾 <b>Rodadas Redondas (Chefões):</b> Nas ondas 10, 20 e 30 surge um <b>Balão Titã Zepelim</b> resistente. Concentre Snipers e Canhões para derrubá-lo antes que libere os balões internos!</p>
+        <p>🖐️ <b>Arrastar ou Clicar:</b> No PC ou celular, você pode <b>arrastar a coruja</b> da loja direto para a posição desejada no mapa.</p>
+        <p>⏩ <b>Controles Rápidos:</b> Use o botão <b>2x</b> para acelerar o jogo e ative o <b>Auto: ON</b> para jogar as ondas em sequência sem pausas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Vitória / Meta Alcançada -->
+  <div class="modal-backdrop" id="modal-victory">
+    <div class="modal-card" style="text-align: center; align-items: center;">
+      <h1 style="font-size: 2rem; color: var(--gold); margin-bottom: 2px;">META ALCANÇADA! ⭐</h1>
+      <p style="font-size: 0.95rem; color: #cbd5e1;" id="vic-desc">Você protegeu o Ninho e concluiu a Fase com sucesso!</p>
+      
+      <div style="font-size: 2.2rem; margin: 8px 0;" id="vic-stars">⭐⭐⭐</div>
+
+      <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
+        <button class="btn-start-round" style="background: linear-gradient(135deg, #0284c7, #8b5cff);" onclick="window.guardiansGame.continueFreeplay()">MODO INFINITO ♾️</button>
+        <button class="btn-start-round" onclick="window.guardiansGame.nextPhase()">PRÓXIMA FASE ⏩</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Game Over -->
+  <div class="modal-backdrop" id="modal-gameover">
+    <div class="modal-card" style="text-align: center; align-items: center;">
+      <h1 style="font-size: 2rem; color: #ef4444; margin-bottom: 2px;">OVO CAPTURADO! 💥</h1>
+      <p style="font-size: 0.95rem; color: #cbd5e1;">Os balões ultrapassaram o ninho sagrado. Reestruture suas corujas desaceleradoras e snipers!</p>
+      <button class="btn-start-round" style="margin-top: 10px; width: 100%;" onclick="window.guardiansGame.restartGame()">TENTAR NOVAMENTE 🦉</button>
+    </div>
+  </div>
+
   <!-- ================================================================= -->
-  <!-- LÓGICA DO JOGO EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
+  <!-- LÓGICA COMPLETA EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
   <!-- ================================================================= -->
   <script>
     // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
@@ -538,7 +855,6 @@
         }
       }
 
-      // Som clássico de estouro de balão (Bloons Pop)
       playPop(pitch = 1.0) {
         try {
           this.init();
@@ -561,21 +877,17 @@
         } catch(e) {}
       }
 
-      // Disparo de dardo/projétil
       playShoot() {
         try {
           this.init();
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'sine';
           osc.frequency.setValueAtTime(650, now);
           osc.frequency.exponentialRampToValueAtTime(260, now + 0.06);
-
           gain.gain.setValueAtTime(0.04, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
@@ -583,21 +895,17 @@
         } catch(e) {}
       }
 
-      // Explosão em área (Canhão)
       playExplosion() {
         try {
           this.init();
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(140, now);
           osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
-
           gain.gain.setValueAtTime(0.14, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
@@ -605,51 +913,175 @@
         } catch(e) {}
       }
 
-      // Som de compra / posicionamento
       playBuy() {
         try {
           this.init();
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'sine';
           osc.frequency.setValueAtTime(440, now);
           osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
-
           gain.gain.setValueAtTime(0.08, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
           osc.stop(now + 0.12);
         } catch(e) {}
       }
+
+      playBossHorn() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(95, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.4);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.5);
+        } catch(e) {}
+      }
     }
 
-    // ===== 2. MAPA E CAMINHO DOS INIMIGOS (WAYPOINTS) =====
+    // ===== 2. DEFINIÇÃO DAS TRILHAS E FASES TEMÁTICAS =====
+    const THEMATIC_TRACKS = [
+      {
+        id: 'cosmic',
+        name: 'Trilha Cósmica',
+        bgColor: '#090d1c',
+        pathColor: '#111833',
+        pathGlow: 'rgba(56, 232, 255, 0.25)',
+        pathEdge: 'rgba(56, 232, 255, 0.4)',
+        nestColor: '#ff5ca8',
+        phases: [
+          { name: 'Fase 1: Órbita Estelar', targetWave: 10, layout: 0 },
+          { name: 'Fase 2: Cinturão Espacial', targetWave: 12, layout: 1 },
+          { name: 'Fase 3: Vórtice Galáctico', targetWave: 15, layout: 2 },
+          { name: 'Fase 4: Nebulosa Sombria', targetWave: 18, layout: 3 },
+          { name: 'Fase 5: O Grande Ninho', targetWave: 20, layout: 4 }
+        ]
+      },
+      {
+        id: 'fire',
+        name: 'Trilha de Fogo',
+        bgColor: '#160808',
+        pathColor: '#2b100d',
+        pathGlow: 'rgba(239, 68, 68, 0.28)',
+        pathEdge: 'rgba(249, 115, 22, 0.5)',
+        nestColor: '#f97316',
+        phases: [
+          { name: 'Fase 1: Margem de Lava', targetWave: 10, layout: 0 },
+          { name: 'Fase 2: Caldeira Ardente', targetWave: 12, layout: 1 },
+          { name: 'Fase 3: Cratera de Brasas', targetWave: 15, layout: 2 },
+          { name: 'Fase 4: Geiser Flamejante', targetWave: 18, layout: 3 },
+          { name: 'Fase 5: Coração do Vulcão', targetWave: 20, layout: 4 }
+        ]
+      },
+      {
+        id: 'ice',
+        name: 'Trilha Glacial',
+        bgColor: '#08111e',
+        pathColor: '#0e1d33',
+        pathGlow: 'rgba(56, 232, 255, 0.3)',
+        pathEdge: 'rgba(96, 165, 250, 0.5)',
+        nestColor: '#38e8ff',
+        phases: [
+          { name: 'Fase 1: Vale Nevado', targetWave: 10, layout: 0 },
+          { name: 'Fase 2: Caverna de Gelo', targetWave: 12, layout: 1 },
+          { name: 'Fase 3: Geleira Eterna', targetWave: 15, layout: 2 },
+          { name: 'Fase 4: Pico Congelado', targetWave: 18, layout: 3 },
+          { name: 'Fase 5: Trono de Cristal', targetWave: 20, layout: 4 }
+        ]
+      }
+    ];
+
+    // ===== 3. MAPA E CAMINHO DOS INIMIGOS (WAYPOINTS) =====
     class GameMap {
       constructor(canvasWidth, canvasHeight) {
         this.width = canvasWidth;
         this.height = canvasHeight;
         this.pathWidth = 44;
+        this.layoutIndex = 0;
+        this.track = THEMATIC_TRACKS[0];
         this.waypoints = [];
         this.buildWaypoints();
       }
 
+      setTrackAndLayout(track, layoutIndex) {
+        this.track = track;
+        this.layoutIndex = layoutIndex;
+        this.buildWaypoints();
+      }
+
       buildWaypoints() {
-        // Caminho linear com curvas sinuosas (Ponto A -> Ponto B)
-        this.waypoints = [
-          { x: -30, y: this.height * 0.22 },
-          { x: this.width * 0.28, y: this.height * 0.22 },
-          { x: this.width * 0.28, y: this.height * 0.72 },
-          { x: this.width * 0.62, y: this.height * 0.72 },
-          { x: this.width * 0.62, y: this.height * 0.32 },
-          { x: this.width * 0.88, y: this.height * 0.32 },
-          { x: this.width * 0.88, y: this.height * 0.82 },
-          { x: this.width + 30, y: this.height * 0.82 }
-        ];
+        const w = this.width;
+        const h = this.height;
+
+        switch(this.layoutIndex % 5) {
+          case 0: // Layout Suave em S
+            this.waypoints = [
+              { x: -30, y: h * 0.22 },
+              { x: w * 0.3, y: h * 0.22 },
+              { x: w * 0.3, y: h * 0.72 },
+              { x: w * 0.65, y: h * 0.72 },
+              { x: w * 0.65, y: h * 0.35 },
+              { x: w * 0.88, y: h * 0.35 },
+              { x: w * 0.88, y: h * 0.82 },
+              { x: w + 30, y: h * 0.82 }
+            ];
+            break;
+          case 1: // Zigue-zague com 3 voltas
+            this.waypoints = [
+              { x: -30, y: h * 0.18 },
+              { x: w * 0.75, y: h * 0.18 },
+              { x: w * 0.75, y: h * 0.45 },
+              { x: w * 0.22, y: h * 0.45 },
+              { x: w * 0.22, y: h * 0.75 },
+              { x: w + 30, y: h * 0.75 }
+            ];
+            break;
+          case 2: // Rota Espiral / Retangular
+            this.waypoints = [
+              { x: -30, y: h * 0.15 },
+              { x: w * 0.85, y: h * 0.15 },
+              { x: w * 0.85, y: h * 0.82 },
+              { x: w * 0.18, y: h * 0.82 },
+              { x: w * 0.18, y: h * 0.48 },
+              { x: w * 0.62, y: h * 0.48 },
+              { x: w * 0.62, y: h * 0.65 },
+              { x: w + 30, y: h * 0.65 }
+            ];
+            break;
+          case 3: // Caminho em Cruz Dupla
+            this.waypoints = [
+              { x: w * 0.15, y: -30 },
+              { x: w * 0.15, y: h * 0.6 },
+              { x: w * 0.5, y: h * 0.6 },
+              { x: w * 0.5, y: h * 0.2 },
+              { x: w * 0.82, y: h * 0.2 },
+              { x: w * 0.82, y: h + 30 }
+            ];
+            break;
+          case 4: // O Grande Ninho (Longa e Desafiadora)
+            this.waypoints = [
+              { x: -30, y: h * 0.3 },
+              { x: w * 0.25, y: h * 0.3 },
+              { x: w * 0.25, y: h * 0.18 },
+              { x: w * 0.55, y: h * 0.18 },
+              { x: w * 0.55, y: h * 0.82 },
+              { x: w * 0.82, y: h * 0.82 },
+              { x: w * 0.82, y: h * 0.5 },
+              { x: w + 30, y: h * 0.5 }
+            ];
+            break;
+        }
       }
 
       resize(w, h) {
@@ -658,7 +1090,6 @@
         this.buildWaypoints();
       }
 
-      // Validação de colisão com o caminho para não colocar torre em cima da pista
       isPointNearPath(x, y, minDistance = 34) {
         for (let i = 0; i < this.waypoints.length - 1; i++) {
           const p1 = this.waypoints[i];
@@ -679,9 +1110,10 @@
       }
 
       render(ctx) {
-        // 1. Faixa externa do percurso com brilho cósmico
         ctx.save();
-        ctx.strokeStyle = 'rgba(56, 232, 255, 0.18)';
+
+        // 1. Faixa externa com brilho temático
+        ctx.strokeStyle = this.track.pathGlow;
         ctx.lineWidth = this.pathWidth + 6;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -692,25 +1124,23 @@
         });
         ctx.stroke();
 
-        // 2. Faixa interna do percurso (Pista onde os balões correm)
-        ctx.strokeStyle = '#111833';
+        // 2. Pista Interna
+        ctx.strokeStyle = this.track.pathColor;
         ctx.lineWidth = this.pathWidth;
         ctx.stroke();
 
-        // 3. Linha central tracejada
-        ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
-        ctx.lineWidth = 2.5;
-        ctx.setLineDash([8, 8]);
+        // 3. Bordas de Neon Temáticas
+        ctx.strokeStyle = this.track.pathEdge;
+        ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.setLineDash([]);
 
-        // 4. Base final do jogador (Ninho Sagrado a ser protegido)
+        // 4. Base / Ninho Sagrado
         const endPt = this.waypoints[this.waypoints.length - 1];
-        ctx.fillStyle = '#ff5ca8';
-        ctx.shadowColor = '#ff5ca8';
+        ctx.fillStyle = this.track.nestColor;
+        ctx.shadowColor = this.track.nestColor;
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(this.width - 20, endPt.y, 18, 0, Math.PI * 2);
+        ctx.arc(endPt.x > this.width ? this.width - 20 : endPt.x, endPt.y > this.height ? this.height - 20 : endPt.y, 18, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -718,10 +1148,10 @@
       }
     }
 
-    // ===== 3. INIMIGO (BALÃO CÓSMICO EM CAMADAS) =====
+    // ===== 4. INIMIGO (BALÕES CÓSMICOS & BALÃO TITÃ CHEFÃO) =====
     class Enemy {
-      constructor(type, waypoints) {
-        this.type = type; // 'red', 'blue', 'green'
+      constructor(type, waypoints, hpOverride = null) {
+        this.type = type; // 'red', 'blue', 'green', 'yellow', 'ceramic', 'boss'
         this.waypoints = waypoints;
         this.targetIndex = 1;
         this.x = waypoints[0].x;
@@ -731,29 +1161,56 @@
         this.slowTimer = 0;
         this.traveledDistance = 0;
 
-        // Configuração dos tipos de balões
+        // Configuração de Camadas e Recompensas Balanceadas
+        // (Rebalanceado: ganha menos moedas por balão para o jogo ser desafiador!)
         if (type === 'red') {
           this.health = 1;
+          this.maxHp = 1;
           this.speed = 2.4;
-          this.reward = 15;
+          this.reward = 1;
           this.color = '#ef4444';
           this.radius = 12;
         } else if (type === 'blue') {
           this.health = 2;
-          this.speed = 1.8;
-          this.reward = 20;
+          this.maxHp = 2;
+          this.speed = 2.0;
+          this.reward = 1;
           this.color = '#3b82f6';
-          this.radius = 13.5;
+          this.radius = 13;
         } else if (type === 'green') {
           this.health = 3;
-          this.speed = 1.3;
-          this.reward = 30;
+          this.maxHp = 3;
+          this.speed = 1.6;
+          this.reward = 2;
           this.color = '#10b981';
+          this.radius = 14;
+        } else if (type === 'yellow') {
+          this.health = 4;
+          this.maxHp = 4;
+          this.speed = 2.8;
+          this.reward = 2;
+          this.color = '#eab308';
           this.radius = 15;
+        } else if (type === 'ceramic') {
+          this.health = 8;
+          this.maxHp = 8;
+          this.speed = 1.5;
+          this.reward = 4;
+          this.color = '#8b5cff';
+          this.radius = 16;
+        } else if (type === 'boss') {
+          // CHEFÃO TITÃ (Rounds 10, 20, 30)
+          this.health = hpOverride || 80;
+          this.maxHp = this.health;
+          this.speed = 0.8;
+          this.reward = 120; // Recompensa épica
+          this.color = '#dc2626';
+          this.radius = 28;
+          this.isBoss = true;
         }
       }
 
-      update() {
+      update(timeScale = 1.0) {
         if (!this.isAlive || this.reachedEnd) return;
 
         const target = this.waypoints[this.targetIndex];
@@ -761,11 +1218,10 @@
         const dy = target.y - this.y;
         const dist = Math.hypot(dx, dy);
 
-        // Se está sob efeito de lentidão (Torre 5)
-        let curSpeed = this.speed;
+        let curSpeed = this.speed * timeScale;
         if (this.slowTimer > 0) {
           curSpeed *= 0.5;
-          this.slowTimer--;
+          this.slowTimer -= timeScale;
         }
 
         if (dist <= curSpeed) {
@@ -787,15 +1243,11 @@
         this.health -= amount;
         if (this.health <= 0) {
           this.isAlive = false;
-        } else {
-          // Muda visualmente ao perder camada (ex: Verde vira Azul, Azul vira Vermelho)
-          if (this.health === 2) {
-            this.color = '#3b82f6';
-            this.speed = 1.8;
-          } else if (this.health === 1) {
-            this.color = '#ef4444';
-            this.speed = 2.4;
-          }
+        } else if (!this.isBoss) {
+          // Atualiza camada visual ao perder vidas
+          if (this.health === 3) { this.color = '#10b981'; this.speed = 1.6; }
+          else if (this.health === 2) { this.color = '#3b82f6'; this.speed = 2.0; }
+          else if (this.health === 1) { this.color = '#ef4444'; this.speed = 2.4; }
         }
       }
 
@@ -805,38 +1257,56 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Cor do balão (ou azul ciano se congelado)
-        ctx.fillStyle = this.slowTimer > 0 ? '#38e8ff' : this.color;
+        if (this.isBoss) {
+          // Balão Zepelim Titã Cósmico
+          ctx.fillStyle = '#1e1b4b';
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 3;
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 15;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, this.radius * 1.3, this.radius, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
 
-        // Corpo geométrico oval do balão (Preparado para sprite de balão)
-        ctx.beginPath();
-        ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
-        ctx.fill();
+          // Detalhes mecânicos e olhos vermelhos do boss
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(-8, -4, 16, 8);
+          ctx.fillStyle = '#ffb020';
+          ctx.beginPath();
+          ctx.arc(6, -2, 3, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Balão Padrão Bloons TD
+          ctx.fillStyle = this.slowTimer > 0 ? '#38e8ff' : this.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Nó do balão
-        ctx.beginPath();
-        ctx.moveTo(-3, this.radius);
-        ctx.lineTo(3, this.radius);
-        ctx.lineTo(0, this.radius + 4);
-        ctx.fill();
+          // Nó
+          ctx.beginPath();
+          ctx.moveTo(-3, this.radius);
+          ctx.lineTo(3, this.radius);
+          ctx.lineTo(0, this.radius + 4);
+          ctx.fill();
 
-        // Brilho de reflexo
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(-this.radius * 0.3, -this.radius * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
-        ctx.fill();
+          // Brilho
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(-this.radius * 0.3, -this.radius * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.restore();
       }
     }
 
-    // ===== 4. PROJÉTIL (DARDO, LASER, TIRO DE ÁREA) =====
+    // ===== 5. PROJÉTIL (DARDO, LASER, TIRO DE ÁREA) =====
     class Projectile {
       constructor(x, y, target, tower) {
         this.x = x;
         this.y = y;
         this.target = target;
-        this.tower = tower;
         this.damage = tower.damage;
         this.speed = tower.projSpeed;
         this.isAOE = tower.isAOE;
@@ -847,50 +1317,44 @@
         this.radius = 4;
       }
 
-      update(game) {
+      update(game, timeScale = 1.0) {
         if (this.isFinished) return;
 
-        // Se o alvo morreu antes do impacto, continua na direção ou finaliza
         const targetX = this.target.isAlive ? this.target.x : this.target.x;
         const targetY = this.target.isAlive ? this.target.y : this.target.y;
 
         const dx = targetX - this.x;
         const dy = targetY - this.y;
         const dist = Math.hypot(dx, dy);
+        const curSpeed = this.speed * timeScale;
 
-        if (dist <= this.speed || dist < 12) {
+        if (dist <= curSpeed || dist < 14) {
           this.hit(game);
           this.isFinished = true;
         } else {
-          this.x += (dx / dist) * this.speed;
-          this.y += (dy / dist) * this.speed;
+          this.x += (dx / dist) * curSpeed;
+          this.y += (dy / dist) * curSpeed;
         }
       }
 
       hit(game) {
         if (this.isAOE) {
-          // Dano em Área ao redor do ponto de impacto
-          game.soundManager.playExplosion();
+          game.sound.playExplosion();
           game.enemies.forEach(e => {
             if (e.isAlive && Math.hypot(e.x - this.x, e.y - this.y) <= this.aoeRadius) {
               e.takeDamage(this.damage);
               if (!e.isAlive) game.onEnemyKilled(e);
             }
           });
-          // Partículas de explosão
           game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
         } else {
-          // Dano direto no alvo
           if (this.target.isAlive) {
-            if (this.isSlow) {
-              // Aplica lentidão de 2 segundos (120 frames a 60fps)
-              this.target.slowTimer = 120;
-            }
+            if (this.isSlow) this.target.slowTimer = 120; // 2 segundos a 60fps
             this.target.takeDamage(this.damage);
             if (!this.target.isAlive) {
               game.onEnemyKilled(this.target);
             } else {
-              game.soundManager.playPop(1.1);
+              game.sound.playPop(1.1);
             }
           }
           game.spawnHitParticles(this.x, this.y, this.color);
@@ -899,7 +1363,6 @@
 
       render(ctx) {
         if (this.isFinished) return;
-
         ctx.save();
         ctx.fillStyle = this.color;
         ctx.shadowColor = this.color;
@@ -911,7 +1374,7 @@
       }
     }
 
-    // ===== 5. TORRE ("MACACO / GUARDIÃ") =====
+    // ===== 6. TORRE ("MACACO / GUARDIÃ") =====
     class Tower {
       constructor(typeIndex, x, y, config) {
         this.typeIndex = typeIndex;
@@ -935,10 +1398,10 @@
         this.angle = 0;
       }
 
-      update(game) {
-        if (this.cooldown > 0) this.cooldown--;
+      update(game, timeScale = 1.0) {
+        if (this.cooldown > 0) this.cooldown -= timeScale;
 
-        // Regra de Mira: foca no inimigo no alcance mais adiantado no percurso ("First")
+        // Regra de Mira "First": balão mais adiantado no percurso
         let bestTarget = null;
         let maxProgress = -1;
 
@@ -959,11 +1422,10 @@
         if (this.target) {
           this.angle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
 
-          // Disparo
           if (this.cooldown <= 0) {
             this.cooldown = this.cooldownMax;
             game.projectiles.push(new Projectile(this.x, this.y, this.target, this));
-            game.soundManager.playShoot();
+            game.sound.playShoot();
           }
         }
       }
@@ -972,7 +1434,6 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // 1. Círculo de Alcance (se selecionada)
         if (isSelected) {
           ctx.strokeStyle = 'rgba(56, 232, 255, 0.45)';
           ctx.fillStyle = 'rgba(56, 232, 255, 0.08)';
@@ -983,7 +1444,6 @@
           ctx.stroke();
         }
 
-        // 2. Base da Torre (Preparada para avatar/mascote)
         ctx.fillStyle = '#161c36';
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 2.5;
@@ -992,21 +1452,14 @@
         ctx.fill();
         ctx.stroke();
 
-        // 3. Torre / Cabeça Rotativa
         ctx.rotate(this.angle);
-
-        // Cano / Disparador
         ctx.fillStyle = this.color;
         ctx.fillRect(4, -4, 14, 8);
-
-        // Corpo central
-        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(0, 0, this.radius * 0.65, 0, Math.PI * 2);
         ctx.fill();
 
-        // 4. Desenho de Ícone Identificador (Avatar / Mascote)
-        ctx.rotate(-this.angle); // Desfaz rotação para o ícone não girar
+        ctx.rotate(-this.angle);
         ctx.font = '14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -1016,7 +1469,7 @@
       }
     }
 
-    // ===== 6. SISTEMA DE PARTÍCULAS VISUAIS =====
+    // ===== 7. SISTEMA DE PARTÍCULAS VISUAIS =====
     class Particle {
       constructor(x, y, color, vx, vy, life = 1.0) {
         this.x = x;
@@ -1029,10 +1482,10 @@
         this.radius = 2.5 + Math.random() * 2;
       }
 
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= 0.04;
+      update(timeScale = 1.0) {
+        this.x += this.vx * timeScale;
+        this.y += this.vy * timeScale;
+        this.life -= 0.04 * timeScale;
       }
 
       render(ctx) {
@@ -1047,20 +1500,28 @@
       }
     }
 
-    // ===== 7. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    // ===== 8. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
     class Game {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
 
-        this.soundManager = new SoundManager();
+        this.sound = new SoundManager();
         this.map = new GameMap(window.innerWidth, window.innerHeight);
 
-        // Recursos Iniciais Conforme Requisitos
+        // Recursos e Progressão
         this.money = 650;
         this.lives = 20;
         this.round = 1;
         this.isRoundRunning = false;
+        this.autoStart = false; // Botão de Início Automático
+        this.gameSpeed = 1.0;   // Botão de Velocidade 1x / 2x
+
+        // Trilha e Fase Atual
+        this.currentTrackIndex = 0;
+        this.currentPhaseIndex = 0;
+        this.targetWave = 10;
+        this.freeplayMode = false;
 
         // Entidades
         this.enemies = [];
@@ -1070,18 +1531,20 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Estado de Posicionamento e Seleção de Torre
+        // Estados de Arrastar e Soltar (Drag & Drop) e Seleção
         this.selectedShopIndex = null;
+        this.draggingShopIndex = null;
         this.inspectingTower = null;
         this.mousePos = { x: -100, y: -100 };
+        this.activeBoss = null;
 
-        // Configuração das 5 Torres do Requisito
+        // Configuração das 5 Torres
         this.towerConfigs = [
           { name: 'Coruja Avatar (Básica)', cost: 200, range: 130, cooldown: 35, damage: 1, color: '#8b5cff', projColor: '#ffb020', projSpeed: 10, icon: '🦉' },
           { name: 'Mascote Ninja (Rápida)', cost: 300, range: 95, cooldown: 12, damage: 1, color: '#38e8ff', projColor: '#38e8ff', projSpeed: 12, icon: '⚡' },
-          { name: 'Sniper Cósmico (Longo Alcance)', cost: 400, range: 240, cooldown: 70, damage: 3, color: '#eab308', projColor: '#fde047', projSpeed: 16, icon: '🎯' },
-          { name: 'Canhão Explosivo (Área/AOE)', cost: 500, range: 140, cooldown: 60, damage: 2, isAOE: true, aoeRadius: 55, color: '#ef4444', projColor: '#f97316', projSpeed: 9, icon: '💥' },
-          { name: 'Coruja Glacial (Suporte/Slow)', cost: 250, range: 125, cooldown: 30, damage: 0, isSlow: true, color: '#3b82f6', projColor: '#60a5fa', projSpeed: 9, icon: '❄️' }
+          { name: 'Sniper Cósmico (Longo)', cost: 400, range: 240, cooldown: 68, damage: 3, color: '#eab308', projColor: '#fde047', projSpeed: 16, icon: '🎯' },
+          { name: 'Canhão Explosivo (AOE)', cost: 500, range: 140, cooldown: 60, damage: 2, isAOE: true, aoeRadius: 55, color: '#ef4444', projColor: '#f97316', projSpeed: 9, icon: '💥' },
+          { name: 'Coruja Glacial (Slow)', cost: 250, range: 125, cooldown: 32, damage: 0, isSlow: true, color: '#3b82f6', projColor: '#60a5fa', projSpeed: 9, icon: '❄️' }
         ];
 
         this.init();
@@ -1091,11 +1554,13 @@
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Eventos do Mouse e Toque no Canvas
+        // Configura Drag & Drop em todos os botões da loja
+        this.initDragAndDrop();
+
+        // Eventos no Canvas
         this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
         this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
 
-        // Atalhos de Teclado (1 a 5 para comprar, Espaço para round, Esc para cancelar)
         window.addEventListener('keydown', (e) => {
           if (e.key >= '1' && e.key <= '5') {
             this.selectTowerForPurchase(parseInt(e.key) - 1);
@@ -1107,11 +1572,12 @@
           }
         });
 
+        this.applyTrackPhase();
         this.updateUI();
+
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
 
-        // Telemetria oficial da plataforma KRUUJ
         try {
           window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-defense' }, '*');
         } catch(e) {}
@@ -1124,6 +1590,49 @@
         this.map.resize(this.canvas.width, this.canvas.height);
       }
 
+      // ===== ARRASTAR E SOLTAR (DRAG & DROP) PARA PC E MOBILE =====
+      initDragAndDrop() {
+        this.towerConfigs.forEach((cfg, idx) => {
+          const btn = document.getElementById(`shop-btn-${idx}`);
+          if (!btn) return;
+
+          // Pointerdown inicia o arrasto
+          btn.addEventListener('pointerdown', (e) => {
+            if (this.money < cfg.cost) return;
+            this.draggingShopIndex = idx;
+            this.selectedShopIndex = idx;
+            this.inspectingTower = null;
+            this.updateInspectorUI();
+
+            const rect = this.canvas.getBoundingClientRect();
+            this.mousePos.x = e.clientX - rect.left;
+            this.mousePos.y = e.clientY - rect.top;
+            this.updateUI();
+          });
+        });
+
+        // Pointerup global para soltar no Canvas
+        window.addEventListener('pointerup', (e) => {
+          if (this.draggingShopIndex !== null) {
+            const rect = this.canvas.getBoundingClientRect();
+            const dropX = e.clientX - rect.left;
+            const dropY = e.clientY - rect.top;
+
+            if (dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= this.canvas.height) {
+              const cfg = this.towerConfigs[this.draggingShopIndex];
+              if (this.money >= cfg.cost && this.canPlaceTower(dropX, dropY)) {
+                this.money -= cfg.cost;
+                this.towers.push(new Tower(this.draggingShopIndex, dropX, dropY, cfg));
+                this.sound.playBuy();
+              }
+            }
+            this.draggingShopIndex = null;
+            this.selectedShopIndex = null;
+            this.updateUI();
+          }
+        });
+      }
+
       onPointerMove(e) {
         const rect = this.canvas.getBoundingClientRect();
         this.mousePos.x = e.clientX - rect.left;
@@ -1131,25 +1640,25 @@
       }
 
       onPointerDown(e) {
-        this.soundManager.init();
+        this.sound.init();
         const rect = this.canvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
 
-        // 1. Se estiver com uma torre da loja selecionada: Tenta Posicionar
-        if (this.selectedShopIndex !== null) {
+        // Se clicou com uma torre da loja selecionada (Modo clique)
+        if (this.selectedShopIndex !== null && this.draggingShopIndex === null) {
           const cfg = this.towerConfigs[this.selectedShopIndex];
           if (this.money >= cfg.cost && this.canPlaceTower(clickX, clickY)) {
             this.money -= cfg.cost;
             this.towers.push(new Tower(this.selectedShopIndex, clickX, clickY, cfg));
-            this.soundManager.playBuy();
+            this.sound.playBuy();
             this.cancelPurchase();
             this.updateUI();
           }
           return;
         }
 
-        // 2. Se clicou em uma torre existente: Inspeciona ela
+        // Inspeção de torre existente
         let clickedTower = null;
         for (let t of this.towers) {
           if (Math.hypot(t.x - clickX, t.y - clickY) <= t.radius) {
@@ -1163,19 +1672,10 @@
       }
 
       canPlaceTower(x, y) {
-        // Não pode colocar fora do canvas
-        if (x < 25 || x > this.canvas.width - 25 || y < 25 || y > this.canvas.height - 25) {
-          return false;
-        }
-        // Não pode colocar sobre o percurso dos balões
-        if (this.map.isPointNearPath(x, y, 36)) {
-          return false;
-        }
-        // Não pode sobrepor outra torre
+        if (x < 25 || x > this.canvas.width - 25 || y < 25 || y > this.canvas.height - 25) return false;
+        if (this.map.isPointNearPath(x, y, 36)) return false;
         for (let t of this.towers) {
-          if (Math.hypot(t.x - x, t.y - y) < 40) {
-            return false;
-          }
+          if (Math.hypot(t.x - x, t.y - y) < 40) return false;
         }
         return true;
       }
@@ -1190,6 +1690,7 @@
 
       cancelPurchase() {
         this.selectedShopIndex = null;
+        this.draggingShopIndex = null;
         this.updateUI();
       }
 
@@ -1197,7 +1698,7 @@
         if (!this.inspectingTower) return;
         const refund = Math.floor(this.inspectingTower.cost * 0.7);
         this.money += refund;
-        this.soundManager.playPop(0.8);
+        this.sound.playPop(0.8);
 
         const idx = this.towers.indexOf(this.inspectingTower);
         if (idx !== -1) this.towers.splice(idx, 1);
@@ -1205,6 +1706,27 @@
         this.inspectingTower = null;
         this.updateInspectorUI();
         this.updateUI();
+      }
+
+      // ===== CONTROLES DE VELOCIDADE 2X E AUTO-START =====
+      toggleSpeed() {
+        this.gameSpeed = this.gameSpeed === 1.0 ? 2.0 : 1.0;
+        document.getElementById('speed-text').textContent = `${this.gameSpeed}x`;
+        document.getElementById('speed-icon').textContent = this.gameSpeed === 2.0 ? '⏩' : '▶';
+        document.getElementById('btn-speed').classList.toggle('active', this.gameSpeed === 2.0);
+      }
+
+      toggleAutoStart() {
+        this.autoStart = !this.autoStart;
+        const statusEl = document.getElementById('autostart-status');
+        statusEl.textContent = this.autoStart ? 'ON' : 'OFF';
+        statusEl.style.color = this.autoStart ? '#10b981' : '#ef4444';
+        document.getElementById('btn-autostart').classList.toggle('active', this.autoStart);
+
+        // Se ativou e a rodada não está rodando, inicia
+        if (this.autoStart && !this.isRoundRunning) {
+          this.startNextRound();
+        }
       }
 
       startNextRound() {
@@ -1222,33 +1744,53 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Composição progressiva de balões (Vermelho, Azul, Verde)
-        const redCount = Math.max(0, 12 - r * 2);
-        const blueCount = Math.min(18, r * 4);
-        const greenCount = r >= 2 ? Math.min(15, (r - 1) * 3) : 0;
+        // É RODADA REDONDA (10, 20, 30) -> CHEFÃO TITÃ CÓSMICO!
+        if (r % 10 === 0) {
+          this.sound.playBossHorn();
+          const bossHp = 80 + (r / 10 - 1) * 170;
+          this.spawnQueue.push({ type: 'boss', hp: bossHp });
+          // Balões de escolta
+          for (let i = 0; i < 8; i++) this.spawnQueue.push('yellow');
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('ceramic');
+          return;
+        }
+
+        // Composição Progressiva Bloons TD
+        const redCount = Math.max(0, 10 - r);
+        const blueCount = Math.min(15, r * 3);
+        const greenCount = r >= 2 ? Math.min(12, (r - 1) * 3) : 0;
+        const yellowCount = r >= 4 ? Math.min(10, (r - 3) * 2) : 0;
+        const ceramicCount = r >= 6 ? Math.min(6, (r - 5)) : 0;
 
         for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
         for (let i = 0; i < blueCount; i++) this.spawnQueue.push('blue');
         for (let i = 0; i < greenCount; i++) this.spawnQueue.push('green');
+        for (let i = 0; i < yellowCount; i++) this.spawnQueue.push('yellow');
+        for (let i = 0; i < ceramicCount; i++) this.spawnQueue.push('ceramic');
       }
 
       onEnemyKilled(enemy) {
         this.money += enemy.reward;
-        this.soundManager.playPop(1.0);
+        this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
+
+        // Se o Boss for derrotado, explode e solta balões menores de dentro
+        if (enemy.isBoss) {
+          for (let k = 0; k < 4; k++) {
+            this.enemies.push(new Enemy('yellow', this.map.waypoints));
+          }
+          this.activeBoss = null;
+          document.getElementById('boss-hud').style.display = 'none';
+        }
+
         this.updateUI();
       }
 
       spawnPopParticles(x, y, color) {
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 7; i++) {
           const angle = Math.random() * Math.PI * 2;
           const speed = 1.5 + Math.random() * 4;
-          this.particles.push(new Particle(
-            x, y, color,
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            0.8
-          ));
+          this.particles.push(new Particle(x, y, color, Math.cos(angle) * speed, Math.sin(angle) * speed, 0.8));
         }
       }
 
@@ -1256,35 +1798,87 @@
         for (let i = 0; i < 18; i++) {
           const angle = Math.random() * Math.PI * 2;
           const speed = 1 + Math.random() * (radius / 12);
-          this.particles.push(new Particle(
-            x, y, Math.random() > 0.5 ? '#f97316' : '#ef4444',
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            1.0
-          ));
+          this.particles.push(new Particle(x, y, Math.random() > 0.5 ? '#f97316' : '#ef4444', Math.cos(angle) * speed, Math.sin(angle) * speed, 1.0));
         }
       }
 
       spawnHitParticles(x, y, color) {
         for (let i = 0; i < 4; i++) {
-          this.particles.push(new Particle(
-            x, y, color,
-            (Math.random() - 0.5) * 4,
-            (Math.random() - 0.5) * 4,
-            0.5
-          ));
+          this.particles.push(new Particle(x, y, color, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, 0.5));
         }
+      }
+
+      // ===== PROGRESSÃO DE FASES E MODAIS =====
+      selectTrackPhase(trackIdx, phaseIdx) {
+        this.currentTrackIndex = trackIdx;
+        this.currentPhaseIndex = phaseIdx;
+        this.freeplayMode = false;
+        this.closeModal();
+        this.applyTrackPhase();
+        this.restartGame();
+      }
+
+      applyTrackPhase() {
+        const track = THEMATIC_TRACKS[this.currentTrackIndex];
+        const phase = track.phases[this.currentPhaseIndex];
+        this.targetWave = phase.targetWave;
+
+        this.map.setTrackAndLayout(track, phase.layout);
+        document.getElementById('track-name-badge').textContent = track.name.replace('Trilha ', '').toUpperCase();
+        document.getElementById('track-name-badge').style.color = track.nestColor;
+        document.getElementById('phase-label').textContent = `Fase ${this.currentPhaseIndex + 1}`;
+        document.getElementById('objective-text').textContent = `🎯 Meta: Vencer Onda ${this.targetWave}`;
+      }
+
+      checkObjectiveSuccess() {
+        if (!this.freeplayMode && this.round > this.targetWave) {
+          // Vitória da Fase!
+          this.isRoundRunning = false;
+          const stars = this.lives === 20 ? '⭐⭐⭐' : (this.lives >= 10 ? '⭐⭐' : '⭐');
+          document.getElementById('vic-stars').textContent = stars;
+          document.getElementById('vic-desc').textContent = `Você completou o objetivo da ${THEMATIC_TRACKS[this.currentTrackIndex].phases[this.currentPhaseIndex].name}!`;
+          this.openModal('victory');
+        }
+      }
+
+      continueFreeplay() {
+        this.freeplayMode = true;
+        this.closeModal();
+        if (this.autoStart) this.startNextRound();
+      }
+
+      nextPhase() {
+        this.closeModal();
+        if (this.currentPhaseIndex < 4) {
+          this.currentPhaseIndex++;
+        } else if (this.currentTrackIndex < 2) {
+          this.currentTrackIndex++;
+          this.currentPhaseIndex = 0;
+        }
+        this.applyTrackPhase();
+        this.restartGame();
+      }
+
+      openModal(name) {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
+        const modal = document.getElementById(`modal-${name}`);
+        if (modal) modal.classList.add('active');
+      }
+
+      closeModal() {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
       }
 
       gameOver() {
         this.isRoundRunning = false;
-        document.getElementById('endOverlay').classList.add('active');
+        this.openModal('gameover');
         try {
           window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-defense', score: this.round * 100 }, '*');
         } catch(e) {}
       }
 
       restartGame() {
+        this.closeModal();
         this.money = 650;
         this.lives = 20;
         this.round = 1;
@@ -1293,30 +1887,24 @@
         this.towers = [];
         this.projectiles = [];
         this.particles = [];
-        this.selectedShopIndex = null;
-        this.inspectingTower = null;
+        this.activeBoss = null;
+        document.getElementById('boss-hud').style.display = 'none';
 
-        document.getElementById('endOverlay').classList.remove('active');
         this.updateInspectorUI();
         this.updateUI();
       }
 
       updateUI() {
-        // Atualiza textos de dinheiro, vidas e round
         document.getElementById('hud-money').textContent = `$${this.money}`;
         document.getElementById('hud-lives').textContent = this.lives;
         document.getElementById('hud-round').textContent = this.round;
-        document.getElementById('side-money').textContent = `$${this.money}`;
-        document.getElementById('side-lives').textContent = this.lives;
         document.getElementById('round-indicator').textContent = this.round;
 
-        // Botão de Iniciar Round
         const startBtn = document.getElementById('btn-start-round');
         startBtn.disabled = this.isRoundRunning;
 
-        // Botões da Loja (Desabilita os que não temos dinheiro para comprar)
         this.towerConfigs.forEach((cfg, i) => {
-          const btn = document.getElementById(`btn-tower-${i}`);
+          const btn = document.getElementById(`shop-btn-${i}`);
           if (btn) {
             btn.disabled = this.money < cfg.cost;
             btn.classList.toggle('selected', this.selectedShopIndex === i);
@@ -1335,38 +1923,54 @@
         document.getElementById('insp-name').textContent = this.inspectingTower.name;
         document.getElementById('insp-stats').textContent = `Dano: ${this.inspectingTower.damage} • Alcance: ${this.inspectingTower.range}`;
         const refund = Math.floor(this.inspectingTower.cost * 0.7);
-        document.getElementById('btn-sell').textContent = `Vender ($${refund})`;
+        inspector.querySelector('.btn-sell-tower').textContent = `Vender ($${refund})`;
       }
 
-      // Loop Principal de Atualização e Renderização (60 FPS)
+      // Loop Principal (60 FPS com suporte a gameSpeed 2x)
       loop() {
         requestAnimationFrame(this.loop);
 
-        // 1. Limpa o Canvas
-        this.ctx.fillStyle = '#090d1c';
+        const timeScale = this.gameSpeed;
+
+        // 1. Limpa o Canvas com o fundo da trilha ativa
+        this.ctx.fillStyle = this.map.track.bgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 2. Renderiza Percurso do Mapa
+        // 2. Renderiza Percurso da Trilha
         this.map.render(this.ctx);
 
         // 3. Spawna Inimigos durante a rodada
         if (this.isRoundRunning && this.spawnQueue.length > 0) {
-          this.spawnTimer++;
-          if (this.spawnTimer >= 30) { // A cada meio segundo nasce um balão
+          this.spawnTimer += timeScale;
+          if (this.spawnTimer >= 26) {
             this.spawnTimer = 0;
-            const nextType = this.spawnQueue.shift();
-            this.enemies.push(new Enemy(nextType, this.map.waypoints));
+            const nextItem = this.spawnQueue.shift();
+            if (typeof nextItem === 'string') {
+              this.enemies.push(new Enemy(nextItem, this.map.waypoints));
+            } else if (nextItem.type === 'boss') {
+              const boss = new Enemy('boss', this.map.waypoints, nextItem.hp);
+              this.enemies.push(boss);
+              this.activeBoss = boss;
+              document.getElementById('boss-hud').style.display = 'flex';
+            }
           }
+        }
+
+        // Atualiza Barra de Vida do Boss
+        if (this.activeBoss && this.activeBoss.isAlive) {
+          const pct = Math.max(0, (this.activeBoss.health / this.activeBoss.maxHp) * 100);
+          document.getElementById('boss-hp-bar').style.width = `${pct}%`;
+          document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.activeBoss.health)} / ${this.activeBoss.maxHp} HP`;
         }
 
         // 4. Atualiza e Renderiza Inimigos
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const e = this.enemies[i];
-          e.update();
+          e.update(timeScale);
 
           if (e.reachedEnd) {
-            this.lives -= e.health;
-            this.soundManager.playPop(0.7);
+            this.lives -= e.isBoss ? 10 : e.health;
+            this.sound.playPop(0.7);
             this.enemies.splice(i, 1);
             this.updateUI();
             if (this.lives <= 0) {
@@ -1380,25 +1984,35 @@
           }
         }
 
-        // 5. Checa se o round terminou com sucesso
+        // 5. Checa fim da rodada
         if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
           this.isRoundRunning = false;
-          this.money += 100 + this.round * 10; // Bônus de fim de round
+          this.money += 80 + this.round * 6; // Bônus balanceado
           this.round++;
-          this.soundManager.playBuy();
+          this.sound.playBuy();
           this.updateUI();
+
+          // Checa se completou o objetivo da fase
+          this.checkObjectiveSuccess();
+
+          // Se auto-start estiver ativo, inicia a próxima onda imediatamente!
+          if (this.autoStart && !this.freeplayMode && this.round <= this.targetWave) {
+            setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
+          } else if (this.autoStart && this.freeplayMode) {
+            setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
+          }
         }
 
         // 6. Atualiza e Renderiza Torres
         this.towers.forEach(t => {
-          t.update(this);
+          t.update(this, timeScale);
           t.render(this.ctx, t === this.inspectingTower);
         });
 
         // 7. Atualiza e Renderiza Projéteis
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
           const p = this.projectiles[i];
-          p.update(this);
+          p.update(this, timeScale);
           if (p.isFinished) {
             this.projectiles.splice(i, 1);
           } else {
@@ -1406,10 +2020,10 @@
           }
         }
 
-        // 8. Atualiza e Renderiza Partículas
+        // 8. Partículas
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const pt = this.particles[i];
-          pt.update();
+          pt.update(timeScale);
           if (pt.life <= 0) {
             this.particles.splice(i, 1);
           } else {
@@ -1417,15 +2031,15 @@
           }
         }
 
-        // 9. Renderiza Preview Holográfico de Posicionamento de Torre
-        if (this.selectedShopIndex !== null) {
-          const cfg = this.towerConfigs[this.selectedShopIndex];
+        // 9. Preview Holográfico de Posicionamento (Suporta Drag ou Clique)
+        const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
+        if (activePreviewIndex !== null) {
+          const cfg = this.towerConfigs[activePreviewIndex];
           const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
 
           this.ctx.save();
           this.ctx.translate(this.mousePos.x, this.mousePos.y);
 
-          // Círculo de Alcance Holográfico (Verde se válido, Vermelho se inválido)
           this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.7)' : 'rgba(239, 68, 68, 0.7)';
           this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.12)' : 'rgba(239, 68, 68, 0.12)';
           this.ctx.lineWidth = 2;
@@ -1434,7 +2048,6 @@
           this.ctx.fill();
           this.ctx.stroke();
 
-          // Corpo fantasma da torre
           this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
           this.ctx.globalAlpha = 0.6;
           this.ctx.beginPath();
@@ -1446,9 +2059,9 @@
       }
     }
 
-    // Inicialização da instância global ao carregar a página
+    // Instanciação Global
     window.addEventListener('DOMContentLoaded', () => {
-      window.gameInstance = new Game();
+      window.guardiansGame = new Game();
     });
   </script>
 </body>
