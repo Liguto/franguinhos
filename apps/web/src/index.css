@@ -3229,6 +3229,79 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   flex-shrink: 0;
 }
 
+/* Botão de Busca Circular no Mobile */
+.kruuj-mobile-search-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.kruuj-mobile-search-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* Overlay de Busca Mobile Expandida em Largura Total */
+.kruuj-mobile-search-overlay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.kruuj-mobile-search-input {
+  flex: 1;
+  background: rgba(22, 28, 48, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  min-width: 0;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.kruuj-mobile-search-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.kruuj-mobile-search-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
 .kruuj-action-circle-btn {
   width: 40px;
   height: 40px;
@@ -4647,25 +4720,24 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     max-width: 95px;
   }
 
+  /* Esconde a barra de busca comprida de desktop no celular para evitar input espremido */
   .kruuj-topbar-search {
-    min-width: 0;
-    max-width: none;
-    flex: 1;
+    display: none !important;
   }
 
-  .kruuj-topbar-search-input {
-    padding: 8px 12px 8px 32px;
-    font-size: 0.78rem;
-  }
-
-  .kruuj-topbar-search-icon {
-    left: 10px;
-    width: 14px;
-    height: 14px;
+  /* Exibe o botão de busca circular perfeitamente alinhado */
+  .kruuj-mobile-search-btn {
+    display: flex !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
   }
 
   .kruuj-topbar-actions {
-    gap: 6px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
   }
 
   /* No mobile, oculta botões duplicados de Favoritos e Perfil pois já estão no bottom bar fixo */
@@ -4673,9 +4745,13 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     display: none !important;
   }
 
-  /* Compacta o botão de KRUUJ Calmo no mobile para caber perfeitamente */
+  /* Compacta o botão de KRUUJ Calmo no mobile e alinha a altura em 36px */
   .kruuj-calmo-pill-btn {
-    padding: 4px 8px;
+    height: 36px !important;
+    padding: 0 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    border-radius: 9999px !important;
     gap: 4px;
   }
 
@@ -4688,11 +4764,12 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     padding: 1px 5px;
   }
 
+  /* Alinha a altura do avatar em 36px */
   .kruuj-avatar-trigger {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    min-height: 34px;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
   }
 
   .kruuj-compact-sidebar {

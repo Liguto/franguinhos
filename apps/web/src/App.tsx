@@ -113,6 +113,7 @@ export default function App() {
 
   // Favoritos
   const [favorites, setFavorites] = useState<string[]>([]); // Array de IDs de jogos
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState<boolean>(false);
 
   // Refs de sincronização de saves em nuvem com o jogo
   const gameIframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -2168,22 +2169,14 @@ export default function App() {
       
       {/* --- TOPBAR KRUUJ OFICIAL (DESKTOP & MOBILE) --- */}
       <header className="kruuj-topbar">
-        <div className="kruuj-topbar-inner">
-          <div className="kruuj-topbar-left">
-            <div 
-              className="kruuj-logo-link"
-              onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
-            >
-              <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '26px', maxHeight: '26px', width: 'auto', objectFit: 'contain' }} />
-            </div>
-          </div>
-
-          <div className="kruuj-topbar-search">
-            <Search className="w-4 h-4 kruuj-topbar-search-icon" />
+        {isMobileSearchOpen ? (
+          <div className="kruuj-mobile-search-overlay">
+            <Search className="w-4 h-4 text-cyan-400 shrink-0" />
             <input 
               type="text" 
-              className="kruuj-topbar-search-input"
+              className="kruuj-mobile-search-input"
               placeholder="Buscar jogos, categorias..."
+              autoFocus
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -2192,50 +2185,97 @@ export default function App() {
                 }
               }}
             />
+            <button 
+              className="kruuj-mobile-search-close"
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery('');
+              }}
+              title="Fechar busca"
+            >
+              ✕
+            </button>
           </div>
+        ) : (
+          <div className="kruuj-topbar-inner">
+            <div className="kruuj-topbar-left">
+              <div 
+                className="kruuj-logo-link"
+                onClick={() => { setView('home'); setSelectedGame(null); setSearchQuery(''); setActiveCategory('Tudo'); }}
+              >
+                <img src="/kruuj-logo.svg" alt="KRUUJ" style={{ height: '26px', maxHeight: '26px', width: 'auto', objectFit: 'contain' }} />
+              </div>
+            </div>
 
-          <div className="kruuj-topbar-actions">
-            {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
-            <button 
-              className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
-              onClick={() => setTeaMode(!teaMode)}
-              title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
-            >
-              <span className="text-xs">🍃</span>
-              <span className="kruuj-calmo-pill-text">Calmo</span>
-              <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
-            </button>
+            {/* Busca Desktop Centralizada */}
+            <div className="kruuj-topbar-search">
+              <Search className="w-4 h-4 kruuj-topbar-search-icon" />
+              <input 
+                type="text" 
+                className="kruuj-topbar-search-input"
+                placeholder="Buscar jogos, categorias..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (view !== 'home' && view !== 'explore') {
+                    setView('home');
+                  }
+                }}
+              />
+            </div>
 
-            <button 
-              className="kruuj-action-circle-btn"
-              onClick={() => { setView('favorites'); setSelectedGame(null); }}
-              title="Favoritos"
-            >
-              <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
-              {userFavoritesList.length > 0 && (
-                <span className="kruuj-badge-count">{userFavoritesList.length}</span>
-              )}
-            </button>
+            <div className="kruuj-topbar-actions">
+              {/* Botão de Busca Mobile (Abre a barra de pesquisa completa no celular) */}
+              <button 
+                className="kruuj-mobile-search-btn"
+                onClick={() => setIsMobileSearchOpen(true)}
+                title="Pesquisar jogos"
+              >
+                <Search className="w-4 h-4" />
+              </button>
 
-            <button 
-              className="kruuj-action-circle-btn"
-              onClick={() => { setView('profile'); setSelectedGame(null); }}
-              title="Perfil & Comunidade"
-            >
-              <User className="w-4 h-4" />
-            </button>
+              {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
+              <button 
+                className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
+                onClick={() => setTeaMode(!teaMode)}
+                title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
+              >
+                <span className="text-xs">🍃</span>
+                <span className="kruuj-calmo-pill-text">Calmo</span>
+                <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
+              </button>
 
-            <div 
-              className="kruuj-avatar-trigger"
-              onClick={() => { setView('profile'); setSelectedGame(null); }}
-              title="Minha Conta"
-            >
-              <div className="kruuj-avatar-inner">
-                <img src="/kruuj-avatar.png" alt="Mascote" />
+              <button 
+                className="kruuj-action-circle-btn"
+                onClick={() => { setView('favorites'); setSelectedGame(null); }}
+                title="Favoritos"
+              >
+                <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+                {userFavoritesList.length > 0 && (
+                  <span className="kruuj-badge-count">{userFavoritesList.length}</span>
+                )}
+              </button>
+
+              <button 
+                className="kruuj-action-circle-btn"
+                onClick={() => { setView('profile'); setSelectedGame(null); }}
+                title="Perfil & Comunidade"
+              >
+                <User className="w-4 h-4" />
+              </button>
+
+              <div 
+                className="kruuj-avatar-trigger"
+                onClick={() => { setView('profile'); setSelectedGame(null); }}
+                title="Minha Conta"
+              >
+                <div className="kruuj-avatar-inner">
+                  <img src="/kruuj-avatar.png" alt="Mascote" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </header>
       
 
