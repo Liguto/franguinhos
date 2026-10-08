@@ -2225,15 +2225,6 @@ export default function App() {
             </div>
 
             <div className="kruuj-topbar-actions">
-              {/* Botão de Busca Mobile (Abre a barra de pesquisa completa no celular) */}
-              <button 
-                className="kruuj-mobile-search-btn"
-                onClick={() => setIsMobileSearchOpen(true)}
-                title="Pesquisar jogos"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-
               {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
               <button 
                 className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
@@ -2243,6 +2234,15 @@ export default function App() {
                 <span className="text-xs">🍃</span>
                 <span className="kruuj-calmo-pill-text">Calmo</span>
                 <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Botão de Busca Mobile (Posicionado à esquerda e adjacente ao avatar) */}
+              <button 
+                className="kruuj-mobile-search-btn"
+                onClick={() => setIsMobileSearchOpen(true)}
+                title="Pesquisar jogos"
+              >
+                <Search className="w-4 h-4" />
               </button>
 
               <button 
