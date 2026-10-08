@@ -4,16 +4,18 @@
   <meta charset="utf-8">
   <title>KRUUJ WORD: O Enigma das Corujas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07061a;
+      --bg: #070914;
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
-      --pink: #ff5ca8;
-      --text: #f3f0ff;
+      --green: #10b981;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -22,6 +24,7 @@
       -webkit-user-select: none;
       touch-action: none;
     }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -33,140 +36,143 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 14px 18px 14px;
+      padding: 14px 16px 20px 16px;
     }
-    .header {
+
+    /* Cabeçalho da Rodada */
+    .header-bar {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .logo-badge {
-      font-size: 1.3rem;
+
+    .game-logo {
+      font-size: 1.35rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
     }
+
     .level-badge {
-      background: rgba(13, 18, 36, 0.8);
+      background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 9999px;
       padding: 4px 14px;
       font-size: 0.88rem;
       font-weight: 800;
       color: var(--cyan);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
-    .mascot-area {
-      width: 100%;
-      max-width: 400px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    canvas#mascotCanvas {
-      width: 110px;
-      height: 60px;
-    }
-    .slots-container {
+
+    /* Grade de Palavras-Cruzadas (Crossword Slots em HTML/CSS) */
+    .crossword-container {
       flex: 1;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin: 6px 0;
+      gap: 10px;
+      margin: 10px 0;
     }
-    .word-slot-row {
+
+    .word-row {
       display: flex;
       gap: 6px;
     }
-    .char-box {
-      width: 36px;
-      height: 36px;
+
+    /* Blocos estilo madeira/pedra rúnica */
+    .slot-box {
+      width: 40px;
+      height: 40px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(22, 28, 54, 0.65);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: transparent;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .char-box.revealed {
+
+    /* Bloco Revelado com Brilho Dourado e Efeito de Luz */
+    .slot-box.revealed {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(139, 92, 246, 0.4));
       border-color: var(--cyan);
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(56, 232, 255, 0.4);
-      transform: scale(1.05);
+      box-shadow: 0 0 16px rgba(56, 232, 255, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.3);
+      transform: scale(1.06);
     }
-    .current-word-preview {
-      height: 32px;
-      font-size: 1.25rem;
+
+    /* Palavra sendo formada em tempo real durante o arraste */
+    .preview-box {
+      height: 36px;
+      font-size: 1.35rem;
       font-weight: 800;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: var(--gold);
-      text-shadow: 0 0 10px rgba(255, 176, 32, 0.5);
-    }
-    .wheel-wrapper {
-      position: relative;
-      width: 250px;
-      height: 220px;
+      text-shadow: 0 0 12px rgba(255, 176, 32, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .wheel-container {
+
+    /* Roda Mística de Letras (Canvas + Botão de Embaralhar) */
+    .wheel-wrapper {
       position: relative;
-      width: 210px;
-      height: 210px;
+      width: 250px;
+      height: 230px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     canvas#wheelCanvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 220px;
+      height: 220px;
+      display: block;
+      cursor: crosshair;
     }
-    .wheel-tool-btn {
+
+    .btn-shuffle {
       position: absolute;
+      left: 0;
+      bottom: 20px;
       width: 44px;
       height: 44px;
       border-radius: 50%;
       background: rgba(13, 18, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
       color: #fff;
       font-size: 1.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       transition: all 0.2s;
     }
-    .wheel-tool-btn:hover {
+
+    .btn-shuffle:hover {
       transform: scale(1.1);
       border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(56, 232, 255, 0.4);
     }
-    .btn-shuffle {
-      left: 0;
-      bottom: 25px;
-    }
-    .btn-hint {
-      right: 0;
-      bottom: 25px;
-    }
-    .overlay {
+
+    /* Overlay de Fim de Jogo / Vitória */
+    .game-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
-      backdrop-filter: blur(12px);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -178,509 +184,462 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .overlay.active {
+
+    .game-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     h1 {
-      font-size: clamp(28px, 7vw, 44px);
+      font-size: clamp(30px, 7vw, 46px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
+
     p {
       font-size: 0.95rem;
-      color: #cbd5e1;
-      max-width: 380px;
-      line-height: 1.4;
+      color: var(--text-muted);
+      max-width: 400px;
+      line-height: 1.45;
       margin-bottom: 24px;
     }
+
     .btn-action {
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
       border: none;
       border-radius: 9999px;
       padding: 12px 38px;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      font-family: inherit;
       cursor: pointer;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
       transition: all 0.2s;
     }
+
     .btn-action:hover {
       transform: scale(1.05);
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo-badge">KRUUJ WORD</div>
-    <div class="level-badge" id="levelBadge">FASE 1</div>
+  <!-- Cabeçalho -->
+  <div class="header-bar">
+    <div class="game-logo">KRUUJ WORD</div>
+    <div class="level-badge" id="levelIndicator">FASE 1</div>
   </div>
 
-  <div class="mascot-area">
-    <canvas id="mascotCanvas" width="110" height="60"></canvas>
-  </div>
+  <!-- Grade de Palavras Cruzadas (CSS Flexbox) -->
+  <div class="crossword-container" id="crosswordGrid"></div>
 
-  <div class="slots-container" id="slots"></div>
+  <!-- Prévia da Palavra sendo Conectada -->
+  <div class="preview-box" id="wordPreview"></div>
 
-  <div class="current-word-preview" id="wordPreview"></div>
-
+  <!-- Roda Mística de Letras (Canvas) -->
   <div class="wheel-wrapper">
-    <button class="wheel-tool-btn btn-shuffle" onclick="shuffleLetters()" title="Embaralhar letras">🔀</button>
-    <div class="wheel-container">
-      <canvas id="wheelCanvas" width="210" height="210"></canvas>
-    </div>
-    <button class="wheel-tool-btn btn-hint" onclick="useHint()" title="Revelar letra (Dica)">💡</button>
+    <button class="btn-shuffle" onclick="window.wordGame.shuffleLetters()" title="Embaralhar letras">🔀</button>
+    <canvas id="wheelCanvas" width="220" height="220"></canvas>
   </div>
 
   <!-- Overlay -->
-  <div class="overlay active" id="ov">
-    <h1 id="ovTitle">KRUUJ WORD</h1>
-    <p id="ovDesc">Desvende o enigma das corujas! Deslize o dedo ou mouse conectando as letras cósmicas para descobrir todas as palavras secretas.</p>
-    <button class="btn-action" onclick="startGame()">DESVENDAR 🦉</button>
+  <div class="game-overlay active" id="gameOverlay">
+    <h1 id="ovTitle">O ENIGMA DAS CORUJAS</h1>
+    <p id="ovDesc">Deslize o cursor ou o dedo conectando as letras místicas para decifrar todas as palavras secretas do tabuleiro!</p>
+    <button class="btn-action" onclick="window.wordGame.startGame()">DESVENDAR 🦉</button>
   </div>
 
+  <!-- ================================================================= -->
+  <!-- LÓGICA DO WORD CONNECT EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)   -->
+  <!-- ================================================================= -->
   <script>
-    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
-    function sendEvent(type, data = {}) {
-      try {
-        window.parent.postMessage({ type, gameSlug: 'kruuj-words', ...data }, '*');
-      } catch (e) {}
-    }
-    sendEvent('game_loaded');
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+      }
 
-    let currentLevel = parseInt(localStorage.getItem('kruuj_words_level') || '1', 10);
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+      // Tom melódico suave por letra conectada (escala musical crescente)
+      playLetterTone(index = 0) {
         try {
-          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
-          if (d && d.currentLevel) {
-            currentLevel = Math.max(currentLevel, d.currentLevel);
-            localStorage.setItem('kruuj_words_level', String(currentLevel));
-            document.getElementById('levelBadge').textContent = 'FASE ' + currentLevel;
-          }
-        } catch(err){}
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          const scale = [440, 494, 554, 587, 659, 740, 831, 880];
+          const freq = scale[index % scale.length];
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch(e) {}
       }
-    });
 
-    // ===== Som Temático Sintético de Coruja (WebAudio) =====
-    let audioCtx = null;
-    function getAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-
-    function playNote(freq = 520) {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.18);
-      } catch(e) {}
-    }
-
-    function playOwlWordSolved() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        // Piado alegre de coruja bebê ("Coo-Hoo!")
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(700, now + 0.22);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.15, now + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
-      } catch (e) {}
-    }
-
-    function playShuffleSound() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(280, now);
-        osc.frequency.exponentialRampToValueAtTime(540, now + 0.12);
-
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.12);
-      } catch (e) {}
-    }
-
-    // Níveis de Palavras
-    const LEVELS = [
-      {
-        letters: ['A', 'R', 'C', 'O'],
-        words: ['ARCO', 'COR', 'OCA', 'ROCA']
-      },
-      {
-        letters: ['V', 'O', 'O', 'C', 'S'],
-        words: ['VOO', 'VOOS', 'COSO', 'SUCO']
-      },
-      {
-        letters: ['N', 'E', 'O', 'N'],
-        words: ['NEON', 'NOVE', 'ONDE']
-      },
-      {
-        letters: ['C', 'O', 'S', 'M', 'O'],
-        words: ['COSMO', 'SOM', 'MOCO', 'SOCO']
-      },
-      {
-        letters: ['C', 'O', 'R', 'U', 'J', 'A'],
-        words: ['CORUJA', 'ARCO', 'JATO', 'ROCA', 'JOGO']
+      // Som de palavra correta descoberta (Acorde triunfante)
+      playWordCorrect() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          [587, 740, 880].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.08, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.25);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 0.25);
+          });
+        } catch(e) {}
       }
-    ];
 
-    let lvlIndex = 0;
-    let targetWords = [];
-    let foundWords = new Set();
-    let wheelLetters = [];
-    let selectedIndices = [];
-    let isDragging = false;
-    let mascotHappyTimer = 0;
-
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const mascotCanvas = document.getElementById('mascotCanvas');
-    const mCtx = mascotCanvas.getContext('2d');
-    const cx = 105, cy = 105, radius = 72;
-
-    function loadLevel(idx) {
-      lvlIndex = idx % LEVELS.length;
-      document.getElementById('levelBadge').textContent = 'FASE ' + (lvlIndex + 1);
-      const lvl = LEVELS[lvlIndex];
-      targetWords = lvl.words;
-      foundWords = new Set();
-      setWheelLetters(lvl.letters);
-
-      const slotsEl = document.getElementById('slots');
-      slotsEl.innerHTML = '';
-      targetWords.forEach(w => {
-        const row = document.createElement('div');
-        row.className = 'word-slot-row';
-        row.dataset.word = w;
-        for (let i = 0; i < w.length; i++) {
-          const b = document.createElement('div');
-          b.className = 'char-box';
-          b.textContent = w[i];
-          row.appendChild(b);
-        }
-        slotsEl.appendChild(row);
-      });
-
-      drawWheel();
-    }
-
-    function setWheelLetters(lettersArr) {
-      wheelLetters = [];
-      const n = lettersArr.length;
-      for (let i = 0; i < n; i++) {
-        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-        wheelLetters.push({
-          char: lettersArr[i],
-          x: cx + Math.cos(angle) * radius,
-          y: cy + Math.sin(angle) * radius,
-          r: 23
-        });
+      // Som de embaralhar (Swoosh)
+      playShuffle() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(260, now);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.12);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch(e) {}
       }
     }
 
-    function shuffleLetters() {
-      playShuffleSound();
-      const chars = wheelLetters.map(l => l.char);
-      for (let i = chars.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [chars[i], chars[j]] = [chars[j], chars[i]];
-      }
-      setWheelLetters(chars);
-      drawWheel();
-    }
-
-    function useHint() {
-      playNote(880);
-      // Acha a primeira palavra não resolvida e revela 1 letra
-      for (let w of targetWords) {
-        if (!foundWords.has(w)) {
-          const row = document.querySelector(`.word-slot-row[data-word="${w}"]`);
-          if (row) {
-            const boxes = row.querySelectorAll('.char-box:not(.revealed)');
-            if (boxes.length > 0) {
-              boxes[0].classList.add('revealed');
-              mascotHappyTimer = 25;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    function drawWheel() {
-      ctx.clearRect(0, 0, 210, 210);
-
-      // Círculo base da Roda da Coruja
-      ctx.fillStyle = 'rgba(13, 18, 36, 0.75)';
-      ctx.strokeStyle = 'rgba(56, 232, 255, 0.25)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius + 20, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Brasão sutil no centro
-      ctx.fillStyle = 'rgba(139, 92, 246, 0.15)';
-      ctx.beginPath();
-      ctx.arc(cx, cy, 26, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.font = "20px sans-serif";
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('🦉', cx, cy);
-
-      // Linhas de conexão luminosas
-      if (selectedIndices.length > 1) {
-        ctx.strokeStyle = '#38e8ff';
-        ctx.lineWidth = 4;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.shadowColor = '#38e8ff';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        selectedIndices.forEach((idx, i) => {
-          const l = wheelLetters[idx];
-          if (i === 0) ctx.moveTo(l.x, l.y);
-          else ctx.lineTo(l.x, l.y);
-        });
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+    // ===== 2. ELEMENTO LETRA NA RODA MÍSTICA =====
+    class LetterNode {
+      constructor(char, x, y, radius = 24) {
+        this.char = char;
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
       }
 
-      // Letras
-      wheelLetters.forEach((l, idx) => {
-        const isSel = selectedIndices.includes(idx);
+      containsPoint(px, py) {
+        return Math.hypot(this.x - px, this.y - py) <= this.radius;
+      }
 
+      render(ctx, isSelected) {
         ctx.save();
-        ctx.fillStyle = isSel ? '#8b5cff' : 'rgba(255, 255, 255, 0.08)';
-        ctx.strokeStyle = isSel ? '#38e8ff' : 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = 2;
-        if (isSel) {
+        ctx.translate(this.x, this.y);
+
+        // Fundo do botão da letra
+        ctx.fillStyle = isSelected ? '#8b5cff' : 'rgba(22, 28, 54, 0.85)';
+        ctx.strokeStyle = isSelected ? '#38e8ff' : 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 2.5;
+
+        if (isSelected) {
           ctx.shadowColor = '#8b5cff';
           ctx.shadowBlur = 15;
         }
 
         ctx.beginPath();
-        ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
+        // Letra tipográfica em alto contraste
         ctx.fillStyle = '#ffffff';
-        ctx.font = "800 19px 'Baloo 2'";
+        ctx.font = "800 20px 'Baloo 2', sans-serif";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(l.char, l.x, l.y + 1);
+        ctx.fillText(this.char, 0, 1);
+
         ctx.restore();
-      });
+      }
     }
 
-    function checkCurrentWord() {
-      const currentWord = selectedIndices.map(i => wheelLetters[i].char).join('');
-      if (targetWords.includes(currentWord) && !foundWords.has(currentWord)) {
-        foundWords.add(currentWord);
-        playOwlWordSolved();
-        mascotHappyTimer = 45; // Coruja comemora
+    // ===== 3. RODA DE LETRAS NO CANVAS =====
+    class LetterWheel {
+      constructor(canvas, onConnectCallback) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.cx = canvas.width / 2;
+        this.cy = canvas.height / 2;
+        this.radius = 75;
 
-        const row = document.querySelector(`.word-slot-row[data-word="${currentWord}"]`);
-        if (row) {
-          row.querySelectorAll('.char-box').forEach(b => b.classList.add('revealed'));
+        this.letters = [];
+        this.selectedIndices = [];
+        this.isDragging = false;
+        this.currentPointer = { x: this.cx, y: this.cy };
+        this.onConnectCallback = onConnectCallback;
+
+        this.initEvents();
+      }
+
+      initEvents() {
+        const getCanvasPos = (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          return {
+            x: (clientX - rect.left) * (this.canvas.width / rect.width),
+            y: (clientY - rect.top) * (this.canvas.height / rect.height)
+          };
+        };
+
+        const handleDown = (e) => {
+          const pos = getCanvasPos(e);
+          const hitIndex = this.getHitIndex(pos.x, pos.y);
+          if (hitIndex !== -1) {
+            this.isDragging = true;
+            this.selectedIndices = [hitIndex];
+            this.currentPointer = pos;
+            this.onConnectCallback(this.getSelectedWord(), this.selectedIndices.length - 1);
+            this.render();
+          }
+        };
+
+        const handleMove = (e) => {
+          if (!this.isDragging) return;
+          const pos = getCanvasPos(e);
+          this.currentPointer = pos;
+
+          const hitIndex = this.getHitIndex(pos.x, pos.y);
+          // Impede conectar a mesma letra duas vezes na mesma jogada
+          if (hitIndex !== -1 && !this.selectedIndices.includes(hitIndex)) {
+            this.selectedIndices.push(hitIndex);
+            this.onConnectCallback(this.getSelectedWord(), this.selectedIndices.length - 1);
+          }
+          this.render();
+        };
+
+        const handleUp = () => {
+          if (this.isDragging) {
+            this.isDragging = false;
+            window.wordGame.submitWord(this.getSelectedWord());
+            this.selectedIndices = [];
+            this.render();
+          }
+        };
+
+        this.canvas.addEventListener('mousedown', handleDown);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+
+        this.canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleDown(e); }, { passive: false });
+        window.addEventListener('touchmove', (e) => { if (this.isDragging) e.preventDefault(); handleMove(e); }, { passive: false });
+        window.addEventListener('touchend', handleUp);
+      }
+
+      getHitIndex(x, y) {
+        for (let i = 0; i < this.letters.length; i++) {
+          if (this.letters[i].containsPoint(x, y)) return i;
+        }
+        return -1;
+      }
+
+      getSelectedWord() {
+        return this.selectedIndices.map(i => this.letters[i].char).join('');
+      }
+
+      // Distribuição trigonométrica das letras em círculo
+      setLetters(chars) {
+        this.letters = [];
+        const n = chars.length;
+        for (let i = 0; i < n; i++) {
+          const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+          const x = this.cx + Math.cos(angle) * this.radius;
+          const y = this.cy + Math.sin(angle) * this.radius;
+          this.letters.push(new LetterNode(chars[i], x, y));
+        }
+        this.render();
+      }
+
+      shuffle(chars) {
+        for (let i = chars.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [chars[i], chars[j]] = [chars[j], chars[i]];
+        }
+        this.setLetters(chars);
+      }
+
+      render() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 1. Círculo Base da Roda Mística
+        this.ctx.fillStyle = 'rgba(13, 18, 36, 0.75)';
+        this.ctx.strokeStyle = 'rgba(56, 232, 255, 0.25)';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(this.cx, this.cy, this.radius + 24, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // 2. Linhas de Luz (Ciano) Conectando as Letras em Tempo Real
+        if (this.selectedIndices.length > 0) {
+          this.ctx.save();
+          this.ctx.strokeStyle = '#38e8ff';
+          this.ctx.lineWidth = 4.5;
+          this.ctx.lineCap = 'round';
+          this.ctx.lineJoin = 'round';
+          this.ctx.shadowColor = '#38e8ff';
+          this.ctx.shadowBlur = 14;
+
+          this.ctx.beginPath();
+          this.selectedIndices.forEach((idx, i) => {
+            const node = this.letters[idx];
+            if (i === 0) this.ctx.moveTo(node.x, node.y);
+            else this.ctx.lineTo(node.x, node.y);
+          });
+
+          // Linha elástica seguindo o dedo/cursor até a posição atual
+          if (this.isDragging) {
+            this.ctx.lineTo(this.currentPointer.x, this.currentPointer.y);
+          }
+
+          this.ctx.stroke();
+          this.ctx.restore();
         }
 
-        if (foundWords.size === targetWords.length) {
-          setTimeout(() => {
-            currentLevel++;
-            localStorage.setItem('kruuj_words_level', String(currentLevel));
-            sendEvent('game_completed', { level: currentLevel, score: currentLevel * 100 });
-            sendEvent('game_save', { saveData: { currentLevel }, score: currentLevel * 100 });
-            loadLevel(lvlIndex + 1);
-          }, 800);
+        // 3. Renderiza os nós das letras
+        this.letters.forEach((node, i) => {
+          node.render(this.ctx, this.selectedIndices.includes(i));
+        });
+      }
+    }
+
+    // ===== 4. CLASSE PRINCIPAL DO JOGO =====
+    class Game {
+      constructor() {
+        this.sound = new SoundController();
+
+        // Mini Banco de Dados Mockado com os Níveis
+        this.levelDatabase = [
+          {
+            letters: ['A', 'M', 'O', 'R'],
+            targets: ['AMOR', 'ROMA', 'MAR', 'AMO']
+          },
+          {
+            letters: ['C', 'O', 'R', 'U', 'J', 'A'],
+            targets: ['CORUJA', 'ARCO', 'JATO', 'ROCA', 'RUA']
+          }
+        ];
+
+        this.currentLevelIndex = 0;
+        this.foundWords = new Set();
+        this.currentChars = [];
+
+        this.wheelCanvas = document.getElementById('wheelCanvas');
+        this.wheel = new LetterWheel(this.wheelCanvas, (word, stepIndex) => {
+          document.getElementById('wordPreview').textContent = word;
+          this.sound.playLetterTone(stepIndex);
+        });
+
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-words' }, '*');
+        } catch(e) {}
+      }
+
+      startGame() {
+        this.sound.init();
+        document.getElementById('gameOverlay').classList.remove('active');
+        this.loadLevel(0);
+
+        try {
+          window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-words' }, '*');
+        } catch(e) {}
+      }
+
+      loadLevel(index) {
+        this.currentLevelIndex = index % this.levelDatabase.length;
+        const levelData = this.levelDatabase[this.currentLevelIndex];
+
+        this.currentChars = [...levelData.letters];
+        this.foundWords = new Set();
+        document.getElementById('levelIndicator').textContent = `FASE ${this.currentLevelIndex + 1}`;
+        document.getElementById('wordPreview').textContent = '';
+
+        // Monta a grade de palavras cruzadas em HTML/CSS
+        this.buildCrosswordBoard(levelData.targets);
+
+        // Inicializa a roda no Canvas
+        this.wheel.setLetters(this.currentChars);
+      }
+
+      buildCrosswordBoard(targetWords) {
+        const grid = document.getElementById('crosswordGrid');
+        grid.innerHTML = '';
+
+        targetWords.forEach(word => {
+          const row = document.createElement('div');
+          row.className = 'word-row';
+          row.dataset.word = word;
+
+          for (let i = 0; i < word.length; i++) {
+            const box = document.createElement('div');
+            box.className = 'slot-box';
+            box.textContent = word[i];
+            row.appendChild(box);
+          }
+
+          grid.appendChild(row);
+        });
+      }
+
+      shuffleLetters() {
+        this.sound.playShuffle();
+        this.wheel.shuffle(this.currentChars);
+      }
+
+      submitWord(word) {
+        document.getElementById('wordPreview').textContent = '';
+        const levelData = this.levelDatabase[this.currentLevelIndex];
+
+        // Validação da palavra
+        if (levelData.targets.includes(word) && !this.foundWords.has(word)) {
+          this.foundWords.add(word);
+          this.sound.playWordCorrect();
+
+          // Revela as letras na grade com animação de luz dourada
+          const row = document.querySelector(`.word-row[data-word="${word}"]`);
+          if (row) {
+            row.querySelectorAll('.slot-box').forEach(b => b.classList.add('revealed'));
+          }
+
+          // Se desvendou todas as palavras da fase: avança de nível
+          if (this.foundWords.size === levelData.targets.length) {
+            setTimeout(() => {
+              this.loadLevel(this.currentLevelIndex + 1);
+            }, 850);
+          }
         }
-      } else {
-        playNote(260);
       }
-
-      selectedIndices = [];
-      document.getElementById('wordPreview').textContent = '';
-      drawWheel();
     }
 
-    function getLetterAt(x, y) {
-      for (let i = 0; i < wheelLetters.length; i++) {
-        const l = wheelLetters[i];
-        if (Math.hypot(l.x - x, l.y - y) < l.r + 10) return i;
-      }
-      return -1;
-    }
-
-    canvas.addEventListener('pointerdown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-      const idx = getLetterAt(x, y);
-
-      if (idx !== -1) {
-        isDragging = true;
-        selectedIndices = [idx];
-        playNote(440);
-        document.getElementById('wordPreview').textContent = wheelLetters[idx].char;
-        drawWheel();
-      }
+    // Instanciação Global
+    window.addEventListener('DOMContentLoaded', () => {
+      window.wordGame = new Game();
     });
-
-    window.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-      const idx = getLetterAt(x, y);
-
-      if (idx !== -1 && !selectedIndices.includes(idx)) {
-        selectedIndices.push(idx);
-        playNote(440 + selectedIndices.length * 60);
-        document.getElementById('wordPreview').textContent = selectedIndices.map(i => wheelLetters[i].char).join('');
-        drawWheel();
-      }
-    });
-
-    window.addEventListener('pointerup', () => {
-      if (isDragging) {
-        isDragging = false;
-        checkCurrentWord();
-      }
-    });
-
-    // Desenha Corujinha Bebê comemorando no topo
-    function drawMascotScholar() {
-      mCtx.clearRect(0, 0, mascotCanvas.width, mascotCanvas.height);
-      const cx = 55, cy = 34, r = 18;
-      if (mascotHappyTimer > 0) mascotHappyTimer--;
-      const isHappy = mascotHappyTimer > 0;
-
-      // Galho de estudo
-      mCtx.fillStyle = '#1e1b4b';
-      mCtx.fillRect(15, cy + 14, 80, 5);
-
-      // Asas comemorando
-      const wingW = isHappy ? Math.sin(Date.now() * 0.03) * 6 : 0;
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#6d28d9';
-        mCtx.beginPath();
-        mCtx.ellipse(cx + side * (r + 2 + wingW), cy + 2, 5, 10, side * 0.3, 0, Math.PI * 2);
-        mCtx.fill();
-      });
-
-      // Fones de Ouvido
-      mCtx.strokeStyle = '#0f172a';
-      mCtx.lineWidth = 3;
-      mCtx.beginPath();
-      mCtx.arc(cx, cy, r + 2, Math.PI * 1.15, Math.PI * 1.85);
-      mCtx.stroke();
-
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#1e1b4b';
-        mCtx.strokeStyle = '#38e8ff';
-        mCtx.lineWidth = 2;
-        mCtx.beginPath();
-        mCtx.ellipse(cx + side * (r + 2), cy, 4, 7, 0, 0, Math.PI * 2);
-        mCtx.fill();
-        mCtx.stroke();
-      });
-
-      // Corpo da Coruja
-      const g = mCtx.createRadialGradient(cx, cy - 3, 2, cx, cy, r);
-      g.addColorStop(0, '#8b5cff');
-      g.addColorStop(1, '#3b0764');
-      mCtx.fillStyle = g;
-      mCtx.beginPath();
-      mCtx.arc(cx, cy, r, 0, Math.PI * 2);
-      mCtx.fill();
-
-      // Olhos com armação de óculos sábios
-      mCtx.strokeStyle = '#ffb020';
-      mCtx.lineWidth = 2;
-      [-1, 1].forEach(side => {
-        mCtx.fillStyle = '#fff';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.32, 0, Math.PI * 2);
-        mCtx.fill();
-        mCtx.stroke();
-
-        mCtx.fillStyle = '#ffb020';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.22, 0, Math.PI * 2);
-        mCtx.fill();
-
-        mCtx.fillStyle = '#0f172a';
-        mCtx.beginPath();
-        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.1, 0, Math.PI * 2);
-        mCtx.fill();
-      });
-
-      // Ponte dos óculos
-      mCtx.beginPath();
-      mCtx.moveTo(cx - 3, cy - r * 0.12);
-      mCtx.lineTo(cx + 3, cy - r * 0.12);
-      mCtx.stroke();
-
-      // Bico
-      mCtx.fillStyle = '#f59e0b';
-      mCtx.beginPath();
-      mCtx.moveTo(cx - 2.5, cy + 2);
-      mCtx.lineTo(cx + 2.5, cy + 2);
-      mCtx.lineTo(cx, cy + 7);
-      mCtx.fill();
-    }
-
-    function animateMascot() {
-      requestAnimationFrame(animateMascot);
-      drawMascotScholar();
-    }
-    animateMascot();
-
-    function startGame() {
-      loadLevel(currentLevel - 1);
-      sendEvent('game_start');
-      document.getElementById('ov').classList.remove('active');
-    }
   </script>
 </body>
 </html>

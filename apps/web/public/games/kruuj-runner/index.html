@@ -4,16 +4,18 @@
   <meta charset="utf-8">
   <title>KRUUJ RUNNER: Fuga dos Meteoros</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07061a;
+      --bg: #070914;
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
-      --pink: #ff5ca8;
-      --text: #f3f0ff;
+      --red: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -22,6 +24,7 @@
       -webkit-user-select: none;
       touch-action: none;
     }
+
     html, body {
       width: 100%;
       height: 100%;
@@ -30,6 +33,7 @@
       color: var(--text);
       font-family: 'Baloo 2', sans-serif;
     }
+
     canvas {
       position: fixed;
       inset: 0;
@@ -37,40 +41,55 @@
       height: 100%;
       display: block;
     }
+
+    /* HUD Superior de Pontuação */
     .hud {
       position: fixed;
-      top: 14px;
-      left: 14px;
-      right: 14px;
+      top: 16px;
+      left: 16px;
+      right: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
       z-index: 10;
     }
+
     .hud-badge {
-      background: rgba(13, 18, 36, 0.82);
+      background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       border-radius: 9999px;
-      padding: 6px 16px;
-      font-size: 0.95rem;
+      padding: 6px 18px;
+      font-size: 1.05rem;
       font-weight: 800;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
-    .mobile-touch-btn {
+
+    .hud-badge span {
+      color: var(--cyan);
+    }
+
+    /* Controles Touch Mobile na Tela */
+    .mobile-controls {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 76px;
-      height: 76px;
+      display: none;
+      gap: 12px;
+      z-index: 15;
+    }
+
+    .btn-touch {
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(139, 92, 246, 0.85));
+      background: rgba(13, 18, 36, 0.85);
       border: 2px solid var(--cyan);
-      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
       color: #fff;
       font-size: 0.82rem;
       font-weight: 800;
@@ -79,15 +98,27 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 15;
+      box-shadow: 0 0 20px rgba(56, 232, 255, 0.3);
       cursor: pointer;
-      line-height: 1.1;
     }
-    .overlay {
+
+    .btn-touch.crouch {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255, 176, 32, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-controls {
+        display: flex;
+      }
+    }
+
+    /* Overlay de Início e Game Over */
+    .game-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.9) 0%, rgba(7, 6, 26, 0.98) 100%);
-      backdrop-filter: blur(12px);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
+      backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -99,25 +130,60 @@
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .overlay.active {
+
+    .game-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
+
     h1 {
-      font-size: clamp(30px, 8vw, 52px);
+      font-size: clamp(32px, 8vw, 54px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
     }
+
     p {
-      font-size: 1rem;
-      color: #cbd5e1;
+      font-size: clamp(14px, 4vw, 17px);
+      color: var(--text-muted);
       max-width: 440px;
-      line-height: 1.4;
+      line-height: 1.45;
       margin-bottom: 24px;
     }
+
+    .stats-table {
+      margin-bottom: 22px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 12px 28px;
+      display: flex;
+      gap: 32px;
+    }
+
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stats-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .stats-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
     .btn-action {
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
@@ -129,571 +195,705 @@
       font-family: inherit;
       cursor: pointer;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
+
     .btn-action:hover {
       transform: scale(1.05);
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
     }
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
+  <!-- HUD Superior com Distância e Recorde -->
   <div class="hud">
-    <div class="hud-badge">DISTÂNCIA: <span id="dist" style="color: var(--cyan);">0m</span></div>
-    <div class="hud-badge">PENAS: <span id="feathers" style="color: var(--gold);">0</span> 🪶</div>
-    <div class="hud-badge">RECORDE: <span id="best" style="color: var(--pink);">0m</span></div>
+    <div class="hud-badge">DISTÂNCIA: <span id="distVal">0m</span></div>
+    <div class="hud-badge" style="font-size: 0.95rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0m</span></div>
   </div>
 
-  <button class="mobile-touch-btn" id="mobileJumpBtn">
-    <span>PULAR</span>
-    <span style="font-size: 0.65rem; color: #ffb020;">PLANAR</span>
-  </button>
+  <!-- Botões Touch para Dispositivos Móveis -->
+  <div class="mobile-controls">
+    <button class="btn-touch crouch" id="touchCrouch">AGACHA</button>
+    <button class="btn-touch" id="touchJump">PULAR</button>
+  </div>
 
-  <!-- Overlay -->
-  <div class="overlay active" id="ov">
+  <!-- Overlay de Início e Game Over -->
+  <div class="game-overlay active" id="gameOverlay">
     <h1 id="ovTitle">KRUUJ RUNNER</h1>
-    <p id="ovDesc">A Coruja Mascote corre pelos telhados da metrópole cósmica! Toque para Pular, pule no ar para Salto Duplo e segure para Planar com asas abertas.</p>
-    <button class="btn-action" onclick="startGame()">CORRER 🦉</button>
+    <p id="ovDesc">Corra em alta velocidade pelos telhados da cidade cyberpunk! Pule buracos entre prédios, use Pulo Duplo e Agache para deslizar sob os lasers altos.</p>
+    
+    <div class="stats-table" id="ovStats" style="display: none;">
+      <div class="stats-item">
+        <span class="stats-label">Distância</span>
+        <span class="stats-val" id="ovDist">0m</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Maior Corrida</span>
+        <span class="stats-val" id="ovBest">0m</span>
+      </div>
+    </div>
+
+    <button class="btn-action" id="btnPlay" onclick="window.runnerGame.startGame()">CORRER AGORA ⚡</button>
   </div>
 
+  <!-- ================================================================= -->
+  <!-- LÓGICA DO JOGO EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
+  <!-- ================================================================= -->
   <script>
-    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
-    function sendEvent(type, data = {}) {
-      try {
-        window.parent.postMessage({ type, gameSlug: 'kruuj-runner', ...data }, '*');
-      } catch (e) {}
-    }
-    sendEvent('game_loaded');
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+      }
 
-    let bestDist = parseInt(localStorage.getItem('kruuj_runner_best') || '0', 10);
-    document.getElementById('best').textContent = bestDist + 'm';
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+      playJump() {
         try {
-          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
-          if (d && d.bestDist) {
-            bestDist = Math.max(bestDist, d.bestDist);
-            localStorage.setItem('kruuj_runner_best', String(bestDist));
-            document.getElementById('best').textContent = bestDist + 'm';
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(750, now + 0.12);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } catch(e) {}
+      }
+
+      playSlide() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.15);
+
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch(e) {}
+      }
+
+      playLaserZap() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(380, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } catch(e) {}
+      }
+    }
+
+    // ===== 2. SISTEMA DE CENÁRIO PARALLAX CYBERPUNK (2 CAMADAS) =====
+    class ParallaxBackground {
+      constructor(canvasWidth, canvasHeight) {
+        this.width = canvasWidth;
+        this.height = canvasHeight;
+
+        // Camada 1: Silhuetas Distantes (Lentas)
+        this.layerFar = [];
+        // Camada 2: Silhuetas Médias (Velocidade intermediária)
+        this.layerMid = [];
+
+        this.initLayers();
+      }
+
+      initLayers() {
+        this.layerFar = [];
+        this.layerMid = [];
+
+        // Prédios distantes (silhueta roxa profunda)
+        for (let i = 0; i < 14; i++) {
+          this.layerFar.push({
+            x: i * 140,
+            w: 90 + Math.random() * 60,
+            h: 180 + Math.random() * 180,
+            color: '#0d1124'
+          });
+        }
+
+        // Prédios médios (silhueta escura com luzes de janelas)
+        for (let i = 0; i < 16; i++) {
+          this.layerMid.push({
+            x: i * 110,
+            w: 70 + Math.random() * 50,
+            h: 120 + Math.random() * 150,
+            color: '#131936'
+          });
+        }
+      }
+
+      resize(w, h) {
+        this.width = w;
+        this.height = h;
+      }
+
+      update(baseSpeed) {
+        // Camada 1: 0.15x da velocidade base
+        this.layerFar.forEach(b => {
+          b.x -= baseSpeed * 0.15;
+          if (b.x + b.w < 0) {
+            b.x = this.width + Math.random() * 40;
           }
-        } catch(err){}
-      }
-    });
+        });
 
-    // ===== Som Temático Sintético de Coruja (WebAudio) =====
-    let audioCtx = null;
-    function getAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-
-    function playJumpHoot() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(360, now);
-        osc.frequency.exponentialRampToValueAtTime(780, now + 0.1);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.16);
-      } catch (e) {}
-    }
-
-    function playFeatherCollect() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(980, now);
-        osc.frequency.exponentialRampToValueAtTime(1450, now + 0.1);
-
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.1);
-      } catch (e) {}
-    }
-
-    function playCrashHoot() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(260, now);
-        osc.frequency.exponentialRampToValueAtTime(50, now + 0.35);
-
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.35);
-      } catch (e) {}
-    }
-
-    // ===== Engine KRUUJ Runner =====
-    const cv = document.getElementById('c');
-    const ctx = cv.getContext('2d');
-    let W = cv.width = window.innerWidth;
-    let H = cv.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      W = cv.width = window.innerWidth;
-      H = cv.height = window.innerHeight;
-    });
-
-    let state = 'menu';
-    let speed = 6.5;
-    let distance = 0;
-    let feathersCount = 0;
-    let isHoldingJump = false;
-    let legCycle = 0;
-
-    let owl = {
-      x: 110, y: 300, vy: 0, r: 20,
-      onGround: false,
-      jumpsLeft: 2
-    };
-
-    let platforms = [];
-    let obstacles = [];
-    let items = [];
-    let particles = [];
-    let bgBuildings = [];
-
-    for (let i = 0; i < 22; i++) {
-      bgBuildings.push({
-        x: i * 105,
-        w: 80 + Math.random() * 50,
-        h: 160 + Math.random() * 200,
-        c: i % 2 === 0 ? '#101428' : '#141a34'
-      });
-    }
-
-    function initGame() {
-      speed = 6.8;
-      distance = 0;
-      feathersCount = 0;
-      owl.y = H * 0.5;
-      owl.vy = 0;
-      owl.jumpsLeft = 2;
-      platforms = [];
-      obstacles = [];
-      items = [];
-      particles = [];
-
-      let currentX = 50;
-      platforms.push({ x: currentX, y: H * 0.7, w: W * 0.9, h: 22 });
-
-      currentX += W * 0.9;
-      for (let i = 0; i < 7; i++) {
-        currentX += 80 + Math.random() * 70;
-        const platW = 210 + Math.random() * 220;
-        const platY = H * 0.55 + (Math.random() * 120 - 60);
-        platforms.push({ x: currentX, y: platY, w: platW, h: 22 });
-
-        if (Math.random() > 0.45) {
-          obstacles.push({
-            x: currentX + platW * 0.5,
-            y: platY - 28,
-            w: 18, h: 28,
-            type: 'laser'
-          });
-        }
-        if (Math.random() > 0.3) {
-          items.push({
-            x: currentX + platW * 0.25,
-            y: platY - 42,
-            collected: false
-          });
-        }
-        currentX += platW;
-      }
-    }
-
-    function jump() {
-      if (state !== 'play') return;
-      if (owl.jumpsLeft > 0) {
-        owl.vy = -12;
-        owl.jumpsLeft--;
-        owl.onGround = false;
-        playJumpHoot();
-
-        for (let i = 0; i < 9; i++) {
-          particles.push({
-            x: owl.x, y: owl.y + owl.r,
-            vx: (Math.random() - 0.5) * 4 - speed * 0.25,
-            vy: Math.random() * 3,
-            r: 3, c: '#38e8ff', life: 0.8
-          });
-        }
-      }
-    }
-
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        e.preventDefault();
-        isHoldingJump = true;
-        if (state === 'play') jump();
-        else if (state === 'over' || state === 'menu') startGame();
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        isHoldingJump = false;
-      }
-    });
-
-    const mBtn = document.getElementById('mobileJumpBtn');
-    mBtn.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      isHoldingJump = true;
-      if (state === 'play') jump();
-      else if (state === 'over' || state === 'menu') startGame();
-    });
-    mBtn.addEventListener('pointerup', () => { isHoldingJump = false; });
-    mBtn.addEventListener('pointerleave', () => { isHoldingJump = false; });
-
-    window.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('#ov') || e.target.closest('button')) return;
-      isHoldingJump = true;
-      if (state === 'play') jump();
-    });
-
-    window.addEventListener('pointerup', () => { isHoldingJump = false; });
-
-    function startGame() {
-      initGame();
-      state = 'play';
-      sendEvent('game_start');
-      document.getElementById('ov').classList.remove('active');
-    }
-
-    function gameOver() {
-      state = 'over';
-      playCrashHoot();
-      bestDist = Math.max(bestDist, Math.floor(distance));
-      localStorage.setItem('kruuj_runner_best', String(bestDist));
-      document.getElementById('best').textContent = bestDist + 'm';
-
-      const finalScore = Math.floor(distance) + feathersCount * 25;
-      sendEvent('game_over', { distance: Math.floor(distance), feathers: feathersCount, score: finalScore });
-      sendEvent('game_save', { saveData: { bestDist }, score: finalScore });
-
-      document.getElementById('ovTitle').textContent = 'FIM DA CORRIDA!';
-      document.getElementById('ovDesc').textContent = `A Coruja correu ${Math.floor(distance)}m e resgatou ${feathersCount} penas cósmicas! Desvie dos lasers e plane entre os telhados!`;
-      document.getElementById('ov').classList.add('active');
-    }
-
-    // Desenha Coruja Corredora / Planando com Asas Abertas
-    function drawRunnerOwl(x, y, r, onGround, isGliding) {
-      ctx.save();
-      ctx.translate(x, y);
-
-      legCycle += speed * 0.08;
-
-      // Asas da Coruja
-      if (isGliding) {
-        // Asas Planando Abertas e Majestosas
-        ctx.fillStyle = '#6d28d9';
-        ctx.beginPath();
-        ctx.ellipse(-14, -2, 24, 7, -0.15, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Penas Ciano Neon de Voo
-        ctx.fillStyle = '#38e8ff';
-        ctx.beginPath();
-        ctx.ellipse(-24, -2, 8, 4, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Rastro de vento sob as asas
-        ctx.strokeStyle = 'rgba(56, 232, 255, 0.4)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(-35, 6);
-        ctx.lineTo(-10, 6);
-        ctx.stroke();
-      } else {
-        // Asa fechada ao lado do corpo
-        ctx.fillStyle = '#6d28d9';
-        ctx.beginPath();
-        ctx.ellipse(-8, 2, 10, 14, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Perninhas correndo
-      if (onGround) {
-        const leg1 = Math.sin(legCycle) * 7;
-        const leg2 = -Math.sin(legCycle) * 7;
-        ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(-4, r - 3);
-        ctx.lineTo(-4 + leg1, r + 7);
-        ctx.moveTo(4, r - 3);
-        ctx.lineTo(4 + leg2, r + 7);
-        ctx.stroke();
-      }
-
-      // Fones de Ouvido
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(0, -3, r + 2, Math.PI * 1.1, Math.PI * 1.9);
-      ctx.stroke();
-
-      ctx.fillStyle = '#1e1b4b';
-      ctx.strokeStyle = '#38e8ff';
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = '#38e8ff';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.ellipse(-r - 1, -3, 4, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // Corpo da Coruja KRUUJ
-      const grad = ctx.createRadialGradient(-3, -3, 3, 0, 0, r);
-      grad.addColorStop(0, '#8b5cff');
-      grad.addColorStop(0.7, '#6d28d9');
-      grad.addColorStop(1, '#3b0764');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Penas das Orelhas
-      ctx.fillStyle = '#4c1d95';
-      ctx.beginPath();
-      ctx.moveTo(-r * 0.4, -r * 0.5);
-      ctx.lineTo(-r * 0.6, -r * 1.3);
-      ctx.lineTo(0, -r * 0.8);
-      ctx.fill();
-
-      // Olho Âmbar
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(6, -3, 7.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#ffb020';
-      ctx.beginPath();
-      ctx.arc(7, -3, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(8, -3, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Bico Dourado
-      ctx.fillStyle = '#f59e0b';
-      ctx.beginPath();
-      ctx.moveTo(13, 1);
-      ctx.lineTo(21, 4);
-      ctx.lineTo(13, 8);
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    // Loop
-    function loop() {
-      requestAnimationFrame(loop);
-
-      ctx.fillStyle = '#07061a';
-      ctx.fillRect(0, 0, W, H);
-
-      // Parallax prédios
-      bgBuildings.forEach(b => {
-        b.x -= speed * 0.2;
-        if (b.x + b.w < 0) b.x = W + Math.random() * 40;
-        ctx.fillStyle = b.c;
-        ctx.fillRect(b.x, H - b.h, b.w, b.h);
-
-        ctx.fillStyle = 'rgba(56, 232, 255, 0.15)';
-        for (let j = 0; j < 4; j++) {
-          ctx.fillRect(b.x + 12 + j * 16, H - b.h + 20, 8, 12);
-        }
-      });
-
-      if (state === 'play') {
-        distance += speed * 0.05;
-        speed += 0.0008;
-        document.getElementById('dist').textContent = Math.floor(distance) + 'm';
-
-        const gravity = (isHoldingJump && owl.vy > 0) ? 0.28 : 0.65;
-        owl.vy += gravity;
-        owl.y += owl.vy;
-        owl.onGround = false;
-
-        // Plataformas
-        for (let i = platforms.length - 1; i >= 0; i--) {
-          const p = platforms[i];
-          p.x -= speed;
-
-          if (
-            owl.x + owl.r > p.x &&
-            owl.x - owl.r < p.x + p.w &&
-            owl.y + owl.r >= p.y &&
-            owl.y - owl.r < p.y + p.h &&
-            owl.vy > 0
-          ) {
-            owl.y = p.y - owl.r;
-            owl.vy = 0;
-            owl.onGround = true;
-            owl.jumpsLeft = 2;
+        // Camada 2: 0.35x da velocidade base
+        this.layerMid.forEach(b => {
+          b.x -= baseSpeed * 0.35;
+          if (b.x + b.w < 0) {
+            b.x = this.width + Math.random() * 40;
           }
+        });
+      }
 
-          if (p.x + p.w < -50) {
-            platforms.splice(i, 1);
-            const lastPlat = platforms[platforms.length - 1];
-            const nextX = lastPlat.x + lastPlat.w + 90 + Math.random() * 80;
-            const nextW = 210 + Math.random() * 240;
-            const nextY = Math.min(H * 0.75, Math.max(H * 0.45, lastPlat.y + (Math.random() * 100 - 50)));
-            platforms.push({ x: nextX, y: nextY, w: nextW, h: 22 });
+      render(ctx) {
+        // 1. Renderiza camada distante
+        this.layerFar.forEach(b => {
+          ctx.fillStyle = b.color;
+          ctx.fillRect(b.x, this.height - b.h, b.w, b.h);
+        });
 
-            if (Math.random() > 0.45) {
-              obstacles.push({ x: nextX + nextW * 0.5, y: nextY - 28, w: 18, h: 28, type: 'laser' });
+        // 2. Renderiza camada média com janelinhas iluminadas
+        this.layerMid.forEach(b => {
+          ctx.fillStyle = b.color;
+          ctx.fillRect(b.x, this.height - b.h, b.w, b.h);
+
+          // Luzes de janelas de neon ciano
+          ctx.fillStyle = 'rgba(56, 232, 255, 0.18)';
+          for (let j = 0; j < 3; j++) {
+            ctx.fillRect(b.x + 10 + j * 16, this.height - b.h + 20, 8, 12);
+          }
+        });
+      }
+    }
+
+    // ===== 3. PLATAFORMA (PRÉDIOS COM VÃOS/GAPS) =====
+    class Building {
+      constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = '#181f3d';
+        this.neonEdgeColor = '#38e8ff';
+      }
+
+      update(speed) {
+        this.x -= speed;
+      }
+
+      isOffscreen() {
+        return this.x + this.width < -50;
+      }
+
+      render(ctx) {
+        // Corpo do prédio
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Borda de neon ciano no telhado
+        ctx.save();
+        ctx.fillStyle = this.neonEdgeColor;
+        ctx.shadowColor = this.neonEdgeColor;
+        ctx.shadowBlur = 8;
+        ctx.fillRect(this.x, this.y, this.width, 4);
+        ctx.restore();
+      }
+    }
+
+    // ===== 4. OBSTÁCULO (BARREIRAS LASER BAIXAS E ALTAS) =====
+    class Obstacle {
+      constructor(x, buildingY, type) {
+        this.x = x;
+        this.type = type; // 'low' ou 'high'
+        this.width = 16;
+
+        if (this.type === 'low') {
+          // Barreira laser baixa: no chão do prédio (Exige Pular)
+          this.height = 32;
+          this.y = buildingY - this.height;
+        } else {
+          // Barreira laser alta: suspensa no ar (Exige Agachar/Deslizar)
+          this.height = 30;
+          this.y = buildingY - 58; // Deixa vão de ~28px embaixo para o deslize passar
+        }
+      }
+
+      update(speed) {
+        this.x -= speed;
+      }
+
+      isOffscreen() {
+        return this.x + this.width < -50;
+      }
+
+      getHitbox() {
+        return {
+          x: this.x + 2,
+          y: this.y,
+          width: this.width - 4,
+          height: this.height
+        };
+      }
+
+      render(ctx) {
+        ctx.save();
+        // Emissor de laser
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Feixe laser pulsante vermelho
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 12;
+        ctx.fillRect(this.x + 4, this.y, 8, this.height);
+
+        // Sinalizador de alerta
+        ctx.fillStyle = '#ffb020';
+        ctx.beginPath();
+        ctx.arc(this.x + 8, this.y + 4, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 5. PERSONAGEM (RUNNER COM HITBOX ADAPTÁVEL) =====
+    class Player {
+      constructor(x, y) {
+        // Posição X constante na esquerda da tela conforme requisito
+        this.x = x;
+        this.y = y;
+        this.vy = 0;
+        this.gravity = 0.68;
+        this.jumpForce = -12.5;
+
+        this.onGround = false;
+        this.jumpsLeft = 2; // Pulo duplo
+        this.isCrouching = false;
+
+        // Dimensões da Hitbox Normal vs Agachado
+        this.standWidth = 32;
+        this.standHeight = 48;
+        this.crouchWidth = 46;
+        this.crouchHeight = 22; // Altura reduzida para passar sob o laser alto
+
+        this.width = this.standWidth;
+        this.height = this.standHeight;
+      }
+
+      jump() {
+        if (this.jumpsLeft > 0) {
+          this.vy = this.jumpForce;
+          this.jumpsLeft--;
+          this.onGround = false;
+          return true;
+        }
+        return false;
+      }
+
+      crouch(isDown) {
+        this.isCrouching = isDown;
+        if (isDown) {
+          // Ajusta a hitbox proporcionalmente para deslizar
+          this.width = this.crouchWidth;
+          this.height = this.crouchHeight;
+        } else {
+          this.width = this.standWidth;
+          this.height = this.standHeight;
+        }
+      }
+
+      update() {
+        // Aplica física de gravidade
+        this.vy += this.gravity;
+        this.y += this.vy;
+      }
+
+      getHitbox() {
+        return {
+          x: this.x,
+          y: this.y,
+          width: this.width,
+          height: this.height
+        };
+      }
+
+      render(ctx) {
+        ctx.save();
+
+        // 1. Corpo retangular geométrico colorido (Pronto para sprite de personagem)
+        ctx.fillStyle = this.isCrouching ? '#38e8ff' : '#8b5cff';
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, 8);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // 2. Visor Neon Cyberpunk no topo da cabeça
+        ctx.fillStyle = '#ffb020';
+        if (this.isCrouching) {
+          ctx.fillRect(this.x + this.width - 12, this.y + 4, 8, 6);
+        } else {
+          ctx.fillRect(this.x + this.width - 10, this.y + 8, 8, 8);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 6. SISTEMA DE PARTÍCULAS VISUAIS =====
+    class Particle {
+      constructor(x, y, color, vx, vy) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+        this.life = 1.0;
+        this.radius = 2.5 + Math.random() * 2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.04;
+      }
+
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ===== 7. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.sound = new SoundController();
+        this.parallax = new ParallaxBackground(window.innerWidth, window.innerHeight);
+
+        this.state = 'menu'; // 'menu', 'play', 'over'
+        this.baseSpeed = 6.8;
+        this.currentSpeed = this.baseSpeed;
+        this.distance = 0;
+        this.bestDistance = parseInt(localStorage.getItem('kruuj_runner_best') || '0', 10);
+
+        this.player = new Player(100, 300);
+        this.buildings = [];
+        this.obstacles = [];
+        this.particles = [];
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Controles de Teclado (Espaço/Seta Cima = Pulo, Seta Baixo = Deslizar)
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+            e.preventDefault();
+            if (this.state === 'play') {
+              if (this.player.jump()) this.sound.playJump();
+            } else if (this.state === 'over' || this.state === 'menu') {
+              this.startGame();
             }
-            if (Math.random() > 0.3) {
-              items.push({ x: nextX + nextW * 0.3, y: nextY - 42, collected: false });
+          } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+            e.preventDefault();
+            if (this.state === 'play') {
+              this.player.crouch(true);
+              this.sound.playSlide();
             }
           }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+            this.player.crouch(false);
+          }
+        });
+
+        // Controles Touch nos Botões Mobile
+        const btnJump = document.getElementById('touchJump');
+        const btnCrouch = document.getElementById('touchCrouch');
+
+        btnJump.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          if (this.state === 'play') {
+            if (this.player.jump()) this.sound.playJump();
+          } else {
+            this.startGame();
+          }
+        });
+
+        btnCrouch.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          if (this.state === 'play') {
+            this.player.crouch(true);
+            this.sound.playSlide();
+          }
+        });
+
+        btnCrouch.addEventListener('pointerup', () => this.player.crouch(false));
+        btnCrouch.addEventListener('pointerleave', () => this.player.crouch(false));
+
+        // Toque direto no Canvas para pular
+        this.canvas.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('#gameOverlay') || e.target.closest('button')) return;
+          if (this.state === 'play') {
+            if (this.player.jump()) this.sound.playJump();
+          }
+        });
+
+        document.getElementById('bestVal').textContent = `${this.bestDistance}m`;
+
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-runner' }, '*');
+        } catch(e) {}
+      }
+
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.parallax.resize(this.canvas.width, this.canvas.height);
+      }
+
+      startGame() {
+        this.sound.init();
+        this.state = 'play';
+        this.currentSpeed = this.baseSpeed;
+        this.distance = 0;
+        this.particles = [];
+        this.buildings = [];
+        this.obstacles = [];
+
+        // 1. Gera prédio inicial largo sob o jogador
+        let currentX = 50;
+        const initialWidth = this.canvas.width * 0.95;
+        const groundY = this.canvas.height * 0.7;
+        this.buildings.push(new Building(currentX, groundY, initialWidth, this.canvas.height - groundY));
+
+        // Posiciona jogador no topo da primeira plataforma
+        this.player.x = 110;
+        this.player.y = groundY - this.player.height;
+        this.player.vy = 0;
+        this.player.onGround = true;
+        this.player.jumpsLeft = 2;
+
+        // 2. Gera prédios subsequentes com vãos (gaps) e lasers
+        currentX += initialWidth;
+        for (let i = 0; i < 6; i++) {
+          currentX = this.generateNextBuilding(currentX);
         }
 
-        if (owl.y > H + 50) {
-          gameOver();
-          return;
+        document.getElementById('gameOverlay').classList.remove('active');
+        this.updateUI();
+
+        try {
+          window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-runner' }, '*');
+        } catch(e) {}
+      }
+
+      generateNextBuilding(startX) {
+        // Vão entre prédios (Gap)
+        const gap = 85 + Math.random() * 80;
+        const nextX = startX + gap;
+
+        // Dimensões do novo prédio
+        const width = 220 + Math.random() * 240;
+        const buildingY = Math.min(this.canvas.height * 0.78, Math.max(this.canvas.height * 0.5, this.canvas.height * 0.65 + (Math.random() * 110 - 55)));
+        const height = this.canvas.height - buildingY;
+
+        this.buildings.push(new Building(nextX, buildingY, width, height));
+
+        // Chance de surgir barreira laser sobre o prédio (baixa ou alta)
+        if (Math.random() > 0.35) {
+          const type = Math.random() > 0.5 ? 'low' : 'high';
+          const laserX = nextX + width * 0.5;
+          this.obstacles.push(new Obstacle(laserX, buildingY, type));
         }
 
-        // Obstáculos
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-          const ob = obstacles[i];
-          ob.x -= speed;
+        return nextX + width;
+      }
 
-          if (
-            owl.x + owl.r > ob.x &&
-            owl.x - owl.r < ob.x + ob.w &&
-            owl.y + owl.r > ob.y &&
-            owl.y - owl.r < ob.y + ob.h
-          ) {
-            gameOver();
+      // Detecção de Colisão AABB (Caixa delimitadora)
+      checkAABB(r1, r2) {
+        return (
+          r1.x < r2.x + r2.width &&
+          r1.x + r1.width > r2.x &&
+          r1.y < r2.y + r2.height &&
+          r1.y + r1.height > r2.y
+        );
+      }
+
+      gameOver() {
+        this.state = 'over';
+        this.sound.playLaserZap();
+
+        const finalDist = Math.floor(this.distance);
+        this.bestDistance = Math.max(this.bestDistance, finalDist);
+        localStorage.setItem('kruuj_runner_best', String(this.bestDistance));
+        document.getElementById('bestVal').textContent = `${this.bestDistance}m`;
+
+        document.getElementById('ovDist').textContent = `${finalDist}m`;
+        document.getElementById('ovBest').textContent = `${this.bestDistance}m`;
+        document.getElementById('ovStats').style.display = 'flex';
+        document.getElementById('gameOverlay').classList.add('active');
+
+        try {
+          window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-runner', score: finalDist, bestDist: this.bestDistance }, '*');
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-runner', saveData: { bestDist: this.bestDistance }, score: finalDist }, '*');
+        } catch(e) {}
+      }
+
+      updateUI() {
+        document.getElementById('distVal').textContent = `${Math.floor(this.distance)}m`;
+      }
+
+      loop() {
+        requestAnimationFrame(this.loop);
+
+        // 1. Limpa o Canvas
+        this.ctx.fillStyle = '#070914';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 2. Renderiza Parallax Cyberpunk
+        this.parallax.update(this.state === 'play' ? this.currentSpeed : 1.5);
+        this.parallax.render(this.ctx);
+
+        // 3. Atualização da Física e Lógica
+        if (this.state === 'play') {
+          // Incrementa distância e acelera gradualmente
+          this.distance += this.currentSpeed * 0.05;
+          this.currentSpeed += 0.0008;
+          this.updateUI();
+
+          this.player.update();
+          this.player.onGround = false;
+
+          // 3.1 Atualiza e Recicla Prédios
+          for (let i = this.buildings.length - 1; i >= 0; i--) {
+            const b = this.buildings[i];
+            b.update(this.currentSpeed);
+
+            // Detecção precisa de pouso no topo do telhado
+            const pHit = this.player.getHitbox();
+            if (
+              pHit.x + pHit.width > b.x &&
+              pHit.x < b.x + b.width &&
+              pHit.y + pHit.height >= b.y &&
+              pHit.y + pHit.height <= b.y + 18 &&
+              this.player.vy >= 0
+            ) {
+              this.player.y = b.y - this.player.height;
+              this.player.vy = 0;
+              this.player.onGround = true;
+              this.player.jumpsLeft = 2; // Reseta pulo duplo
+            }
+
+            // Otimização de memória: remove prédio ao sair pela esquerda e gera novo na direita
+            if (b.isOffscreen()) {
+              this.buildings.splice(i, 1);
+              const lastB = this.buildings[this.buildings.length - 1];
+              this.generateNextBuilding(lastB.x + lastB.width);
+            }
+          }
+
+          // 3.2 Queda no vão (buraco) entre prédios -> Game Over
+          if (this.player.y > this.canvas.height + 40) {
+            this.gameOver();
             return;
           }
 
-          if (ob.x < -50) obstacles.splice(i, 1);
-        }
+          // 3.3 Atualiza e Recicla Obstáculos (Lasers)
+          for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            const ob = this.obstacles[i];
+            ob.update(this.currentSpeed);
 
-        // Itens (Pena Dourada)
-        for (let i = items.length - 1; i >= 0; i--) {
-          const it = items[i];
-          it.x -= speed;
+            // Checa colisão da hitbox do jogador com a barreira laser
+            if (this.checkAABB(this.player.getHitbox(), ob.getHitbox())) {
+              this.gameOver();
+              return;
+            }
 
-          if (!it.collected && Math.hypot(owl.x - it.x, owl.y - it.y) < owl.r + 14) {
-            it.collected = true;
-            feathersCount++;
-            document.getElementById('feathers').textContent = feathersCount;
-            playFeatherCollect();
-
-            for (let k = 0; k < 8; k++) {
-              particles.push({
-                x: it.x, y: it.y,
-                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
-                r: 3, c: '#ffb020', life: 0.8
-              });
+            if (ob.isOffscreen()) {
+              this.obstacles.splice(i, 1);
             }
           }
-
-          if (it.x < -50) items.splice(i, 1);
         }
-      }
 
-      // RENDERIZAÇÃO
-      // Plataformas
-      platforms.forEach(p => {
-        ctx.fillStyle = '#171d38';
-        ctx.fillRect(p.x, p.y, p.w, p.h);
+        // 4. Renderiza Prédios
+        this.buildings.forEach(b => b.render(this.ctx));
 
-        ctx.fillStyle = '#38e8ff';
-        ctx.shadowColor = '#38e8ff';
-        ctx.shadowBlur = 8;
-        ctx.fillRect(p.x, p.y, p.w, 4);
-        ctx.shadowBlur = 0;
-      });
+        // 5. Renderiza Obstáculos
+        this.obstacles.forEach(ob => ob.render(this.ctx));
 
-      // Obstáculos (Laser Vermelho)
-      obstacles.forEach(ob => {
-        ctx.fillStyle = '#ff4757';
-        ctx.shadowColor = '#ff4757';
-        ctx.shadowBlur = 12;
-        ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
-        ctx.shadowBlur = 0;
-      });
-
-      // Penas Coletáveis
-      items.forEach(it => {
-        if (!it.collected) {
-          ctx.save();
-          ctx.translate(it.x, it.y);
-          ctx.fillStyle = '#ffb020';
-          ctx.shadowColor = '#ffb020';
-          ctx.shadowBlur = 10;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, 5, 12, 0.4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+        // 6. Renderiza Jogador
+        if (this.state === 'play') {
+          this.player.render(this.ctx);
         }
-      });
-
-      // Partículas
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const pt = particles[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.life -= 0.04;
-        if (pt.life <= 0) {
-          particles.splice(i, 1);
-          continue;
-        }
-        ctx.fillStyle = pt.c;
-        ctx.globalAlpha = pt.life;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-
-      // Coruja Corredora
-      if (state === 'play') {
-        const isGliding = isHoldingJump && owl.vy > 0;
-        drawRunnerOwl(owl.x, owl.y, owl.r, owl.onGround, isGliding);
       }
     }
 
-    loop();
+    // Instanciação Global
+    window.addEventListener('DOMContentLoaded', () => {
+      window.runnerGame = new Game();
+    });
   </script>
 </body>
 </html>
