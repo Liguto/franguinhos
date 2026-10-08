@@ -3782,9 +3782,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
 /* 3. Banner Carrossel Destaque (KRUUJ recomenda) */
 .kruuj-featured-banner {
-  background: radial-gradient(circle at 75% 50%, rgba(59, 130, 246, 0.25) 0%, transparent 60%),
-              radial-gradient(circle at 25% 50%, rgba(139, 92, 246, 0.25) 0%, transparent 60%),
-              linear-gradient(135deg, #0a0f22 0%, #151a36 50%, #1b1238 100%);
+  background-color: #0a0f22;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 28px;
   padding: 30px 40px;
@@ -3795,6 +3793,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   overflow: hidden;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
   min-height: 240px;
+  transition: background-image 0.4s ease-in-out;
 }
 
 .kruuj-featured-arrow-left,

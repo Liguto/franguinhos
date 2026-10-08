@@ -2323,7 +2323,15 @@ export default function App() {
                       ) : (
                         <>
                           {/* 3. Banner Carrossel Destaque (KRUUJ recomenda) */}
-                      <div className="kruuj-featured-banner">
+                      <div 
+                        className="kruuj-featured-banner"
+                        style={{
+                          backgroundImage: `linear-gradient(90deg, rgba(8, 14, 26, 0.96) 0%, rgba(8, 14, 26, 0.84) 48%, rgba(8, 14, 26, 0.3) 80%, rgba(8, 14, 26, 0.1) 100%), url('${featuredGames[featuredIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
+                          backgroundPosition: 'right center',
+                          backgroundSize: 'cover',
+                          backgroundRepeat: 'no-repeat'
+                        }}
+                      >
                         <button 
                           className="kruuj-featured-arrow-left"
                           onClick={prevFeatured}
@@ -2355,12 +2363,8 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-4 z-10 pr-4 shrink-0">
-                          <img 
-                            src="/kruuj-mascote.png" 
-                            alt="Corujinha" 
-                            style={{ height: '75px', maxHeight: '75px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 15px rgba(139,92,246,0.5))' }} 
-                          />
+                        <div className="hidden md:flex items-center gap-4 z-10 pr-4 shrink-0">
+                          {/* Espaço reservado para visualização limpa do banner de fundo */}
                         </div>
 
                         <button 
