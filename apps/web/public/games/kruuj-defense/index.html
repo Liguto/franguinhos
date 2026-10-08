@@ -2,12 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ GUARDIANS: Defesa Cósmica</title>
+  <title>KRUUJ GUARDIANS: Tower Defense</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07061a;
+      --bg-dark: #070914;
+      --bg-sidebar: #0d1224;
+      --bg-card: rgba(22, 28, 54, 0.7);
+      --border-color: rgba(255, 255, 255, 0.1);
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
@@ -15,166 +18,305 @@
       --red: #ef4444;
       --blue: #3b82f6;
       --green: #10b981;
-      --yellow: #eab308;
-      --text: #f3f0ff;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
+      touch-action: manipulation;
     }
+
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: var(--bg);
+      background: var(--bg-dark);
       color: var(--text);
       font-family: 'Baloo 2', sans-serif;
     }
-    canvas {
-      position: fixed;
-      inset: 0;
+
+    /* Container Principal com Divisão de Tela (Canvas + Sidebar) */
+    #app-layout {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Área do Canvas do Jogo */
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      background: #090d1c;
+    }
+
+    canvas#gameCanvas {
       width: 100%;
       height: 100%;
       display: block;
+      cursor: crosshair;
     }
-    .hud {
-      position: fixed;
+
+    /* Barra Superior com Informações no Canvas (Mobile Friendly) */
+    .top-hud {
+      position: absolute;
       top: 12px;
       left: 12px;
-      right: 12px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 10px;
       pointer-events: none;
       z-index: 10;
     }
-    .hud-pill {
+
+    .hud-chip {
       background: rgba(13, 18, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--border-color);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
-      padding: 6px 14px;
-      font-size: 0.95rem;
+      padding: 5px 14px;
+      font-size: 0.92rem;
       font-weight: 800;
-      color: #fff;
       display: flex;
       align-items: center;
       gap: 6px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
-    /* Menu Inferior Estilo Bloons TD */
-    .towers-dock {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      background: rgba(13, 18, 36, 0.88);
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 8px 12px;
-      z-index: 10;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-    }
-    .tower-btn {
+
+    /* Menu Lateral / Loja (Desktop e Tablet) */
+    #sidebar-ui {
+      width: 320px;
+      height: 100%;
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 16px;
+      box-sizing: border-box;
+      z-index: 20;
+      box-shadow: -6px 0 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .game-logo {
+      font-size: 1.35rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .stats-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Lista de Torres na Loja */
+    .shop-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 14px 0;
+      overflow-y: auto;
+    }
+
+    .shop-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--cyan);
+      letter-spacing: 0.08em;
+    }
+
+    .tower-card-btn {
+      display: flex;
       align-items: center;
-      gap: 2px;
-      padding: 6px 10px;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1.5px solid transparent;
+      padding: 8px 12px;
       color: #fff;
       cursor: pointer;
       font-family: inherit;
-      transition: all 0.2s;
-      min-width: 62px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      position: relative;
     }
-    .tower-btn.selected {
+
+    .tower-card-btn:hover:not(:disabled) {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.08);
+      transform: translateX(3px);
+    }
+
+    .tower-card-btn.selected {
       border-color: var(--cyan);
       background: rgba(56, 232, 255, 0.18);
-      box-shadow: 0 0 15px rgba(56, 232, 255, 0.35);
-      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(56, 232, 255, 0.3);
     }
-    .tower-btn:disabled {
-      opacity: 0.35;
+
+    .tower-card-btn:disabled {
+      opacity: 0.4;
       cursor: not-allowed;
+      filter: grayscale(0.6);
     }
-    .tower-icon {
+
+    .tower-avatar-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.35rem;
+      background: rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
+
+    .tower-meta {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+
     .tower-name {
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       font-weight: 800;
-      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .tower-cost {
-      font-size: 0.72rem;
+
+    .tower-desc {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    .tower-price {
+      font-size: 0.82rem;
       font-weight: 800;
       color: var(--gold);
     }
-    /* Painel de Upgrade de Coruja Selecionada */
-    .upgrade-card {
-      position: fixed;
-      bottom: 85px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(13, 18, 36, 0.92);
-      border: 1.5px solid var(--cyan);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 12;
-      box-shadow: 0 0 20px rgba(56, 232, 255, 0.3);
-    }
-    .upgrade-info {
+
+    /* Painel Inferior de Controles / Ações */
+    .sidebar-footer {
       display: flex;
       flex-direction: column;
+      gap: 10px;
     }
-    .upgrade-title {
+
+    .btn-start-round {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-start-round:hover:not(:disabled) {
+      transform: scale(1.02);
+      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-start-round:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.5);
+    }
+
+    /* Card de Inspeção de Torre Selecionada */
+    #tower-inspector {
+      background: rgba(22, 28, 54, 0.95);
+      border: 1.5px solid var(--cyan);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 0 20px rgba(56, 232, 255, 0.25);
+    }
+
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inspector-title {
       font-size: 0.85rem;
       font-weight: 800;
       color: #fff;
     }
-    .upgrade-stats {
-      font-size: 0.72rem;
-      color: #94a3b8;
-    }
-    .btn-upgrade {
-      background: linear-gradient(135deg, #0284c7, #8b5cff);
-      color: #fff;
-      border: none;
-      border-radius: 9999px;
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .btn-sell {
+
+    .btn-sell-tower {
       background: rgba(239, 68, 68, 0.2);
       border: 1px solid #ef4444;
       color: #f87171;
       border-radius: 9999px;
-      padding: 6px 10px;
-      font-size: 0.75rem;
+      padding: 3px 10px;
+      font-size: 0.72rem;
       font-weight: 800;
       cursor: pointer;
     }
-    /* Overlay */
-    .overlay {
-      position: fixed;
+
+    /* Overlay de Fim de Jogo ou Vitória */
+    .game-overlay {
+      position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 9, 20, 0.98) 100%);
       backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
@@ -182,739 +324,1132 @@
       justify-content: center;
       padding: 24px;
       text-align: center;
-      z-index: 50;
+      z-index: 100;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
     }
-    .overlay.active {
+
+    .game-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
-    h1 {
-      font-size: clamp(28px, 7vw, 48px);
+
+    .game-overlay h1 {
+      font-size: clamp(32px, 6vw, 48px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 8px;
     }
-    p {
+
+    .game-overlay p {
       font-size: 0.95rem;
-      color: #cbd5e1;
+      color: var(--text-muted);
       max-width: 440px;
       line-height: 1.4;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
-    .btn-action {
+
+    .btn-restart {
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       color: #fff;
       border: none;
       border-radius: 9999px;
       padding: 12px 38px;
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 800;
-      font-family: inherit;
       cursor: pointer;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
       transition: all 0.2s;
     }
-    .btn-action:hover {
+
+    .btn-restart:hover {
       transform: scale(1.05);
+    }
+
+    /* Responsividade para Celulares (< 768px): Sidebar vira Bottom Dock */
+    @media (max-width: 768px) {
+      #app-layout {
+        flex-direction: column;
+      }
+
+      #sidebar-ui {
+        width: 100%;
+        height: auto;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        padding: 10px 12px;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .shop-section {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 6px;
+        margin: 4px 0;
+        padding-bottom: 4px;
+      }
+
+      .tower-card-btn {
+        flex-direction: column;
+        padding: 6px 10px;
+        min-width: 80px;
+        text-align: center;
+      }
+
+      .tower-desc {
+        display: none;
+      }
+
+      .stats-panel {
+        display: none; /* No mobile fica no top-hud do canvas */
+      }
     }
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
+  <div id="app-layout">
+    <!-- 1. Canvas do Jogo -->
+    <div id="canvas-container">
+      <div class="top-hud">
+        <div class="hud-chip">💰 <span id="hud-money" style="color: var(--gold);">$650</span></div>
+        <div class="hud-chip">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
+        <div class="hud-chip">🎈 Round <span id="hud-round" style="color: var(--cyan);">1</span></div>
+      </div>
 
-  <div class="hud">
-    <div class="hud-pill">ESTRELAS: <span id="energy" style="color: var(--gold);">120</span> ⭐</div>
-    <div class="hud-pill">VIDAS: <span id="lives" style="color: #ff5ca8;">20</span> ❤️</div>
-    <div class="hud-pill">ONDA: <span id="wave" style="color: var(--cyan);">1</span> 🎈</div>
-  </div>
+      <canvas id="gameCanvas"></canvas>
 
-  <div class="upgrade-card" id="upgradeCard" style="display: none;">
-    <div class="upgrade-info">
-      <span class="upgrade-title" id="upgTitle">Coruja Arqueira</span>
-      <span class="upgrade-stats" id="upgStats">Nível 1 • Alcance 120</span>
+      <!-- Overlay de Vitória / Fim de Jogo -->
+      <div class="game-overlay" id="endOverlay">
+        <h1 id="ovTitle">FIM DE JOGO!</h1>
+        <p id="ovDesc">Os balões cósmicos ultrapassaram suas defesas. Posicione suas corujas estrategicamente nos cantos do percurso!</p>
+        <button class="btn-restart" onclick="window.gameInstance.restartGame()">JOGAR NOVAMENTE 🦉</button>
+      </div>
     </div>
-    <button class="btn-upgrade" id="btnUpgradeTower" onclick="upgradeSelectedTower()">Melhorar (60 ⭐)</button>
-    <button class="btn-sell" onclick="sellSelectedTower()">Vender</button>
+
+    <!-- 2. UI / Loja Lateral (Estilo Bloons TD) -->
+    <aside id="sidebar-ui">
+      <div class="sidebar-header">
+        <div class="game-logo">KRUUJ GUARDIANS</div>
+        <div class="stats-panel">
+          <div class="stat-box">
+            <span class="stat-label">Dinheiro</span>
+            <span class="stat-value" id="side-money" style="color: var(--gold);">$650</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Vidas</span>
+            <span class="stat-value" id="side-lives" style="color: var(--pink);">20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card de Inspeção de Torre Selecionada -->
+      <div id="tower-inspector">
+        <div class="inspector-header">
+          <span class="inspector-title" id="insp-name">Coruja</span>
+          <button class="btn-sell-tower" id="btn-sell" onclick="window.gameInstance.sellSelectedTower()">Vender ($140)</button>
+        </div>
+        <div style="font-size: 0.72rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
+      </div>
+
+      <!-- Loja das 5 Torres ("Macacos") -->
+      <div class="shop-section">
+        <div class="shop-title">Torres Guardiãs</div>
+
+        <!-- Torre 1: Básica (Meu Avatar) -->
+        <button class="tower-card-btn" id="btn-tower-0" onclick="window.gameInstance.selectTowerForPurchase(0)">
+          <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
+          <div class="tower-meta">
+            <span class="tower-name">Coruja Avatar (1)</span>
+            <span class="tower-desc">Tiro único equilibrado</span>
+          </div>
+          <span class="tower-price">$200</span>
+        </button>
+
+        <!-- Torre 2: Rápida (Meu Mascote) -->
+        <button class="tower-card-btn" id="btn-tower-1" onclick="window.gameInstance.selectTowerForPurchase(1)">
+          <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
+          <div class="tower-meta">
+            <span class="tower-name">Mascote Ninja (2)</span>
+            <span class="tower-desc">Velocidade ultra rápida</span>
+          </div>
+          <span class="tower-price">$300</span>
+        </button>
+
+        <!-- Torre 3: Longo Alcance -->
+        <button class="tower-card-btn" id="btn-tower-2" onclick="window.gameInstance.selectTowerForPurchase(2)">
+          <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
+          <div class="tower-meta">
+            <span class="tower-name">Sniper Cósmico (3)</span>
+            <span class="tower-desc">Alcance extremo, dano 3</span>
+          </div>
+          <span class="tower-price">$400</span>
+        </button>
+
+        <!-- Torre 4: Área / Explosivo -->
+        <button class="tower-card-btn" id="btn-tower-3" onclick="window.gameInstance.selectTowerForPurchase(3)">
+          <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
+          <div class="tower-meta">
+            <span class="tower-name">Canhão Explosivo (4)</span>
+            <span class="tower-desc">Dano em área (AOE)</span>
+          </div>
+          <span class="tower-price">$500</span>
+        </button>
+
+        <!-- Torre 5: Suporte / Desacelerador -->
+        <button class="tower-card-btn" id="btn-tower-4" onclick="window.gameInstance.selectTowerForPurchase(4)">
+          <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
+          <div class="tower-meta">
+            <span class="tower-name">Coruja Glacial (5)</span>
+            <span class="tower-desc">Reduz 50% vel. por 2s</span>
+          </div>
+          <span class="tower-price">$250</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn-start-round" id="btn-start-round" onclick="window.gameInstance.startNextRound()">
+          <span>INICIAR ROUND</span>
+          <span id="round-indicator">1</span> 🎈
+        </button>
+      </div>
+    </aside>
   </div>
 
-  <!-- Dock de Corujas Guardiãs (Estilo Bloons TD) -->
-  <div class="towers-dock">
-    <button class="tower-btn selected" id="btnT1" onclick="selectTowerType(0)">
-      <span class="tower-icon">🦉</span>
-      <span class="tower-name">Arqueira</span>
-      <span class="tower-cost">75 ⭐</span>
-    </button>
-    <button class="tower-btn" id="btnT2" onclick="selectTowerType(1)">
-      <span class="tower-icon">❄️</span>
-      <span class="tower-name">Gelo</span>
-      <span class="tower-cost">120 ⭐</span>
-    </button>
-    <button class="tower-btn" id="btnT3" onclick="selectTowerType(2)">
-      <span class="tower-icon">⚡</span>
-      <span class="tower-name">Raio</span>
-      <span class="tower-cost">160 ⭐</span>
-    </button>
-    <button class="tower-btn" id="btnT4" onclick="selectTowerType(3)">
-      <span class="tower-icon">✨</span>
-      <span class="tower-name">Super</span>
-      <span class="tower-cost">320 ⭐</span>
-    </button>
-  </div>
-
-  <!-- Overlay -->
-  <div class="overlay active" id="ov">
-    <h1 id="ovTitle">KRUUJ GUARDIANS</h1>
-    <p id="ovDesc">Inspirado nos clássicos de estourar balões! Posicione Corujas Guardiãs pelo caminho para estourar as ondas de Balões Cósmicos invasores antes que eles escapem!</p>
-    <button class="btn-action" onclick="startGame()">DEFENDER NINHO 🦉</button>
-  </div>
-
+  <!-- ================================================================= -->
+  <!-- LÓGICA DO JOGO EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
+  <!-- ================================================================= -->
   <script>
-    // ===== Telemetria e Sincronização em Nuvem KRUUJ =====
-    function sendEvent(type, data = {}) {
-      try {
-        window.parent.postMessage({ type, gameSlug: 'kruuj-defense', ...data }, '*');
-      } catch (e) {}
-    }
-    sendEvent('game_loaded');
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+      }
 
-    let bestWave = parseInt(localStorage.getItem('kruuj_defense_best') || '1', 10);
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
 
-    window.addEventListener('message', (e) => {
-      if (e.data && e.data.type === 'load_cloud_save' && e.data.saveData) {
+      // Som clássico de estouro de balão (Bloons Pop)
+      playPop(pitch = 1.0) {
         try {
-          const d = typeof e.data.saveData === 'string' ? JSON.parse(e.data.saveData) : e.data.saveData;
-          if (d && d.bestWave) {
-            bestWave = Math.max(bestWave, d.bestWave);
-            localStorage.setItem('kruuj_defense_best', String(bestWave));
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          const startFreq = (520 + Math.random() * 80) * pitch;
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(70 * pitch, now + 0.055);
+
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } catch(e) {}
+      }
+
+      // Disparo de dardo/projétil
+      playShoot() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.exponentialRampToValueAtTime(260, now + 0.06);
+
+          gain.gain.setValueAtTime(0.04, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } catch(e) {}
+      }
+
+      // Explosão em área (Canhão)
+      playExplosion() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch(e) {}
+      }
+
+      // Som de compra / posicionamento
+      playBuy() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch(e) {}
+      }
+    }
+
+    // ===== 2. MAPA E CAMINHO DOS INIMIGOS (WAYPOINTS) =====
+    class GameMap {
+      constructor(canvasWidth, canvasHeight) {
+        this.width = canvasWidth;
+        this.height = canvasHeight;
+        this.pathWidth = 44;
+        this.waypoints = [];
+        this.buildWaypoints();
+      }
+
+      buildWaypoints() {
+        // Caminho linear com curvas sinuosas (Ponto A -> Ponto B)
+        this.waypoints = [
+          { x: -30, y: this.height * 0.22 },
+          { x: this.width * 0.28, y: this.height * 0.22 },
+          { x: this.width * 0.28, y: this.height * 0.72 },
+          { x: this.width * 0.62, y: this.height * 0.72 },
+          { x: this.width * 0.62, y: this.height * 0.32 },
+          { x: this.width * 0.88, y: this.height * 0.32 },
+          { x: this.width * 0.88, y: this.height * 0.82 },
+          { x: this.width + 30, y: this.height * 0.82 }
+        ];
+      }
+
+      resize(w, h) {
+        this.width = w;
+        this.height = h;
+        this.buildWaypoints();
+      }
+
+      // Validação de colisão com o caminho para não colocar torre em cima da pista
+      isPointNearPath(x, y, minDistance = 34) {
+        for (let i = 0; i < this.waypoints.length - 1; i++) {
+          const p1 = this.waypoints[i];
+          const p2 = this.waypoints[i + 1];
+          if (this.distToSegment({ x, y }, p1, p2) < minDistance) {
+            return true;
           }
-        } catch(err){}
-      }
-    });
-
-    // ===== Som Temático Sintético (Estilo Bloons TD + Coruja) =====
-    let audioCtx = null;
-    function getAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-
-    // Som clássico e gostoso de estourar balão: "POP!"
-    function playBloonPop(pitch = 1) {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        // Salto rápido de frequência que simula o estouro de borracha
-        osc.type = 'triangle';
-        const startFreq = (550 + Math.random() * 80) * pitch;
-        osc.frequency.setValueAtTime(startFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(80 * pitch, now + 0.05);
-
-        gain.gain.setValueAtTime(0.18, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.06);
-      } catch (e) {}
-    }
-
-    // Piadinho alegre da coruja ao colocar ou melhorar torre
-    function playOwlHoot() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, now);
-        osc.frequency.exponentialRampToValueAtTime(560, now + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(400, now + 0.2);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.12, now + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.22);
-      } catch(e) {}
-    }
-
-    // Disparo de pena (Feather shoot)
-    function playDartShoot() {
-      try {
-        const ctx = getAudio();
-        const now = ctx.currentTime;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(700, now);
-        osc.frequency.exponentialRampToValueAtTime(300, now + 0.06);
-
-        gain.gain.setValueAtTime(0.04, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.06);
-      } catch(e) {}
-    }
-
-    // ===== Engine KRUUJ Guardians (Bloons TD Style) =====
-    const cv = document.getElementById('c');
-    const ctx = cv.getContext('2d');
-    let W = cv.width = window.innerWidth;
-    let H = cv.height = window.innerHeight;
-
-    window.addEventListener('resize', () => {
-      W = cv.width = window.innerWidth;
-      H = cv.height = window.innerHeight;
-      buildWaypoints();
-    });
-
-    let state = 'menu';
-    let energy = 120;
-    let lives = 20;
-    let wave = 1;
-    let selectedTowerIndex = 0;
-    let activePlacedTower = null;
-
-    let waypoints = [];
-    let bloons = [];
-    let towers = [];
-    let darts = [];
-    let particles = [];
-    let spawnTimer = 0;
-    let bloonsQueue = [];
-
-    // Tipos de Corujas Guardiãs (Como os macacos de Bloons TD)
-    const TOWER_TYPES = [
-      {
-        name: 'Coruja Arqueira', cost: 75, range: 120, rate: 16, damage: 1,
-        color: '#8b5cff', icon: '🦉', projColor: '#ffb020', projSpeed: 10,
-        upgradeCost: 60, desc: 'Atira penas afiadas velozes'
-      },
-      {
-        name: 'Coruja Glacial', cost: 120, range: 100, rate: 30, damage: 1, slow: 0.5,
-        color: '#38e8ff', icon: '❄️', projColor: '#38e8ff', projSpeed: 8,
-        upgradeCost: 90, desc: 'Congela e desacelera balões'
-      },
-      {
-        name: 'Coruja de Raio', cost: 160, range: 130, rate: 24, damage: 2, chain: 3,
-        color: '#eab308', icon: '⚡', projColor: '#facc15', projSpeed: 12,
-        upgradeCost: 110, desc: 'Eletrocuta múltiplos balões'
-      },
-      {
-        name: 'Super Coruja', cost: 320, range: 155, rate: 6, damage: 1,
-        color: '#ff5ca8', icon: '✨', projColor: '#ff5ca8', projSpeed: 15,
-        upgradeCost: 200, desc: 'Super rajada cósmica veloz'
-      }
-    ];
-
-    // Camadas de Balões (Bloons TD Layers)
-    // Red (1) -> pops
-    // Blue (2) -> drops Red
-    // Green (3) -> drops Blue
-    // Yellow (4) -> drops Green
-    // Ceramic (5) -> drops Yellow
-    const BLOON_LAYERS = [
-      null, // index 0
-      { color: '#ef4444', speed: 1.5, r: 12, points: 1 },  // 1: Red
-      { color: '#3b82f6', speed: 1.8, r: 13, points: 2 },  // 2: Blue
-      { color: '#10b981', speed: 2.2, r: 14, points: 3 },  // 3: Green
-      { color: '#eab308', speed: 2.8, r: 15, points: 4 },  // 4: Yellow
-      { color: '#a855f7', speed: 1.6, r: 16, points: 6, hp: 3 } // 5: Ceramic
-    ];
-
-    function selectTowerType(idx) {
-      selectedTowerIndex = idx;
-      activePlacedTower = null;
-      document.getElementById('upgradeCard').style.display = 'none';
-      [0, 1, 2, 3].forEach(i => {
-        document.getElementById('btnT' + (i + 1)).classList.toggle('selected', i === idx);
-      });
-    }
-
-    function buildWaypoints() {
-      // Percurso sinuoso e divertido de Bloons TD
-      waypoints = [
-        { x: -20, y: H * 0.22 },
-        { x: W * 0.28, y: H * 0.22 },
-        { x: W * 0.28, y: H * 0.72 },
-        { x: W * 0.62, y: H * 0.72 },
-        { x: W * 0.62, y: H * 0.32 },
-        { x: W * 0.88, y: H * 0.32 },
-        { x: W * 0.88, y: H * 0.82 },
-        { x: W + 30, y: H * 0.82 }
-      ];
-    }
-    buildWaypoints();
-
-    function startGame() {
-      state = 'play';
-      energy = 120;
-      lives = 20;
-      wave = 1;
-      bloons = [];
-      towers = [];
-      darts = [];
-      particles = [];
-      activePlacedTower = null;
-      document.getElementById('upgradeCard').style.display = 'none';
-
-      prepareWave(1);
-      updateHud();
-      sendEvent('game_start');
-      document.getElementById('ov').classList.remove('active');
-    }
-
-    function prepareWave(w) {
-      bloonsQueue = [];
-      spawnTimer = 0;
-
-      // Cria fila de balões progressiva da onda
-      const redCount = Math.max(0, 10 - w);
-      const blueCount = Math.min(15, w * 3);
-      const greenCount = w >= 2 ? Math.min(12, (w - 1) * 3) : 0;
-      const yellowCount = w >= 4 ? Math.min(10, (w - 3) * 2) : 0;
-      const ceramicCount = w >= 6 ? Math.min(6, (w - 5)) : 0;
-
-      for (let i = 0; i < redCount; i++) bloonsQueue.push(1);
-      for (let i = 0; i < blueCount; i++) bloonsQueue.push(2);
-      for (let i = 0; i < greenCount; i++) bloonsQueue.push(3);
-      for (let i = 0; i < yellowCount; i++) bloonsQueue.push(4);
-      for (let i = 0; i < ceramicCount; i++) bloonsQueue.push(5);
-    }
-
-    function updateHud() {
-      document.getElementById('energy').textContent = energy;
-      document.getElementById('lives').textContent = lives;
-      document.getElementById('wave').textContent = wave;
-    }
-
-    function showUpgradeCard(tower) {
-      activePlacedTower = tower;
-      const def = TOWER_TYPES[tower.type];
-      const card = document.getElementById('upgradeCard');
-      card.style.display = 'flex';
-      document.getElementById('upgTitle').textContent = `${def.name} (Nível ${tower.level})`;
-      document.getElementById('upgStats').textContent = `Dano ${def.damage + tower.level - 1} • Alcance ${Math.round(tower.range)}`;
-      const cost = def.upgradeCost * tower.level;
-      document.getElementById('btnUpgradeTower').textContent = `Melhorar (${cost} ⭐)`;
-    }
-
-    function upgradeSelectedTower() {
-      if (!activePlacedTower) return;
-      const def = TOWER_TYPES[activePlacedTower.type];
-      const cost = def.upgradeCost * activePlacedTower.level;
-      if (energy >= cost) {
-        energy -= cost;
-        activePlacedTower.level++;
-        activePlacedTower.range *= 1.15;
-        playOwlHoot();
-        updateHud();
-        showUpgradeCard(activePlacedTower);
-      }
-    }
-
-    function sellSelectedTower() {
-      if (!activePlacedTower) return;
-      const def = TOWER_TYPES[activePlacedTower.type];
-      energy += Math.floor(def.cost * 0.7);
-      const idx = towers.indexOf(activePlacedTower);
-      if (idx !== -1) towers.splice(idx, 1);
-      activePlacedTower = null;
-      document.getElementById('upgradeCard').style.display = 'none';
-      updateHud();
-      playBloonPop(0.8);
-    }
-
-    // Clique na tela (Colocar coruja ou selecionar)
-    cv.addEventListener('pointerdown', (e) => {
-      if (state !== 'play') return;
-      if (e.clientY > H - 85) return; // Barra inferior
-
-      // Checa se clicou em uma coruja existente
-      for (let t of towers) {
-        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 26) {
-          showUpgradeCard(t);
-          return;
         }
+        return false;
       }
 
-      // Se clicou fora, fecha card de upgrade
-      activePlacedTower = null;
-      document.getElementById('upgradeCard').style.display = 'none';
-
-      const tDef = TOWER_TYPES[selectedTowerIndex];
-      if (energy < tDef.cost) return;
-
-      // Impede colocar em cima da rota
-      for (let i = 0; i < waypoints.length - 1; i++) {
-        const p1 = waypoints[i];
-        const p2 = waypoints[i + 1];
-        if (distToSegment({ x: e.clientX, y: e.clientY }, p1, p2) < 32) return;
+      distToSegment(p, v, w) {
+        const l2 = (v.x - w.x) ** 2 + (v.y - w.y) ** 2;
+        if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+        let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
       }
 
-      // Impede sobrepor outra coruja
-      for (let t of towers) {
-        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 38) return;
-      }
-
-      energy -= tDef.cost;
-      updateHud();
-      playOwlHoot();
-
-      towers.push({
-        x: e.clientX,
-        y: e.clientY,
-        type: selectedTowerIndex,
-        level: 1,
-        range: tDef.range,
-        cooldown: 0,
-        target: null
-      });
-
-      for (let i = 0; i < 10; i++) {
-        particles.push({
-          x: e.clientX, y: e.clientY,
-          vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
-          r: 3, c: tDef.color, life: 1
-        });
-      }
-    });
-
-    function distToSegment(p, v, w) {
-      const l2 = (v.x - w.x) ** 2 + (v.y - w.y) ** 2;
-      if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
-      let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-      t = Math.max(0, Math.min(1, t));
-      return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
-    }
-
-    function spawnBloon(layer, x = waypoints[0].x, y = waypoints[0].y, wp = 1) {
-      const info = BLOON_LAYERS[layer];
-      bloons.push({
-        x, y,
-        layer,
-        hp: info.hp || 1,
-        speed: info.speed,
-        r: info.r,
-        targetWp: wp,
-        slowTimer: 0
-      });
-    }
-
-    // Estoura balão (Bloons TD pop logic)
-    function popBloon(b, idx) {
-      playBloonPop(b.layer * 0.25 + 0.8);
-      energy += b.layer;
-      updateHud();
-
-      // Partículas de confete de borracha
-      for (let i = 0; i < 7; i++) {
-        particles.push({
-          x: b.x, y: b.y,
-          vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
-          r: Math.random() * 3 + 2,
-          c: BLOON_LAYERS[b.layer].color,
-          life: 0.8
-        });
-      }
-
-      const nextLayer = b.layer - 1;
-      const bx = b.x;
-      const by = b.y;
-      const bWp = b.targetWp;
-      bloons.splice(idx, 1);
-
-      // Se ainda tinha camadas abaixo, gera o balão filho (ex: Azul vira Vermelho)
-      if (nextLayer >= 1) {
-        spawnBloon(nextLayer, bx, by, bWp);
-      }
-    }
-
-    function gameOver() {
-      state = 'over';
-      bestWave = Math.max(bestWave, wave);
-      localStorage.setItem('kruuj_defense_best', String(bestWave));
-
-      sendEvent('game_over', { wave, bestWave });
-      sendEvent('game_save', { saveData: { bestWave }, score: wave * 100 });
-
-      document.getElementById('ovTitle').textContent = 'OVO CÓSMICO PROTEGIDO!';
-      document.getElementById('ovDesc').textContent = `Você resistiu bravamente até a Onda ${wave} estourando os balões cósmicos! Melhore suas Corujas Guardiãs para ir além.`;
-      document.getElementById('ov').classList.add('active');
-    }
-
-    // Loop
-    function loop() {
-      requestAnimationFrame(loop);
-
-      ctx.fillStyle = '#07061a';
-      ctx.fillRect(0, 0, W, H);
-
-      // Desenha a Rota Cósmica
-      ctx.strokeStyle = 'rgba(56, 232, 255, 0.18)';
-      ctx.lineWidth = 42;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      waypoints.forEach((p, i) => {
-        if (i === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      });
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.35)';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      // Ninho no fim
-      const endPt = waypoints[waypoints.length - 1];
-      ctx.save();
-      ctx.fillStyle = '#ff5ca8';
-      ctx.shadowColor = '#ff5ca8';
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      ctx.arc(W - 25, endPt.y, 18, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Desenha círculo de alcance da coruja selecionada
-      if (activePlacedTower) {
-        ctx.strokeStyle = 'rgba(56, 232, 255, 0.5)';
-        ctx.fillStyle = 'rgba(56, 232, 255, 0.08)';
-        ctx.lineWidth = 2;
+      render(ctx) {
+        // 1. Faixa externa do percurso com brilho cósmico
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 232, 255, 0.18)';
+        ctx.lineWidth = this.pathWidth + 6;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         ctx.beginPath();
-        ctx.arc(activePlacedTower.x, activePlacedTower.y, activePlacedTower.range, 0, Math.PI * 2);
-        ctx.fill();
+        this.waypoints.forEach((p, i) => {
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        });
         ctx.stroke();
+
+        // 2. Faixa interna do percurso (Pista onde os balões correm)
+        ctx.strokeStyle = '#111833';
+        ctx.lineWidth = this.pathWidth;
+        ctx.stroke();
+
+        // 3. Linha central tracejada
+        ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 8]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 4. Base final do jogador (Ninho Sagrado a ser protegido)
+        const endPt = this.waypoints[this.waypoints.length - 1];
+        ctx.fillStyle = '#ff5ca8';
+        ctx.shadowColor = '#ff5ca8';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(this.width - 20, endPt.y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 3. INIMIGO (BALÃO CÓSMICO EM CAMADAS) =====
+    class Enemy {
+      constructor(type, waypoints) {
+        this.type = type; // 'red', 'blue', 'green'
+        this.waypoints = waypoints;
+        this.targetIndex = 1;
+        this.x = waypoints[0].x;
+        this.y = waypoints[0].y;
+        this.isAlive = true;
+        this.reachedEnd = false;
+        this.slowTimer = 0;
+        this.traveledDistance = 0;
+
+        // Configuração dos tipos de balões
+        if (type === 'red') {
+          this.health = 1;
+          this.speed = 2.4;
+          this.reward = 15;
+          this.color = '#ef4444';
+          this.radius = 12;
+        } else if (type === 'blue') {
+          this.health = 2;
+          this.speed = 1.8;
+          this.reward = 20;
+          this.color = '#3b82f6';
+          this.radius = 13.5;
+        } else if (type === 'green') {
+          this.health = 3;
+          this.speed = 1.3;
+          this.reward = 30;
+          this.color = '#10b981';
+          this.radius = 15;
+        }
       }
 
-      if (state === 'play') {
-        // Spawn de balões
-        if (bloonsQueue.length > 0) {
-          spawnTimer++;
-          if (spawnTimer > 32) {
-            spawnTimer = 0;
-            const nextL = bloonsQueue.shift();
-            spawnBloon(nextL);
-          }
-        } else if (bloons.length === 0) {
-          wave++;
-          energy += 50 + wave * 20;
-          updateHud();
-          prepareWave(wave);
+      update() {
+        if (!this.isAlive || this.reachedEnd) return;
+
+        const target = this.waypoints[this.targetIndex];
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy);
+
+        // Se está sob efeito de lentidão (Torre 5)
+        let curSpeed = this.speed;
+        if (this.slowTimer > 0) {
+          curSpeed *= 0.5;
+          this.slowTimer--;
         }
 
-        // Atualiza Balões
-        for (let i = bloons.length - 1; i >= 0; i--) {
-          const b = bloons[i];
-          const target = waypoints[b.targetWp];
-          const dx = target.x - b.x;
-          const dy = target.y - b.y;
-          const dist = Math.hypot(dx, dy);
-
-          const curSpeed = b.slowTimer > 0 ? b.speed * 0.5 : b.speed;
-          if (b.slowTimer > 0) b.slowTimer--;
-
-          if (dist < 5) {
-            b.targetWp++;
-            if (b.targetWp >= waypoints.length) {
-              lives -= b.layer;
-              updateHud();
-              bloons.splice(i, 1);
-              if (lives <= 0) {
-                gameOver();
-                return;
-              }
-              continue;
-            }
-          } else {
-            b.x += (dx / dist) * curSpeed;
-            b.y += (dy / dist) * curSpeed;
+        if (dist <= curSpeed) {
+          this.x = target.x;
+          this.y = target.y;
+          this.targetIndex++;
+          if (this.targetIndex >= this.waypoints.length) {
+            this.reachedEnd = true;
+            this.isAlive = false;
           }
-
-          // Desenha Balão (Formato oval clássico de Bloons TD)
-          const bInfo = BLOON_LAYERS[b.layer];
-          ctx.save();
-          ctx.translate(b.x, b.y);
-
-          ctx.fillStyle = b.slowTimer > 0 ? '#38e8ff' : bInfo.color;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, b.r * 0.85, b.r, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Nó do balão
-          ctx.beginPath();
-          ctx.moveTo(-3, b.r);
-          ctx.lineTo(3, b.r);
-          ctx.lineTo(0, b.r + 4);
-          ctx.fill();
-
-          // Brilho do balão
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.beginPath();
-          ctx.ellipse(-b.r * 0.3, -b.r * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.restore();
+        } else {
+          this.x += (dx / dist) * curSpeed;
+          this.y += (dy / dist) * curSpeed;
+          this.traveledDistance += curSpeed;
         }
+      }
 
-        // Atualiza Corujas
-        towers.forEach(t => {
-          const tDef = TOWER_TYPES[t.type];
-          t.cooldown--;
+      takeDamage(amount) {
+        this.health -= amount;
+        if (this.health <= 0) {
+          this.isAlive = false;
+        } else {
+          // Muda visualmente ao perder camada (ex: Verde vira Azul, Azul vira Vermelho)
+          if (this.health === 2) {
+            this.color = '#3b82f6';
+            this.speed = 1.8;
+          } else if (this.health === 1) {
+            this.color = '#ef4444';
+            this.speed = 2.4;
+          }
+        }
+      }
 
-          // Mira no balão mais avançado no caminho (First target rule)
-          let bestTarget = null;
-          let bestWpProgress = -1;
+      render(ctx) {
+        if (!this.isAlive) return;
 
-          for (let b of bloons) {
-            const d = Math.hypot(b.x - t.x, b.y - t.y);
-            if (d < t.range) {
-              const progress = b.targetWp * 1000 - Math.hypot(waypoints[b.targetWp].x - b.x, waypoints[b.targetWp].y - b.y);
-              if (progress > bestWpProgress) {
-                bestWpProgress = progress;
-                bestTarget = b;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Cor do balão (ou azul ciano se congelado)
+        ctx.fillStyle = this.slowTimer > 0 ? '#38e8ff' : this.color;
+
+        // Corpo geométrico oval do balão (Preparado para sprite de balão)
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nó do balão
+        ctx.beginPath();
+        ctx.moveTo(-3, this.radius);
+        ctx.lineTo(3, this.radius);
+        ctx.lineTo(0, this.radius + 4);
+        ctx.fill();
+
+        // Brilho de reflexo
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(-this.radius * 0.3, -this.radius * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 4. PROJÉTIL (DARDO, LASER, TIRO DE ÁREA) =====
+    class Projectile {
+      constructor(x, y, target, tower) {
+        this.x = x;
+        this.y = y;
+        this.target = target;
+        this.tower = tower;
+        this.damage = tower.damage;
+        this.speed = tower.projSpeed;
+        this.isAOE = tower.isAOE;
+        this.aoeRadius = tower.aoeRadius;
+        this.isSlow = tower.isSlow;
+        this.color = tower.projColor;
+        this.isFinished = false;
+        this.radius = 4;
+      }
+
+      update(game) {
+        if (this.isFinished) return;
+
+        // Se o alvo morreu antes do impacto, continua na direção ou finaliza
+        const targetX = this.target.isAlive ? this.target.x : this.target.x;
+        const targetY = this.target.isAlive ? this.target.y : this.target.y;
+
+        const dx = targetX - this.x;
+        const dy = targetY - this.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist <= this.speed || dist < 12) {
+          this.hit(game);
+          this.isFinished = true;
+        } else {
+          this.x += (dx / dist) * this.speed;
+          this.y += (dy / dist) * this.speed;
+        }
+      }
+
+      hit(game) {
+        if (this.isAOE) {
+          // Dano em Área ao redor do ponto de impacto
+          game.soundManager.playExplosion();
+          game.enemies.forEach(e => {
+            if (e.isAlive && Math.hypot(e.x - this.x, e.y - this.y) <= this.aoeRadius) {
+              e.takeDamage(this.damage);
+              if (!e.isAlive) game.onEnemyKilled(e);
+            }
+          });
+          // Partículas de explosão
+          game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
+        } else {
+          // Dano direto no alvo
+          if (this.target.isAlive) {
+            if (this.isSlow) {
+              // Aplica lentidão de 2 segundos (120 frames a 60fps)
+              this.target.slowTimer = 120;
+            }
+            this.target.takeDamage(this.damage);
+            if (!this.target.isAlive) {
+              game.onEnemyKilled(this.target);
+            } else {
+              game.soundManager.playPop(1.1);
+            }
+          }
+          game.spawnHitParticles(this.x, this.y, this.color);
+        }
+      }
+
+      render(ctx) {
+        if (this.isFinished) return;
+
+        ctx.save();
+        ctx.fillStyle = this.color;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ===== 5. TORRE ("MACACO / GUARDIÃ") =====
+    class Tower {
+      constructor(typeIndex, x, y, config) {
+        this.typeIndex = typeIndex;
+        this.x = x;
+        this.y = y;
+        this.name = config.name;
+        this.cost = config.cost;
+        this.range = config.range;
+        this.cooldownMax = config.cooldown;
+        this.cooldown = 0;
+        this.damage = config.damage;
+        this.isAOE = config.isAOE || false;
+        this.aoeRadius = config.aoeRadius || 0;
+        this.isSlow = config.isSlow || false;
+        this.projSpeed = config.projSpeed || 10;
+        this.color = config.color;
+        this.projColor = config.projColor;
+        this.icon = config.icon;
+        this.radius = 18;
+        this.target = null;
+        this.angle = 0;
+      }
+
+      update(game) {
+        if (this.cooldown > 0) this.cooldown--;
+
+        // Regra de Mira: foca no inimigo no alcance mais adiantado no percurso ("First")
+        let bestTarget = null;
+        let maxProgress = -1;
+
+        game.enemies.forEach(e => {
+          if (e.isAlive) {
+            const dist = Math.hypot(e.x - this.x, e.y - this.y);
+            if (dist <= this.range) {
+              if (e.traveledDistance > maxProgress) {
+                maxProgress = e.traveledDistance;
+                bestTarget = e;
               }
             }
           }
+        });
 
-          t.target = bestTarget;
+        this.target = bestTarget;
 
-          if (t.target && t.cooldown <= 0) {
-            t.cooldown = Math.max(4, tDef.rate - (t.level - 1) * 2);
-            playDartShoot();
+        if (this.target) {
+          this.angle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
 
-            darts.push({
-              x: t.x, y: t.y,
-              target: t.target,
-              speed: tDef.projSpeed,
-              damage: tDef.damage + (t.level - 1),
-              color: tDef.projColor,
-              slow: tDef.slow || 0,
-              chain: tDef.chain || 0
-            });
+          // Disparo
+          if (this.cooldown <= 0) {
+            this.cooldown = this.cooldownMax;
+            game.projectiles.push(new Projectile(this.x, this.y, this.target, this));
+            game.soundManager.playShoot();
           }
+        }
+      }
 
-          // Desenha a Coruja Guardiã com fones e bico
-          ctx.save();
-          ctx.translate(t.x, t.y);
+      render(ctx, isSelected = false) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
 
-          // Rotação encarando o alvo
-          if (t.target) {
-            const lookAngle = Math.atan2(t.target.y - t.y, t.target.x - t.x);
-            ctx.rotate(lookAngle + Math.PI / 2);
-          }
-
-          // Plataforma
-          ctx.fillStyle = '#1e1b4b';
-          ctx.strokeStyle = tDef.color;
-          ctx.lineWidth = 2;
+        // 1. Círculo de Alcance (se selecionada)
+        if (isSelected) {
+          ctx.strokeStyle = 'rgba(56, 232, 255, 0.45)';
+          ctx.fillStyle = 'rgba(56, 232, 255, 0.08)';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(0, 0, 18, 0, Math.PI * 2);
+          ctx.arc(0, 0, this.range, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
-
-          // Corpo da Coruja
-          ctx.fillStyle = tDef.color;
-          ctx.beginPath();
-          ctx.arc(0, 0, 14, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Olhos
-          ctx.fillStyle = '#fff';
-          [-5, 5].forEach(ox => {
-            ctx.beginPath();
-            ctx.arc(ox, -3, 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#ffb020';
-            ctx.beginPath();
-            ctx.arc(ox, -3, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#fff';
-          });
-
-          // Bico
-          ctx.fillStyle = '#f59e0b';
-          ctx.beginPath();
-          ctx.moveTo(-2, 2);
-          ctx.lineTo(2, 2);
-          ctx.lineTo(0, 7);
-          ctx.fill();
-
-          ctx.restore();
-        });
-
-        // Atualiza Dardos/Penas
-        for (let i = darts.length - 1; i >= 0; i--) {
-          const d = darts[i];
-          const dx = d.target.x - d.x;
-          const dy = d.target.y - d.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist < 12 || !bloons.includes(d.target)) {
-            // Acertou balão
-            if (bloons.includes(d.target)) {
-              if (d.slow) d.target.slowTimer = 45;
-              d.target.hp -= d.damage;
-              if (d.target.hp <= 0) {
-                const idx = bloons.indexOf(d.target);
-                if (idx !== -1) popBloon(d.target, idx);
-              }
-            }
-            darts.splice(i, 1);
-          } else {
-            d.x += (dx / dist) * d.speed;
-            d.y += (dy / dist) * d.speed;
-
-            // Desenha pena afiada
-            ctx.save();
-            ctx.translate(d.x, d.y);
-            ctx.rotate(Math.atan2(dy, dx));
-            ctx.fillStyle = d.color;
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 7, 3, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-          }
         }
-      }
 
-      // Partículas
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const pt = particles[i];
-        pt.x += pt.vx;
-        pt.y += pt.vy;
-        pt.life -= 0.04;
-        if (pt.life <= 0) {
-          particles.splice(i, 1);
-          continue;
-        }
-        ctx.fillStyle = pt.c;
-        ctx.globalAlpha = pt.life;
+        // 2. Base da Torre (Preparada para avatar/mascote)
+        ctx.fillStyle = '#161c36';
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.r * pt.life, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.stroke();
+
+        // 3. Torre / Cabeça Rotativa
+        ctx.rotate(this.angle);
+
+        // Cano / Disparador
+        ctx.fillStyle = this.color;
+        ctx.fillRect(4, -4, 14, 8);
+
+        // Corpo central
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4. Desenho de Ícone Identificador (Avatar / Mascote)
+        ctx.rotate(-this.angle); // Desfaz rotação para o ícone não girar
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.icon, 0, 1);
+
+        ctx.restore();
       }
     }
 
-    loop();
+    // ===== 6. SISTEMA DE PARTÍCULAS VISUAIS =====
+    class Particle {
+      constructor(x, y, color, vx, vy, life = 1.0) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+        this.life = life;
+        this.maxLife = life;
+        this.radius = 2.5 + Math.random() * 2;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.04;
+      }
+
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ===== 7. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.soundManager = new SoundManager();
+        this.map = new GameMap(window.innerWidth, window.innerHeight);
+
+        // Recursos Iniciais Conforme Requisitos
+        this.money = 650;
+        this.lives = 20;
+        this.round = 1;
+        this.isRoundRunning = false;
+
+        // Entidades
+        this.enemies = [];
+        this.towers = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.spawnQueue = [];
+        this.spawnTimer = 0;
+
+        // Estado de Posicionamento e Seleção de Torre
+        this.selectedShopIndex = null;
+        this.inspectingTower = null;
+        this.mousePos = { x: -100, y: -100 };
+
+        // Configuração das 5 Torres do Requisito
+        this.towerConfigs = [
+          { name: 'Coruja Avatar (Básica)', cost: 200, range: 130, cooldown: 35, damage: 1, color: '#8b5cff', projColor: '#ffb020', projSpeed: 10, icon: '🦉' },
+          { name: 'Mascote Ninja (Rápida)', cost: 300, range: 95, cooldown: 12, damage: 1, color: '#38e8ff', projColor: '#38e8ff', projSpeed: 12, icon: '⚡' },
+          { name: 'Sniper Cósmico (Longo Alcance)', cost: 400, range: 240, cooldown: 70, damage: 3, color: '#eab308', projColor: '#fde047', projSpeed: 16, icon: '🎯' },
+          { name: 'Canhão Explosivo (Área/AOE)', cost: 500, range: 140, cooldown: 60, damage: 2, isAOE: true, aoeRadius: 55, color: '#ef4444', projColor: '#f97316', projSpeed: 9, icon: '💥' },
+          { name: 'Coruja Glacial (Suporte/Slow)', cost: 250, range: 125, cooldown: 30, damage: 0, isSlow: true, color: '#3b82f6', projColor: '#60a5fa', projSpeed: 9, icon: '❄️' }
+        ];
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        // Eventos do Mouse e Toque no Canvas
+        this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
+        this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+
+        // Atalhos de Teclado (1 a 5 para comprar, Espaço para round, Esc para cancelar)
+        window.addEventListener('keydown', (e) => {
+          if (e.key >= '1' && e.key <= '5') {
+            this.selectTowerForPurchase(parseInt(e.key) - 1);
+          } else if (e.code === 'Space') {
+            e.preventDefault();
+            this.startNextRound();
+          } else if (e.key === 'Escape') {
+            this.cancelPurchase();
+          }
+        });
+
+        this.updateUI();
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+
+        // Telemetria oficial da plataforma KRUUJ
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-defense' }, '*');
+        } catch(e) {}
+      }
+
+      resize() {
+        const container = document.getElementById('canvas-container');
+        this.canvas.width = container.clientWidth;
+        this.canvas.height = container.clientHeight;
+        this.map.resize(this.canvas.width, this.canvas.height);
+      }
+
+      onPointerMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.mousePos.x = e.clientX - rect.left;
+        this.mousePos.y = e.clientY - rect.top;
+      }
+
+      onPointerDown(e) {
+        this.soundManager.init();
+        const rect = this.canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        // 1. Se estiver com uma torre da loja selecionada: Tenta Posicionar
+        if (this.selectedShopIndex !== null) {
+          const cfg = this.towerConfigs[this.selectedShopIndex];
+          if (this.money >= cfg.cost && this.canPlaceTower(clickX, clickY)) {
+            this.money -= cfg.cost;
+            this.towers.push(new Tower(this.selectedShopIndex, clickX, clickY, cfg));
+            this.soundManager.playBuy();
+            this.cancelPurchase();
+            this.updateUI();
+          }
+          return;
+        }
+
+        // 2. Se clicou em uma torre existente: Inspeciona ela
+        let clickedTower = null;
+        for (let t of this.towers) {
+          if (Math.hypot(t.x - clickX, t.y - clickY) <= t.radius) {
+            clickedTower = t;
+            break;
+          }
+        }
+
+        this.inspectingTower = clickedTower;
+        this.updateInspectorUI();
+      }
+
+      canPlaceTower(x, y) {
+        // Não pode colocar fora do canvas
+        if (x < 25 || x > this.canvas.width - 25 || y < 25 || y > this.canvas.height - 25) {
+          return false;
+        }
+        // Não pode colocar sobre o percurso dos balões
+        if (this.map.isPointNearPath(x, y, 36)) {
+          return false;
+        }
+        // Não pode sobrepor outra torre
+        for (let t of this.towers) {
+          if (Math.hypot(t.x - x, t.y - y) < 40) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      selectTowerForPurchase(index) {
+        if (this.money < this.towerConfigs[index].cost) return;
+        this.selectedShopIndex = index;
+        this.inspectingTower = null;
+        this.updateInspectorUI();
+        this.updateUI();
+      }
+
+      cancelPurchase() {
+        this.selectedShopIndex = null;
+        this.updateUI();
+      }
+
+      sellSelectedTower() {
+        if (!this.inspectingTower) return;
+        const refund = Math.floor(this.inspectingTower.cost * 0.7);
+        this.money += refund;
+        this.soundManager.playPop(0.8);
+
+        const idx = this.towers.indexOf(this.inspectingTower);
+        if (idx !== -1) this.towers.splice(idx, 1);
+
+        this.inspectingTower = null;
+        this.updateInspectorUI();
+        this.updateUI();
+      }
+
+      startNextRound() {
+        if (this.isRoundRunning) return;
+        this.isRoundRunning = true;
+        this.buildRoundQueue(this.round);
+        this.updateUI();
+
+        try {
+          window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-defense', round: this.round }, '*');
+        } catch(e) {}
+      }
+
+      buildRoundQueue(r) {
+        this.spawnQueue = [];
+        this.spawnTimer = 0;
+
+        // Composição progressiva de balões (Vermelho, Azul, Verde)
+        const redCount = Math.max(0, 12 - r * 2);
+        const blueCount = Math.min(18, r * 4);
+        const greenCount = r >= 2 ? Math.min(15, (r - 1) * 3) : 0;
+
+        for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
+        for (let i = 0; i < blueCount; i++) this.spawnQueue.push('blue');
+        for (let i = 0; i < greenCount; i++) this.spawnQueue.push('green');
+      }
+
+      onEnemyKilled(enemy) {
+        this.money += enemy.reward;
+        this.soundManager.playPop(1.0);
+        this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
+        this.updateUI();
+      }
+
+      spawnPopParticles(x, y, color) {
+        for (let i = 0; i < 8; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 4;
+          this.particles.push(new Particle(
+            x, y, color,
+            Math.cos(angle) * speed,
+            Math.sin(angle) * speed,
+            0.8
+          ));
+        }
+      }
+
+      spawnExplosionParticles(x, y, radius) {
+        for (let i = 0; i < 18; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1 + Math.random() * (radius / 12);
+          this.particles.push(new Particle(
+            x, y, Math.random() > 0.5 ? '#f97316' : '#ef4444',
+            Math.cos(angle) * speed,
+            Math.sin(angle) * speed,
+            1.0
+          ));
+        }
+      }
+
+      spawnHitParticles(x, y, color) {
+        for (let i = 0; i < 4; i++) {
+          this.particles.push(new Particle(
+            x, y, color,
+            (Math.random() - 0.5) * 4,
+            (Math.random() - 0.5) * 4,
+            0.5
+          ));
+        }
+      }
+
+      gameOver() {
+        this.isRoundRunning = false;
+        document.getElementById('endOverlay').classList.add('active');
+        try {
+          window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-defense', score: this.round * 100 }, '*');
+        } catch(e) {}
+      }
+
+      restartGame() {
+        this.money = 650;
+        this.lives = 20;
+        this.round = 1;
+        this.isRoundRunning = false;
+        this.enemies = [];
+        this.towers = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.selectedShopIndex = null;
+        this.inspectingTower = null;
+
+        document.getElementById('endOverlay').classList.remove('active');
+        this.updateInspectorUI();
+        this.updateUI();
+      }
+
+      updateUI() {
+        // Atualiza textos de dinheiro, vidas e round
+        document.getElementById('hud-money').textContent = `$${this.money}`;
+        document.getElementById('hud-lives').textContent = this.lives;
+        document.getElementById('hud-round').textContent = this.round;
+        document.getElementById('side-money').textContent = `$${this.money}`;
+        document.getElementById('side-lives').textContent = this.lives;
+        document.getElementById('round-indicator').textContent = this.round;
+
+        // Botão de Iniciar Round
+        const startBtn = document.getElementById('btn-start-round');
+        startBtn.disabled = this.isRoundRunning;
+
+        // Botões da Loja (Desabilita os que não temos dinheiro para comprar)
+        this.towerConfigs.forEach((cfg, i) => {
+          const btn = document.getElementById(`btn-tower-${i}`);
+          if (btn) {
+            btn.disabled = this.money < cfg.cost;
+            btn.classList.toggle('selected', this.selectedShopIndex === i);
+          }
+        });
+      }
+
+      updateInspectorUI() {
+        const inspector = document.getElementById('tower-inspector');
+        if (!this.inspectingTower) {
+          inspector.style.display = 'none';
+          return;
+        }
+
+        inspector.style.display = 'flex';
+        document.getElementById('insp-name').textContent = this.inspectingTower.name;
+        document.getElementById('insp-stats').textContent = `Dano: ${this.inspectingTower.damage} • Alcance: ${this.inspectingTower.range}`;
+        const refund = Math.floor(this.inspectingTower.cost * 0.7);
+        document.getElementById('btn-sell').textContent = `Vender ($${refund})`;
+      }
+
+      // Loop Principal de Atualização e Renderização (60 FPS)
+      loop() {
+        requestAnimationFrame(this.loop);
+
+        // 1. Limpa o Canvas
+        this.ctx.fillStyle = '#090d1c';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 2. Renderiza Percurso do Mapa
+        this.map.render(this.ctx);
+
+        // 3. Spawna Inimigos durante a rodada
+        if (this.isRoundRunning && this.spawnQueue.length > 0) {
+          this.spawnTimer++;
+          if (this.spawnTimer >= 30) { // A cada meio segundo nasce um balão
+            this.spawnTimer = 0;
+            const nextType = this.spawnQueue.shift();
+            this.enemies.push(new Enemy(nextType, this.map.waypoints));
+          }
+        }
+
+        // 4. Atualiza e Renderiza Inimigos
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+          const e = this.enemies[i];
+          e.update();
+
+          if (e.reachedEnd) {
+            this.lives -= e.health;
+            this.soundManager.playPop(0.7);
+            this.enemies.splice(i, 1);
+            this.updateUI();
+            if (this.lives <= 0) {
+              this.gameOver();
+              return;
+            }
+          } else if (!e.isAlive) {
+            this.enemies.splice(i, 1);
+          } else {
+            e.render(this.ctx);
+          }
+        }
+
+        // 5. Checa se o round terminou com sucesso
+        if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
+          this.isRoundRunning = false;
+          this.money += 100 + this.round * 10; // Bônus de fim de round
+          this.round++;
+          this.soundManager.playBuy();
+          this.updateUI();
+        }
+
+        // 6. Atualiza e Renderiza Torres
+        this.towers.forEach(t => {
+          t.update(this);
+          t.render(this.ctx, t === this.inspectingTower);
+        });
+
+        // 7. Atualiza e Renderiza Projéteis
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+          const p = this.projectiles[i];
+          p.update(this);
+          if (p.isFinished) {
+            this.projectiles.splice(i, 1);
+          } else {
+            p.render(this.ctx);
+          }
+        }
+
+        // 8. Atualiza e Renderiza Partículas
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.update();
+          if (pt.life <= 0) {
+            this.particles.splice(i, 1);
+          } else {
+            pt.render(this.ctx);
+          }
+        }
+
+        // 9. Renderiza Preview Holográfico de Posicionamento de Torre
+        if (this.selectedShopIndex !== null) {
+          const cfg = this.towerConfigs[this.selectedShopIndex];
+          const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
+
+          this.ctx.save();
+          this.ctx.translate(this.mousePos.x, this.mousePos.y);
+
+          // Círculo de Alcance Holográfico (Verde se válido, Vermelho se inválido)
+          this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.7)' : 'rgba(239, 68, 68, 0.7)';
+          this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+          this.ctx.lineWidth = 2;
+          this.ctx.beginPath();
+          this.ctx.arc(0, 0, cfg.range, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Corpo fantasma da torre
+          this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
+          this.ctx.globalAlpha = 0.6;
+          this.ctx.beginPath();
+          this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
+          this.ctx.fill();
+
+          this.ctx.restore();
+        }
+      }
+    }
+
+    // Inicialização da instância global ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      window.gameInstance = new Game();
+    });
   </script>
 </body>
 </html>
