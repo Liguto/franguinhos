@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Kruuj Word: O Enigma das Corujas</title>
+  <title>KRUUJ WORD: O Enigma das Corujas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -33,7 +33,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 14px 20px 14px;
+      padding: 12px 14px 18px 14px;
     }
     .header {
       width: 100%;
@@ -43,20 +43,32 @@
       align-items: center;
     }
     .logo-badge {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     .level-badge {
-      background: rgba(13, 18, 36, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(13, 18, 36, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 9999px;
       padding: 4px 14px;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 800;
       color: var(--cyan);
+    }
+    .mascot-area {
+      width: 100%;
+      max-width: 400px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas#mascotCanvas {
+      width: 110px;
+      height: 60px;
     }
     .slots-container {
       flex: 1;
@@ -66,8 +78,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
+      gap: 8px;
+      margin: 6px 0;
     }
     .word-slot-row {
       display: flex;
@@ -82,13 +94,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: transparent;
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .char-box.revealed {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(139, 92, 246, 0.35));
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(139, 92, 246, 0.4));
       border-color: var(--cyan);
       color: #ffffff;
       box-shadow: 0 0 12px rgba(56, 232, 255, 0.4);
@@ -96,23 +108,59 @@
     }
     .current-word-preview {
       height: 32px;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 800;
       letter-spacing: 2px;
       color: var(--gold);
       text-shadow: 0 0 10px rgba(255, 176, 32, 0.5);
     }
+    .wheel-wrapper {
+      position: relative;
+      width: 250px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .wheel-container {
       position: relative;
-      width: 220px;
-      height: 220px;
-      margin-bottom: 10px;
+      width: 210px;
+      height: 210px;
     }
     canvas#wheelCanvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+    }
+    .wheel-tool-btn {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    .wheel-tool-btn:hover {
+      transform: scale(1.1);
+      border-color: var(--cyan);
+    }
+    .btn-shuffle {
+      left: 0;
+      bottom: 25px;
+    }
+    .btn-hint {
+      right: 0;
+      bottom: 25px;
     }
     .overlay {
       position: fixed;
@@ -173,19 +221,27 @@
     <div class="level-badge" id="levelBadge">FASE 1</div>
   </div>
 
+  <div class="mascot-area">
+    <canvas id="mascotCanvas" width="110" height="60"></canvas>
+  </div>
+
   <div class="slots-container" id="slots"></div>
 
   <div class="current-word-preview" id="wordPreview"></div>
 
-  <div class="wheel-container">
-    <canvas id="wheelCanvas" width="220" height="220"></canvas>
+  <div class="wheel-wrapper">
+    <button class="wheel-tool-btn btn-shuffle" onclick="shuffleLetters()" title="Embaralhar letras">🔀</button>
+    <div class="wheel-container">
+      <canvas id="wheelCanvas" width="210" height="210"></canvas>
+    </div>
+    <button class="wheel-tool-btn btn-hint" onclick="useHint()" title="Revelar letra (Dica)">💡</button>
   </div>
 
   <!-- Overlay -->
   <div class="overlay active" id="ov">
-    <h1 id="ovTitle">ENIGMA DAS CORUJAS</h1>
-    <p id="ovDesc">Deslize o dedo ou mouse conectando as letras cósmicas para descobrir todas as palavras secretas!</p>
-    <button class="btn-action" onclick="startGame()">DESVENDAR</button>
+    <h1 id="ovTitle">KRUUJ WORD</h1>
+    <p id="ovDesc">Desvende o enigma das corujas! Deslize o dedo ou mouse conectando as letras cósmicas para descobrir todas as palavras secretas.</p>
+    <button class="btn-action" onclick="startGame()">DESVENDAR 🦉</button>
   </div>
 
   <script>
@@ -212,25 +268,75 @@
       }
     });
 
-    // ===== Áudio WebAudio Sintético =====
+    // ===== Som Temático Sintético de Coruja (WebAudio) =====
     let audioCtx = null;
-    function playTone(freq = 500) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
+    function getAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
 
+    function playNote(freq = 520) {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc.stop(now + 0.18);
       } catch(e) {}
+    }
+
+    function playOwlWordSolved() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        // Piado alegre de coruja bebê ("Coo-Hoo!")
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(700, now + 0.22);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } catch (e) {}
+    }
+
+    function playShuffleSound() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.exponentialRampToValueAtTime(540, now + 0.12);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      } catch (e) {}
     }
 
     // Níveis de Palavras
@@ -263,10 +369,13 @@
     let wheelLetters = [];
     let selectedIndices = [];
     let isDragging = false;
+    let mascotHappyTimer = 0;
 
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
-    const cx = 110, cy = 110, radius = 75;
+    const mascotCanvas = document.getElementById('mascotCanvas');
+    const mCtx = mascotCanvas.getContext('2d');
+    const cx = 105, cy = 105, radius = 72;
 
     function loadLevel(idx) {
       lvlIndex = idx % LEVELS.length;
@@ -274,21 +383,8 @@
       const lvl = LEVELS[lvlIndex];
       targetWords = lvl.words;
       foundWords = new Set();
-      wheelLetters = [];
+      setWheelLetters(lvl.letters);
 
-      // Monta posições das letras na roda
-      const n = lvl.letters.length;
-      for (let i = 0; i < n; i++) {
-        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-        wheelLetters.push({
-          char: lvl.letters[i],
-          x: cx + Math.cos(angle) * radius,
-          y: cy + Math.sin(angle) * radius,
-          r: 24
-        });
-      }
-
-      // Constrói caixas das palavras na tela
       const slotsEl = document.getElementById('slots');
       slotsEl.innerHTML = '';
       targetWords.forEach(w => {
@@ -307,19 +403,72 @@
       drawWheel();
     }
 
-    function drawWheel() {
-      ctx.clearRect(0, 0, 220, 220);
+    function setWheelLetters(lettersArr) {
+      wheelLetters = [];
+      const n = lettersArr.length;
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+        wheelLetters.push({
+          char: lettersArr[i],
+          x: cx + Math.cos(angle) * radius,
+          y: cy + Math.sin(angle) * radius,
+          r: 23
+        });
+      }
+    }
 
-      // Círculo base da roda
-      ctx.fillStyle = 'rgba(13, 18, 36, 0.7)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    function shuffleLetters() {
+      playShuffleSound();
+      const chars = wheelLetters.map(l => l.char);
+      for (let i = chars.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [chars[i], chars[j]] = [chars[j], chars[i]];
+      }
+      setWheelLetters(chars);
+      drawWheel();
+    }
+
+    function useHint() {
+      playNote(880);
+      // Acha a primeira palavra não resolvida e revela 1 letra
+      for (let w of targetWords) {
+        if (!foundWords.has(w)) {
+          const row = document.querySelector(`.word-slot-row[data-word="${w}"]`);
+          if (row) {
+            const boxes = row.querySelectorAll('.char-box:not(.revealed)');
+            if (boxes.length > 0) {
+              boxes[0].classList.add('revealed');
+              mascotHappyTimer = 25;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, 210, 210);
+
+      // Círculo base da Roda da Coruja
+      ctx.fillStyle = 'rgba(13, 18, 36, 0.75)';
+      ctx.strokeStyle = 'rgba(56, 232, 255, 0.25)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius + 22, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius + 20, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      // Linhas de conexão
+      // Brasão sutil no centro
+      ctx.fillStyle = 'rgba(139, 92, 246, 0.15)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = "20px sans-serif";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🦉', cx, cy);
+
+      // Linhas de conexão luminosas
       if (selectedIndices.length > 1) {
         ctx.strokeStyle = '#38e8ff';
         ctx.lineWidth = 4;
@@ -356,7 +505,7 @@
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = "800 20px 'Baloo 2'";
+        ctx.font = "800 19px 'Baloo 2'";
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(l.char, l.x, l.y + 1);
@@ -368,17 +517,15 @@
       const currentWord = selectedIndices.map(i => wheelLetters[i].char).join('');
       if (targetWords.includes(currentWord) && !foundWords.has(currentWord)) {
         foundWords.add(currentWord);
-        playTone(880);
+        playOwlWordSolved();
+        mascotHappyTimer = 45; // Coruja comemora
 
-        // Revela palavra nos slots
         const row = document.querySelector(`.word-slot-row[data-word="${currentWord}"]`);
         if (row) {
           row.querySelectorAll('.char-box').forEach(b => b.classList.add('revealed'));
         }
 
-        // Se completou a fase
         if (foundWords.size === targetWords.length) {
-          playTone(1100);
           setTimeout(() => {
             currentLevel++;
             localStorage.setItem('kruuj_words_level', String(currentLevel));
@@ -388,7 +535,7 @@
           }, 800);
         }
       } else {
-        playTone(300);
+        playNote(260);
       }
 
       selectedIndices = [];
@@ -396,7 +543,6 @@
       drawWheel();
     }
 
-    // Touch / Mouse na roda
     function getLetterAt(x, y) {
       for (let i = 0; i < wheelLetters.length; i++) {
         const l = wheelLetters[i];
@@ -414,7 +560,7 @@
       if (idx !== -1) {
         isDragging = true;
         selectedIndices = [idx];
-        playTone(440);
+        playNote(440);
         document.getElementById('wordPreview').textContent = wheelLetters[idx].char;
         drawWheel();
       }
@@ -429,7 +575,7 @@
 
       if (idx !== -1 && !selectedIndices.includes(idx)) {
         selectedIndices.push(idx);
-        playTone(440 + selectedIndices.length * 60);
+        playNote(440 + selectedIndices.length * 60);
         document.getElementById('wordPreview').textContent = selectedIndices.map(i => wheelLetters[i].char).join('');
         drawWheel();
       }
@@ -441,6 +587,94 @@
         checkCurrentWord();
       }
     });
+
+    // Desenha Corujinha Bebê comemorando no topo
+    function drawMascotScholar() {
+      mCtx.clearRect(0, 0, mascotCanvas.width, mascotCanvas.height);
+      const cx = 55, cy = 34, r = 18;
+      if (mascotHappyTimer > 0) mascotHappyTimer--;
+      const isHappy = mascotHappyTimer > 0;
+
+      // Galho de estudo
+      mCtx.fillStyle = '#1e1b4b';
+      mCtx.fillRect(15, cy + 14, 80, 5);
+
+      // Asas comemorando
+      const wingW = isHappy ? Math.sin(Date.now() * 0.03) * 6 : 0;
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#6d28d9';
+        mCtx.beginPath();
+        mCtx.ellipse(cx + side * (r + 2 + wingW), cy + 2, 5, 10, side * 0.3, 0, Math.PI * 2);
+        mCtx.fill();
+      });
+
+      // Fones de Ouvido
+      mCtx.strokeStyle = '#0f172a';
+      mCtx.lineWidth = 3;
+      mCtx.beginPath();
+      mCtx.arc(cx, cy, r + 2, Math.PI * 1.15, Math.PI * 1.85);
+      mCtx.stroke();
+
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#1e1b4b';
+        mCtx.strokeStyle = '#38e8ff';
+        mCtx.lineWidth = 2;
+        mCtx.beginPath();
+        mCtx.ellipse(cx + side * (r + 2), cy, 4, 7, 0, 0, Math.PI * 2);
+        mCtx.fill();
+        mCtx.stroke();
+      });
+
+      // Corpo da Coruja
+      const g = mCtx.createRadialGradient(cx, cy - 3, 2, cx, cy, r);
+      g.addColorStop(0, '#8b5cff');
+      g.addColorStop(1, '#3b0764');
+      mCtx.fillStyle = g;
+      mCtx.beginPath();
+      mCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      mCtx.fill();
+
+      // Olhos com armação de óculos sábios
+      mCtx.strokeStyle = '#ffb020';
+      mCtx.lineWidth = 2;
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#fff';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.32, 0, Math.PI * 2);
+        mCtx.fill();
+        mCtx.stroke();
+
+        mCtx.fillStyle = '#ffb020';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.22, 0, Math.PI * 2);
+        mCtx.fill();
+
+        mCtx.fillStyle = '#0f172a';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.1, 0, Math.PI * 2);
+        mCtx.fill();
+      });
+
+      // Ponte dos óculos
+      mCtx.beginPath();
+      mCtx.moveTo(cx - 3, cy - r * 0.12);
+      mCtx.lineTo(cx + 3, cy - r * 0.12);
+      mCtx.stroke();
+
+      // Bico
+      mCtx.fillStyle = '#f59e0b';
+      mCtx.beginPath();
+      mCtx.moveTo(cx - 2.5, cy + 2);
+      mCtx.lineTo(cx + 2.5, cy + 2);
+      mCtx.lineTo(cx, cy + 7);
+      mCtx.fill();
+    }
+
+    function animateMascot() {
+      requestAnimationFrame(animateMascot);
+      drawMascotScholar();
+    }
+    animateMascot();
 
     function startGame() {
       loadLevel(currentLevel - 1);

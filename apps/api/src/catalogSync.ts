@@ -170,7 +170,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-007'
   },
   {
-    title: 'KruujDoku',
+    title: 'KRUUJDOKU',
     slug: 'kruujdoku',
     description: 'O puzzle oficial de raciocínio lógico das corujinhas do KRUUJ! 100 fases desafiadoras + Modo Infinito com regras puras de dedução, cores harmônicas e relaxamento mental.',
     category: 'Puzzle',
@@ -194,7 +194,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-025'
   },
   {
-    title: 'KRUUJ.io Arena',
+    title: 'KRUUJ.IO ARENA',
     slug: 'kruujio',
     description: 'A grande arena competitiva das corujas! Entre no campo de batalha cósmico, colete energia estelar para crescer, use boost com sabedoria e derrote os rivais para alcançar o Rank #1.',
     category: 'Ação',
@@ -218,7 +218,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-026'
   },
   {
-    title: 'KRUUJ Orbit',
+    title: 'KRUUJ ORBIT',
     slug: 'kruuj-orbit',
     description: 'Salte entre órbitas planetárias com a física da coruja cósmica. Toque para se soltar e capture o campo gravitacional do próximo planeta!',
     category: 'Arcade',
@@ -242,7 +242,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-027'
   },
   {
-    title: 'Kruuj Match',
+    title: 'KRUUJ MATCH',
     slug: 'kruuj-match',
     description: 'Puzzle zen de alquimia estelar! Combine 3 ou mais cristais rúnicos cósmicos e crie super poderes para libertar a energia mágica da coruja.',
     category: 'Puzzle',
@@ -266,9 +266,9 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-028'
   },
   {
-    title: 'KRUUJ Guardians',
+    title: 'KRUUJ GUARDIANS',
     slug: 'kruuj-defense',
-    description: 'Tower defense tático espacial! Posicione Corujas Guardiãs com poderes de raio, gelo e explosão cósmica para proteger o ninho sagrado.',
+    description: 'Tower defense tático estilo Bloons TD! Posicione Corujas Guardiãs para estourar balões cósmicos com penas, gelo, raio e lasers!',
     category: 'Ação',
     subcategories: 'Tower Defense,Estratégia,Ação,Defesa',
     tags: 'defense,kruuj,torres,estrategia,guardioes,acao,familia',
@@ -290,7 +290,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-029'
   },
   {
-    title: 'KRUUJ Runner',
+    title: 'KRUUJ RUNNER',
     slug: 'kruuj-runner',
     description: 'Corra pelos telhados cibernéticos da cidade cósmica em alta velocidade! Salte duas vezes, plane suavemente e resgate as penas estelares.',
     category: 'Ação',
@@ -314,7 +314,7 @@ export const REAL_14_GAMES = [
     contractNumber: 'CON-2026-030'
   },
   {
-    title: 'Kruuj Word',
+    title: 'KRUUJ WORD',
     slug: 'kruuj-words',
     description: 'O enigma das corujas! Conecte letras cósmicas na roda mágica para desvendar palavras secretas e alimentar os filhotinhos de coruja.',
     category: 'Educacional',

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Guardians: Defesa Cósmica</title>
+  <title>KRUUJ GUARDIANS: Defesa Cósmica</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -12,6 +12,10 @@
       --purple: #8b5cff;
       --gold: #ffb020;
       --pink: #ff5ca8;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --yellow: #eab308;
       --text: #f3f0ff;
     }
     * {
@@ -50,7 +54,7 @@
     }
     .hud-pill {
       background: rgba(13, 18, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
       padding: 6px 14px;
@@ -59,53 +63,114 @@
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
+    /* Menu Inferior Estilo Bloons TD */
     .towers-dock {
       position: fixed;
-      bottom: 14px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 10px;
-      background: rgba(13, 18, 36, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      gap: 8px;
+      background: rgba(13, 18, 36, 0.88);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
-      border-radius: 18px;
-      padding: 8px 14px;
+      border-radius: 20px;
+      padding: 8px 12px;
       z-index: 10;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     }
     .tower-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 6px 12px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
       border: 1.5px solid transparent;
       color: #fff;
       cursor: pointer;
       font-family: inherit;
       transition: all 0.2s;
+      min-width: 62px;
     }
     .tower-btn.selected {
       border-color: var(--cyan);
-      background: rgba(56, 232, 255, 0.15);
-      box-shadow: 0 0 12px rgba(56, 232, 255, 0.3);
+      background: rgba(56, 232, 255, 0.18);
+      box-shadow: 0 0 15px rgba(56, 232, 255, 0.35);
+      transform: translateY(-2px);
     }
     .tower-btn:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
     }
     .tower-icon {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
+    }
+    .tower-name {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #cbd5e1;
     }
     .tower-cost {
       font-size: 0.72rem;
       font-weight: 800;
       color: var(--gold);
     }
+    /* Painel de Upgrade de Coruja Selecionada */
+    .upgrade-card {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 18, 36, 0.92);
+      border: 1.5px solid var(--cyan);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 12;
+      box-shadow: 0 0 20px rgba(56, 232, 255, 0.3);
+    }
+    .upgrade-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .upgrade-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .upgrade-stats {
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    .btn-upgrade {
+      background: linear-gradient(135deg, #0284c7, #8b5cff);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-sell {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #f87171;
+      border-radius: 9999px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    /* Overlay */
     .overlay {
       position: fixed;
       inset: 0;
@@ -137,7 +202,7 @@
     p {
       font-size: 0.95rem;
       color: #cbd5e1;
-      max-width: 420px;
+      max-width: 440px;
       line-height: 1.4;
       margin-bottom: 20px;
     }
@@ -146,8 +211,8 @@
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 12px 36px;
-      font-size: 1.1rem;
+      padding: 12px 38px;
+      font-size: 1.15rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
@@ -163,34 +228,49 @@
   <canvas id="c"></canvas>
 
   <div class="hud">
-    <div class="hud-pill">ENERGIA: <span id="energy" style="color: var(--gold);">100</span> ⭐</div>
-    <div class="hud-pill">VIDA DO NINHO: <span id="lives" style="color: #ff5ca8;">10</span> ❤️</div>
-    <div class="hud-pill">ONDA: <span id="wave" style="color: var(--cyan);">1</span></div>
+    <div class="hud-pill">ESTRELAS: <span id="energy" style="color: var(--gold);">120</span> ⭐</div>
+    <div class="hud-pill">VIDAS: <span id="lives" style="color: #ff5ca8;">20</span> ❤️</div>
+    <div class="hud-pill">ONDA: <span id="wave" style="color: var(--cyan);">1</span> 🎈</div>
   </div>
 
+  <div class="upgrade-card" id="upgradeCard" style="display: none;">
+    <div class="upgrade-info">
+      <span class="upgrade-title" id="upgTitle">Coruja Arqueira</span>
+      <span class="upgrade-stats" id="upgStats">Nível 1 • Alcance 120</span>
+    </div>
+    <button class="btn-upgrade" id="btnUpgradeTower" onclick="upgradeSelectedTower()">Melhorar (60 ⭐)</button>
+    <button class="btn-sell" onclick="sellSelectedTower()">Vender</button>
+  </div>
+
+  <!-- Dock de Corujas Guardiãs (Estilo Bloons TD) -->
   <div class="towers-dock">
-    <button class="tower-btn selected" id="btnT1" onclick="selectTower(0)">
-      <span class="tower-icon">⚡</span>
-      <span style="font-size: 0.72rem; font-weight: 800;">Raio</span>
-      <span class="tower-cost">50 ⭐</span>
+    <button class="tower-btn selected" id="btnT1" onclick="selectTowerType(0)">
+      <span class="tower-icon">🦉</span>
+      <span class="tower-name">Arqueira</span>
+      <span class="tower-cost">75 ⭐</span>
     </button>
-    <button class="tower-btn" id="btnT2" onclick="selectTower(1)">
+    <button class="tower-btn" id="btnT2" onclick="selectTowerType(1)">
       <span class="tower-icon">❄️</span>
-      <span style="font-size: 0.72rem; font-weight: 800;">Gelo</span>
-      <span class="tower-cost">80 ⭐</span>
-    </button>
-    <button class="tower-btn" id="btnT3" onclick="selectTower(2)">
-      <span class="tower-icon">💥</span>
-      <span style="font-size: 0.72rem; font-weight: 800;">Cosmo</span>
+      <span class="tower-name">Gelo</span>
       <span class="tower-cost">120 ⭐</span>
+    </button>
+    <button class="tower-btn" id="btnT3" onclick="selectTowerType(2)">
+      <span class="tower-icon">⚡</span>
+      <span class="tower-name">Raio</span>
+      <span class="tower-cost">160 ⭐</span>
+    </button>
+    <button class="tower-btn" id="btnT4" onclick="selectTowerType(3)">
+      <span class="tower-icon">✨</span>
+      <span class="tower-name">Super</span>
+      <span class="tower-cost">320 ⭐</span>
     </button>
   </div>
 
   <!-- Overlay -->
   <div class="overlay active" id="ov">
-    <h1 id="ovTitle">DEFESA CÓSMICA</h1>
-    <p id="ovDesc">Posicione Corujas Guardiãs nas plataformas ao lado do caminho para proteger o Ovo Cósmico contra ondas de drones invasores!</p>
-    <button class="btn-action" onclick="startGame()">DEFENDER NINHO</button>
+    <h1 id="ovTitle">KRUUJ GUARDIANS</h1>
+    <p id="ovDesc">Inspirado nos clássicos de estourar balões! Posicione Corujas Guardiãs pelo caminho para estourar as ondas de Balões Cósmicos invasores antes que eles escapem!</p>
+    <button class="btn-action" onclick="startGame()">DEFENDER NINHO 🦉</button>
   </div>
 
   <script>
@@ -216,47 +296,83 @@
       }
     });
 
-    // ===== Áudio WebAudio Sintético =====
+    // ===== Som Temático Sintético (Estilo Bloons TD + Coruja) =====
     let audioCtx = null;
-    function playSfx(type) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
+    function getAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
 
-        if (type === 'laser') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(600, now);
-          osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
-          gain.gain.setValueAtTime(0.06, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-          osc.start(now);
-          osc.stop(now + 0.1);
-        } else if (type === 'freeze') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(400, now);
-          osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
-          gain.gain.setValueAtTime(0.08, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-          osc.start(now);
-          osc.stop(now + 0.15);
-        } else if (type === 'explode') {
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(120, now);
-          osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-          osc.start(now);
-          osc.stop(now + 0.25);
-        }
+    // Som clássico e gostoso de estourar balão: "POP!"
+    function playBloonPop(pitch = 1) {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        // Salto rápido de frequência que simula o estouro de borracha
+        osc.type = 'triangle';
+        const startFreq = (550 + Math.random() * 80) * pitch;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(80 * pitch, now + 0.05);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
       } catch (e) {}
     }
 
-    // ===== Engine Tower Defense =====
+    // Piadinho alegre da coruja ao colocar ou melhorar torre
+    function playOwlHoot() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(560, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.2);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } catch(e) {}
+    }
+
+    // Disparo de pena (Feather shoot)
+    function playDartShoot() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(700, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.06);
+
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      } catch(e) {}
+    }
+
+    // ===== Engine KRUUJ Guardians (Bloons TD Style) =====
     const cv = document.getElementById('c');
     const ctx = cv.getContext('2d');
     let W = cv.width = window.innerWidth;
@@ -269,58 +385,117 @@
     });
 
     let state = 'menu';
-    let energy = 100;
-    let lives = 10;
+    let energy = 120;
+    let lives = 20;
     let wave = 1;
-    let selectedTowerType = 0;
+    let selectedTowerIndex = 0;
+    let activePlacedTower = null;
+
     let waypoints = [];
-    let enemies = [];
+    let bloons = [];
     let towers = [];
-    let projectiles = [];
+    let darts = [];
     let particles = [];
     let spawnTimer = 0;
-    let enemiesToSpawn = 0;
+    let bloonsQueue = [];
 
+    // Tipos de Corujas Guardiãs (Como os macacos de Bloons TD)
     const TOWER_TYPES = [
-      { name: 'Raio', cost: 50, range: 110, rate: 12, damage: 18, color: '#38e8ff', sfx: 'laser', icon: '⚡' },
-      { name: 'Gelo', cost: 80, range: 95, rate: 25, damage: 12, slow: 0.5, color: '#a78bfa', sfx: 'freeze', icon: '❄️' },
-      { name: 'Cosmo', cost: 120, range: 140, rate: 45, damage: 45, splash: 40, color: '#ffb020', sfx: 'explode', icon: '💥' }
+      {
+        name: 'Coruja Arqueira', cost: 75, range: 120, rate: 16, damage: 1,
+        color: '#8b5cff', icon: '🦉', projColor: '#ffb020', projSpeed: 10,
+        upgradeCost: 60, desc: 'Atira penas afiadas velozes'
+      },
+      {
+        name: 'Coruja Glacial', cost: 120, range: 100, rate: 30, damage: 1, slow: 0.5,
+        color: '#38e8ff', icon: '❄️', projColor: '#38e8ff', projSpeed: 8,
+        upgradeCost: 90, desc: 'Congela e desacelera balões'
+      },
+      {
+        name: 'Coruja de Raio', cost: 160, range: 130, rate: 24, damage: 2, chain: 3,
+        color: '#eab308', icon: '⚡', projColor: '#facc15', projSpeed: 12,
+        upgradeCost: 110, desc: 'Eletrocuta múltiplos balões'
+      },
+      {
+        name: 'Super Coruja', cost: 320, range: 155, rate: 6, damage: 1,
+        color: '#ff5ca8', icon: '✨', projColor: '#ff5ca8', projSpeed: 15,
+        upgradeCost: 200, desc: 'Super rajada cósmica veloz'
+      }
     ];
 
-    function selectTower(type) {
-      selectedTowerType = type;
-      [0, 1, 2].forEach(i => {
-        document.getElementById('btnT' + (i + 1)).classList.toggle('selected', i === type);
+    // Camadas de Balões (Bloons TD Layers)
+    // Red (1) -> pops
+    // Blue (2) -> drops Red
+    // Green (3) -> drops Blue
+    // Yellow (4) -> drops Green
+    // Ceramic (5) -> drops Yellow
+    const BLOON_LAYERS = [
+      null, // index 0
+      { color: '#ef4444', speed: 1.5, r: 12, points: 1 },  // 1: Red
+      { color: '#3b82f6', speed: 1.8, r: 13, points: 2 },  // 2: Blue
+      { color: '#10b981', speed: 2.2, r: 14, points: 3 },  // 3: Green
+      { color: '#eab308', speed: 2.8, r: 15, points: 4 },  // 4: Yellow
+      { color: '#a855f7', speed: 1.6, r: 16, points: 6, hp: 3 } // 5: Ceramic
+    ];
+
+    function selectTowerType(idx) {
+      selectedTowerIndex = idx;
+      activePlacedTower = null;
+      document.getElementById('upgradeCard').style.display = 'none';
+      [0, 1, 2, 3].forEach(i => {
+        document.getElementById('btnT' + (i + 1)).classList.toggle('selected', i === idx);
       });
     }
 
     function buildWaypoints() {
+      // Percurso sinuoso e divertido de Bloons TD
       waypoints = [
-        { x: -20, y: H * 0.25 },
-        { x: W * 0.35, y: H * 0.25 },
-        { x: W * 0.35, y: H * 0.65 },
-        { x: W * 0.75, y: H * 0.65 },
-        { x: W * 0.75, y: H * 0.35 },
-        { x: W + 20, y: H * 0.35 }
+        { x: -20, y: H * 0.22 },
+        { x: W * 0.28, y: H * 0.22 },
+        { x: W * 0.28, y: H * 0.72 },
+        { x: W * 0.62, y: H * 0.72 },
+        { x: W * 0.62, y: H * 0.32 },
+        { x: W * 0.88, y: H * 0.32 },
+        { x: W * 0.88, y: H * 0.82 },
+        { x: W + 30, y: H * 0.82 }
       ];
     }
     buildWaypoints();
 
     function startGame() {
       state = 'play';
-      energy = 100;
-      lives = 10;
+      energy = 120;
+      lives = 20;
       wave = 1;
-      enemies = [];
+      bloons = [];
       towers = [];
-      projectiles = [];
+      darts = [];
       particles = [];
-      enemiesToSpawn = 6;
-      spawnTimer = 0;
+      activePlacedTower = null;
+      document.getElementById('upgradeCard').style.display = 'none';
 
+      prepareWave(1);
       updateHud();
       sendEvent('game_start');
       document.getElementById('ov').classList.remove('active');
+    }
+
+    function prepareWave(w) {
+      bloonsQueue = [];
+      spawnTimer = 0;
+
+      // Cria fila de balões progressiva da onda
+      const redCount = Math.max(0, 10 - w);
+      const blueCount = Math.min(15, w * 3);
+      const greenCount = w >= 2 ? Math.min(12, (w - 1) * 3) : 0;
+      const yellowCount = w >= 4 ? Math.min(10, (w - 3) * 2) : 0;
+      const ceramicCount = w >= 6 ? Math.min(6, (w - 5)) : 0;
+
+      for (let i = 0; i < redCount; i++) bloonsQueue.push(1);
+      for (let i = 0; i < blueCount; i++) bloonsQueue.push(2);
+      for (let i = 0; i < greenCount; i++) bloonsQueue.push(3);
+      for (let i = 0; i < yellowCount; i++) bloonsQueue.push(4);
+      for (let i = 0; i < ceramicCount; i++) bloonsQueue.push(5);
     }
 
     function updateHud() {
@@ -329,43 +504,93 @@
       document.getElementById('wave').textContent = wave;
     }
 
-    // Posicionar torre com clique
+    function showUpgradeCard(tower) {
+      activePlacedTower = tower;
+      const def = TOWER_TYPES[tower.type];
+      const card = document.getElementById('upgradeCard');
+      card.style.display = 'flex';
+      document.getElementById('upgTitle').textContent = `${def.name} (Nível ${tower.level})`;
+      document.getElementById('upgStats').textContent = `Dano ${def.damage + tower.level - 1} • Alcance ${Math.round(tower.range)}`;
+      const cost = def.upgradeCost * tower.level;
+      document.getElementById('btnUpgradeTower').textContent = `Melhorar (${cost} ⭐)`;
+    }
+
+    function upgradeSelectedTower() {
+      if (!activePlacedTower) return;
+      const def = TOWER_TYPES[activePlacedTower.type];
+      const cost = def.upgradeCost * activePlacedTower.level;
+      if (energy >= cost) {
+        energy -= cost;
+        activePlacedTower.level++;
+        activePlacedTower.range *= 1.15;
+        playOwlHoot();
+        updateHud();
+        showUpgradeCard(activePlacedTower);
+      }
+    }
+
+    function sellSelectedTower() {
+      if (!activePlacedTower) return;
+      const def = TOWER_TYPES[activePlacedTower.type];
+      energy += Math.floor(def.cost * 0.7);
+      const idx = towers.indexOf(activePlacedTower);
+      if (idx !== -1) towers.splice(idx, 1);
+      activePlacedTower = null;
+      document.getElementById('upgradeCard').style.display = 'none';
+      updateHud();
+      playBloonPop(0.8);
+    }
+
+    // Clique na tela (Colocar coruja ou selecionar)
     cv.addEventListener('pointerdown', (e) => {
       if (state !== 'play') return;
-      if (e.clientY > H - 80) return; // Barra inferior
+      if (e.clientY > H - 85) return; // Barra inferior
 
-      const tDef = TOWER_TYPES[selectedTowerType];
+      // Checa se clicou em uma coruja existente
+      for (let t of towers) {
+        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 26) {
+          showUpgradeCard(t);
+          return;
+        }
+      }
+
+      // Se clicou fora, fecha card de upgrade
+      activePlacedTower = null;
+      document.getElementById('upgradeCard').style.display = 'none';
+
+      const tDef = TOWER_TYPES[selectedTowerIndex];
       if (energy < tDef.cost) return;
 
-      // Impede colocar diretamente em cima do caminho dos inimigos
+      // Impede colocar em cima da rota
       for (let i = 0; i < waypoints.length - 1; i++) {
         const p1 = waypoints[i];
         const p2 = waypoints[i + 1];
-        const dist = distToSegment({ x: e.clientX, y: e.clientY }, p1, p2);
-        if (dist < 32) return;
+        if (distToSegment({ x: e.clientX, y: e.clientY }, p1, p2) < 32) return;
       }
 
-      // Impede sobrepor outra torre
+      // Impede sobrepor outra coruja
       for (let t of towers) {
-        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 36) return;
+        if (Math.hypot(t.x - e.clientX, t.y - e.clientY) < 38) return;
       }
 
       energy -= tDef.cost;
       updateHud();
+      playOwlHoot();
 
       towers.push({
         x: e.clientX,
         y: e.clientY,
-        type: selectedTowerType,
+        type: selectedTowerIndex,
+        level: 1,
+        range: tDef.range,
         cooldown: 0,
         target: null
       });
 
-      // Efeito de colocação
       for (let i = 0; i < 10; i++) {
         particles.push({
           x: e.clientX, y: e.clientY,
-          vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+          vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
           r: 3, c: tDef.color, life: 1
         });
       }
@@ -379,18 +604,46 @@
       return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
     }
 
-    function spawnEnemy() {
-      const hp = 40 + wave * 22;
-      enemies.push({
-        x: waypoints[0].x,
-        y: waypoints[0].y,
-        hp: hp,
-        maxHp: hp,
-        speed: 1.6 + Math.random() * 0.4,
-        targetWp: 1,
-        slowTimer: 0,
-        r: 12
+    function spawnBloon(layer, x = waypoints[0].x, y = waypoints[0].y, wp = 1) {
+      const info = BLOON_LAYERS[layer];
+      bloons.push({
+        x, y,
+        layer,
+        hp: info.hp || 1,
+        speed: info.speed,
+        r: info.r,
+        targetWp: wp,
+        slowTimer: 0
       });
+    }
+
+    // Estoura balão (Bloons TD pop logic)
+    function popBloon(b, idx) {
+      playBloonPop(b.layer * 0.25 + 0.8);
+      energy += b.layer;
+      updateHud();
+
+      // Partículas de confete de borracha
+      for (let i = 0; i < 7; i++) {
+        particles.push({
+          x: b.x, y: b.y,
+          vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+          r: Math.random() * 3 + 2,
+          c: BLOON_LAYERS[b.layer].color,
+          life: 0.8
+        });
+      }
+
+      const nextLayer = b.layer - 1;
+      const bx = b.x;
+      const by = b.y;
+      const bWp = b.targetWp;
+      bloons.splice(idx, 1);
+
+      // Se ainda tinha camadas abaixo, gera o balão filho (ex: Azul vira Vermelho)
+      if (nextLayer >= 1) {
+        spawnBloon(nextLayer, bx, by, bWp);
+      }
     }
 
     function gameOver() {
@@ -401,8 +654,8 @@
       sendEvent('game_over', { wave, bestWave });
       sendEvent('game_save', { saveData: { bestWave }, score: wave * 100 });
 
-      document.getElementById('ovTitle').textContent = 'OVO CÓSMICO CAPTURADO!';
-      document.getElementById('ovDesc').textContent = `Você resistiu bravamente até a Onda ${wave}! Melhore o posicionamento de raios e gelo para vencer.`;
+      document.getElementById('ovTitle').textContent = 'OVO CÓSMICO PROTEGIDO!';
+      document.getElementById('ovDesc').textContent = `Você resistiu bravamente até a Onda ${wave} estourando os balões cósmicos! Melhore suas Corujas Guardiãs para ir além.`;
       document.getElementById('ov').classList.add('active');
     }
 
@@ -413,9 +666,9 @@
       ctx.fillStyle = '#07061a';
       ctx.fillRect(0, 0, W, H);
 
-      // Desenha o caminho galáctico
-      ctx.strokeStyle = 'rgba(56, 232, 255, 0.15)';
-      ctx.lineWidth = 38;
+      // Desenha a Rota Cósmica
+      ctx.strokeStyle = 'rgba(56, 232, 255, 0.18)';
+      ctx.lineWidth = 42;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -425,56 +678,65 @@
       });
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.35)';
       ctx.lineWidth = 4;
       ctx.stroke();
 
-      // Ninho no fim do caminho
+      // Ninho no fim
       const endPt = waypoints[waypoints.length - 1];
       ctx.save();
       ctx.fillStyle = '#ff5ca8';
       ctx.shadowColor = '#ff5ca8';
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 18;
       ctx.beginPath();
-      ctx.arc(W - 25, endPt.y, 16, 0, Math.PI * 2);
+      ctx.arc(W - 25, endPt.y, 18, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
+      // Desenha círculo de alcance da coruja selecionada
+      if (activePlacedTower) {
+        ctx.strokeStyle = 'rgba(56, 232, 255, 0.5)';
+        ctx.fillStyle = 'rgba(56, 232, 255, 0.08)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(activePlacedTower.x, activePlacedTower.y, activePlacedTower.range, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
       if (state === 'play') {
-        // Spawn de inimigos
-        if (enemiesToSpawn > 0) {
+        // Spawn de balões
+        if (bloonsQueue.length > 0) {
           spawnTimer++;
-          if (spawnTimer > 45) {
+          if (spawnTimer > 32) {
             spawnTimer = 0;
-            spawnEnemy();
-            enemiesToSpawn--;
+            const nextL = bloonsQueue.shift();
+            spawnBloon(nextL);
           }
-        } else if (enemies.length === 0) {
-          // Próxima onda
+        } else if (bloons.length === 0) {
           wave++;
-          energy += 40 + wave * 15;
-          enemiesToSpawn = 6 + wave * 2;
+          energy += 50 + wave * 20;
           updateHud();
+          prepareWave(wave);
         }
 
-        // Atualiza inimigos
-        for (let i = enemies.length - 1; i >= 0; i--) {
-          const e = enemies[i];
-          const target = waypoints[e.targetWp];
-          const dx = target.x - e.x;
-          const dy = target.y - e.y;
+        // Atualiza Balões
+        for (let i = bloons.length - 1; i >= 0; i--) {
+          const b = bloons[i];
+          const target = waypoints[b.targetWp];
+          const dx = target.x - b.x;
+          const dy = target.y - b.y;
           const dist = Math.hypot(dx, dy);
 
-          const currentSpeed = e.slowTimer > 0 ? e.speed * 0.5 : e.speed;
-          if (e.slowTimer > 0) e.slowTimer--;
+          const curSpeed = b.slowTimer > 0 ? b.speed * 0.5 : b.speed;
+          if (b.slowTimer > 0) b.slowTimer--;
 
           if (dist < 5) {
-            e.targetWp++;
-            if (e.targetWp >= waypoints.length) {
-              // Chegou ao ninho
-              lives--;
+            b.targetWp++;
+            if (b.targetWp >= waypoints.length) {
+              lives -= b.layer;
               updateHud();
-              enemies.splice(i, 1);
+              bloons.splice(i, 1);
               if (lives <= 0) {
                 gameOver();
                 return;
@@ -482,117 +744,153 @@
               continue;
             }
           } else {
-            e.x += (dx / dist) * currentSpeed;
-            e.y += (dy / dist) * currentSpeed;
+            b.x += (dx / dist) * curSpeed;
+            b.y += (dy / dist) * curSpeed;
           }
 
-          // Desenha inimigo (Drone cibernético)
+          // Desenha Balão (Formato oval clássico de Bloons TD)
+          const bInfo = BLOON_LAYERS[b.layer];
           ctx.save();
-          ctx.fillStyle = e.slowTimer > 0 ? '#38e8ff' : '#ff4757';
+          ctx.translate(b.x, b.y);
+
+          ctx.fillStyle = b.slowTimer > 0 ? '#38e8ff' : bInfo.color;
           ctx.beginPath();
-          ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, b.r * 0.85, b.r, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Barra de vida
-          ctx.fillStyle = 'rgba(0,0,0,0.5)';
-          ctx.fillRect(e.x - 12, e.y - 18, 24, 4);
-          ctx.fillStyle = '#2ed573';
-          ctx.fillRect(e.x - 12, e.y - 18, 24 * (e.hp / e.maxHp), 4);
+          // Nó do balão
+          ctx.beginPath();
+          ctx.moveTo(-3, b.r);
+          ctx.lineTo(3, b.r);
+          ctx.lineTo(0, b.r + 4);
+          ctx.fill();
+
+          // Brilho do balão
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.beginPath();
+          ctx.ellipse(-b.r * 0.3, -b.r * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+
           ctx.restore();
         }
 
-        // Atualiza torres e mira
+        // Atualiza Corujas
         towers.forEach(t => {
           const tDef = TOWER_TYPES[t.type];
           t.cooldown--;
 
-          // Acha inimigo no alcance
+          // Mira no balão mais avançado no caminho (First target rule)
           let bestTarget = null;
-          let bestDist = tDef.range;
+          let bestWpProgress = -1;
 
-          for (let e of enemies) {
-            const d = Math.hypot(e.x - t.x, e.y - t.y);
-            if (d < bestDist) {
-              bestTarget = e;
-              bestDist = d;
+          for (let b of bloons) {
+            const d = Math.hypot(b.x - t.x, b.y - t.y);
+            if (d < t.range) {
+              const progress = b.targetWp * 1000 - Math.hypot(waypoints[b.targetWp].x - b.x, waypoints[b.targetWp].y - b.y);
+              if (progress > bestWpProgress) {
+                bestWpProgress = progress;
+                bestTarget = b;
+              }
             }
           }
 
           t.target = bestTarget;
 
-          // Disparo
           if (t.target && t.cooldown <= 0) {
-            t.cooldown = tDef.rate;
-            playSfx(tDef.sfx);
+            t.cooldown = Math.max(4, tDef.rate - (t.level - 1) * 2);
+            playDartShoot();
 
-            projectiles.push({
-              x: t.x,
-              y: t.y,
+            darts.push({
+              x: t.x, y: t.y,
               target: t.target,
-              speed: 9,
-              damage: tDef.damage,
-              color: tDef.color,
+              speed: tDef.projSpeed,
+              damage: tDef.damage + (t.level - 1),
+              color: tDef.projColor,
               slow: tDef.slow || 0,
-              splash: tDef.splash || 0
+              chain: tDef.chain || 0
             });
           }
 
-          // Desenha Torre (Plataforma da Coruja)
+          // Desenha a Coruja Guardiã com fones e bico
           ctx.save();
-          ctx.fillStyle = 'rgba(20, 26, 46, 0.9)';
+          ctx.translate(t.x, t.y);
+
+          // Rotação encarando o alvo
+          if (t.target) {
+            const lookAngle = Math.atan2(t.target.y - t.y, t.target.x - t.x);
+            ctx.rotate(lookAngle + Math.PI / 2);
+          }
+
+          // Plataforma
+          ctx.fillStyle = '#1e1b4b';
           ctx.strokeStyle = tDef.color;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(t.x, t.y, 18, 0, Math.PI * 2);
+          ctx.arc(0, 0, 18, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
-          // Ícone da torre
-          ctx.font = '16px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(tDef.icon, t.x, t.y + 1);
+          // Corpo da Coruja
+          ctx.fillStyle = tDef.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, 14, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Olhos
+          ctx.fillStyle = '#fff';
+          [-5, 5].forEach(ox => {
+            ctx.beginPath();
+            ctx.arc(ox, -3, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffb020';
+            ctx.beginPath();
+            ctx.arc(ox, -3, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+          });
+
+          // Bico
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(-2, 2);
+          ctx.lineTo(2, 2);
+          ctx.lineTo(0, 7);
+          ctx.fill();
 
           ctx.restore();
         });
 
-        // Atualiza projéteis
-        for (let i = projectiles.length - 1; i >= 0; i--) {
-          const p = projectiles[i];
-          const dx = p.target.x - p.x;
-          const dy = p.target.y - p.y;
+        // Atualiza Dardos/Penas
+        for (let i = darts.length - 1; i >= 0; i--) {
+          const d = darts[i];
+          const dx = d.target.x - d.x;
+          const dy = d.target.y - d.y;
           const dist = Math.hypot(dx, dy);
 
-          if (dist < 10 || !enemies.includes(p.target)) {
-            // Impacto
-            p.target.hp -= p.damage;
-            if (p.slow) p.target.slowTimer = 40;
-
-            if (p.target.hp <= 0) {
-              energy += 12;
-              updateHud();
-              const idx = enemies.indexOf(p.target);
-              if (idx !== -1) enemies.splice(idx, 1);
+          if (dist < 12 || !bloons.includes(d.target)) {
+            // Acertou balão
+            if (bloons.includes(d.target)) {
+              if (d.slow) d.target.slowTimer = 45;
+              d.target.hp -= d.damage;
+              if (d.target.hp <= 0) {
+                const idx = bloons.indexOf(d.target);
+                if (idx !== -1) popBloon(d.target, idx);
+              }
             }
-
-            // Partículas
-            for (let k = 0; k < 6; k++) {
-              particles.push({
-                x: p.x, y: p.y,
-                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
-                r: 3, c: p.color, life: 0.8
-              });
-            }
-
-            projectiles.splice(i, 1);
+            darts.splice(i, 1);
           } else {
-            p.x += (dx / dist) * p.speed;
-            p.y += (dy / dist) * p.speed;
+            d.x += (dx / dist) * d.speed;
+            d.y += (dy / dist) * d.speed;
 
-            ctx.fillStyle = p.color;
+            // Desenha pena afiada
+            ctx.save();
+            ctx.translate(d.x, d.y);
+            ctx.rotate(Math.atan2(dy, dx));
+            ctx.fillStyle = d.color;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            ctx.ellipse(0, 0, 7, 3, 0, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
           }
         }
       }

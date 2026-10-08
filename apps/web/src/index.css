@@ -3633,8 +3633,8 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
 /* 1. Hero Card: Boas-vindas + Mascote */
 .kruuj-hero-welcome {
-  background: linear-gradient(135deg, #0e1526 0%, #151a32 50%, #1c1438 100%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: linear-gradient(90deg, rgba(8, 14, 26, 0.95) 0%, rgba(8, 14, 26, 0.75) 45%, rgba(8, 14, 26, 0.3) 100%), url('/banners/welcome.jpg') right center / cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 28px;
   padding: 28px 36px;
   display: flex;

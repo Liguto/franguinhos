@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Kruuj Match: Alquimia Estelar</title>
+  <title>KRUUJ MATCH: Alquimia Estelar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -33,19 +33,19 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      padding: 10px 14px 16px 14px;
     }
     .header {
       width: 100%;
       max-width: 440px;
-      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       z-index: 10;
     }
     .title-logo {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
@@ -53,43 +53,56 @@
       letter-spacing: -0.01em;
     }
     .stats-pill {
-      background: rgba(13, 18, 36, 0.75);
+      background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
       padding: 4px 14px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 800;
       color: #cbd5e1;
     }
     .stats-pill span {
       color: var(--gold);
     }
+    .mascot-stage {
+      width: 100%;
+      max-width: 420px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    canvas#mascotCanvas {
+      width: 120px;
+      height: 70px;
+    }
     #game-container {
       position: relative;
-      width: min(92vw, 420px);
-      height: min(92vw, 420px);
-      background: rgba(13, 18, 36, 0.65);
-      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      width: min(88vw, 390px);
+      height: min(88vw, 390px);
+      background: rgba(13, 18, 36, 0.75);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
       overflow: hidden;
     }
-    canvas {
+    canvas#c {
       width: 100%;
       height: 100%;
       display: block;
     }
     .footer-bar {
-      margin-top: 10px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: #94a3b8;
-      font-weight: 600;
+      font-weight: 700;
+      text-align: center;
     }
     .overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.9) 0%, rgba(7, 6, 26, 0.98) 100%);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 6, 26, 0.98) 100%);
       backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
@@ -143,21 +156,25 @@
 <body>
   <div class="header">
     <div class="title-logo">KRUUJ MATCH</div>
-    <div class="stats-pill">PONTOS: <span id="score">0</span></div>
+    <div class="stats-pill">PONTOS: <span id="score">0</span> 🪶</div>
     <div class="stats-pill" style="font-size: 0.82rem;">RECORDE: <span id="best" style="color: var(--cyan);">0</span></div>
+  </div>
+
+  <div class="mascot-stage">
+    <canvas id="mascotCanvas" width="120" height="70"></canvas>
   </div>
 
   <div id="game-container">
     <canvas id="c"></canvas>
   </div>
 
-  <div class="footer-bar">Arraste pedras vizinhas para combinar 3 ou mais</div>
+  <div class="footer-bar">Combine 3 runas da Coruja Cósmica para ativar a alquimia!</div>
 
-  <!-- Overlay de Início e Nível Concluído -->
+  <!-- Overlay -->
   <div class="overlay active" id="ov">
-    <h1 id="ovTitle">ALQUIMIA ESTELAR</h1>
-    <p id="ovDesc">Combine 3 ou mais cristais rúnicos cósmicos. Crie combinações de 4 ou 5 para liberar a energia mágica da Coruja!</p>
-    <button class="btn-action" id="btnStart" onclick="startGame()">JOGAR</button>
+    <h1 id="ovTitle">KRUUJ MATCH</h1>
+    <p id="ovDesc">Alinhe cristais e runas da Coruja Cósmica! Forme combinações de 4 ou 5 para desencadear o poder das Asas de Luz.</p>
+    <button class="btn-action" onclick="startGame()">COMBINAR 🦉</button>
   </div>
 
   <script>
@@ -185,48 +202,82 @@
       }
     });
 
-    // ===== Áudio WebAudio Zen Sintético =====
+    // ===== Som Temático de Coruja (WebAudio) =====
     let audioCtx = null;
-    function playChime(freq = 520) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.25);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc.start(now);
-        osc.stop(now + 0.35);
-      } catch(e) {}
+    function getAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
     }
 
-    // ===== Lógica do Match-3 =====
+    // Piadinho alegre de combo
+    function playOwlChirp(combo = 1) {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+
+        const freq = 520 + combo * 90;
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.35, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.1, now + 0.18);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.14, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } catch (e) {}
+    }
+
+    function playSwapFail() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.15);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } catch (e) {}
+    }
+
+    // ===== Lógica do KRUUJ Match =====
     const cv = document.getElementById('c');
     const ctx = cv.getContext('2d');
+    const mascotCanvas = document.getElementById('mascotCanvas');
+    const mCtx = mascotCanvas.getContext('2d');
+
     const ROWS = 7;
     const COLS = 7;
     let tileSize = 0;
     let grid = [];
     let score = 0;
     let isSwapping = false;
-    let selectedTile = null;
     let particles = [];
     let state = 'menu';
+    let mascotHappyTimer = 0;
 
-    // Tipos de cristais rúnicos (0 a 4)
+    // As 5 Runas Oficiais do Universo KRUUJ
     const GEMS = [
-      { name: 'cyan', color: '#38e8ff', glow: 'rgba(56, 232, 255, 0.4)', icon: '◆' },
-      { name: 'purple', color: '#8b5cff', glow: 'rgba(139, 92, 246, 0.4)', icon: '▲' },
-      { name: 'gold', color: '#ffb020', glow: 'rgba(255, 176, 32, 0.4)', icon: '★' },
-      { name: 'pink', color: '#ff5ca8', glow: 'rgba(255, 92, 168, 0.4)', icon: '●' },
-      { name: 'green', color: '#10b981', glow: 'rgba(16, 185, 129, 0.4)', icon: '✦' }
+      { name: 'pena', color: '#ffb020', glow: '#ffb020', icon: '🪶', label: 'Pena' },
+      { name: 'fone', color: '#38e8ff', glow: '#38e8ff', icon: '🎧', label: 'Fone' },
+      { name: 'coruja', color: '#8b5cff', glow: '#8b5cff', icon: '🦉', label: 'Olho' },
+      { name: 'ovo', color: '#ff5ca8', glow: '#ff5ca8', icon: '🥚', label: 'Ovo' },
+      { name: 'folha', color: '#10b981', glow: '#10b981', icon: '🍃', label: 'Folha' }
     ];
 
     function resize() {
@@ -254,25 +305,13 @@
             (c >= 2 && grid[r][c - 1]?.type === type && grid[r][c - 2]?.type === type) ||
             (r >= 2 && grid[r - 1][c]?.type === type && grid[r - 2][c]?.type === type)
           );
-          grid[r][c] = {
-            type,
-            r, c,
-            x: c * tileSize,
-            y: r * tileSize,
-            targetX: c * tileSize,
-            targetY: r * tileSize,
-            scale: 1,
-            alpha: 1
-          };
+          grid[r][c] = { type, r, c };
         }
       }
     }
 
-    // Identifica linhas e colunas com 3 ou mais iguais
     function checkMatches() {
       let matches = new Set();
-
-      // Horizontal
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS - 2; c++) {
           const t = grid[r][c].type;
@@ -283,8 +322,6 @@
           }
         }
       }
-
-      // Vertical
       for (let c = 0; c < COLS; c++) {
         for (let r = 0; r < ROWS - 2; r++) {
           const t = grid[r][c].type;
@@ -295,44 +332,42 @@
           }
         }
       }
-
       return Array.from(matches).map(pos => {
         const [r, c] = pos.split(',').map(Number);
         return { r, c };
       });
     }
 
-    // Resolve as combinações e faz cascata
     async function processMatches() {
       let matches = checkMatches();
-      let comboCount = 0;
+      let combo = 0;
 
       while (matches.length > 0) {
-        comboCount++;
-        playChime(440 + comboCount * 70);
+        combo++;
+        playOwlChirp(combo);
+        mascotHappyTimer = 40; // Mascote comemora!
 
-        // Pontuação e partículas
-        score += matches.length * 10 * comboCount;
+        score += matches.length * 15 * combo;
         document.getElementById('score').textContent = score;
 
         matches.forEach(m => {
           const tile = grid[m.r][m.c];
-          // Partículas
-          for (let i = 0; i < 6; i++) {
+          const color = GEMS[tile.type]?.color || '#fff';
+          for (let i = 0; i < 7; i++) {
             particles.push({
-              x: tile.x + tileSize / 2,
-              y: tile.y + tileSize / 2,
+              x: m.c * tileSize + tileSize / 2,
+              y: m.r * tileSize + tileSize / 2,
               vx: (Math.random() - 0.5) * 6,
               vy: (Math.random() - 0.5) * 6,
               r: Math.random() * 4 + 2,
-              c: GEMS[tile.type]?.color || '#fff',
+              c: color,
               life: 1
             });
           }
           grid[m.r][m.c].type = null;
         });
 
-        // Gravidade (as pedras caem para baixo)
+        // Queda
         for (let c = 0; c < COLS; c++) {
           let emptyRow = ROWS - 1;
           for (let r = ROWS - 1; r >= 0; r--) {
@@ -344,18 +379,15 @@
               emptyRow--;
             }
           }
-          // Preenche os vazios do topo
           for (let r = emptyRow; r >= 0; r--) {
             grid[r][c].type = Math.floor(Math.random() * GEMS.length);
           }
         }
 
-        // Aguarda animação de cascata
-        await new Promise(res => setTimeout(res, 220));
+        await new Promise(res => setTimeout(res, 210));
         matches = checkMatches();
       }
 
-      // Atualiza recorde
       if (score > bestScore) {
         bestScore = score;
         localStorage.setItem('kruuj_match_best', String(bestScore));
@@ -365,7 +397,6 @@
       isSwapping = false;
     }
 
-    // Troca 2 pedras
     async function swapTiles(t1, t2) {
       isSwapping = true;
       const type1 = t1.type;
@@ -374,7 +405,7 @@
 
       const matches = checkMatches();
       if (matches.length === 0) {
-        // Desfaz se não formar combinação
+        playSwapFail();
         await new Promise(res => setTimeout(res, 180));
         t2.type = t1.type;
         t1.type = type1;
@@ -384,9 +415,7 @@
       }
     }
 
-    // Input touch / mouse
     let pointerStart = null;
-
     cv.addEventListener('pointerdown', (e) => {
       if (isSwapping || state !== 'play') return;
       const rect = cv.getBoundingClientRect();
@@ -401,20 +430,14 @@
       if (!pointerStart || isSwapping || state !== 'play') return;
       const dx = e.clientX - pointerStart.x;
       const dy = e.clientY - pointerStart.y;
-      const dist = Math.hypot(dx, dy);
+      if (Math.hypot(dx, dy) > 15) {
+        let tr = pointerStart.r;
+        let tc = pointerStart.c;
+        if (Math.abs(dx) > Math.abs(dy)) tc += dx > 0 ? 1 : -1;
+        else tr += dy > 0 ? 1 : -1;
 
-      if (dist > 15) {
-        let targetR = pointerStart.r;
-        let targetC = pointerStart.c;
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-          targetC += dx > 0 ? 1 : -1;
-        } else {
-          targetR += dy > 0 ? 1 : -1;
-        }
-
-        if (targetR >= 0 && targetR < ROWS && targetC >= 0 && targetC < COLS) {
-          swapTiles(grid[pointerStart.r][pointerStart.c], grid[targetR][targetC]);
+        if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) {
+          swapTiles(grid[pointerStart.r][pointerStart.c], grid[tr][tc]);
         }
       }
       pointerStart = null;
@@ -427,15 +450,108 @@
       document.getElementById('ov').classList.remove('active');
     }
 
-    // Loop de Renderização
+    // Desenha o Mascote KRUUJ animado no topo (Reação viva aos combos)
+    function drawTopMascot() {
+      mCtx.clearRect(0, 0, mascotCanvas.width, mascotCanvas.height);
+      const cx = 60;
+      const cy = 38;
+      const r = 20;
+
+      if (mascotHappyTimer > 0) mascotHappyTimer--;
+      const isHappy = mascotHappyTimer > 0;
+
+      // Galho / Puleiro Cósmico
+      mCtx.fillStyle = '#1e1b4b';
+      mCtx.strokeStyle = 'rgba(56, 232, 255, 0.4)';
+      mCtx.lineWidth = 2;
+      mCtx.beginPath();
+      mCtx.roundRect(10, cy + 16, 100, 6, 3);
+      mCtx.fill();
+      mCtx.stroke();
+
+      // Asas (Batendo se estiver feliz com combo)
+      const wingW = isHappy ? Math.sin(Date.now() * 0.03) * 6 : 0;
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#6d28d9';
+        mCtx.beginPath();
+        mCtx.ellipse(cx + side * (r + 2 + wingW), cy + 2, 6, 12, side * 0.3, 0, Math.PI * 2);
+        mCtx.fill();
+      });
+
+      // Arco dos Fones
+      mCtx.strokeStyle = '#0f172a';
+      mCtx.lineWidth = 3;
+      mCtx.beginPath();
+      mCtx.arc(cx, cy, r + 2, Math.PI * 1.15, Math.PI * 1.85);
+      mCtx.stroke();
+
+      // Fones de ouvido Ciano
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#1e1b4b';
+        mCtx.strokeStyle = '#38e8ff';
+        mCtx.lineWidth = 2;
+        mCtx.beginPath();
+        mCtx.ellipse(cx + side * (r + 2), cy, 4, 8, 0, 0, Math.PI * 2);
+        mCtx.fill();
+        mCtx.stroke();
+      });
+
+      // Corpo da Coruja
+      const g = mCtx.createRadialGradient(cx, cy - 3, 2, cx, cy, r);
+      g.addColorStop(0, '#8b5cff');
+      g.addColorStop(1, '#3b0764');
+      mCtx.fillStyle = g;
+      mCtx.beginPath();
+      mCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      mCtx.fill();
+
+      // Orelhinhas
+      mCtx.fillStyle = '#4c1d95';
+      [-1, 1].forEach(side => {
+        mCtx.beginPath();
+        mCtx.moveTo(cx + side * (r * 0.65), cy - r * 0.4);
+        mCtx.lineTo(cx + side * (r * 0.75), cy - r * 1.3);
+        mCtx.lineTo(cx + side * (r * 0.2), cy - r * 0.8);
+        mCtx.fill();
+      });
+
+      // Olhos
+      [-1, 1].forEach(side => {
+        mCtx.fillStyle = '#fff';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.34, 0, Math.PI * 2);
+        mCtx.fill();
+
+        mCtx.fillStyle = '#ffb020';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.24, 0, Math.PI * 2);
+        mCtx.fill();
+
+        mCtx.fillStyle = '#0f172a';
+        mCtx.beginPath();
+        mCtx.arc(cx + side * (r * 0.38), cy - r * 0.12, r * 0.12, 0, Math.PI * 2);
+        mCtx.fill();
+      });
+
+      // Bico
+      mCtx.fillStyle = '#f59e0b';
+      mCtx.beginPath();
+      mCtx.moveTo(cx - 3, cy + 2);
+      mCtx.lineTo(cx + 3, cy + 2);
+      mCtx.lineTo(cx, cy + 8);
+      mCtx.fill();
+    }
+
+    // Loop
     function loop() {
       requestAnimationFrame(loop);
-      ctx.clearRect(0, 0, cv.width, cv.height);
+      drawTopMascot();
 
-      // Fundo e grade sutil
+      ctx.clearRect(0, 0, cv.width, cv.height);
       ctx.fillStyle = '#0a0d1f';
       ctx.fillRect(0, 0, cv.width, cv.height);
 
+      // Grade sutil
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
       ctx.lineWidth = 1;
       for (let i = 0; i <= COLS; i++) {
@@ -443,14 +559,13 @@
         ctx.moveTo(i * tileSize, 0);
         ctx.lineTo(i * tileSize, cv.height);
         ctx.stroke();
-
         ctx.beginPath();
         ctx.moveTo(0, i * tileSize);
         ctx.lineTo(cv.width, i * tileSize);
         ctx.stroke();
       }
 
-      // Desenha as pedras
+      // Desenha as pedras rúnicas
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
           const tile = grid[r]?.[c];
@@ -461,24 +576,21 @@
           const y = r * tileSize + tileSize / 2;
           const radius = tileSize * 0.38;
 
-          // Efeito de brilho
           ctx.save();
-          ctx.shadowColor = gem.color;
+          ctx.shadowColor = gem.glow;
           ctx.shadowBlur = 10;
 
-          // Corpo da pedra rúnica (Squircle chanfrado)
+          // Runa circular suave
           ctx.fillStyle = gem.color;
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
           ctx.fill();
 
-          // Símbolo central
-          ctx.fillStyle = '#ffffff';
-          ctx.font = `800 ${tileSize * 0.4}px 'Baloo 2'`;
+          // Símbolo temático da Coruja
+          ctx.font = `${tileSize * 0.42}px 'Baloo 2', sans-serif`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(gem.icon, x, y + 1);
-
+          ctx.fillText(gem.icon, x, y + 2);
           ctx.restore();
         }
       }

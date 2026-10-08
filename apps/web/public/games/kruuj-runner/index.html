@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Runner: Fuga dos Meteoros</title>
+  <title>KRUUJ RUNNER: Fuga dos Meteoros</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -49,14 +49,39 @@
       z-index: 10;
     }
     .hud-badge {
-      background: rgba(13, 18, 36, 0.8);
+      background: rgba(13, 18, 36, 0.82);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
       padding: 6px 16px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mobile-touch-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.8), rgba(139, 92, 246, 0.85));
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      cursor: pointer;
+      line-height: 1.1;
     }
     .overlay {
       position: fixed;
@@ -79,7 +104,7 @@
       pointer-events: auto;
     }
     h1 {
-      font-size: clamp(32px, 8vw, 52px);
+      font-size: clamp(30px, 8vw, 52px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
@@ -120,11 +145,16 @@
     <div class="hud-badge">RECORDE: <span id="best" style="color: var(--pink);">0m</span></div>
   </div>
 
+  <button class="mobile-touch-btn" id="mobileJumpBtn">
+    <span>PULAR</span>
+    <span style="font-size: 0.65rem; color: #ffb020;">PLANAR</span>
+  </button>
+
   <!-- Overlay -->
   <div class="overlay active" id="ov">
     <h1 id="ovTitle">KRUUJ RUNNER</h1>
-    <p id="ovDesc">Corra pelos telhados cibernéticos da cidade cósmica! Toque ou aperte ESPAÇO para pular, pule duas vezes e segure para planar suavemente.</p>
-    <button class="btn-action" onclick="startGame()">CORRER AGORA</button>
+    <p id="ovDesc">A Coruja Mascote corre pelos telhados da metrópole cósmica! Toque para Pular, pule no ar para Salto Duplo e segure para Planar com asas abertas.</p>
+    <button class="btn-action" onclick="startGame()">CORRER 🦉</button>
   </div>
 
   <script>
@@ -152,47 +182,76 @@
       }
     });
 
-    // ===== Áudio WebAudio Sintético =====
+    // ===== Som Temático Sintético de Coruja (WebAudio) =====
     let audioCtx = null;
-    function playSfx(type) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
+    function getAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
 
-        if (type === 'jump') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(350, now);
-          osc.frequency.exponentialRampToValueAtTime(750, now + 0.12);
-          gain.gain.setValueAtTime(0.08, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-          osc.start(now);
-          osc.stop(now + 0.12);
-        } else if (type === 'coin') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(880, now);
-          osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1);
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-          osc.start(now);
-          osc.stop(now + 0.1);
-        } else if (type === 'crash') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(180, now);
-          osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
-        }
+    function playJumpHoot() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(360, now);
+        osc.frequency.exponentialRampToValueAtTime(780, now + 0.1);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.16);
       } catch (e) {}
     }
 
-    // ===== Engine Endless Runner =====
+    function playFeatherCollect() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(980, now);
+        osc.frequency.exponentialRampToValueAtTime(1450, now + 0.1);
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      } catch (e) {}
+    }
+
+    function playCrashHoot() {
+      try {
+        const ctx = getAudio();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(50, now + 0.35);
+
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } catch (e) {}
+    }
+
+    // ===== Engine KRUUJ Runner =====
     const cv = document.getElementById('c');
     const ctx = cv.getContext('2d');
     let W = cv.width = window.innerWidth;
@@ -204,13 +263,14 @@
     });
 
     let state = 'menu';
-    let speed = 6;
+    let speed = 6.5;
     let distance = 0;
-    let feathers = 0;
+    let feathersCount = 0;
     let isHoldingJump = false;
+    let legCycle = 0;
 
     let owl = {
-      x: 100, y: 300, vy: 0, r: 18,
+      x: 110, y: 300, vy: 0, r: 20,
       onGround: false,
       jumpsLeft: 2
     };
@@ -221,20 +281,19 @@
     let particles = [];
     let bgBuildings = [];
 
-    // Fundo urbano cyberpunk
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 22; i++) {
       bgBuildings.push({
-        x: i * 110,
+        x: i * 105,
         w: 80 + Math.random() * 50,
-        h: 150 + Math.random() * 200,
+        h: 160 + Math.random() * 200,
         c: i % 2 === 0 ? '#101428' : '#141a34'
       });
     }
 
     function initGame() {
-      speed = 6.5;
+      speed = 6.8;
       distance = 0;
-      feathers = 0;
+      feathersCount = 0;
       owl.y = H * 0.5;
       owl.vy = 0;
       owl.jumpsLeft = 2;
@@ -243,32 +302,28 @@
       items = [];
       particles = [];
 
-      // Primeira plataforma longa sob o jogador
       let currentX = 50;
       platforms.push({ x: currentX, y: H * 0.7, w: W * 0.9, h: 22 });
 
       currentX += W * 0.9;
-      // Gera próximas plataformas
-      for (let i = 0; i < 6; i++) {
-        currentX += 80 + Math.random() * 70; // gap
-        const platW = 200 + Math.random() * 220;
+      for (let i = 0; i < 7; i++) {
+        currentX += 80 + Math.random() * 70;
+        const platW = 210 + Math.random() * 220;
         const platY = H * 0.55 + (Math.random() * 120 - 60);
         platforms.push({ x: currentX, y: platY, w: platW, h: 22 });
 
-        // Obstáculo ou item
-        if (Math.random() > 0.5) {
+        if (Math.random() > 0.45) {
           obstacles.push({
             x: currentX + platW * 0.5,
-            y: platY - 26,
-            w: 18, h: 26,
+            y: platY - 28,
+            w: 18, h: 28,
             type: 'laser'
           });
         }
         if (Math.random() > 0.3) {
           items.push({
             x: currentX + platW * 0.25,
-            y: platY - 40,
-            r: 10,
+            y: platY - 42,
             collected: false
           });
         }
@@ -279,15 +334,15 @@
     function jump() {
       if (state !== 'play') return;
       if (owl.jumpsLeft > 0) {
-        owl.vy = -11.5;
+        owl.vy = -12;
         owl.jumpsLeft--;
         owl.onGround = false;
-        playSfx('jump');
+        playJumpHoot();
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 9; i++) {
           particles.push({
             x: owl.x, y: owl.y + owl.r,
-            vx: (Math.random() - 0.5) * 4 - speed * 0.3,
+            vx: (Math.random() - 0.5) * 4 - speed * 0.25,
             vy: Math.random() * 3,
             r: 3, c: '#38e8ff', life: 0.8
           });
@@ -310,15 +365,23 @@
       }
     });
 
+    const mBtn = document.getElementById('mobileJumpBtn');
+    mBtn.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      isHoldingJump = true;
+      if (state === 'play') jump();
+      else if (state === 'over' || state === 'menu') startGame();
+    });
+    mBtn.addEventListener('pointerup', () => { isHoldingJump = false; });
+    mBtn.addEventListener('pointerleave', () => { isHoldingJump = false; });
+
     window.addEventListener('pointerdown', (e) => {
       if (e.target.closest('#ov') || e.target.closest('button')) return;
       isHoldingJump = true;
       if (state === 'play') jump();
     });
 
-    window.addEventListener('pointerup', () => {
-      isHoldingJump = false;
-    });
+    window.addEventListener('pointerup', () => { isHoldingJump = false; });
 
     function startGame() {
       initGame();
@@ -329,18 +392,131 @@
 
     function gameOver() {
       state = 'over';
-      playSfx('crash');
+      playCrashHoot();
       bestDist = Math.max(bestDist, Math.floor(distance));
       localStorage.setItem('kruuj_runner_best', String(bestDist));
       document.getElementById('best').textContent = bestDist + 'm';
 
-      const finalScore = Math.floor(distance) + feathers * 25;
-      sendEvent('game_over', { distance: Math.floor(distance), feathers, score: finalScore });
+      const finalScore = Math.floor(distance) + feathersCount * 25;
+      sendEvent('game_over', { distance: Math.floor(distance), feathers: feathersCount, score: finalScore });
       sendEvent('game_save', { saveData: { bestDist }, score: finalScore });
 
       document.getElementById('ovTitle').textContent = 'FIM DA CORRIDA!';
-      document.getElementById('ovDesc').textContent = `Você correu ${Math.floor(distance)}m e resgatou ${feathers} penas cósmicas! Desvie dos lasers e plane entre os prédios!`;
+      document.getElementById('ovDesc').textContent = `A Coruja correu ${Math.floor(distance)}m e resgatou ${feathersCount} penas cósmicas! Desvie dos lasers e plane entre os telhados!`;
       document.getElementById('ov').classList.add('active');
+    }
+
+    // Desenha Coruja Corredora / Planando com Asas Abertas
+    function drawRunnerOwl(x, y, r, onGround, isGliding) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      legCycle += speed * 0.08;
+
+      // Asas da Coruja
+      if (isGliding) {
+        // Asas Planando Abertas e Majestosas
+        ctx.fillStyle = '#6d28d9';
+        ctx.beginPath();
+        ctx.ellipse(-14, -2, 24, 7, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Penas Ciano Neon de Voo
+        ctx.fillStyle = '#38e8ff';
+        ctx.beginPath();
+        ctx.ellipse(-24, -2, 8, 4, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rastro de vento sob as asas
+        ctx.strokeStyle = 'rgba(56, 232, 255, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-35, 6);
+        ctx.lineTo(-10, 6);
+        ctx.stroke();
+      } else {
+        // Asa fechada ao lado do corpo
+        ctx.fillStyle = '#6d28d9';
+        ctx.beginPath();
+        ctx.ellipse(-8, 2, 10, 14, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Perninhas correndo
+      if (onGround) {
+        const leg1 = Math.sin(legCycle) * 7;
+        const leg2 = -Math.sin(legCycle) * 7;
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-4, r - 3);
+        ctx.lineTo(-4 + leg1, r + 7);
+        ctx.moveTo(4, r - 3);
+        ctx.lineTo(4 + leg2, r + 7);
+        ctx.stroke();
+      }
+
+      // Fones de Ouvido
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, -3, r + 2, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e1b4b';
+      ctx.strokeStyle = '#38e8ff';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#38e8ff';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.ellipse(-r - 1, -3, 4, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Corpo da Coruja KRUUJ
+      const grad = ctx.createRadialGradient(-3, -3, 3, 0, 0, r);
+      grad.addColorStop(0, '#8b5cff');
+      grad.addColorStop(0.7, '#6d28d9');
+      grad.addColorStop(1, '#3b0764');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Penas das Orelhas
+      ctx.fillStyle = '#4c1d95';
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.4, -r * 0.5);
+      ctx.lineTo(-r * 0.6, -r * 1.3);
+      ctx.lineTo(0, -r * 0.8);
+      ctx.fill();
+
+      // Olho Âmbar
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(6, -3, 7.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffb020';
+      ctx.beginPath();
+      ctx.arc(7, -3, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(8, -3, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bico Dourado
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(13, 1);
+      ctx.lineTo(21, 4);
+      ctx.lineTo(13, 8);
+      ctx.fill();
+
+      ctx.restore();
     }
 
     // Loop
@@ -350,14 +526,13 @@
       ctx.fillStyle = '#07061a';
       ctx.fillRect(0, 0, W, H);
 
-      // Fundo dos prédios (Parallax)
+      // Parallax prédios
       bgBuildings.forEach(b => {
         b.x -= speed * 0.2;
         if (b.x + b.w < 0) b.x = W + Math.random() * 40;
         ctx.fillStyle = b.c;
         ctx.fillRect(b.x, H - b.h, b.w, b.h);
 
-        // Luzinhas nas janelas
         ctx.fillStyle = 'rgba(56, 232, 255, 0.15)';
         for (let j = 0; j < 4; j++) {
           ctx.fillRect(b.x + 12 + j * 16, H - b.h + 20, 8, 12);
@@ -366,10 +541,9 @@
 
       if (state === 'play') {
         distance += speed * 0.05;
-        speed += 0.0008; // Aceleração gradual
+        speed += 0.0008;
         document.getElementById('dist').textContent = Math.floor(distance) + 'm';
 
-        // Gravidade com efeito de planar segurando pulo
         const gravity = (isHoldingJump && owl.vy > 0) ? 0.28 : 0.65;
         owl.vy += gravity;
         owl.y += owl.vy;
@@ -380,7 +554,6 @@
           const p = platforms[i];
           p.x -= speed;
 
-          // Colisão com o topo da plataforma
           if (
             owl.x + owl.r > p.x &&
             owl.x - owl.r < p.x + p.w &&
@@ -394,25 +567,23 @@
             owl.jumpsLeft = 2;
           }
 
-          // Recicla plataforma
           if (p.x + p.w < -50) {
             platforms.splice(i, 1);
             const lastPlat = platforms[platforms.length - 1];
             const nextX = lastPlat.x + lastPlat.w + 90 + Math.random() * 80;
-            const nextW = 200 + Math.random() * 240;
+            const nextW = 210 + Math.random() * 240;
             const nextY = Math.min(H * 0.75, Math.max(H * 0.45, lastPlat.y + (Math.random() * 100 - 50)));
             platforms.push({ x: nextX, y: nextY, w: nextW, h: 22 });
 
             if (Math.random() > 0.45) {
-              obstacles.push({ x: nextX + nextW * 0.5, y: nextY - 26, w: 18, h: 26, type: 'laser' });
+              obstacles.push({ x: nextX + nextW * 0.5, y: nextY - 28, w: 18, h: 28, type: 'laser' });
             }
             if (Math.random() > 0.3) {
-              items.push({ x: nextX + nextW * 0.3, y: nextY - 40, r: 10, collected: false });
+              items.push({ x: nextX + nextW * 0.3, y: nextY - 42, collected: false });
             }
           }
         }
 
-        // Queda no abismo
         if (owl.y > H + 50) {
           gameOver();
           return;
@@ -423,7 +594,6 @@
           const ob = obstacles[i];
           ob.x -= speed;
 
-          // Colisão
           if (
             owl.x + owl.r > ob.x &&
             owl.x - owl.r < ob.x + ob.w &&
@@ -437,21 +607,21 @@
           if (ob.x < -50) obstacles.splice(i, 1);
         }
 
-        // Itens (Penas)
+        // Itens (Pena Dourada)
         for (let i = items.length - 1; i >= 0; i--) {
           const it = items[i];
           it.x -= speed;
 
-          if (!it.collected && Math.hypot(owl.x - it.x, owl.y - it.y) < owl.r + it.r) {
+          if (!it.collected && Math.hypot(owl.x - it.x, owl.y - it.y) < owl.r + 14) {
             it.collected = true;
-            feathers++;
-            document.getElementById('feathers').textContent = feathers;
-            playSfx('coin');
+            feathersCount++;
+            document.getElementById('feathers').textContent = feathersCount;
+            playFeatherCollect();
 
-            for (let k = 0; k < 6; k++) {
+            for (let k = 0; k < 8; k++) {
               particles.push({
                 x: it.x, y: it.y,
-                vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
                 r: 3, c: '#ffb020', life: 0.8
               });
             }
@@ -462,12 +632,11 @@
       }
 
       // RENDERIZAÇÃO
-      // Desenha plataformas neon
+      // Plataformas
       platforms.forEach(p => {
         ctx.fillStyle = '#171d38';
         ctx.fillRect(p.x, p.y, p.w, p.h);
 
-        // Borda de neon
         ctx.fillStyle = '#38e8ff';
         ctx.shadowColor = '#38e8ff';
         ctx.shadowBlur = 8;
@@ -475,7 +644,7 @@
         ctx.shadowBlur = 0;
       });
 
-      // Desenha obstáculos (Laser Vermelho)
+      // Obstáculos (Laser Vermelho)
       obstacles.forEach(ob => {
         ctx.fillStyle = '#ff4757';
         ctx.shadowColor = '#ff4757';
@@ -484,7 +653,7 @@
         ctx.shadowBlur = 0;
       });
 
-      // Desenha itens (Pena Dourada)
+      // Penas Coletáveis
       items.forEach(it => {
         if (!it.collected) {
           ctx.save();
@@ -493,7 +662,7 @@
           ctx.shadowColor = '#ffb020';
           ctx.shadowBlur = 10;
           ctx.beginPath();
-          ctx.ellipse(0, 0, 6, 12, 0.4, 0, Math.PI * 2);
+          ctx.ellipse(0, 0, 5, 12, 0.4, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
@@ -517,44 +686,10 @@
         ctx.globalAlpha = 1;
       }
 
-      // Desenha Coruja Correndo / Planando
+      // Coruja Corredora
       if (state === 'play') {
-        ctx.save();
-        ctx.translate(owl.x, owl.y);
-
-        // Asas abertas se estiver planando
-        if (!owl.onGround) {
-          ctx.fillStyle = '#8b5cff';
-          ctx.beginPath();
-          ctx.ellipse(-14, 0, 16, 6, -0.2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Corpo da coruja
-        ctx.fillStyle = '#8b5cff';
-        ctx.beginPath();
-        ctx.arc(0, 0, owl.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Olho
-        ctx.fillStyle = '#ffb020';
-        ctx.beginPath();
-        ctx.arc(6, -2, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#111';
-        ctx.beginPath();
-        ctx.arc(7, -2, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bico
-        ctx.fillStyle = '#ff9a1a';
-        ctx.beginPath();
-        ctx.moveTo(12, 1);
-        ctx.lineTo(20, 4);
-        ctx.lineTo(12, 7);
-        ctx.fill();
-
-        ctx.restore();
+        const isGliding = isHoldingJump && owl.vy > 0;
+        drawRunnerOwl(owl.x, owl.y, owl.r, owl.onGround, isGliding);
       }
     }
 
