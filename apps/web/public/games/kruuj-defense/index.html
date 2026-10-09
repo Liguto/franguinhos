@@ -41,7 +41,7 @@
       font-family: 'Baloo 2', sans-serif;
     }
 
-    /* Layout Principal Responsivo (Web PC: Sidebar | Mobile: Bottom Dock) */
+    /* Layout Principal (Web PC: Sidebar | Mobile: Bottom Dock) */
     #app-layout {
       display: flex;
       width: 100vw;
@@ -67,9 +67,9 @@
     /* Barra Superior do Canvas (HUD de Recursos e Controles Rápidos) */
     .canvas-top-bar {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
+      top: 10px;
+      left: 10px;
+      right: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -79,7 +79,7 @@
 
     .hud-chips {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .hud-chip {
@@ -87,19 +87,19 @@
       border: 1px solid var(--border-color);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
-      padding: 5px 14px;
-      font-size: 0.9rem;
+      padding: 4px 12px;
+      font-size: 0.85rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       color: #fff;
     }
 
     .hud-controls {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       pointer-events: auto;
     }
 
@@ -108,15 +108,15 @@
       border: 1px solid var(--border-color);
       backdrop-filter: blur(10px);
       border-radius: 9999px;
-      padding: 5px 12px;
-      font-size: 0.82rem;
+      padding: 4px 10px;
+      font-size: 0.8rem;
       font-weight: 800;
       color: #cbd5e1;
       font-family: inherit;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       transition: all 0.2s;
     }
@@ -132,17 +132,17 @@
       color: var(--cyan);
     }
 
-    /* Barra de Vida do Boss (Aparece em Rodadas Redondas 10/20/30) */
+    /* Barra de Vida do Boss / Balão Titã (Rounds 10, 20, 30) */
     #boss-hud {
       position: absolute;
-      top: 60px;
+      top: 52px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(90vw, 380px);
-      background: rgba(13, 18, 36, 0.9);
+      width: min(90vw, 360px);
+      background: rgba(13, 18, 36, 0.92);
       border: 1.5px solid #ef4444;
       border-radius: 12px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       display: none;
       flex-direction: column;
       gap: 4px;
@@ -151,7 +151,7 @@
     }
 
     .boss-name {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 800;
       color: #f87171;
       display: flex;
@@ -160,7 +160,7 @@
 
     .boss-hp-track {
       width: 100%;
-      height: 8px;
+      height: 7px;
       background: rgba(0, 0, 0, 0.6);
       border-radius: 9999px;
       overflow: hidden;
@@ -175,7 +175,7 @@
 
     /* Menu Lateral / Loja (Sidebar Web PC) */
     #sidebar-ui {
-      width: 320px;
+      width: 310px;
       height: 100%;
       background: var(--bg-sidebar);
       border-left: 1px solid var(--border-color);
@@ -222,11 +222,10 @@
       justify-content: space-between;
     }
 
-    /* Menu de Botões da Enciclopédia/Fases */
     .menu-nav-row {
       display: flex;
       gap: 6px;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .nav-btn {
@@ -235,7 +234,7 @@
       border: 1px solid var(--border-color);
       color: #cbd5e1;
       border-radius: 8px;
-      padding: 4px 8px;
+      padding: 5px 6px;
       font-size: 0.72rem;
       font-weight: 800;
       cursor: pointer;
@@ -249,18 +248,18 @@
       color: #fff;
     }
 
-    /* Loja de Torres ("Macacos Bloons TD") */
+    /* Loja de Torres */
     .shop-section {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin: 10px 0;
+      gap: 7px;
+      margin: 8px 0;
       overflow-y: auto;
     }
 
     .shop-title {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
       color: var(--cyan);
@@ -274,13 +273,14 @@
       background: var(--bg-card);
       border: 1.5px solid var(--border-color);
       border-radius: 12px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: #fff;
       cursor: grab;
       font-family: inherit;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: left;
       touch-action: none;
+      position: relative;
     }
 
     .tower-card-btn:active {
@@ -306,13 +306,13 @@
     }
 
     .tower-avatar-preview {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       background: rgba(255, 255, 255, 0.08);
       flex-shrink: 0;
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -326,7 +326,7 @@
     }
 
     .tower-name {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
@@ -334,7 +334,7 @@
     }
 
     .tower-desc {
-      font-size: 0.66rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       line-height: 1.15;
     }
@@ -345,20 +345,14 @@
       color: var(--gold);
     }
 
-    /* Rodapé da Sidebar */
     .sidebar-footer {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    .round-actions-row {
-      display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-start-round {
-      flex: 1;
+      width: 100%;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #fff;
       border: none;
@@ -391,10 +385,10 @@
       background: rgba(22, 28, 54, 0.95);
       border: 1.5px solid var(--cyan);
       border-radius: 12px;
-      padding: 8px 12px;
+      padding: 6px 12px;
       display: none;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       margin-bottom: 6px;
     }
 
@@ -415,12 +409,12 @@
       cursor: pointer;
     }
 
-    /* Modais Popups (Enciclopédia, Fases, Como Jogar, Vitória) */
+    /* Modais Popups e Telas de Menu */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 9, 20, 0.98) 100%);
-      backdrop-filter: blur(12px);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
+      backdrop-filter: blur(14px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -434,7 +428,7 @@
     }
 
     .modal-card {
-      width: min(92vw, 520px);
+      width: min(92vw, 500px);
       max-height: 85vh;
       background: #0d1224;
       border: 1.5px solid rgba(255, 255, 255, 0.15);
@@ -443,7 +437,7 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
     }
 
@@ -460,26 +454,70 @@
       background: transparent;
       border: none;
       color: #94a3b8;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       cursor: pointer;
+    }
+
+    /* Tela de Menu Inicial Oficial */
+    .main-menu-card {
+      width: min(92vw, 420px);
+      background: rgba(13, 18, 36, 0.95);
+      border: 1.5px solid var(--border-color);
+      border-radius: 24px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.25);
+    }
+
+    .menu-buttons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-menu-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid var(--border-color);
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-menu-action:hover {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-menu-action.primary {
+      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+      border: none;
+      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
+      font-size: 1.15rem;
     }
 
     .track-card {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
       border-radius: 14px;
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-
-    .track-header {
-      font-weight: 800;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      gap: 6px;
     }
 
     .phases-grid {
@@ -494,7 +532,7 @@
       border-radius: 8px;
       padding: 8px 4px;
       color: #fff;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
       cursor: pointer;
       text-align: center;
@@ -533,8 +571,8 @@
         height: auto;
         border-left: none;
         border-top: 1px solid var(--border-color);
-        padding: 8px 10px;
-        gap: 6px;
+        padding: 6px 10px;
+        gap: 5px;
       }
 
       .shop-section {
@@ -548,9 +586,9 @@
       .tower-card-btn {
         flex-direction: column;
         padding: 6px 8px;
-        min-width: 75px;
+        min-width: 72px;
         text-align: center;
-        gap: 3px;
+        gap: 2px;
       }
 
       .tower-desc {
@@ -582,6 +620,10 @@
           <!-- Botão de Início Automático -->
           <button class="ctrl-btn" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()">
             <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
+          </button>
+          <!-- Botão de Abrir Menu -->
+          <button class="ctrl-btn" onclick="window.guardiansGame.openModal('mainmenu')">
+            <span>⚙️ Menu</span>
           </button>
         </div>
       </div>
@@ -623,15 +665,15 @@
       <!-- Card de Inspeção de Torre Selecionada -->
       <div id="tower-inspector">
         <div class="inspector-header">
-          <span style="font-size: 0.82rem; font-weight: 800; color: #fff;" id="insp-name">Coruja</span>
+          <span style="font-size: 0.8rem; font-weight: 800; color: #fff;" id="insp-name">Coruja</span>
           <button class="btn-sell-tower" onclick="window.guardiansGame.sellSelectedTower()">Vender ($140)</button>
         </div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
+        <div style="font-size: 0.68rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
       </div>
 
-      <!-- Loja das 5 Torres (Suporta Arrastar e Soltar / Drag & Drop) -->
+      <!-- Loja das 5 Torres (Arrastar ou Tocar para Posicionar) -->
       <div class="shop-section">
-        <div class="shop-title">Arraste para o Mapa</div>
+        <div class="shop-title">Arraste ou Toque</div>
 
         <button class="tower-card-btn" id="shop-btn-0" data-index="0">
           <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
@@ -691,6 +733,30 @@
 
   <!-- ===== MODAIS POPUPS ===== -->
 
+  <!-- Modal 0: TELA DE MENU INICIAL OFICIAL DO JOGO -->
+  <div class="modal-backdrop active" id="modal-mainmenu">
+    <div class="main-menu-card">
+      <div style="font-size: 2.8rem; margin-bottom: -10px;">🦉🎈</div>
+      <h1 style="font-size: clamp(26px, 6vw, 36px); margin: 0;">KRUUJ GUARDIANS</h1>
+      <p style="font-size: 0.88rem; color: var(--cyan); margin: 0; font-weight: 700;">Defesa Cósmica das Corujas • Bloons TD</p>
+
+      <div class="menu-buttons-list">
+        <button class="btn-menu-action primary" onclick="window.guardiansGame.closeModal()">
+          <span>▶️</span> JOGAR
+        </button>
+        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('phases')">
+          <span>🗺️</span> TRILHAS & FASES (15)
+        </button>
+        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('encyclopedia')">
+          <span>🦉</span> GRIMÓRIO DAS CORUJAS
+        </button>
+        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('howto')">
+          <span>📖</span> COMO JOGAR
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal 1: Seletor de Trilhas & Fases -->
   <div class="modal-backdrop" id="modal-phases">
     <div class="modal-card">
@@ -701,7 +767,7 @@
 
       <!-- Trilha 1: Cósmica -->
       <div class="track-card">
-        <div class="track-header" style="color: var(--cyan);">
+        <div style="font-weight: 800; font-size: 0.95rem; color: var(--cyan); display: flex; justify-content: space-between;">
           <span>🪐 Trilha Cósmica (Espaço Profundo)</span>
           <span style="font-size: 0.72rem;">5 Fases</span>
         </div>
@@ -716,7 +782,7 @@
 
       <!-- Trilha 2: Vulcânica (Fogo) -->
       <div class="track-card">
-        <div class="track-header" style="color: #f97316;">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #f97316; display: flex; justify-content: space-between;">
           <span>🔥 Trilha de Fogo (Reino Vulcânico)</span>
           <span style="font-size: 0.72rem;">5 Fases</span>
         </div>
@@ -731,7 +797,7 @@
 
       <!-- Trilha 3: Glacial (Gelo) -->
       <div class="track-card">
-        <div class="track-header" style="color: #60a5fa;">
+        <div style="font-weight: 800; font-size: 0.95rem; color: #60a5fa; display: flex; justify-content: space-between;">
           <span>❄️ Trilha Glacial (Picos Congelados)</span>
           <span style="font-size: 0.72rem;">5 Fases</span>
         </div>
@@ -758,7 +824,7 @@
         <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
         <div>
           <div style="font-weight: 800;">Coruja Avatar ($200)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Alcance médio (130px), cadência média. Excelente escolha para o início de jogo em esquinas.</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Alcance médio (130px), cadência equilibrada. Excelente escolha para o início de jogo em esquinas.</div>
         </div>
       </div>
 
@@ -766,7 +832,7 @@
         <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
         <div>
           <div style="font-weight: 800;">Mascote Ninja ($300)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Cadência ultra rápida (12 frames). Estoura enxames densos de balões vermelhos e azuis com facilidade.</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Cadência ultra rápida (12 frames). Estoura enxames densos de balões vermelhos e azuis com facilidade.</div>
         </div>
       </div>
 
@@ -774,7 +840,7 @@
         <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
         <div>
           <div style="font-weight: 800;">Sniper Cósmico ($400)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Alcance colossal (240px) e Dano 3. Crucial para eliminar balões cerâmicos e o Titã de longe.</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Alcance colossal (240px) e Dano 3. Crucial para eliminar balões cerâmicos e o Titã de longe.</div>
         </div>
       </div>
 
@@ -782,7 +848,7 @@
         <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
         <div>
           <div style="font-weight: 800;">Canhão Explosivo ($500)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Dano em área (AOE raio 55px). Destrói aglomerados de balões com uma única ogiva estelar.</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Dano em área (AOE raio 55px). Destrói aglomerados de balões com uma única ogiva estelar.</div>
         </div>
       </div>
 
@@ -790,7 +856,7 @@
         <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
         <div>
           <div style="font-weight: 800;">Coruja Glacial ($250)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Congela e reduz 50% da velocidade por 2 segundos. Dobra o tempo que outras corujas têm para atirar!</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted);">Congela e reduz 50% da velocidade por 2 segundos. Dobra o tempo que outras corujas têm para atirar!</div>
         </div>
       </div>
     </div>
@@ -806,7 +872,7 @@
       <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
         <p>🎈 <b>Balões em Camadas:</b> Cada golpe remove uma camada. Balões Verdes (3 vidas) viram Azuis (2 vidas) e depois Vermelhos (1 vida). Balões Dourados são ultra velozes!</p>
         <p>👾 <b>Rodadas Redondas (Chefões):</b> Nas ondas 10, 20 e 30 surge um <b>Balão Titã Zepelim</b> resistente. Concentre Snipers e Canhões para derrubá-lo antes que libere os balões internos!</p>
-        <p>🖐️ <b>Arrastar ou Clicar:</b> No PC ou celular, você pode <b>arrastar a coruja</b> da loja direto para a posição desejada no mapa.</p>
+        <p>🖐️ <b>Arrastar ou Tocar:</b> No PC ou celular, arraste a coruja da loja ou toque nela para selecionar e toque no mapa para posicionar.</p>
         <p>⏩ <b>Controles Rápidos:</b> Use o botão <b>2x</b> para acelerar o jogo e ative o <b>Auto: ON</b> para jogar as ondas em sequência sem pausas.</p>
       </div>
     </div>
@@ -1025,7 +1091,7 @@
         const h = this.height;
 
         switch(this.layoutIndex % 5) {
-          case 0: // Layout Suave em S
+          case 0:
             this.waypoints = [
               { x: -30, y: h * 0.22 },
               { x: w * 0.3, y: h * 0.22 },
@@ -1037,7 +1103,7 @@
               { x: w + 30, y: h * 0.82 }
             ];
             break;
-          case 1: // Zigue-zague com 3 voltas
+          case 1:
             this.waypoints = [
               { x: -30, y: h * 0.18 },
               { x: w * 0.75, y: h * 0.18 },
@@ -1047,7 +1113,7 @@
               { x: w + 30, y: h * 0.75 }
             ];
             break;
-          case 2: // Rota Espiral / Retangular
+          case 2:
             this.waypoints = [
               { x: -30, y: h * 0.15 },
               { x: w * 0.85, y: h * 0.15 },
@@ -1059,7 +1125,7 @@
               { x: w + 30, y: h * 0.65 }
             ];
             break;
-          case 3: // Caminho em Cruz Dupla
+          case 3:
             this.waypoints = [
               { x: w * 0.15, y: -30 },
               { x: w * 0.15, y: h * 0.6 },
@@ -1069,7 +1135,7 @@
               { x: w * 0.82, y: h + 30 }
             ];
             break;
-          case 4: // O Grande Ninho (Longa e Desafiadora)
+          case 4:
             this.waypoints = [
               { x: -30, y: h * 0.3 },
               { x: w * 0.25, y: h * 0.3 },
@@ -1112,7 +1178,6 @@
       render(ctx) {
         ctx.save();
 
-        // 1. Faixa externa com brilho temático
         ctx.strokeStyle = this.track.pathGlow;
         ctx.lineWidth = this.pathWidth + 6;
         ctx.lineCap = 'round';
@@ -1124,17 +1189,14 @@
         });
         ctx.stroke();
 
-        // 2. Pista Interna
         ctx.strokeStyle = this.track.pathColor;
         ctx.lineWidth = this.pathWidth;
         ctx.stroke();
 
-        // 3. Bordas de Neon Temáticas
         ctx.strokeStyle = this.track.pathEdge;
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // 4. Base / Ninho Sagrado
         const endPt = this.waypoints[this.waypoints.length - 1];
         ctx.fillStyle = this.track.nestColor;
         ctx.shadowColor = this.track.nestColor;
@@ -1151,7 +1213,7 @@
     // ===== 4. INIMIGO (BALÕES CÓSMICOS & BALÃO TITÃ CHEFÃO) =====
     class Enemy {
       constructor(type, waypoints, hpOverride = null) {
-        this.type = type; // 'red', 'blue', 'green', 'yellow', 'ceramic', 'boss'
+        this.type = type;
         this.waypoints = waypoints;
         this.targetIndex = 1;
         this.x = waypoints[0].x;
@@ -1161,8 +1223,6 @@
         this.slowTimer = 0;
         this.traveledDistance = 0;
 
-        // Configuração de Camadas e Recompensas Balanceadas
-        // (Rebalanceado: ganha menos moedas por balão para o jogo ser desafiador!)
         if (type === 'red') {
           this.health = 1;
           this.maxHp = 1;
@@ -1199,11 +1259,10 @@
           this.color = '#8b5cff';
           this.radius = 16;
         } else if (type === 'boss') {
-          // CHEFÃO TITÃ (Rounds 10, 20, 30)
           this.health = hpOverride || 80;
           this.maxHp = this.health;
           this.speed = 0.8;
-          this.reward = 120; // Recompensa épica
+          this.reward = 120;
           this.color = '#dc2626';
           this.radius = 28;
           this.isBoss = true;
@@ -1244,7 +1303,6 @@
         if (this.health <= 0) {
           this.isAlive = false;
         } else if (!this.isBoss) {
-          // Atualiza camada visual ao perder vidas
           if (this.health === 3) { this.color = '#10b981'; this.speed = 1.6; }
           else if (this.health === 2) { this.color = '#3b82f6'; this.speed = 2.0; }
           else if (this.health === 1) { this.color = '#ef4444'; this.speed = 2.4; }
@@ -1258,7 +1316,6 @@
         ctx.translate(this.x, this.y);
 
         if (this.isBoss) {
-          // Balão Zepelim Titã Cósmico
           ctx.fillStyle = '#1e1b4b';
           ctx.strokeStyle = '#ef4444';
           ctx.lineWidth = 3;
@@ -1269,7 +1326,6 @@
           ctx.fill();
           ctx.stroke();
 
-          // Detalhes mecânicos e olhos vermelhos do boss
           ctx.fillStyle = '#ef4444';
           ctx.fillRect(-8, -4, 16, 8);
           ctx.fillStyle = '#ffb020';
@@ -1277,20 +1333,17 @@
           ctx.arc(6, -2, 3, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          // Balão Padrão Bloons TD
           ctx.fillStyle = this.slowTimer > 0 ? '#38e8ff' : this.color;
           ctx.beginPath();
           ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          // Nó
           ctx.beginPath();
           ctx.moveTo(-3, this.radius);
           ctx.lineTo(3, this.radius);
           ctx.lineTo(0, this.radius + 4);
           ctx.fill();
 
-          // Brilho
           ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
           ctx.beginPath();
           ctx.ellipse(-this.radius * 0.3, -this.radius * 0.35, 3, 5, -0.4, 0, Math.PI * 2);
@@ -1301,7 +1354,7 @@
       }
     }
 
-    // ===== 5. PROJÉTIL (DARDO, LASER, TIRO DE ÁREA) =====
+    // ===== 5. PROJÉTIL =====
     class Projectile {
       constructor(x, y, target, tower) {
         this.x = x;
@@ -1349,7 +1402,7 @@
           game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
         } else {
           if (this.target.isAlive) {
-            if (this.isSlow) this.target.slowTimer = 120; // 2 segundos a 60fps
+            if (this.isSlow) this.target.slowTimer = 120;
             this.target.takeDamage(this.damage);
             if (!this.target.isAlive) {
               game.onEnemyKilled(this.target);
@@ -1401,7 +1454,6 @@
       update(game, timeScale = 1.0) {
         if (this.cooldown > 0) this.cooldown -= timeScale;
 
-        // Regra de Mira "First": balão mais adiantado no percurso
         let bestTarget = null;
         let maxProgress = -1;
 
@@ -1514,8 +1566,8 @@
         this.lives = 20;
         this.round = 1;
         this.isRoundRunning = false;
-        this.autoStart = false; // Botão de Início Automático
-        this.gameSpeed = 1.0;   // Botão de Velocidade 1x / 2x
+        this.autoStart = false;
+        this.gameSpeed = 1.0;
 
         // Trilha e Fase Atual
         this.currentTrackIndex = 0;
@@ -1531,9 +1583,11 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Estados de Arrastar e Soltar (Drag & Drop) e Seleção
+        // Estados de Arrastar e Soltar (Drag & Drop) e Seleção Mobile
         this.selectedShopIndex = null;
         this.draggingShopIndex = null;
+        this.isTouchInteraction = false;
+        this.touchOffsetY = -50; // Offset ergonômico no mobile para o dedo não tapar o preview!
         this.inspectingTower = null;
         this.mousePos = { x: -100, y: -100 };
         this.activeBoss = null;
@@ -1554,7 +1608,7 @@
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Configura Drag & Drop em todos os botões da loja
+        // Configura Drag & Drop e Touch em todos os botões da loja
         this.initDragAndDrop();
 
         // Eventos no Canvas
@@ -1590,53 +1644,114 @@
         this.map.resize(this.canvas.width, this.canvas.height);
       }
 
-      // ===== ARRASTAR E SOLTAR (DRAG & DROP) PARA PC E MOBILE =====
+      // ===== DRAG & DROP PERFEITO PARA MOBILE E PC COM OFFSET DE DEDO =====
       initDragAndDrop() {
+        const getCanvasCoords = (clientX, clientY) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const isTouch = this.isTouchInteraction;
+          // No mobile, eleva a coruja em -50px para não ficar embaixo do polegar!
+          const offsetY = isTouch ? this.touchOffsetY : 0;
+          return {
+            x: clientX - rect.left,
+            y: clientY - rect.top + offsetY
+          };
+        };
+
         this.towerConfigs.forEach((cfg, idx) => {
           const btn = document.getElementById(`shop-btn-${idx}`);
           if (!btn) return;
 
-          // Pointerdown inicia o arrasto
-          btn.addEventListener('pointerdown', (e) => {
+          // Inicia toque ou clique no botão
+          const handleStart = (e) => {
             if (this.money < cfg.cost) return;
+
+            this.sound.init();
+            this.isTouchInteraction = (e.pointerType === 'touch' || e.type.startsWith('touch'));
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // Se tocar no mesmo botão que já estava selecionado no modo clique, cancela
+            if (this.selectedShopIndex === idx && !e.type.startsWith('touch') && this.draggingShopIndex === null) {
+              this.cancelPurchase();
+              return;
+            }
+
             this.draggingShopIndex = idx;
             this.selectedShopIndex = idx;
             this.inspectingTower = null;
             this.updateInspectorUI();
 
-            const rect = this.canvas.getBoundingClientRect();
-            this.mousePos.x = e.clientX - rect.left;
-            this.mousePos.y = e.clientY - rect.top;
+            const coords = getCanvasCoords(clientX, clientY);
+            this.mousePos.x = coords.x;
+            this.mousePos.y = coords.y;
             this.updateUI();
-          });
+          };
+
+          btn.addEventListener('pointerdown', handleStart);
+          btn.addEventListener('touchstart', (e) => {
+            handleStart(e);
+          }, { passive: true });
         });
 
-        // Pointerup global para soltar no Canvas
-        window.addEventListener('pointerup', (e) => {
-          if (this.draggingShopIndex !== null) {
-            const rect = this.canvas.getBoundingClientRect();
-            const dropX = e.clientX - rect.left;
-            const dropY = e.clientY - rect.top;
+        // Rastreamento global contínuo no window para garantir que o preview siga o dedo em tempo real
+        const handleGlobalMove = (e) => {
+          if (this.draggingShopIndex !== null || this.selectedShopIndex !== null) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            if (clientX !== undefined && clientY !== undefined) {
+              const coords = getCanvasCoords(clientX, clientY);
+              this.mousePos.x = coords.x;
+              this.mousePos.y = coords.y;
+            }
+          }
+        };
 
-            if (dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= this.canvas.height) {
-              const cfg = this.towerConfigs[this.draggingShopIndex];
-              if (this.money >= cfg.cost && this.canPlaceTower(dropX, dropY)) {
-                this.money -= cfg.cost;
-                this.towers.push(new Tower(this.draggingShopIndex, dropX, dropY, cfg));
-                this.sound.playBuy();
+        window.addEventListener('pointermove', handleGlobalMove);
+        window.addEventListener('touchmove', handleGlobalMove, { passive: true });
+
+        // Soltar no Canvas (PointerUp / TouchEnd)
+        const handleGlobalEnd = (e) => {
+          if (this.draggingShopIndex !== null) {
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+            if (clientX !== undefined && clientY !== undefined) {
+              const coords = getCanvasCoords(clientX, clientY);
+              const dropX = coords.x;
+              const dropY = coords.y;
+
+              // Se soltou dentro do Canvas e longe da barra de loja inferior
+              const isOverCanvas = dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= this.canvas.height;
+              
+              if (isOverCanvas) {
+                const cfg = this.towerConfigs[this.draggingShopIndex];
+                if (this.money >= cfg.cost && this.canPlaceTower(dropX, dropY)) {
+                  this.money -= cfg.cost;
+                  this.towers.push(new Tower(this.draggingShopIndex, dropX, dropY, cfg));
+                  this.sound.playBuy();
+                  this.cancelPurchase();
+                  this.draggingShopIndex = null;
+                  this.updateUI();
+                  return;
+                }
               }
             }
+            // Se apenas deu um toque rápido sem arrastar, mantém selecionado para modo toque
             this.draggingShopIndex = null;
-            this.selectedShopIndex = null;
             this.updateUI();
           }
-        });
+        };
+
+        window.addEventListener('pointerup', handleGlobalEnd);
+        window.addEventListener('touchend', handleGlobalEnd);
       }
 
       onPointerMove(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        this.mousePos.x = e.clientX - rect.left;
-        this.mousePos.y = e.clientY - rect.top;
+        if (!this.isTouchInteraction) {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mousePos.x = e.clientX - rect.left;
+          this.mousePos.y = e.clientY - rect.top;
+        }
       }
 
       onPointerDown(e) {
@@ -1645,7 +1760,7 @@
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
 
-        // Se clicou com uma torre da loja selecionada (Modo clique)
+        // Modo Toque para Posicionar (Quando clicou/tocou no botão da loja antes)
         if (this.selectedShopIndex !== null && this.draggingShopIndex === null) {
           const cfg = this.towerConfigs[this.selectedShopIndex];
           if (this.money >= cfg.cost && this.canPlaceTower(clickX, clickY)) {
@@ -1708,7 +1823,6 @@
         this.updateUI();
       }
 
-      // ===== CONTROLES DE VELOCIDADE 2X E AUTO-START =====
       toggleSpeed() {
         this.gameSpeed = this.gameSpeed === 1.0 ? 2.0 : 1.0;
         document.getElementById('speed-text').textContent = `${this.gameSpeed}x`;
@@ -1723,7 +1837,6 @@
         statusEl.style.color = this.autoStart ? '#10b981' : '#ef4444';
         document.getElementById('btn-autostart').classList.toggle('active', this.autoStart);
 
-        // Se ativou e a rodada não está rodando, inicia
         if (this.autoStart && !this.isRoundRunning) {
           this.startNextRound();
         }
@@ -1744,18 +1857,16 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // É RODADA REDONDA (10, 20, 30) -> CHEFÃO TITÃ CÓSMICO!
+        // Rodadas Redondas 10/20/30 -> Balão Titã Zepelim
         if (r % 10 === 0) {
           this.sound.playBossHorn();
           const bossHp = 80 + (r / 10 - 1) * 170;
           this.spawnQueue.push({ type: 'boss', hp: bossHp });
-          // Balões de escolta
           for (let i = 0; i < 8; i++) this.spawnQueue.push('yellow');
           for (let i = 0; i < 6; i++) this.spawnQueue.push('ceramic');
           return;
         }
 
-        // Composição Progressiva Bloons TD
         const redCount = Math.max(0, 10 - r);
         const blueCount = Math.min(15, r * 3);
         const greenCount = r >= 2 ? Math.min(12, (r - 1) * 3) : 0;
@@ -1774,7 +1885,6 @@
         this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
 
-        // Se o Boss for derrotado, explode e solta balões menores de dentro
         if (enemy.isBoss) {
           for (let k = 0; k < 4; k++) {
             this.enemies.push(new Enemy('yellow', this.map.waypoints));
@@ -1808,7 +1918,6 @@
         }
       }
 
-      // ===== PROGRESSÃO DE FASES E MODAIS =====
       selectTrackPhase(trackIdx, phaseIdx) {
         this.currentTrackIndex = trackIdx;
         this.currentPhaseIndex = phaseIdx;
@@ -1832,7 +1941,6 @@
 
       checkObjectiveSuccess() {
         if (!this.freeplayMode && this.round > this.targetWave) {
-          // Vitória da Fase!
           this.isRoundRunning = false;
           const stars = this.lives === 20 ? '⭐⭐⭐' : (this.lives >= 10 ? '⭐⭐' : '⭐');
           document.getElementById('vic-stars').textContent = stars;
@@ -1926,13 +2034,12 @@
         inspector.querySelector('.btn-sell-tower').textContent = `Vender ($${refund})`;
       }
 
-      // Loop Principal (60 FPS com suporte a gameSpeed 2x)
       loop() {
         requestAnimationFrame(this.loop);
 
         const timeScale = this.gameSpeed;
 
-        // 1. Limpa o Canvas com o fundo da trilha ativa
+        // 1. Limpa o Canvas
         this.ctx.fillStyle = this.map.track.bgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1956,14 +2063,14 @@
           }
         }
 
-        // Atualiza Barra de Vida do Boss
+        // Barra de Vida do Boss
         if (this.activeBoss && this.activeBoss.isAlive) {
           const pct = Math.max(0, (this.activeBoss.health / this.activeBoss.maxHp) * 100);
           document.getElementById('boss-hp-bar').style.width = `${pct}%`;
           document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.activeBoss.health)} / ${this.activeBoss.maxHp} HP`;
         }
 
-        // 4. Atualiza e Renderiza Inimigos
+        // 4. Inimigos
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const e = this.enemies[i];
           e.update(timeScale);
@@ -1984,18 +2091,16 @@
           }
         }
 
-        // 5. Checa fim da rodada
+        // 5. Fim da rodada
         if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
           this.isRoundRunning = false;
-          this.money += 80 + this.round * 6; // Bônus balanceado
+          this.money += 80 + this.round * 6;
           this.round++;
           this.sound.playBuy();
           this.updateUI();
 
-          // Checa se completou o objetivo da fase
           this.checkObjectiveSuccess();
 
-          // Se auto-start estiver ativo, inicia a próxima onda imediatamente!
           if (this.autoStart && !this.freeplayMode && this.round <= this.targetWave) {
             setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
           } else if (this.autoStart && this.freeplayMode) {
@@ -2003,13 +2108,13 @@
           }
         }
 
-        // 6. Atualiza e Renderiza Torres
+        // 6. Torres
         this.towers.forEach(t => {
           t.update(this, timeScale);
           t.render(this.ctx, t === this.inspectingTower);
         });
 
-        // 7. Atualiza e Renderiza Projéteis
+        // 7. Projéteis
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
           const p = this.projectiles[i];
           p.update(this, timeScale);
@@ -2031,28 +2136,36 @@
           }
         }
 
-        // 9. Preview Holográfico de Posicionamento (Suporta Drag ou Clique)
+        // 9. Preview Holográfico do Fantasma da Torre e Círculo de Alcance
         const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
-        if (activePreviewIndex !== null) {
+        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.y >= 0) {
           const cfg = this.towerConfigs[activePreviewIndex];
           const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
 
           this.ctx.save();
           this.ctx.translate(this.mousePos.x, this.mousePos.y);
 
-          this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.7)' : 'rgba(239, 68, 68, 0.7)';
-          this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.12)' : 'rgba(239, 68, 68, 0.12)';
-          this.ctx.lineWidth = 2;
+          // Círculo de Alcance Holográfico (Ciano se válido, Vermelho com alerta se inválido)
+          this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.85)' : 'rgba(239, 68, 68, 0.85)';
+          this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.15)' : 'rgba(239, 68, 68, 0.18)';
+          this.ctx.lineWidth = 2.5;
           this.ctx.beginPath();
           this.ctx.arc(0, 0, cfg.range, 0, Math.PI * 2);
           this.ctx.fill();
           this.ctx.stroke();
 
+          // Corpo da Torre Fantasma
           this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
-          this.ctx.globalAlpha = 0.6;
+          this.ctx.globalAlpha = 0.8;
           this.ctx.beginPath();
           this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
           this.ctx.fill();
+
+          // Ícone da Torre
+          this.ctx.font = '14px sans-serif';
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.fillText(cfg.icon, 0, 1);
 
           this.ctx.restore();
         }
