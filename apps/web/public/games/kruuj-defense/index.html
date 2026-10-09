@@ -290,12 +290,77 @@
       color: var(--gold);
     }
 
-    /* Botão Verde Bloons TD de Ação */
-    .dock-action-box {
-      width: 66px;
+    /* Recuo ergonômico no mobile para não sobrepor o botão Poki no canto superior esquerdo */
+    @media (max-width: 768px) {
+      .top-bar-bloons {
+        left: 68px !important;
+        right: 8px !important;
+      }
+
+      .stat-badge {
+        padding: 3px 8px !important;
+        font-size: 0.8rem !important;
+        gap: 3px !important;
+      }
+
+      .round-badge {
+        padding: 3px 8px !important;
+        font-size: 0.78rem !important;
+      }
+    }
+
+    /* Cluster de Ação Inferior Direito: Botão Verde Bloons TD + Controles de Velocidade e Auto */
+    .dock-action-cluster {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 76px;
       height: 64px;
       flex-shrink: 0;
-      margin-left: 6px;
+      margin-left: 4px;
+    }
+
+    .action-top-row {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+      height: 22px;
+    }
+
+    .btn-action-pill {
+      flex: 1;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #cbd5e1;
+      font-size: 0.68rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 0;
+      transition: all 0.15s;
+    }
+
+    .btn-action-pill:hover {
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .btn-action-pill.active {
+      background: rgba(56, 232, 255, 0.25);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-action-pill.auto-on {
+      background: rgba(16, 185, 129, 0.3);
+      border-color: #10b981;
+      color: #34d399;
     }
 
     /* Card Flutuante de Inspeção / Upgrade (Só aparece quando uma coruja é tocada no mapa) */
@@ -432,26 +497,32 @@
 
     .btn-bloons-play {
       width: 100%;
-      height: 100%;
+      flex: 1;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      border-radius: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
       color: #fff;
-      font-size: 1.25rem;
+      font-size: 0.92rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+      gap: 3px;
+      box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
       transition: all 0.2s;
     }
 
+    .modal-card .btn-bloons-play {
+      height: 48px;
+      flex: none;
+    }
+
     .btn-bloons-play:hover:not(:disabled) {
-      transform: scale(1.05);
-      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
+      transform: scale(1.02);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.6);
     }
 
     .btn-bloons-play:disabled {
@@ -633,12 +704,6 @@
 
       <div class="top-controls">
         <div class="round-badge" id="hud-round-badge">⭐ Onda 1/30</div>
-        <button class="btn-top-ctrl" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()" title="Velocidade">
-          <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
-        </button>
-        <button class="btn-top-ctrl" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()" title="Modo Automático">
-          <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
-        </button>
         <button class="btn-top-ctrl" onclick="window.guardiansGame.openModal('mainmenu')" title="Menu e Fases">
           <span>⚙️</span>
         </button>
@@ -780,8 +845,16 @@
         </button>
       </div>
 
-      <!-- Botão Verde Bloons TD de Ação / Iniciar Rodada -->
-      <div class="dock-action-box">
+      <!-- Cluster de Ação Inferior Direito: Botão Verde Bloons TD + Controles de Velocidade e Auto -->
+      <div class="dock-action-cluster">
+        <div class="action-top-row">
+          <button class="btn-action-pill" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()" title="Velocidade (1x / 2x)">
+            <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
+          </button>
+          <button class="btn-action-pill" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()" title="Iniciar Ondas Automaticamente">
+            <span id="autostart-status">Auto</span>
+          </button>
+        </div>
         <button class="btn-bloons-play" id="btn-start-round" onclick="window.guardiansGame.startNextRound()">
           <span>▶▶</span>
           <span class="lbl">ONDA</span>
@@ -2314,9 +2387,13 @@
       toggleAutoStart() {
         this.autoStart = !this.autoStart;
         const statusEl = document.getElementById('autostart-status');
-        statusEl.textContent = this.autoStart ? 'ON' : 'OFF';
-        statusEl.style.color = this.autoStart ? '#10b981' : '#ef4444';
-        document.getElementById('btn-autostart').classList.toggle('active', this.autoStart);
+        if (statusEl) {
+          statusEl.textContent = this.autoStart ? 'Auto ⚡' : 'Auto';
+        }
+        const btnAuto = document.getElementById('btn-autostart');
+        if (btnAuto) {
+          btnAuto.classList.toggle('auto-on', this.autoStart);
+        }
 
         if (this.autoStart && !this.isRoundRunning) {
           this.startNextRound();

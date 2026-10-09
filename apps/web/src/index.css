@@ -520,6 +520,17 @@ body.playing-game-mode, html.playing-game-mode {
   max-height: 100% !important;
 }
 
+/* Botão Poki Mobile-Only: NUNCA aparece no Desktop/Web */
+.kruuj-poki-back-btn {
+  display: none !important;
+}
+
+@media (min-width: 769px) {
+  .kruuj-poki-back-btn {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   body.playing-game-mode, html.playing-game-mode {
     position: fixed !important;
