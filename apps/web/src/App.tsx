@@ -3122,10 +3122,26 @@ export default function App() {
             {view === 'playing' && selectedGame && (
               <div className="kruuj-playing-container">
                 
-                {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (EXTERNA, SEM SOBREPOR O JOGO) */}
+                {/* BOTÃO FLUTUANTE ESTILO POKI (APENAS MOBILE) COM CORUJA MASCOTE DO KRUUJ E SETA */}
                 {!isScreenLocked && (
-                  <div className="kruuj-playing-header-bar">
-                    {/* Botão de Voltar ao Portal */}
+                  <button 
+                    className="kruuj-poki-back-btn md:hidden" 
+                    onClick={triggerExitGame}
+                    title="Voltar ao Portal"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-900 stroke-[2.8]" />
+                    <img 
+                      src="/kruuj-avatar.png" 
+                      alt="KRUUJ" 
+                      className="w-7 h-7 rounded-full object-contain shadow-sm"
+                    />
+                  </button>
+                )}
+
+                {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
+                {!isScreenLocked && (
+                  <div className="kruuj-playing-header-bar hidden md:flex">
+                    {/* Botão de Voltar ao Portal no Desktop */}
                     <button 
                       className="kruuj-playing-back-btn" 
                       onClick={triggerExitGame}
@@ -3141,7 +3157,7 @@ export default function App() {
                       <h2 className="kruuj-playing-title-text">{selectedGame.title}</h2>
                     </div>
 
-                    {/* Ações: Curtir, Bloquear Tela e Fullscreen */}
+                    {/* Ações: Curtir, Bloquear Tela e Fullscreen no Desktop */}
                     <div className="kruuj-playing-actions-wrap">
                       {/* Botão Bloquear Tela integrado de forma limpa na barra de ações para jogos de Bebê */}
                       {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
