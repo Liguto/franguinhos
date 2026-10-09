@@ -388,6 +388,21 @@ export default function App() {
     }
   }, [teaMode, agePreference]);
 
+  // --- Bloqueio de rolagem do fundo quando um jogo estiver ativo ---
+  useEffect(() => {
+    if (view === 'playing' && selectedGame) {
+      document.body.classList.add('playing-game-mode');
+      document.documentElement.classList.add('playing-game-mode');
+    } else {
+      document.body.classList.remove('playing-game-mode');
+      document.documentElement.classList.remove('playing-game-mode');
+    }
+    return () => {
+      document.body.classList.remove('playing-game-mode');
+      document.documentElement.classList.remove('playing-game-mode');
+    };
+  }, [view, selectedGame]);
+
   // --- SEO Dinâmico (Long-Tail SEO Engine) ---
   useEffect(() => {
     let pageTitle = 'KRUUJ — Jogue. Descubra. Conecte.';

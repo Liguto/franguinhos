@@ -560,7 +560,10 @@
       </div>
 
       <div class="top-controls">
-        <div class="round-badge">ONDA <span id="hud-round">1</span>/<span id="target-round">10</span></div>
+        <div class="round-badge" id="hud-round-badge">⭐ Onda 1/30</div>
+        <button class="btn-top-ctrl" id="btn-difficulty" onclick="window.guardiansGame.toggleDifficulty()" title="Alternar Dificuldade">
+          🟡 Médio
+        </button>
         <button class="btn-top-ctrl" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()">
           <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
         </button>
@@ -716,6 +719,17 @@
       <h1 style="font-size: clamp(26px, 6vw, 36px); margin: 0;">KRUUJ GUARDIANS</h1>
       <p style="font-size: 0.88rem; color: var(--cyan); margin: 0; font-weight: 700;">Defesa Cósmica das Corujas • Bloons TD</p>
 
+      <!-- Seletor de Dificuldade no Menu -->
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 4px; margin: 4px 0;">
+        <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.08em;">Dificuldade</span>
+        <div style="display: flex; gap: 5px; width: 100%;">
+          <button class="phase-btn" id="diff-btn-0" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(0)">🟢 Fácil</button>
+          <button class="phase-btn active" id="diff-btn-1" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(1)">🟡 Médio</button>
+          <button class="phase-btn" id="diff-btn-2" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(2)">🔴 Difícil</button>
+          <button class="phase-btn" id="diff-btn-3" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(3)">💀 Extremo</button>
+        </div>
+      </div>
+
       <div class="menu-buttons-list">
         <button class="btn-menu-action primary" id="btn-menu-resume" onclick="window.guardiansGame.closeModal()">
           <span>▶️</span> JOGAR
@@ -868,16 +882,17 @@
     </div>
   </div>
 
-  <!-- Modal 4: Vitória / Meta Alcançada -->
+  <!-- Modal 4: Vitória / Meta de Estrelas Alcançada -->
   <div class="modal-backdrop" id="modal-victory">
     <div class="modal-card" style="text-align: center; align-items: center;">
-      <h1 style="font-size: 2rem; color: var(--gold); margin-bottom: 2px;">META ALCANÇADA! ⭐</h1>
-      <p style="font-size: 0.95rem; color: #cbd5e1;" id="vic-desc">Você protegeu o Ninho e concluiu a Fase com sucesso!</p>
+      <h1 style="font-size: 1.8rem; color: var(--gold); margin-bottom: 2px;" id="vic-title">FASE CONCLUÍDA! ⭐</h1>
+      <p style="font-size: 0.92rem; color: #cbd5e1;" id="vic-desc">Você sobreviveu e completou o objetivo da fase!</p>
       
-      <div style="font-size: 2.2rem; margin: 8px 0;" id="vic-stars">⭐⭐⭐</div>
+      <div style="font-size: 2.6rem; margin: 8px 0;" id="vic-stars">⭐</div>
+      <div style="font-size: 0.85rem; color: var(--cyan); font-weight: 700; margin-bottom: 8px;" id="vic-next-target">Próxima meta: 2 Estrelas (Onda 50)</div>
 
       <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
-        <button class="btn-bloons-play" style="flex: 1; height: 48px; background: linear-gradient(135deg, #0284c7, #8b5cff);" onclick="window.guardiansGame.continueFreeplay()">MODO INFINITO ♾️</button>
+        <button class="btn-bloons-play" id="btn-vic-continue" style="flex: 1; height: 48px; background: linear-gradient(135deg, #0284c7, #8b5cff);" onclick="window.guardiansGame.continueToNextStarGoal()">CONTINUAR 🌟</button>
         <button class="btn-bloons-play" style="flex: 1; height: 48px;" onclick="window.guardiansGame.nextPhase()">PRÓXIMA FASE ⏩</button>
       </div>
     </div>
@@ -1021,6 +1036,45 @@
         } catch(e) {}
       }
     }
+
+    // ===== 1.1 CONTROLADOR DE WAKE LOCK (MANTÉM TELA ACESA NO MOBILE) =====
+    class WakeLockController {
+      constructor() {
+        this.wakeLock = null;
+        this.init();
+      }
+
+      async request() {
+        try {
+          if ('wakeLock' in navigator) {
+            this.wakeLock = await navigator.wakeLock.request('screen');
+            this.wakeLock.addEventListener('release', () => {
+              this.wakeLock = null;
+            });
+          }
+        } catch(e) {}
+      }
+
+      init() {
+        this.request();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            this.request();
+          }
+        });
+        window.addEventListener('pointerdown', () => {
+          if (!this.wakeLock) this.request();
+        }, { passive: true });
+      }
+    }
+
+    // ===== 1.2 DEFINIÇÃO DE DIFICULDADES =====
+    const DIFFICULTIES = [
+      { id: 'easy', name: 'Fácil', icon: '🟢', lives: 30, speedMult: 0.85, costMult: 0.85, rewardMult: 1.2 },
+      { id: 'medium', name: 'Médio', icon: '🟡', lives: 20, speedMult: 1.0, costMult: 1.0, rewardMult: 1.0 },
+      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 10, speedMult: 1.15, costMult: 1.2, rewardMult: 1.0 },
+      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, speedMult: 1.25, costMult: 1.35, rewardMult: 1.1 }
+    ];
 
     // ===== 2. DEFINIÇÃO DAS TRILHAS E FASES TEMÁTICAS =====
     const THEMATIC_TRACKS = [
@@ -1449,7 +1503,7 @@
         projSpeed: 10,
         icon: '🦉',
         ranks: ['Aprendiz', 'Veterana', 'Arquimaga Cósmica'],
-        upgradeCosts: [150, 300],
+        upgradeCosts: [260, 580], // Evoluções balanceadas e estratégicas
         desc: 'Tiro místico de alcance e cadência equilibrados.'
       },
       {
@@ -1464,7 +1518,7 @@
         projSpeed: 13,
         icon: '⚡',
         ranks: ['Cientista', 'Engenheira Elétrica', 'Mestre do Eletromagnetismo'],
-        upgradeCosts: [225, 450],
+        upgradeCosts: [390, 850],
         desc: 'Dispara raios e descargas elétricas em altíssima cadência.'
       },
       {
@@ -1479,7 +1533,7 @@
         projSpeed: 16,
         icon: '🎯',
         ranks: ['Sniper', 'Atiradora de Elite', 'Olho de Falcão Supremo'],
-        upgradeCosts: [300, 600],
+        upgradeCosts: [520, 1150],
         desc: 'Alcance colossal e dano concentrado para perfurar Titãs de longe.'
       },
       {
@@ -1496,7 +1550,7 @@
         projSpeed: 9,
         icon: '💥',
         ranks: ['Bombardeira', 'Demolidora Pesada', 'Comandante da Supernova'],
-        upgradeCosts: [375, 750],
+        upgradeCosts: [650, 1400],
         desc: 'Dispara ogivas com grande impacto e dano em área (AOE).'
       },
       {
@@ -1512,7 +1566,7 @@
         projSpeed: 9,
         icon: '❄️',
         ranks: ['Mago Glacial', 'Senhor do Gelo', 'Arquidruida do Zero Absoluto'],
-        upgradeCosts: [190, 380],
+        upgradeCosts: [320, 720],
         desc: 'Lança feitiços glaciais que congelam e desaceleram inimigos.'
       }
     ];
@@ -1865,18 +1919,23 @@
         this.ctx = this.canvas.getContext('2d');
 
         this.sound = new SoundManager();
+        this.wakeLock = new WakeLockController(); // Mantém a tela acesa no mobile
         this.map = new GameMap(window.innerWidth, window.innerHeight);
 
+        // Níveis de Dificuldade (Fácil, Médio, Difícil, Extremo)
+        this.difficultyIndex = 1; // Médio por padrão
+        this.difficulty = DIFFICULTIES[1];
+
         this.money = 650;
-        this.lives = 20;
+        this.lives = this.difficulty.lives;
         this.round = 1;
+        this.starsEarned = 0; // 0, 1 (Onda 30), 2 (Onda 50), 3 (Onda 70)
         this.isRoundRunning = false;
         this.autoStart = false;
         this.gameSpeed = 1.0;
 
         this.currentTrackIndex = 0;
         this.currentPhaseIndex = 0;
-        this.targetWave = 10;
         this.freeplayMode = false;
 
         this.enemies = [];
@@ -2166,20 +2225,24 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
+        // Rodadas Redondas 10, 20, 30, 40, 50, 60, 70... -> BALÃO TITÃ ZEPELIM!
         if (r % 10 === 0) {
           this.sound.playBossHorn();
-          const bossHp = 80 + (r / 10 - 1) * 170;
+          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * (this.difficulty.id === 'extreme' ? 1.35 : 1.0));
           this.spawnQueue.push({ type: 'boss', hp: bossHp });
-          for (let i = 0; i < 8; i++) this.spawnQueue.push('yellow');
-          for (let i = 0; i < 6; i++) this.spawnQueue.push('ceramic');
+          const yellowEscorts = Math.min(22, 6 + Math.floor(r / 4));
+          const ceramicEscorts = Math.min(18, 3 + Math.floor(r / 5));
+          for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
+          for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
           return;
         }
 
-        const redCount = Math.max(0, 10 - r);
-        const blueCount = Math.min(15, r * 3);
-        const greenCount = r >= 2 ? Math.min(12, (r - 1) * 3) : 0;
-        const yellowCount = r >= 4 ? Math.min(10, (r - 3) * 2) : 0;
-        const ceramicCount = r >= 6 ? Math.min(6, (r - 5)) : 0;
+        // Densidade de balões por onda (escalando até 70+)
+        const redCount = r <= 15 ? Math.max(0, 12 - r) : 0;
+        const blueCount = r <= 35 ? Math.min(20, Math.max(4, 18 - Math.floor(r / 2))) : 0;
+        const greenCount = r >= 2 && r <= 45 ? Math.min(18, 5 + Math.floor(r * 0.8)) : 0;
+        const yellowCount = r >= 5 ? Math.min(24, 6 + Math.floor(r * 0.7)) : 0;
+        const ceramicCount = r >= 12 ? Math.min(22, 3 + Math.floor(r * 0.55)) : 0;
 
         for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
         for (let i = 0; i < blueCount; i++) this.spawnQueue.push('blue');
@@ -2189,7 +2252,8 @@
       }
 
       onEnemyKilled(enemy) {
-        this.money += enemy.reward;
+        const earned = Math.max(1, Math.round(enemy.reward * this.difficulty.rewardMult));
+        this.money += earned;
         this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
 
@@ -2231,6 +2295,7 @@
         this.currentTrackIndex = trackIdx;
         this.currentPhaseIndex = phaseIdx;
         this.freeplayMode = false;
+        this.starsEarned = 0;
         this.closeModal();
         this.applyTrackPhase();
         this.restartGame();
@@ -2239,30 +2304,76 @@
       applyTrackPhase() {
         const track = THEMATIC_TRACKS[this.currentTrackIndex];
         const phase = track.phases[this.currentPhaseIndex];
-        this.targetWave = phase.targetWave;
-
         this.map.setTrackAndLayout(track, phase.layout);
-        document.getElementById('target-round').textContent = this.targetWave;
       }
 
+      // Sistema de Objetivos em Estrelas (30 = ⭐, 50 = ⭐⭐, 70 = ⭐⭐⭐, 71+ = Infinito)
       checkObjectiveSuccess() {
-        if (!this.freeplayMode && this.round > this.targetWave) {
+        if (this.freeplayMode) return;
+
+        // Meta 1 Estrela: Onda 30
+        if (this.round === 31 && this.starsEarned < 1) {
+          this.starsEarned = 1;
           this.isRoundRunning = false;
-          const stars = this.lives === 20 ? '⭐⭐⭐' : (this.lives >= 10 ? '⭐⭐' : '⭐');
-          document.getElementById('vic-stars').textContent = stars;
-          document.getElementById('vic-desc').textContent = `Você completou o objetivo da ${THEMATIC_TRACKS[this.currentTrackIndex].phases[this.currentPhaseIndex].name}!`;
+          document.getElementById('vic-title').textContent = '⭐ 1 ESTRELA CONQUISTADA!';
+          document.getElementById('vic-desc').textContent = 'Excelente! Você completou a Onda 30 e venceu esta fase!';
+          document.getElementById('vic-stars').textContent = '⭐';
+          document.getElementById('vic-next-target').textContent = 'Próximo Desafio: 2 Estrelas na Onda 50!';
+          document.getElementById('btn-vic-continue').textContent = 'RUMO A 2 ESTRELAS (50) 🌟';
+          this.openModal('victory');
+        } 
+        // Meta 2 Estrelas: Onda 50
+        else if (this.round === 51 && this.starsEarned < 2) {
+          this.starsEarned = 2;
+          this.isRoundRunning = false;
+          document.getElementById('vic-title').textContent = '⭐⭐ 2 ESTRELAS CONQUISTADAS!';
+          document.getElementById('vic-desc').textContent = 'Incrível domínio tático! Você sobreviveu até a Onda 50!';
+          document.getElementById('vic-stars').textContent = '⭐⭐';
+          document.getElementById('vic-next-target').textContent = 'Próximo Desafio: 3 Estrelas Máximas na Onda 70!';
+          document.getElementById('btn-vic-continue').textContent = 'RUMO A 3 ESTRELAS (70) 👑';
+          this.openModal('victory');
+        } 
+        // Meta 3 Estrelas Máximas: Onda 70
+        else if (this.round === 71 && this.starsEarned < 3) {
+          this.starsEarned = 3;
+          this.isRoundRunning = false;
+          document.getElementById('vic-title').textContent = '⭐⭐⭐ 3 ESTRELAS MÁXIMAS!';
+          document.getElementById('vic-desc').textContent = 'Perfeição absoluta! Você atingiu a Onda 70 e dominou a fase por completo!';
+          document.getElementById('vic-stars').textContent = '⭐⭐⭐';
+          document.getElementById('vic-next-target').textContent = 'Fase 100% Dominada! Desafie agora o Modo Infinito.';
+          document.getElementById('btn-vic-continue').textContent = 'MODO INFINITO ♾️';
           this.openModal('victory');
         }
       }
 
-      continueFreeplay() {
-        this.freeplayMode = true;
+      continueToNextStarGoal() {
         this.closeModal();
+        if (this.starsEarned >= 3) {
+          this.freeplayMode = true;
+        }
         if (this.autoStart) this.startNextRound();
+      }
+
+      toggleDifficulty() {
+        this.setDifficulty((this.difficultyIndex + 1) % DIFFICULTIES.length);
+      }
+
+      setDifficulty(idx) {
+        this.difficultyIndex = idx;
+        this.difficulty = DIFFICULTIES[idx];
+
+        for (let i = 0; i < DIFFICULTIES.length; i++) {
+          const btn = document.getElementById(`diff-btn-${i}`);
+          if (btn) btn.classList.toggle('active', i === idx);
+        }
+
+        this.restartGame();
       }
 
       nextPhase() {
         this.closeModal();
+        this.starsEarned = 0;
+        this.freeplayMode = false;
         if (this.currentPhaseIndex < 4) {
           this.currentPhaseIndex++;
         } else if (this.currentTrackIndex < 2) {
@@ -2275,13 +2386,11 @@
 
       openModal(name) {
         if (name !== 'mainmenu') {
-          // Salva de onde veio (se veio do menu principal ou direto do jogo)
           const isMainMenuActive = document.getElementById('modal-mainmenu')?.classList.contains('active');
           if (isMainMenuActive) {
             this.modalOrigin = 'mainmenu';
           }
         } else {
-          // Se abriu o menu principal durante a partida
           const hasProgress = this.round > 1 || this.towers.length > 0;
           const resumeBtn = document.getElementById('btn-menu-resume');
           const restartBtn = document.getElementById('btn-menu-restart');
@@ -2319,8 +2428,10 @@
       restartGame() {
         this.closeModal();
         this.money = 650;
-        this.lives = 20;
+        this.lives = this.difficulty.lives;
         this.round = 1;
+        this.starsEarned = 0;
+        this.freeplayMode = false;
         this.isRoundRunning = false;
         this.enemies = [];
         this.towers = [];
@@ -2337,7 +2448,25 @@
       updateUI() {
         document.getElementById('hud-money').textContent = `$${this.money}`;
         document.getElementById('hud-lives').textContent = this.lives;
-        document.getElementById('hud-round').textContent = this.round;
+
+        // Indicador dinâmico de Meta de Estrelas
+        const starBadge = document.getElementById('hud-round-badge');
+        if (starBadge) {
+          if (this.round <= 30) {
+            starBadge.textContent = `⭐ Onda ${this.round}/30`;
+          } else if (this.round <= 50) {
+            starBadge.textContent = `⭐⭐ Onda ${this.round}/50`;
+          } else if (this.round <= 70) {
+            starBadge.textContent = `⭐⭐⭐ Onda ${this.round}/70`;
+          } else {
+            starBadge.textContent = `♾️ Onda ${this.round}`;
+          }
+        }
+
+        const btnDiff = document.getElementById('btn-difficulty');
+        if (btnDiff) {
+          btnDiff.textContent = `${this.difficulty.icon} ${this.difficulty.name}`;
+        }
 
         const startBtn = document.getElementById('btn-start-round');
         startBtn.disabled = this.isRoundRunning;
@@ -2393,6 +2522,7 @@
         requestAnimationFrame(this.loop);
 
         const timeScale = this.gameSpeed;
+        const speedMult = this.difficulty.speedMult;
 
         this.ctx.fillStyle = this.map.track.bgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -2423,7 +2553,7 @@
 
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const e = this.enemies[i];
-          e.update(timeScale);
+          e.update(timeScale * speedMult);
 
           if (e.reachedEnd) {
             this.lives -= e.isBoss ? 10 : e.health;
@@ -2451,9 +2581,7 @@
 
           this.checkObjectiveSuccess();
 
-          if (this.autoStart && !this.freeplayMode && this.round <= this.targetWave) {
-            setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
-          } else if (this.autoStart && this.freeplayMode) {
+          if (this.autoStart) {
             setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
           }
         }
