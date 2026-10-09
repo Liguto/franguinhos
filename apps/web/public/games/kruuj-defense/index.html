@@ -189,7 +189,7 @@
       transition: width 0.15s ease-out;
     }
 
-    /* ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6) ===== */
+    /* ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6 - CARROSSEL COM NAVEGAÇÃO) ===== */
     .bottom-dock-bloons {
       position: absolute;
       bottom: 0;
@@ -206,29 +206,93 @@
       padding: 4px 8px;
       z-index: 30;
       box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
+      gap: 6px;
     }
 
-    /* Cards Quadrados das 5 Corujas (Espaçamento Generoso e Limpo) */
-    .dock-cards-scroll {
+    /* Wrapper do Carrossel com Setas de Navegação */
+    .dock-carousel-wrapper {
       flex: 1;
       min-width: 0;
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      gap: 5px;
-      overflow-x: auto;
-      touch-action: pan-x !important;
-      -webkit-overflow-scrolling: touch !important;
-      padding: 0 4px;
-      scrollbar-width: none;
+      gap: 4px;
+      position: relative;
     }
 
-    .dock-cards-scroll::-webkit-scrollbar {
-      display: none;
+    /* Janela de Visualização sem Vazamento */
+    .dock-carousel-viewport {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Trilho Deslizante das Corujas */
+    .dock-cards-track {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      width: max-content;
+    }
+
+    /* Botões de Navegação do Carrossel (Estilo Bloons TD) */
+    .carousel-nav-btn {
+      width: 22px;
+      height: 52px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--cyan);
+      font-size: 1.3rem;
+      font-weight: 800;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.18s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .carousel-nav-btn:hover:not(:disabled) {
+      background: rgba(56, 232, 255, 0.2);
+      border-color: var(--cyan);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .carousel-nav-btn:disabled {
+      opacity: 0.18;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.05);
+      color: #64748b;
+    }
+
+    .carousel-next-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+    }
+
+    /* Divisória Vertical entre Carrossel e Controles de Onda */
+    .dock-vertical-divider {
+      width: 1.5px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
     }
 
     .bloons-tower-card {
-      width: 48px;
+      width: 50px;
       height: 62px;
       background: rgba(255, 255, 255, 0.05);
       border: 1.5px solid var(--border-color);
@@ -239,7 +303,6 @@
       justify-content: center;
       gap: 2px;
       cursor: grab;
-      touch-action: pan-x manipulation;
       position: relative;
       flex-shrink: 0;
       transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
@@ -313,45 +376,26 @@
       }
 
       .bottom-dock-bloons {
-        height: 68px !important;
-        padding: 3px 6px !important;
-      }
-
-      .dock-cards-scroll {
-        gap: 4px !important;
-        padding: 0 2px !important;
-        justify-content: flex-start !important;
+        height: 70px !important;
+        padding: 4px 6px !important;
+        gap: 5px !important;
       }
 
       .bloons-tower-card {
-        width: 45px !important;
-        height: 58px !important;
-        border-radius: 9px !important;
-      }
-
-      .card-avatar {
-        width: 28px !important;
-        height: 28px !important;
-      }
-
-      .card-avatar svg {
-        width: 26px !important;
-        height: 26px !important;
-      }
-
-      .card-price {
-        font-size: 0.65rem !important;
+        width: 48px !important;
+        height: 60px !important;
+        border-radius: 10px !important;
       }
 
       .dock-action-cluster {
-        width: 66px !important;
-        height: 58px !important;
-        margin-left: 4px !important;
+        width: 70px !important;
+        height: 60px !important;
+        margin-left: 0 !important;
         gap: 2px !important;
       }
 
       .action-top-row {
-        height: 19px !important;
+        height: 20px !important;
         gap: 2px !important;
       }
 
@@ -360,11 +404,23 @@
       }
 
       .btn-bloons-play {
-        font-size: 0.82rem !important;
+        font-size: 0.85rem !important;
       }
 
       .btn-bloons-play span.lbl {
         font-size: 0.58rem !important;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .carousel-nav-btn {
+        display: none !important;
+      }
+
+      .dock-cards-track {
+        transform: none !important;
+        justify-content: space-around;
+        width: 100%;
       }
     }
 
@@ -376,7 +432,6 @@
       width: 76px;
       height: 64px;
       flex-shrink: 0;
-      margin-left: 4px;
     }
 
     .action-top-row {
@@ -805,104 +860,123 @@
       </div>
     </div>
 
-    <!-- ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6 - 100% ESPAÇO PARA AS CORUJAS) ===== -->
+    <!-- ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6 - CARROSSEL COM NAVEGAÇÃO) ===== -->
     <div class="bottom-dock-bloons">
-      <!-- Cards Quadrados dos 5 Arquétipos de Corujas -->
-      <div class="dock-cards-scroll">
-        <!-- Coruja Aprendiz ($200) -->
-        <button class="bloons-tower-card" id="shop-btn-0" data-index="0" title="Coruja Aprendiz ($200)">
-          <div class="card-avatar">
-            <svg viewBox="0 0 36 36" width="34" height="34">
-              <circle cx="18" cy="18" r="14" fill="#8b5cff"/>
-              <polygon points="8,10 5,3 12,7" fill="#6d28d9"/>
-              <polygon points="28,10 31,3 24,7" fill="#6d28d9"/>
-              <circle cx="13" cy="17" r="4.5" fill="#ffffff"/>
-              <circle cx="23" cy="17" r="4.5" fill="#ffffff"/>
-              <circle cx="13" cy="17" r="2.8" fill="#ffb020"/>
-              <circle cx="23" cy="17" r="2.8" fill="#ffb020"/>
-              <circle cx="13" cy="17" r="1.5" fill="#000000"/>
-              <circle cx="23" cy="17" r="1.5" fill="#000000"/>
-              <polygon points="16,19 20,19 18,24" fill="#f59e0b"/>
-              <circle cx="18" cy="11" r="1.8" fill="#fde047"/>
-            </svg>
-          </div>
-          <span class="card-price">$200</span>
+      <!-- Container do Carrossel de Corujas -->
+      <div class="dock-carousel-wrapper">
+        <!-- Botão Seta Esquerda -->
+        <button class="carousel-nav-btn" id="carousel-prev" onclick="window.guardiansGame.prevCarouselPage()" title="Corujas Anteriores" disabled>
+          <span>‹</span>
         </button>
 
-        <!-- Coruja Cientista ($300) -->
-        <button class="bloons-tower-card" id="shop-btn-1" data-index="1" title="Coruja Cientista ($300)">
-          <div class="card-avatar">
-            <svg viewBox="0 0 36 36" width="34" height="34">
-              <circle cx="18" cy="18" r="14" fill="#06b6d4"/>
-              <polygon points="8,10 5,3 12,7" fill="#0891b2"/>
-              <polygon points="28,10 31,3 24,7" fill="#0891b2"/>
-              <rect x="7" y="13" width="9" height="7" rx="2" fill="none" stroke="#ffffff" stroke-width="1.8"/>
-              <rect x="20" y="13" width="9" height="7" rx="2" fill="none" stroke="#ffffff" stroke-width="1.8"/>
-              <line x1="16" y1="16" x2="20" y2="16" stroke="#ffffff" stroke-width="1.8"/>
-              <circle cx="11.5" cy="16.5" r="2.2" fill="#38e8ff"/>
-              <circle cx="24.5" cy="16.5" r="2.2" fill="#38e8ff"/>
-              <polygon points="16,21 20,21 18,25" fill="#f59e0b"/>
-              <path d="M18,3 L18,7 M16,4 L20,6" stroke="#fde047" stroke-width="1.8"/>
-            </svg>
-          </div>
-          <span class="card-price">$300</span>
-        </button>
+        <!-- Janela de Visualização do Carrossel -->
+        <div class="dock-carousel-viewport" id="dock-carousel-viewport">
+          <div class="dock-cards-track" id="dock-cards-track">
+            <!-- Coruja Aprendiz ($200) -->
+            <button class="bloons-tower-card" id="shop-btn-0" data-index="0" title="Coruja Aprendiz ($200)">
+              <div class="card-avatar">
+                <svg viewBox="0 0 36 36" width="34" height="34">
+                  <circle cx="18" cy="18" r="14" fill="#8b5cff"/>
+                  <polygon points="8,10 5,3 12,7" fill="#6d28d9"/>
+                  <polygon points="28,10 31,3 24,7" fill="#6d28d9"/>
+                  <circle cx="13" cy="17" r="4.5" fill="#ffffff"/>
+                  <circle cx="23" cy="17" r="4.5" fill="#ffffff"/>
+                  <circle cx="13" cy="17" r="2.8" fill="#ffb020"/>
+                  <circle cx="23" cy="17" r="2.8" fill="#ffb020"/>
+                  <circle cx="13" cy="17" r="1.5" fill="#000000"/>
+                  <circle cx="23" cy="17" r="1.5" fill="#000000"/>
+                  <polygon points="16,19 20,19 18,24" fill="#f59e0b"/>
+                  <circle cx="18" cy="11" r="1.8" fill="#fde047"/>
+                </svg>
+              </div>
+              <span class="card-price">$200</span>
+            </button>
 
-        <!-- Coruja Sniper ($400) -->
-        <button class="bloons-tower-card" id="shop-btn-2" data-index="2" title="Coruja Sniper ($400)">
-          <div class="card-avatar">
-            <svg viewBox="0 0 36 36" width="34" height="34">
-              <circle cx="18" cy="18" r="14" fill="#ca8a04"/>
-              <polygon points="8,10 5,3 12,7" fill="#a16207"/>
-              <polygon points="28,10 31,3 24,7" fill="#a16207"/>
-              <circle cx="13" cy="17" r="4.2" fill="#ffffff"/>
-              <circle cx="13" cy="17" r="2.2" fill="#000000"/>
-              <circle cx="23" cy="17" r="5" fill="none" stroke="#fde047" stroke-width="2"/>
-              <line x1="23" y1="11" x2="23" y2="23" stroke="#fde047" stroke-width="1.2"/>
-              <line x1="17" y1="17" x2="29" y2="17" stroke="#fde047" stroke-width="1.2"/>
-              <circle cx="23" cy="17" r="2" fill="#ef4444"/>
-              <polygon points="16,20 20,20 18,24" fill="#f59e0b"/>
-            </svg>
-          </div>
-          <span class="card-price">$400</span>
-        </button>
+            <!-- Coruja Cientista ($300) -->
+            <button class="bloons-tower-card" id="shop-btn-1" data-index="1" title="Coruja Cientista ($300)">
+              <div class="card-avatar">
+                <svg viewBox="0 0 36 36" width="34" height="34">
+                  <circle cx="18" cy="18" r="14" fill="#06b6d4"/>
+                  <polygon points="8,10 5,3 12,7" fill="#0891b2"/>
+                  <polygon points="28,10 31,3 24,7" fill="#0891b2"/>
+                  <rect x="7" y="13" width="9" height="7" rx="2" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+                  <rect x="20" y="13" width="9" height="7" rx="2" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+                  <line x1="16" y1="16" x2="20" y2="16" stroke="#ffffff" stroke-width="1.8"/>
+                  <circle cx="11.5" cy="16.5" r="2.2" fill="#38e8ff"/>
+                  <circle cx="24.5" cy="16.5" r="2.2" fill="#38e8ff"/>
+                  <polygon points="16,21 20,21 18,25" fill="#f59e0b"/>
+                  <path d="M18,3 L18,7 M16,4 L20,6" stroke="#fde047" stroke-width="1.8"/>
+                </svg>
+              </div>
+              <span class="card-price">$300</span>
+            </button>
 
-        <!-- Coruja Bombardeira ($500) -->
-        <button class="bloons-tower-card" id="shop-btn-3" data-index="3" title="Coruja Bombardeira ($500)">
-          <div class="card-avatar">
-            <svg viewBox="0 0 36 36" width="34" height="34">
-              <circle cx="18" cy="18" r="14" fill="#dc2626"/>
-              <path d="M6,13 C6,7 30,7 30,13 L30,17 C30,17 26,19 18,19 C10,19 6,17 6,17 Z" fill="#450a0a"/>
-              <rect x="9" y="8" width="7" height="4" rx="1.5" fill="#38e8ff" stroke="#ffffff" stroke-width="1"/>
-              <rect x="20" y="8" width="7" height="4" rx="1.5" fill="#38e8ff" stroke="#ffffff" stroke-width="1"/>
-              <circle cx="13" cy="20" r="3.2" fill="#ffffff"/>
-              <circle cx="23" cy="20" r="3.2" fill="#ffffff"/>
-              <circle cx="13" cy="20" r="1.8" fill="#000000"/>
-              <circle cx="23" cy="20" r="1.8" fill="#000000"/>
-              <polygon points="16,22 20,22 18,26" fill="#f59e0b"/>
-            </svg>
-          </div>
-          <span class="card-price">$500</span>
-        </button>
+            <!-- Coruja Sniper ($400) -->
+            <button class="bloons-tower-card" id="shop-btn-2" data-index="2" title="Coruja Sniper ($400)">
+              <div class="card-avatar">
+                <svg viewBox="0 0 36 36" width="34" height="34">
+                  <circle cx="18" cy="18" r="14" fill="#ca8a04"/>
+                  <polygon points="8,10 5,3 12,7" fill="#a16207"/>
+                  <polygon points="28,10 31,3 24,7" fill="#a16207"/>
+                  <circle cx="13" cy="17" r="4.2" fill="#ffffff"/>
+                  <circle cx="13" cy="17" r="2.2" fill="#000000"/>
+                  <circle cx="23" cy="17" r="5" fill="none" stroke="#fde047" stroke-width="2"/>
+                  <line x1="23" y1="11" x2="23" y2="23" stroke="#fde047" stroke-width="1.2"/>
+                  <line x1="17" y1="17" x2="29" y2="17" stroke="#fde047" stroke-width="1.2"/>
+                  <circle cx="23" cy="17" r="2" fill="#ef4444"/>
+                  <polygon points="16,20 20,20 18,24" fill="#f59e0b"/>
+                </svg>
+              </div>
+              <span class="card-price">$400</span>
+            </button>
 
-        <!-- Coruja Mago Glacial ($250) -->
-        <button class="bloons-tower-card" id="shop-btn-4" data-index="4" title="Coruja Mago Glacial ($250)">
-          <div class="card-avatar">
-            <svg viewBox="0 0 36 36" width="34" height="34">
-              <circle cx="18" cy="18" r="14" fill="#2563eb"/>
-              <polygon points="18,2 15,9 21,9" fill="#bae6fd"/>
-              <polygon points="12,5 10,10 15,10" fill="#93c5fd"/>
-              <polygon points="24,5 26,10 21,10" fill="#93c5fd"/>
-              <circle cx="13" cy="18" r="4.2" fill="#ffffff"/>
-              <circle cx="23" cy="18" r="4.2" fill="#ffffff"/>
-              <circle cx="13" cy="18" r="2.4" fill="#38e8ff"/>
-              <circle cx="23" cy="18" r="2.4" fill="#38e8ff"/>
-              <polygon points="16,21 20,21 18,25" fill="#f59e0b"/>
-            </svg>
+            <!-- Coruja Bombardeira ($500) -->
+            <button class="bloons-tower-card" id="shop-btn-3" data-index="3" title="Coruja Bombardeira ($500)">
+              <div class="card-avatar">
+                <svg viewBox="0 0 36 36" width="34" height="34">
+                  <circle cx="18" cy="18" r="14" fill="#dc2626"/>
+                  <path d="M6,13 C6,7 30,7 30,13 L30,17 C30,17 26,19 18,19 C10,19 6,17 6,17 Z" fill="#450a0a"/>
+                  <rect x="9" y="8" width="7" height="4" rx="1.5" fill="#38e8ff" stroke="#ffffff" stroke-width="1"/>
+                  <rect x="20" y="8" width="7" height="4" rx="1.5" fill="#38e8ff" stroke="#ffffff" stroke-width="1"/>
+                  <circle cx="13" cy="20" r="3.2" fill="#ffffff"/>
+                  <circle cx="23" cy="20" r="3.2" fill="#ffffff"/>
+                  <circle cx="13" cy="20" r="1.8" fill="#000000"/>
+                  <circle cx="23" cy="20" r="1.8" fill="#000000"/>
+                  <polygon points="16,22 20,22 18,26" fill="#f59e0b"/>
+                </svg>
+              </div>
+              <span class="card-price">$500</span>
+            </button>
+
+            <!-- Coruja Mago Glacial ($250) -->
+            <button class="bloons-tower-card" id="shop-btn-4" data-index="4" title="Coruja Mago Glacial ($250)">
+              <div class="card-avatar">
+                <svg viewBox="0 0 36 36" width="34" height="34">
+                  <circle cx="18" cy="18" r="14" fill="#2563eb"/>
+                  <polygon points="18,2 15,9 21,9" fill="#bae6fd"/>
+                  <polygon points="12,5 10,10 15,10" fill="#93c5fd"/>
+                  <polygon points="24,5 26,10 21,10" fill="#93c5fd"/>
+                  <circle cx="13" cy="18" r="4.2" fill="#ffffff"/>
+                  <circle cx="23" cy="18" r="4.2" fill="#ffffff"/>
+                  <circle cx="13" cy="18" r="2.4" fill="#38e8ff"/>
+                  <circle cx="23" cy="18" r="2.4" fill="#38e8ff"/>
+                  <polygon points="16,21 20,21 18,25" fill="#f59e0b"/>
+                </svg>
+              </div>
+              <span class="card-price">$250</span>
+            </button>
           </div>
-          <span class="card-price">$250</span>
+        </div>
+
+        <!-- Botão Seta Direita -->
+        <button class="carousel-nav-btn" id="carousel-next" onclick="window.guardiansGame.nextCarouselPage()" title="Mais Corujas">
+          <span>›</span>
+          <span class="carousel-next-badge" id="carousel-next-dot"></span>
         </button>
       </div>
+
+      <!-- Divisória Vertical Elegante -->
+      <div class="dock-vertical-divider"></div>
 
       <!-- Cluster de Ação Inferior Direito: Botão Verde Bloons TD + Controles de Velocidade e Auto -->
       <div class="dock-action-cluster">
@@ -2201,6 +2275,7 @@
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
+        this.initCarousel();
         this.initDragAndDrop();
 
         this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
@@ -2234,7 +2309,81 @@
         const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.canvas.width = w;
         this.canvas.height = h;
-        this.map.resize(this.canvas.width, this.canvas.height);
+        this.map.resize(w, h);
+        this.updateCarouselUI();
+      }
+
+      // ===== NAVEGAÇÃO DO CARROSSEL DE CORUJAS ESTILO BLOONS TD =====
+      initCarousel() {
+        this.carouselPage = 0;
+        this.updateCarouselUI();
+
+        // Suporte a swipe por toque no viewport
+        const vp = document.getElementById('dock-carousel-viewport');
+        if (vp) {
+          let touchStartX = 0;
+          let touchStartY = 0;
+          vp.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }, { passive: true });
+
+          vp.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (Math.abs(dx) > 25 && Math.abs(dx) > Math.abs(dy)) {
+              if (dx < 0) this.nextCarouselPage();
+              else this.prevCarouselPage();
+            }
+          }, { passive: true });
+        }
+      }
+
+      nextCarouselPage() {
+        this.carouselPage = 1;
+        this.updateCarouselUI();
+      }
+
+      prevCarouselPage() {
+        this.carouselPage = 0;
+        this.updateCarouselUI();
+      }
+
+      updateCarouselUI() {
+        const track = document.getElementById('dock-cards-track');
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+        const nextDot = document.getElementById('carousel-next-dot');
+        const vp = document.getElementById('dock-carousel-viewport');
+
+        if (!track || !vp) return;
+
+        const isMobile = window.innerWidth <= 768;
+        if (!isMobile) {
+          track.style.transform = 'none';
+          if (prevBtn) prevBtn.style.display = 'none';
+          if (nextBtn) nextBtn.style.display = 'none';
+          return;
+        }
+
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+
+        const trackWidth = track.scrollWidth;
+        const vpWidth = vp.clientWidth;
+        const maxScroll = Math.max(0, trackWidth - vpWidth);
+
+        if (this.carouselPage === 0) {
+          track.style.transform = 'translateX(0px)';
+          if (prevBtn) prevBtn.disabled = true;
+          if (nextBtn) nextBtn.disabled = false;
+          if (nextDot) nextDot.style.display = maxScroll > 0 ? 'block' : 'none';
+        } else {
+          track.style.transform = `translateX(-${maxScroll}px)`;
+          if (prevBtn) prevBtn.disabled = false;
+          if (nextBtn) nextBtn.disabled = true;
+          if (nextDot) nextDot.style.display = 'none';
+        }
       }
 
       // ===== ARRASTAR E SOLTAR COM OFFSET DE DEDO NO TOUCH =====
