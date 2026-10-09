@@ -3262,16 +3262,15 @@ export default function App() {
                        allow="fullscreen; autoplay; screen-wake-lock; orientation-lock"
                        allowFullScreen
                        title={selectedGame.title}
-                        style={isScreenLocked ? {
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          border: 'none',
-                          margin: 0,
-                          padding: 0,
-                          objectFit: 'cover'
-                        } : {}}
+                       style={{
+                         position: 'absolute',
+                         inset: 0,
+                         width: '100%',
+                         height: '100%',
+                         border: 'none',
+                         margin: 0,
+                         padding: 0
+                       }}
                       ></iframe>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">

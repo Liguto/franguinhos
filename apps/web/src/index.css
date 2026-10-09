@@ -613,18 +613,23 @@ body.playing-game-mode, html.playing-game-mode {
 
   .iframe-container {
     position: fixed !important;
+    inset: 0 !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     width: 100vw !important;
+    height: 100% !important;
     height: 100dvh !important;
     height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+    aspect-ratio: auto !important; /* CRÍTICO: Anula o 16/9 do desktop no mobile */
     border: none !important;
     border-radius: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: #000000 !important;
+    background: #070914 !important; /* Cor exata do fundo cósmico do jogo, sem faixa preta */
     overflow: hidden !important;
     touch-action: none !important;
     overscroll-behavior: none !important;
@@ -633,8 +638,14 @@ body.playing-game-mode, html.playing-game-mode {
   .iframe-container iframe {
     position: absolute !important;
     inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100% !important;
     height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     border: none !important;
     display: block !important;
     touch-action: none !important;

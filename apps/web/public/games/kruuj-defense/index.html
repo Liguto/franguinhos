@@ -49,9 +49,10 @@
 
     /* Container Principal do Jogo (Focado na Tela Limpa Estilo Bloons TD 6) */
     #game-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -194,7 +195,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 76px;
+      height: 72px;
       background: var(--bg-dock);
       border-top: 2px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(20px);
@@ -202,7 +203,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 4px 8px;
       z-index: 30;
       box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
     }
@@ -210,11 +211,14 @@
     /* Cards Quadrados das 5 Corujas (Espaçamento Generoso e Limpo) */
     .dock-cards-scroll {
       flex: 1;
+      min-width: 0;
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      gap: 6px;
+      justify-content: flex-start;
+      gap: 5px;
       overflow-x: auto;
+      touch-action: pan-x !important;
+      -webkit-overflow-scrolling: touch !important;
       padding: 0 4px;
       scrollbar-width: none;
     }
@@ -224,18 +228,18 @@
     }
 
     .bloons-tower-card {
-      width: 54px;
-      height: 64px;
+      width: 48px;
+      height: 62px;
       background: rgba(255, 255, 255, 0.05);
       border: 1.5px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 11px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 2px;
       cursor: grab;
-      touch-action: none;
+      touch-action: pan-x manipulation;
       position: relative;
       flex-shrink: 0;
       transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
@@ -271,8 +275,8 @@
     }
 
     .card-avatar {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -285,7 +289,7 @@
     }
 
     .card-price {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 800;
       color: var(--gold);
     }
@@ -306,6 +310,61 @@
       .round-badge {
         padding: 3px 8px !important;
         font-size: 0.78rem !important;
+      }
+
+      .bottom-dock-bloons {
+        height: 68px !important;
+        padding: 3px 6px !important;
+      }
+
+      .dock-cards-scroll {
+        gap: 4px !important;
+        padding: 0 2px !important;
+        justify-content: flex-start !important;
+      }
+
+      .bloons-tower-card {
+        width: 45px !important;
+        height: 58px !important;
+        border-radius: 9px !important;
+      }
+
+      .card-avatar {
+        width: 28px !important;
+        height: 28px !important;
+      }
+
+      .card-avatar svg {
+        width: 26px !important;
+        height: 26px !important;
+      }
+
+      .card-price {
+        font-size: 0.65rem !important;
+      }
+
+      .dock-action-cluster {
+        width: 66px !important;
+        height: 58px !important;
+        margin-left: 4px !important;
+        gap: 2px !important;
+      }
+
+      .action-top-row {
+        height: 19px !important;
+        gap: 2px !important;
+      }
+
+      .btn-action-pill {
+        font-size: 0.62rem !important;
+      }
+
+      .btn-bloons-play {
+        font-size: 0.82rem !important;
+      }
+
+      .btn-bloons-play span.lbl {
+        font-size: 0.58rem !important;
       }
     }
 
@@ -2171,8 +2230,10 @@
       }
 
       resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        const w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        this.canvas.width = w;
+        this.canvas.height = h;
         this.map.resize(this.canvas.width, this.canvas.height);
       }
 
