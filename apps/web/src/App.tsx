@@ -745,27 +745,6 @@ export default function App() {
       licenseName: 'Proprietário'
     },
     {
-      id: '13',
-      slug: 'kruuj-runner',
-      title: 'KRUUJ RUNNER',
-      description: 'Corra pelos telhados cibernéticos da cidade cósmica em alta velocidade! Salte duas vezes, plane suavemente e resgate as penas estelares.',
-      category: 'Ação',
-      subcategories: ['Runner', 'Endless', 'Cyberpunk', 'Velocidade'],
-      tags: ['runner', 'kruuj', 'corrida', 'parkour', 'cyberpunk', 'acao', 'infinito'],
-      ageRating: 'Livre',
-      bannerUrl: '/banners/kruuj-runner.jpg',
-      iconUrl: '/icons/kruuj-runner.png',
-      prefixUrl: '/games/kruuj-runner/',
-      version: '1.0.0',
-      controls: { mouse: true, teclado: true, toque: true, gamepad: false },
-      orientation: 'both',
-      statusTechnical: 'aprovado',
-      statusEditorial: 'publicado',
-      statusDoc: 'aprovado',
-      author: 'KRUUJ Studio',
-      licenseName: 'Proprietário'
-    },
-    {
       id: '14',
       slug: 'kruuj-words',
       title: 'KRUUJ WORD',
@@ -1887,14 +1866,6 @@ export default function App() {
       category: 'Estratégia / Defesa'
     },
     {
-      title: 'KRUUJ RUNNER',
-      subtitle: 'Corra pelos telhados cyberpunk em alta velocidade, salte e plane com estilo!',
-      tag: 'NOVO • ENDLESS RUNNER',
-      slug: 'kruuj-runner',
-      bannerUrl: '/banners/kruuj-runner.jpg',
-      category: 'Ação / Parkour'
-    },
-    {
       title: 'KRUUJ WORD',
       subtitle: 'O enigma das corujas! Conecte letras cósmicas e descubra as palavras secretas!',
       tag: 'NOVO • EDUCACIONAL',
@@ -1929,20 +1900,20 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  // 4 Prateleiras Oficiais — Baseadas 100% nos 14 Jogos Físicos Reais
+  // 4 Prateleiras Oficiais — Baseadas 100% nos Jogos Físicos Reais
   const shelfTrending = [
     games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[8],
     games.find(g => g.slug === 'rocket-rise') || defaultGamesCatalog[0],
     games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[7],
     games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[9],
-    games.find(g => g.slug === 'kruuj-runner') || defaultGamesCatalog[12],
+    games.find(g => g.slug === 'bubble-pop') || defaultGamesCatalog[3],
     games.find(g => g.slug === 'space-defense') || defaultGamesCatalog[1],
   ].filter(Boolean) as Game[];
 
   const shelfDiscoveries = [
     games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[10],
     games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[11],
-    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[13],
+    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[12],
     games.find(g => g.slug === 'snake-retro') || defaultGamesCatalog[2],
     games.find(g => g.slug === 'sudoku-zen') || defaultGamesCatalog[4],
     games.find(g => g.slug === 'memory-match') || defaultGamesCatalog[6],
@@ -1952,8 +1923,8 @@ export default function App() {
     games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[9],
     games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[10],
     games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[11],
-    games.find(g => g.slug === 'kruuj-runner') || defaultGamesCatalog[12],
-    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[13],
+    games.find(g => g.slug === 'math-run') || defaultGamesCatalog[5],
+    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[12],
     games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[8],
   ].filter(Boolean) as Game[];
 
