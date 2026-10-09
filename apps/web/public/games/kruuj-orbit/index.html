@@ -101,6 +101,35 @@
       color: var(--gold);
     }
 
+    /* Botão de Toggle da Mira / Guia Preditivo */
+    .hud-btn-help {
+      cursor: pointer;
+      pointer-events: auto !important;
+      border: 1px solid rgba(56, 232, 255, 0.45);
+      background: rgba(13, 18, 36, 0.85);
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .hud-btn-help:hover {
+      background: rgba(56, 232, 255, 0.25);
+      border-color: var(--cyan);
+      transform: scale(1.05);
+    }
+
+    .hud-btn-help.off {
+      border-color: rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      opacity: 0.65;
+    }
+
+    .hud-btn-help.off span.status {
+      color: #94a3b8 !important;
+    }
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.06); }
@@ -240,11 +269,15 @@
 <body>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD Superior com Score, Recorde, Estrelas e Multiplicador de Combo -->
+  <!-- HUD Superior com Score, Recorde, Estrelas, Multiplicador de Combo e Toggle de Mira -->
   <div class="hud">
     <div class="hud-group">
       <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
       <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
+      <!-- Botão de Ajuda / Previsão de Trajetória -->
+      <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Previsão de Salto">
+        <span>🎯</span> <span class="status" id="helpText">MIRA: ON</span>
+      </button>
     </div>
     <div class="hud-group">
       <div class="hud-badge star-badge">⭐ <span id="starsVal">0</span></div>
@@ -920,6 +953,8 @@
         this.bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
         this.baseLaunchSpeed = 13.0;
 
+        this.guideEnabled = localStorage.getItem('kruuj_orbit_guide') !== 'false';
+
         this.player = null;
         this.planets = [];
         this.starsCollectibles = [];
@@ -935,6 +970,7 @@
       init() {
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        this.updateGuideButtonUI();
 
         // Fundo estrelado infinito
         for (let i = 0; i < 200; i++) {
@@ -1099,6 +1135,149 @@
           window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-orbit', score: this.score, bestScore: this.bestScore }, '*');
           window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { bestScore: this.bestScore, stars: this.starsCount }, score: this.score }, '*');
         } catch(e) {}
+      }
+
+      toggleGuide() {
+        this.guideEnabled = !this.guideEnabled;
+        localStorage.setItem('kruuj_orbit_guide', String(this.guideEnabled));
+        this.updateGuideButtonUI();
+      }
+
+      updateGuideButtonUI() {
+        const btn = document.getElementById('btnHelpToggle');
+        const text = document.getElementById('helpText');
+        if (!btn || !text) return;
+        if (this.guideEnabled) {
+          btn.classList.remove('off');
+          text.textContent = 'MIRA: ON';
+          text.style.color = '#38e8ff';
+        } else {
+          btn.classList.add('off');
+          text.textContent = 'MIRA: OFF';
+          text.style.color = '#94a3b8';
+        }
+      }
+
+      // Previsão da Trajetória do Salto (Laser Guide Inteligente)
+      renderTrajectoryPrediction(ctx) {
+        if (!this.guideEnabled || !this.player || !this.player.currentPlanet) return;
+
+        const curP = this.player.currentPlanet;
+        const dir = this.player.orbitSpeed > 0 ? 1 : -1;
+        const tangentX = -Math.sin(this.player.angle) * dir;
+        const tangentY = Math.cos(this.player.angle) * dir;
+
+        const maxDist = 380;
+        const step = 8;
+        let hitType = 'none'; // 'none', 'target', 'crash', 'hazard'
+        let targetPlanet = null;
+        let interceptX = 0;
+        let interceptY = 0;
+
+        const points = [];
+        let currX = this.player.x;
+        let currY = this.player.y;
+        points.push({ x: currX, y: currY });
+
+        for (let d = step; d <= maxDist; d += step) {
+          currX += tangentX * step;
+          currY += tangentY * step;
+          points.push({ x: currX, y: currY });
+
+          // 1. Checa perigo com asteroides
+          for (let planet of this.planets) {
+            for (let h of planet.hazards) {
+              if (Math.hypot(currX - h.x, currY - h.y) < (this.player.radius + h.radius + 6)) {
+                hitType = 'hazard';
+                interceptX = currX;
+                interceptY = currY;
+                break;
+              }
+            }
+            if (hitType === 'hazard') break;
+
+            // 2. Checa colisão com núcleo do planeta
+            const distP = Math.hypot(currX - planet.x, currY - planet.y);
+            if (distP <= planet.coreRadius + this.player.radius) {
+              hitType = 'crash';
+              interceptX = currX;
+              interceptY = currY;
+              break;
+            }
+
+            // 3. Checa captura de gravidade do próximo planeta
+            if (planet !== curP && distP <= planet.gravityRadius + 22 && distP >= planet.coreRadius + 6) {
+              hitType = 'target';
+              targetPlanet = planet;
+              interceptX = currX;
+              interceptY = currY;
+              break;
+            }
+          }
+
+          if (hitType !== 'none') break;
+        }
+
+        ctx.save();
+
+        let strokeColor = 'rgba(255, 255, 255, 0.28)';
+        let glowColor = 'rgba(255, 255, 255, 0)';
+        if (hitType === 'target') {
+          strokeColor = '#10b981'; // Verde brilhante quando a mira está perfeita
+          glowColor = '#38e8ff';
+        } else if (hitType === 'crash' || hitType === 'hazard') {
+          strokeColor = '#ef4444'; // Vermelho de colisão iminente
+          glowColor = '#ef4444';
+        }
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = hitType === 'target' ? 2.6 : 1.8;
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = hitType === 'target' ? 12 : 0;
+        ctx.setLineDash([5, 6]);
+
+        // Traça a linha pontilhada de previsão
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.shadowBlur = 0;
+
+        // Se encontrou alvo ou perigo, renderiza o marcador no ponto de impacto
+        if (hitType === 'target') {
+          ctx.strokeStyle = '#10b981';
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(interceptX, interceptY, 9, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fill();
+
+          // Ponto central de impacto
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(interceptX, interceptY, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Destaque brilhante na órbita de destino
+          if (targetPlanet) {
+            ctx.strokeStyle = 'rgba(56, 232, 255, 0.6)';
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.arc(targetPlanet.x, targetPlanet.y, targetPlanet.gravityRadius, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        } else if (hitType === 'crash' || hitType === 'hazard') {
+          ctx.fillStyle = '#ef4444';
+          ctx.font = '800 16px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('✕', interceptX, interceptY + 5);
+        }
+
+        ctx.restore();
       }
 
       // Loop de Física e Renderização
@@ -1277,6 +1456,11 @@
               s.render(this.ctx);
             }
           });
+
+          // Previsão de Trajetória / Guia Preditivo (Laser Guide Inteligente)
+          if (this.state === 'play' && this.player) {
+            this.renderTrajectoryPrediction(this.ctx);
+          }
 
           // Partículas
           for (let i = this.particles.length - 1; i >= 0; i--) {
