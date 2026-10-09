@@ -3129,11 +3129,12 @@ export default function App() {
                     onClick={triggerExitGame}
                     title="Voltar ao Portal"
                   >
-                    <ChevronLeft className="w-5 h-5 text-gray-900 stroke-[2.8]" />
+                    <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
                     <img 
                       src="/kruuj-avatar.png" 
                       alt="KRUUJ" 
-                      className="w-7 h-7 rounded-full object-contain shadow-sm"
+                      style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
+                      className="shadow-sm"
                     />
                   </button>
                 )}
