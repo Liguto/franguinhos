@@ -625,12 +625,15 @@
   <!-- Modal 0: TELA DE MENU INICIAL OFICIAL DO JOGO -->
   <div class="modal-backdrop active" id="modal-mainmenu">
     <div class="main-menu-card">
+      <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: -10px;">
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()" title="Fechar Menu">✕</button>
+      </div>
       <div style="font-size: 2.8rem; margin-bottom: -10px;">🦉🎈</div>
       <h1 style="font-size: clamp(26px, 6vw, 36px); margin: 0;">KRUUJ GUARDIANS</h1>
       <p style="font-size: 0.88rem; color: var(--cyan); margin: 0; font-weight: 700;">Defesa Cósmica das Corujas • Bloons TD</p>
 
       <div class="menu-buttons-list">
-        <button class="btn-menu-action primary" onclick="window.guardiansGame.closeModal()">
+        <button class="btn-menu-action primary" id="btn-menu-resume" onclick="window.guardiansGame.closeModal()">
           <span>▶️</span> JOGAR
         </button>
         <button class="btn-menu-action" onclick="window.guardiansGame.openModal('phases')">
@@ -642,6 +645,9 @@
         <button class="btn-menu-action" onclick="window.guardiansGame.openModal('howto')">
           <span>📖</span> COMO JOGAR
         </button>
+        <button class="btn-menu-action" id="btn-menu-restart" style="display: none; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="window.guardiansGame.restartGame()">
+          <span>🔄</span> REINICIAR PARTIDA
+        </button>
       </div>
     </div>
   </div>
@@ -651,7 +657,7 @@
     <div class="modal-card">
       <div class="modal-title">
         <span>🗺️ Trilhas & Fases Temáticas</span>
-        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeSubModal()" title="Voltar">✕</button>
       </div>
 
       <!-- Trilha 1: Cósmica -->
@@ -698,6 +704,10 @@
           <button class="phase-btn" onclick="window.guardiansGame.selectTrackPhase(2, 4)">Fase 5 👑</button>
         </div>
       </div>
+
+      <button class="btn-menu-action" style="margin-top: 6px;" onclick="window.guardiansGame.closeSubModal()">
+        <span>⬅️</span> Voltar ao Menu
+      </button>
     </div>
   </div>
 
@@ -706,7 +716,7 @@
     <div class="modal-card">
       <div class="modal-title">
         <span>🦉 Grimório das Corujas & Upgrades</span>
-        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeSubModal()" title="Voltar">✕</button>
       </div>
 
       <div class="encyclopedia-item">
@@ -748,6 +758,10 @@
           <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($190): Nevasca 3.5s ⭐ • Nv. 3 ($380): Congelamento Total Instantâneo ⭐⭐.</div>
         </div>
       </div>
+
+      <button class="btn-menu-action" style="margin-top: 6px;" onclick="window.guardiansGame.closeSubModal()">
+        <span>⬅️</span> Voltar ao Menu
+      </button>
     </div>
   </div>
 
@@ -756,13 +770,17 @@
     <div class="modal-card">
       <div class="modal-title">
         <span>📖 Guia Estratégico</span>
-        <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
+        <button class="btn-close-modal" onclick="window.guardiansGame.closeSubModal()" title="Voltar">✕</button>
       </div>
       <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
         <p>🎈 <b>Bloons TD Gameplay:</b> Arraste as corujas da barra inferior ou toque nelas para posicionar estrategicamente ao longo da pista.</p>
         <p>⬆️ <b>Evolução das Corujas:</b> Toque em qualquer coruja posicionada no mapa para abrir o <b>painel de Upgrades</b> à esquerda. Gaste suas moedas para evoluir até o Nível 3 Supremo!</p>
         <p>👾 <b>Chefões Titãs:</b> Nas rodadas 10, 20 e 30 surge um Zepelim Titã. Use Snipers e Canhões evoluídos para derrotá-lo antes que alcance o ninho!</p>
       </div>
+
+      <button class="btn-menu-action" style="margin-top: 6px;" onclick="window.guardiansGame.closeSubModal()">
+        <span>⬅️</span> Voltar ao Menu
+      </button>
     </div>
   </div>
 
@@ -1953,12 +1971,37 @@
       }
 
       openModal(name) {
+        if (name !== 'mainmenu') {
+          // Salva de onde veio (se veio do menu principal ou direto do jogo)
+          const isMainMenuActive = document.getElementById('modal-mainmenu')?.classList.contains('active');
+          if (isMainMenuActive) {
+            this.modalOrigin = 'mainmenu';
+          }
+        } else {
+          // Se abriu o menu principal durante a partida
+          const hasProgress = this.round > 1 || this.towers.length > 0;
+          const resumeBtn = document.getElementById('btn-menu-resume');
+          const restartBtn = document.getElementById('btn-menu-restart');
+          if (resumeBtn) resumeBtn.innerHTML = hasProgress ? '<span>▶️</span> CONTINUAR DEFESA' : '<span>▶️</span> JOGAR';
+          if (restartBtn) restartBtn.style.display = hasProgress ? 'flex' : 'none';
+        }
+
         document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
         const modal = document.getElementById(`modal-${name}`);
         if (modal) modal.classList.add('active');
       }
 
+      closeSubModal() {
+        if (this.modalOrigin === 'mainmenu') {
+          this.modalOrigin = null;
+          this.openModal('mainmenu');
+        } else {
+          this.closeModal();
+        }
+      }
+
       closeModal() {
+        this.modalOrigin = null;
         document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
       }
 
