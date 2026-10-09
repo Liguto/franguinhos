@@ -521,38 +521,88 @@ body.playing-game-mode, html.playing-game-mode {
 }
 
 @media (max-width: 768px) {
-  body.playing-game-mode {
+  body.playing-game-mode, html.playing-game-mode {
     position: fixed !important;
+    inset: 0 !important;
     width: 100vw !important;
     height: 100dvh !important;
     height: 100vh !important;
     overflow: hidden !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
   }
 
-  /* Reduz o padding horizontal geral no celular para dar muito mais espaço lateral ao jogo */
-  .container {
-    padding: 0 12px !important;
-  }
-
-  /* O jogo entra em tela cheia no celular LOGO ABAIXO da barra de navegação superior, sem sobrepor nada! */
-  .iframe-container {
+  /* Em tela de jogo no mobile, o container ocupa 100% da tela útil sem vazamento do site de fundo */
+  .kruuj-playing-container {
     position: fixed !important;
-    top: 52px !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    background: #000000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  .kruuj-playing-header-bar {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #0a0d1a !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-shrink: 0 !important;
+  }
+
+  .kruuj-playing-back-btn {
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .iframe-container {
+    position: relative !important;
+    top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
+    flex: 1 !important;
     width: 100vw !important;
-    height: calc(100dvh - 52px) !important;
-    height: calc(100vh - 52px) !important;
-    z-index: 99999 !important;
+    height: calc(100% - 44px) !important;
     border: none !important;
     border-radius: 0 !important;
-    box-shadow: none !important;
-    aspect-ratio: unset !important;
-    background-color: #000 !important;
     margin: 0 !important;
+    padding: 0 !important;
+    background: #000000 !important;
+    overflow: hidden !important;
     touch-action: none !important;
     overscroll-behavior: none !important;
+  }
+
+  .iframe-container iframe {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    display: block !important;
+    touch-action: none !important;
+  }
+
+  /* No mobile, oculta completamente os blocos secundários abaixo do jogo durante a partida */
+  .kruuj-playing-container .play-info-split,
+  .kruuj-playing-container .ad-slot-leaderboard {
+    display: none !important;
   }
 }
 

@@ -3264,13 +3264,13 @@ export default function App() {
                   )}
                 </div>
 
-                {/* SLOT DE ANÚNCIO LEADERBOARD DEBAIXO DO JOGO */}
+                {/* SLOT DE ANÚNCIO LEADERBOARD DEBAIXO DO JOGO (Apenas no Desktop) */}
                 {consentOptions.advertising && (
-                  <div className="ad-slot-leaderboard"></div>
+                  <div className="ad-slot-leaderboard hidden md:block"></div>
                 )}
 
-                {/* LAYOUT DE INFORMAÇÕES DEBAIXO DO JOGO */}
-                <div className="play-info-split">
+                {/* LAYOUT DE INFORMAÇÕES DEBAIXO DO JOGO (Apenas no Desktop) */}
+                <div className="play-info-split hidden md:grid">
                   
                   {/* COLUNA ESQUERDA */}
                   <div className="space-y-6">
