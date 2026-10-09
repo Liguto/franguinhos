@@ -125,6 +125,32 @@
       justify-content: center;
     }
 
+    /* Toast Flutuante de Palavra Bônus / Feedback */
+    .bonus-toast {
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(13, 18, 36, 0.95);
+      border: 1.5px solid var(--gold);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 6px 18px;
+      border-radius: 9999px;
+      box-shadow: 0 4px 20px rgba(255, 176, 32, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 40;
+      white-space: nowrap;
+    }
+
+    .bonus-toast.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* Roda Mística de Letras (Canvas + Botão de Embaralhar) */
     .wheel-wrapper {
       position: relative;
@@ -229,8 +255,14 @@
   <!-- Cabeçalho -->
   <div class="header-bar">
     <div class="game-logo">KRUUJ WORD</div>
-    <div class="level-badge" id="levelIndicator">FASE 1</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <div class="level-badge" id="scoreIndicator" style="color: var(--gold);">0 PTS</div>
+      <div class="level-badge" id="levelIndicator">FASE 1</div>
+    </div>
   </div>
+
+  <!-- Toast Flutuante de Feedback / Palavra Bônus -->
+  <div id="bonusToast" class="bonus-toast"></div>
 
   <!-- Grade de Palavras Cruzadas (CSS Flexbox) -->
   <div class="crossword-container" id="crosswordGrid"></div>
@@ -532,22 +564,52 @@
     class Game {
       constructor() {
         this.sound = new SoundController();
+        this.score = 0;
 
-        // Mini Banco de Dados Mockado com os Níveis
+        // Banco de Dados Multinível com Slots Adaptáveis e Dicionário de Anagramas Reais
         this.levelDatabase = [
           {
             letters: ['A', 'M', 'O', 'R'],
-            targets: ['AMOR', 'ROMA', 'MAR', 'AMO']
+            requiredSlots: [4, 4, 3, 3], // 2 palavras de 4 letras e 2 de 3 letras
+            validWords: [
+              'AMOR', 'ROMA', 'MORA', 'RAMO', 'ORAM', 'MAR', 'AMO', 'ORA', 'ROA', 'MOA', 'ARO'
+            ]
           },
           {
             letters: ['C', 'O', 'R', 'U', 'J', 'A'],
-            targets: ['CORUJA', 'ARCO', 'JATO', 'ROCA', 'RUA']
+            requiredSlots: [6, 4, 4, 3, 3],
+            validWords: [
+              'CORUJA', 'ARCO', 'ROCA', 'JATO', 'JURA', 'COAR', 'OCRA', 'ORCA', 'RUA', 'OCA', 'COR', 'COA', 'AJO'
+            ]
+          },
+          {
+            letters: ['P', 'E', 'N', 'A', 'S'],
+            requiredSlots: [5, 4, 4, 3, 3],
+            validWords: [
+              'PENAS', 'PENA', 'PESA', 'SENA', 'SEPA', 'PAES', 'PAN', 'PAZ', 'PAS', 'NAS'
+            ]
+          },
+          {
+            letters: ['E', 'S', 'T', 'R', 'E', 'L', 'A'],
+            requiredSlots: [7, 5, 4, 4, 3],
+            validWords: [
+              'ESTRELA', 'RESTA', 'LESTE', 'TELA', 'REAL', 'SELA', 'SETA', 'RATO', 'LAR', 'ERA', 'SAL', 'ELA', 'ATE', 'TER'
+            ]
+          },
+          {
+            letters: ['S', 'O', 'L', 'A', 'R'],
+            requiredSlots: [5, 4, 4, 3, 3],
+            validWords: [
+              'SOLAR', 'ROSAL', 'SOLA', 'ROSA', 'ORAL', 'LAR', 'SOL', 'SAL', 'OLA', 'ALO'
+            ]
           }
         ];
 
         this.currentLevelIndex = 0;
         this.foundWords = new Set();
+        this.slots = [];
         this.currentChars = [];
+        this.toastTimer = null;
 
         this.wheelCanvas = document.getElementById('wheelCanvas');
         this.wheel = new LetterWheel(this.wheelCanvas, (word, stepIndex) => {
@@ -579,31 +641,55 @@
         document.getElementById('levelIndicator').textContent = `FASE ${this.currentLevelIndex + 1}`;
         document.getElementById('wordPreview').textContent = '';
 
-        // Monta a grade de palavras cruzadas em HTML/CSS
-        this.buildCrosswordBoard(levelData.targets);
+        // Monta os slots vazios adaptáveis por comprimento de palavra
+        this.slots = levelData.requiredSlots.map((len, idx) => ({
+          id: idx,
+          length: len,
+          word: null
+        }));
 
-        // Inicializa a roda no Canvas
+        this.buildCrosswordBoard();
         this.wheel.setLetters(this.currentChars);
+        this.updateScore();
       }
 
-      buildCrosswordBoard(targetWords) {
+      buildCrosswordBoard() {
         const grid = document.getElementById('crosswordGrid');
         grid.innerHTML = '';
 
-        targetWords.forEach(word => {
+        this.slots.forEach(slot => {
           const row = document.createElement('div');
           row.className = 'word-row';
-          row.dataset.word = word;
+          row.id = `slot-row-${slot.id}`;
+          row.dataset.slotId = String(slot.id);
+          row.dataset.length = String(slot.length);
 
-          for (let i = 0; i < word.length; i++) {
+          for (let i = 0; i < slot.length; i++) {
             const box = document.createElement('div');
             box.className = 'slot-box';
-            box.textContent = word[i];
+            box.textContent = '';
             row.appendChild(box);
           }
 
           grid.appendChild(row);
         });
+      }
+
+      showToast(text, isBonus = false) {
+        const toast = document.getElementById('bonusToast');
+        if (!toast) return;
+        toast.textContent = text;
+        toast.style.borderColor = isBonus ? 'var(--gold)' : 'var(--cyan)';
+        toast.classList.add('active');
+        clearTimeout(this.toastTimer);
+        this.toastTimer = setTimeout(() => {
+          toast.classList.remove('active');
+        }, 1800);
+      }
+
+      updateScore() {
+        const scoreEl = document.getElementById('scoreIndicator');
+        if (scoreEl) scoreEl.textContent = `${this.score} PTS`;
       }
 
       shuffleLetters() {
@@ -613,25 +699,59 @@
 
       submitWord(word) {
         document.getElementById('wordPreview').textContent = '';
+        if (!word || word.length < 2) return;
+
+        word = word.trim().toUpperCase();
         const levelData = this.levelDatabase[this.currentLevelIndex];
 
-        // Validação da palavra
-        if (levelData.targets.includes(word) && !this.foundWords.has(word)) {
+        // 1. Checa se já foi encontrada
+        if (this.foundWords.has(word)) {
+          this.showToast(`⚠️ "${word}" já foi encontrada!`);
+          return;
+        }
+
+        // 2. Valida se é uma palavra real existente no dicionário do nível
+        if (!levelData.validWords.includes(word)) {
+          this.showToast(`❌ "${word}" não reconhecida`);
+          return;
+        }
+
+        // 3. Procura o primeiro slot vazio compatível com o tamanho da palavra encontrada
+        const emptySlot = this.slots.find(s => s.length === word.length && !s.word);
+
+        if (emptySlot) {
+          // Adapta e preenche o slot disponível!
+          emptySlot.word = word;
           this.foundWords.add(word);
+          this.score += word.length * 25;
           this.sound.playWordCorrect();
 
-          // Revela as letras na grade com animação de luz dourada
-          const row = document.querySelector(`.word-row[data-word="${word}"]`);
+          const row = document.getElementById(`slot-row-${emptySlot.id}`);
           if (row) {
-            row.querySelectorAll('.slot-box').forEach(b => b.classList.add('revealed'));
+            const boxes = row.querySelectorAll('.slot-box');
+            boxes.forEach((b, i) => {
+              b.textContent = word[i];
+              b.classList.add('revealed');
+            });
           }
 
-          // Se desvendou todas as palavras da fase: avança de nível
-          if (this.foundWords.size === levelData.targets.length) {
+          this.showToast(`✨ Encontrou: ${word}! (+${word.length * 25} pts)`);
+          this.updateScore();
+
+          // Se completou todos os slots da fase: avança de nível
+          if (this.slots.every(s => s.word !== null)) {
             setTimeout(() => {
               this.loadLevel(this.currentLevelIndex + 1);
-            }, 850);
+            }, 950);
           }
+        } else {
+          // Se todos os slots desse tamanho já foram preenchidos,
+          // ou for uma palavra real extra: conta como PALAVRA BÔNUS!
+          this.foundWords.add(word);
+          this.score += word.length * 15;
+          this.sound.playWordCorrect();
+          this.showToast(`⭐ Palavra Bônus: ${word}! (+${word.length * 15} pts)`, true);
+          this.updateScore();
         }
       }
     }
