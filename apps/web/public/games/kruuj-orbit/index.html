@@ -459,7 +459,7 @@
   <!-- Overlay de Início e Game Over -->
   <div class="game-overlay active" id="gameOverlay">
     <h1 id="ovTitle">KRUUJ ORBIT</h1>
-    <p id="ovDesc">Salto Gravitacional Arcade: a coruja gira pela órbita dos planetas. No momento certo, solte o estilingue cósmico! Cuidado com asteroides, buracos negros e planetas móveis!</p>
+    <p id="ovDesc">Salto Gravitacional Arcade: a coruja gira pela órbita dos planetas. No momento certo, solte o estilingue cósmico! Aproveite mini-órbitas rápidas, planetas móveis e buracos negros!</p>
     
     <div class="stats-table" id="ovStats" style="display: none;">
       <div class="stats-item">
@@ -522,11 +522,6 @@
           <div class="planet-guide-item">
             <div class="planet-badge green">🟢 Planeta Oscilante (Verde)</div>
             <p class="item-desc"><strong>Move-se para os lados:</strong> o planeta balança suavemente pelo espaço. <em>Dica:</em> calcule seu tiro antecipando a posição em que ele estará no momento do impacto.</p>
-          </div>
-
-          <div class="planet-guide-item">
-            <div class="planet-badge red">🔴 Planeta com Asteroide (Vermelho - Raro)</div>
-            <p class="item-desc"><strong>Rochas orbitais no caminho:</strong> possui um satélite girando na parte de fora. <em>Dica:</em> espere com calma a rocha passar! Dispare apenas quando a linha de mira estiver verde e desobstruída.</p>
           </div>
 
           <div class="planet-guide-item">
@@ -794,63 +789,25 @@
       }
     }
 
-    // ===== 5. ASTEROIDE ORBITAL (OBSTÁCULO DE PLANETA PERIGOSO) =====
-    class OrbitalHazard {
-      constructor(planet, angle, dist, speed) {
-        this.planet = planet;
-        this.angle = angle;
-        this.dist = dist;
-        this.speed = speed;
-        this.radius = 6.5; // Raio reduzido para maior tolerância
-        this.x = 0;
-        this.y = 0;
-        this.update();
-      }
-
-      update() {
-        this.angle += this.speed;
-        this.x = this.planet.x + Math.cos(this.angle) * this.dist;
-        this.y = this.planet.y + Math.sin(this.angle) * this.dist;
-      }
-
-      render(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.fillStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 10;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Núcleo incandescente
-        ctx.fillStyle = '#fca5a5';
-        ctx.beginPath();
-        ctx.arc(-1, -1, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    // ===== 6. PLANETA COM TIPOLOGIAS ARCADE RICAS =====
+    // ===== 5. PLANETA COM TIPOLOGIAS ARCADE RICAS =====
     class Planet {
       constructor(index, x, y, type = 'standard') {
         this.index = index;
         this.baseX = x;
         this.x = x;
         this.y = y;
-        this.type = type; // 'standard', 'fast', 'moving', 'hazard', 'blackhole'
+        this.type = type; // 'standard', 'fast', 'moving', 'blackhole'
         this.time = Math.random() * 100;
 
         // Dimensões do núcleo e campo gravitacional
         if (type === 'fast') {
           this.coreRadius = 26;
           this.gravityRadius = 66;
-          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.062;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.058;
         } else if (type === 'blackhole') {
           this.coreRadius = 38;
           this.gravityRadius = 90;
-          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.048;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.046;
         } else {
           this.coreRadius = 34 + Math.random() * 12;
           this.gravityRadius = this.coreRadius + 44 + Math.random() * 8;
@@ -868,9 +825,6 @@
         } else if (type === 'fast') {
           this.color1 = '#ffb020';
           this.color2 = '#d97706';
-        } else if (type === 'hazard') {
-          this.color1 = '#f43f5e';
-          this.color2 = '#881337';
         } else if (type === 'moving') {
           this.color1 = '#10b981';
           this.color2 = '#065f46';
@@ -885,17 +839,6 @@
           this.color2 = pal[1];
         }
 
-        // Satélites obstáculos para planetas do tipo 'hazard'
-        this.hazards = [];
-        if (type === 'hazard') {
-          const count = index > 25 ? 2 : 1;
-          for (let h = 0; h < count; h++) {
-            const hAngle = (h * Math.PI) + Math.random();
-            const hSpeed = -this.orbitSpeed * 0.85;
-            this.hazards.push(new OrbitalHazard(this, hAngle, this.gravityRadius + 2, hSpeed));
-          }
-        }
-
         this.hasRing = (type !== 'blackhole' && Math.random() > 0.65);
       }
 
@@ -904,8 +847,6 @@
         if (this.type === 'moving') {
           this.x = this.baseX + Math.sin(this.time * this.moveFreq) * this.moveAmp;
         }
-
-        this.hazards.forEach(h => h.update());
       }
 
       render(ctx) {
@@ -977,9 +918,6 @@
           ctx.ellipse(this.x, this.y, this.coreRadius * 1.5, this.coreRadius * 0.35, 0.3, 0, Math.PI * 2);
           ctx.stroke();
         }
-
-        // 4. Renderiza satélites/asteroides orbitais
-        this.hazards.forEach(h => h.render(ctx));
 
         ctx.restore();
       }
@@ -1310,20 +1248,17 @@
         } catch(e) {}
       }
 
-      // Escolhe tipo de planeta com base na pontuação (Curva de dificuldade adaptativa suave)
+      // Escolhe tipo de planeta com base na pontuação (Curva equilibrada e divertida)
       choosePlanetType(index) {
-        if (index <= 3) return 'standard';
+        if (index <= 2) return 'standard';
         const rand = Math.random();
 
-        // Buraco Negro: raro e apenas após planeta 8
-        if (index > 8 && rand < 0.12) return 'blackhole';
+        // Buraco Negro: raro e apenas após planeta 7 (com 10 voltas para escapar)
+        if (index > 7 && rand < 0.16) return 'blackhole';
 
-        // Planeta com Asteroide: raro e apenas após planeta 12
-        if (index > 12 && rand < 0.18) return 'hazard';
-
-        // Planetas oscilantes e rápidos: divertidos e balanceados
-        if (rand < 0.55) return 'moving';
-        if (rand < 0.80) return 'fast';
+        // Planetas oscilantes e rápidos: dinâmicos e prazerosos de saltar
+        if (rand < 0.58) return 'moving';
+        if (rand < 0.85) return 'fast';
 
         return 'standard';
       }
@@ -1358,8 +1293,6 @@
         document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
         if (reason === 'blackhole') {
           document.getElementById('ovDesc').textContent = 'Você demorou mais de 10 voltas e foi sugado pelo horizonte de eventos do Buraco Negro!';
-        } else if (reason === 'hazard') {
-          document.getElementById('ovDesc').textContent = 'Você colidiu com um asteroide orbital! Cronometre a janela de passagem!';
         } else {
           document.getElementById('ovDesc').textContent = 'Você errou a trajetória cósmica ou bateu no núcleo do planeta. Acerte o timing exato do estilingue!';
         }
@@ -1421,7 +1354,7 @@
 
         const maxDist = 380;
         const step = 8;
-        let hitType = 'none'; // 'none', 'target', 'crash', 'hazard'
+        let hitType = 'none'; // 'none', 'target', 'crash'
         let targetPlanet = null;
         let interceptX = 0;
         let interceptY = 0;
@@ -1436,20 +1369,10 @@
           currY += tangentY * step;
           points.push({ x: currX, y: currY });
 
-          // 1. Checa perigo com asteroides
           for (let planet of this.planets) {
-            for (let h of planet.hazards) {
-              if (Math.hypot(currX - h.x, currY - h.y) < (this.player.radius + h.radius + 6)) {
-                hitType = 'hazard';
-                interceptX = currX;
-                interceptY = currY;
-                break;
-              }
-            }
-            if (hitType === 'hazard') break;
-
-            // 2. Checa colisão com núcleo do planeta
             const distP = Math.hypot(currX - planet.x, currY - planet.y);
+
+            // 1. Checa colisão com núcleo do planeta
             if (distP <= planet.coreRadius + this.player.radius) {
               hitType = 'crash';
               interceptX = currX;
@@ -1457,7 +1380,7 @@
               break;
             }
 
-            // 3. Checa captura de gravidade do próximo planeta
+            // 2. Checa captura de gravidade do próximo planeta
             if (planet !== curP && distP <= planet.gravityRadius + 22 && distP >= planet.coreRadius + 6) {
               hitType = 'target';
               targetPlanet = planet;
@@ -1477,7 +1400,7 @@
         if (hitType === 'target') {
           strokeColor = '#10b981'; // Verde brilhante quando a mira está perfeita
           glowColor = '#38e8ff';
-        } else if (hitType === 'crash' || hitType === 'hazard') {
+        } else if (hitType === 'crash') {
           strokeColor = '#ef4444'; // Vermelho de colisão iminente
           glowColor = '#ef4444';
         }
@@ -1522,7 +1445,7 @@
             ctx.arc(targetPlanet.x, targetPlanet.y, targetPlanet.gravityRadius, 0, Math.PI * 2);
             ctx.stroke();
           }
-        } else if (hitType === 'crash' || hitType === 'hazard') {
+        } else if (hitType === 'crash') {
           ctx.fillStyle = '#ef4444';
           ctx.font = '800 16px "Baloo 2", sans-serif';
           ctx.textAlign = 'center';
@@ -1557,14 +1480,6 @@
                 return;
               }
 
-              // Checa colisão com asteroides orbitais
-              for (let h of curP.hazards) {
-                if (Math.hypot(this.player.x - h.x, this.player.y - h.y) < (this.player.radius + h.radius)) {
-                  this.gameOver('hazard');
-                  return;
-                }
-              }
-
               // Aviso sonoro e visual de instabilidade (apenas a partir da 8ª volta no buraco negro)
               if (curP.type === 'blackhole' && this.player.orbitRotations >= 7.5) {
                 const now = Date.now();
@@ -1593,14 +1508,6 @@
               for (let planet of this.planets) {
                 if (this.player.lastPlanet === planet && this.player.launchCooldown > 0) {
                   continue;
-                }
-
-                // Colisão com asteroides do planeta alvo
-                for (let h of planet.hazards) {
-                  if (Math.hypot(this.player.x - h.x, this.player.y - h.y) < (this.player.radius + h.radius)) {
-                    this.gameOver('hazard');
-                    break;
-                  }
                 }
 
                 const dx = this.player.x - planet.x;
