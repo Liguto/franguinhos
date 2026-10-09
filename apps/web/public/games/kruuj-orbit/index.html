@@ -411,8 +411,11 @@
         this.y = y;
         this.vx = 0;
         this.vy = 0;
-        this.radius = 16; // Raio do personagem (preparado para sprite)
+        this.radius = 16;
         this.currentPlanet = null;
+        this.lastPlanet = null;
+        this.launchCooldown = 0;
+        this.flightFrames = 0;
         this.angle = -Math.PI / 2;
         this.orbitRadius = 80;
         this.orbitSpeed = 0.038;
@@ -422,6 +425,9 @@
       // Conecta o personagem à órbita de um planeta
       enterOrbit(planet, interceptAngle) {
         this.currentPlanet = planet;
+        this.lastPlanet = null;
+        this.launchCooldown = 0;
+        this.flightFrames = 0;
         this.orbitRadius = planet.gravityRadius;
         this.orbitSpeed = planet.orbitSpeed;
         this.angle = interceptAngle;
@@ -441,6 +447,10 @@
       launch(launchSpeed) {
         if (!this.currentPlanet) return;
 
+        this.lastPlanet = this.currentPlanet;
+        this.launchCooldown = 18; // 18 frames de imunidade ao planeta anterior
+        this.flightFrames = 0;
+
         // Vetor tangencial perpendicular ao raio orbital
         const dir = this.orbitSpeed > 0 ? 1 : -1;
         const tangentX = -Math.sin(this.angle) * dir;
@@ -456,52 +466,103 @@
         if (this.currentPlanet) return;
         this.x += this.vx;
         this.y += this.vy;
+        this.flightFrames++;
+        if (this.launchCooldown > 0) this.launchCooldown--;
 
         // Histórico do rastro de partículas
         this.trail.push({ x: this.x, y: this.y, alpha: 0.8 });
-        if (this.trail.length > 18) this.trail.shift();
+        if (this.trail.length > 20) this.trail.shift();
       }
 
       render(ctx) {
         ctx.save();
 
-        // 1. Rastro de partículas da cápsula
-        this.trail.forEach(t => {
-          ctx.fillStyle = `rgba(56, 232, 255, ${t.alpha})`;
-          ctx.beginPath();
-          ctx.arc(t.x, t.y, 6 * t.alpha, 0, Math.PI * 2);
-          ctx.fill();
+        // 1. Rastro de partículas da cápsula (Protegido contra IndexSizeError de raio negativo)
+        for (let i = this.trail.length - 1; i >= 0; i--) {
+          const t = this.trail[i];
           t.alpha -= 0.04;
-        });
+          if (t.alpha <= 0.02) {
+            this.trail.splice(i, 1);
+            continue;
+          }
+          const r = Math.max(0.5, 6 * t.alpha);
+          ctx.fillStyle = `rgba(56, 232, 255, ${Math.max(0, Math.min(1, t.alpha))})`;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
-        // 2. Renderização da Cápsula do Personagem (Formas geométricas limpas)
+        // 2. Renderização do Mascote Oficial KRUUJ (Coruja Cósmica com Penachos e Olhos)
         ctx.translate(this.x, this.y);
 
         // Se estiver em voo, orienta na direção do vetor velocidade
         const rot = this.currentPlanet ? (this.angle + Math.PI / 2) : Math.atan2(this.vy, this.vx);
         ctx.rotate(rot);
 
-        // Aura de energia externa
-        ctx.fillStyle = 'rgba(56, 232, 255, 0.2)';
+        // Aura de energia de propulsão cósmica
+        ctx.fillStyle = 'rgba(56, 232, 255, 0.25)';
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius + 4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Corpo esférico com gradiente cósmico KRUUJ (Roxo e Ciano)
-        const g = ctx.createRadialGradient(-3, -3, 2, 0, 0, this.radius);
-        g.addColorStop(0, '#38e8ff');
-        g.addColorStop(0.5, '#8b5cff');
-        g.addColorStop(1, '#3b0764');
-        ctx.fillStyle = g;
+        // Corpo da Coruja KRUUJ (Roxo vibrante)
+        ctx.fillStyle = '#8b5cff';
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Fone / Viseira geométrica decorativa
+        // Penachos de orelha da coruja (triângulos superiores)
+        ctx.fillStyle = '#6d28d9';
+        ctx.beginPath();
+        ctx.moveTo(-9, -6);
+        ctx.lineTo(-14, -18);
+        ctx.lineTo(-3, -12);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(9, -6);
+        ctx.lineTo(14, -18);
+        ctx.lineTo(3, -12);
+        ctx.closePath();
+        ctx.fill();
+
+        // Máscara / Olhos Brancos Grandes da Coruja KRUUJ
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-5, -2, 4.5, 0, Math.PI * 2);
+        ctx.arc(5, -2, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Íris douradas / âmbar
         ctx.fillStyle = '#ffb020';
         ctx.beginPath();
-        ctx.arc(5, -2, 4, 0, Math.PI * 2);
+        ctx.arc(-5, -2, 2.8, 0, Math.PI * 2);
+        ctx.arc(5, -2, 2.8, 0, Math.PI * 2);
         ctx.fill();
+
+        // Pupilas pretas
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(-4.5, -2, 1.5, 0, Math.PI * 2);
+        ctx.arc(5.5, -2, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bico dourado triangular
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(-2.5, 2);
+        ctx.lineTo(2.5, 2);
+        ctx.lineTo(0, 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // Viseira / Fone tecnológico neon KRUUJ
+        ctx.strokeStyle = '#38e8ff';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(0, -2, this.radius - 2, -Math.PI * 0.8, -Math.PI * 0.2);
+        ctx.stroke();
 
         ctx.restore();
       }
@@ -681,102 +742,113 @@
       loop() {
         requestAnimationFrame(this.loop);
 
-        // 1. Limpa o Canvas
-        this.ctx.fillStyle = '#070914';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        try {
+          // 1. Limpa o Canvas
+          this.ctx.fillStyle = '#070914';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 2. Atualização da Física
-        if (this.state === 'play' && this.player) {
-          if (this.player.currentPlanet) {
-            this.player.updateOrbit();
-          } else {
-            this.player.updateFlight();
+          // 2. Atualização da Física
+          if (this.state === 'play' && this.player) {
+            if (this.player.currentPlanet) {
+              this.player.updateOrbit();
+            } else {
+              this.player.updateFlight();
 
-            // Checa colisão com planetas
-            for (let planet of this.planets) {
-              const dx = this.player.x - planet.x;
-              const dy = this.player.y - planet.y;
-              const dist = Math.hypot(dx, dy);
-
-              // 2.1 Colisão com o núcleo do planeta (Obstáculo -> Game Over)
-              if (dist <= planet.coreRadius + this.player.radius) {
-                this.gameOver();
-                return;
-              }
-
-              // 2.2 Interceptação da órbita gravitacional do próximo planeta
-              if (dist <= planet.gravityRadius + 18 && dist >= planet.coreRadius + 8) {
-                const interceptAngle = Math.atan2(dy, dx);
-                this.player.enterOrbit(planet, interceptAngle);
-                this.sound.playOrbitCapture();
-                this.spawnCaptureParticles(this.player.x, this.player.y, planet.color1);
-
-                if (!planet.visited) {
-                  planet.visited = true;
-                  this.score++;
-                  document.getElementById('scoreVal').textContent = this.score;
-
-                  // Gera dinamicamente novos planetas no topo contínuo
-                  const lastP = this.planets[this.planets.length - 1];
-                  const nextY = lastP.y - (185 + Math.random() * 60);
-                  const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
-                  this.planets.push(new Planet(this.planets.length, px, nextY));
+              // Checa colisão com planetas
+              for (let planet of this.planets) {
+                // Se acabou de decolar deste planeta, ignora enquanto estiver no cooldown de lançamento
+                if (this.player.lastPlanet === planet && this.player.launchCooldown > 0) {
+                  continue;
                 }
-                break;
+
+                const dx = this.player.x - planet.x;
+                const dy = this.player.y - planet.y;
+                const dist = Math.hypot(dx, dy);
+
+                // 2.1 Colisão com o núcleo do planeta (Obstáculo -> Game Over)
+                if (dist <= planet.coreRadius + this.player.radius) {
+                  this.gameOver();
+                  break;
+                }
+
+                // 2.2 Interceptação da órbita gravitacional do próximo planeta
+                if (dist <= planet.gravityRadius + 22 && dist >= planet.coreRadius + 6) {
+                  const interceptAngle = Math.atan2(dy, dx);
+                  this.player.enterOrbit(planet, interceptAngle);
+                  this.sound.playOrbitCapture();
+                  this.spawnCaptureParticles(this.player.x, this.player.y, planet.color1);
+
+                  if (!planet.visited) {
+                    planet.visited = true;
+                    this.score++;
+                    document.getElementById('scoreVal').textContent = this.score;
+
+                    // Gera dinamicamente novos planetas no topo contínuo
+                    const lastP = this.planets[this.planets.length - 1];
+                    const nextY = lastP.y - (185 + Math.random() * 60);
+                    const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
+                    this.planets.push(new Planet(this.planets.length, px, nextY));
+                  }
+                  break;
+                }
+              }
+
+              // 2.3 Saiu dos limites da tela ou voou sem rumo por muito tempo -> Game Over
+              if (
+                this.state === 'play' && (
+                  this.player.x < -140 || 
+                  this.player.x > this.canvas.width + 140 || 
+                  this.player.y > (this.camera.y + this.canvas.height + 150) ||
+                  this.player.flightFrames > 200
+                )
+              ) {
+                this.gameOver();
               }
             }
 
-            // 2.3 Saiu dos limites da tela -> Game Over
-            if (
-              this.player.x < -120 || 
-              this.player.x > this.canvas.width + 120 || 
-              this.player.y > (this.camera.y + this.canvas.height + 150)
-            ) {
-              this.gameOver();
-              return;
+            // Câmera vertical fluida
+            this.camera.update(this.player.y, this.canvas.height);
+          }
+
+          // 3. Renderização com Câmera (Scroll Vertical)
+          this.ctx.save();
+          this.ctx.translate(0, -this.camera.y);
+
+          // Fundo estrelado com parallax
+          this.stars.forEach(s => {
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            this.ctx.fill();
+          });
+
+          // Renderiza todos os planetas visíveis
+          this.planets.forEach(p => {
+            if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+              p.render(this.ctx);
+            }
+          });
+
+          // Partículas
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            const pt = this.particles[i];
+            pt.update();
+            if (pt.life <= 0) {
+              this.particles.splice(i, 1);
+            } else {
+              pt.render(this.ctx);
             }
           }
 
-          // Câmera vertical fluida
-          this.camera.update(this.player.y, this.canvas.height);
-        }
-
-        // 3. Renderização com Câmera (Scroll Vertical)
-        this.ctx.save();
-        this.ctx.translate(0, -this.camera.y);
-
-        // Fundo estrelado com parallax
-        this.stars.forEach(s => {
-          this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
-          this.ctx.beginPath();
-          this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-          this.ctx.fill();
-        });
-
-        // Renderiza todos os planetas visíveis
-        this.planets.forEach(p => {
-          if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
-            p.render(this.ctx);
+          // Renderiza o Jogador Mascote KRUUJ
+          if (this.state === 'play' && this.player) {
+            this.player.render(this.ctx);
           }
-        });
 
-        // Partículas
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          const pt = this.particles[i];
-          pt.update();
-          if (pt.life <= 0) {
-            this.particles.splice(i, 1);
-          } else {
-            pt.render(this.ctx);
-          }
+          this.ctx.restore();
+        } catch(err) {
+          console.error('KRUUJ Orbit render error:', err);
         }
-
-        // Renderiza o Jogador
-        if (this.state === 'play' && this.player) {
-          this.player.render(this.ctx);
-        }
-
-        this.ctx.restore();
       }
     }
 
