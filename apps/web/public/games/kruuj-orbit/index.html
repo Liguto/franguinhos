@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ ORBIT: Salto Gravitacional</title>
+  <title>KRUUJ ORBIT: A Jornada das Constelações</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -44,10 +44,10 @@
       display: block;
     }
 
-    /* Interface Superior (HUD Sobreposto ao Canvas) */
+    /* Interface Superior (HUD com recuo de 68px no mobile para não sobrepor o botão Poki) */
     .hud {
       position: fixed;
-      top: 16px;
+      top: 14px;
       left: 16px;
       right: 16px;
       display: flex;
@@ -55,13 +55,13 @@
       align-items: center;
       pointer-events: none;
       z-index: 10;
-      gap: 8px;
+      gap: 6px;
     }
 
     .hud-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .hud-badge {
@@ -70,13 +70,13 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-radius: 9999px;
-      padding: 6px 16px;
-      font-size: 0.95rem;
+      padding: 5px 14px;
+      font-size: 0.88rem;
       font-weight: 800;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
       white-space: nowrap;
     }
@@ -101,7 +101,90 @@
       color: var(--gold);
     }
 
-    /* Botão de Toggle da Mira / Guia Preditivo */
+    /* Barra de Progresso até o Portal do Checkpoint */
+    .progress-bar-container {
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(88vw, 360px);
+      background: rgba(13, 18, 36, 0.9);
+      border: 1px solid rgba(56, 232, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+    }
+
+    .sector-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--cyan);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--gold));
+      border-radius: 9999px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .checkpoint-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    /* Tracker de Power-Up Ativo */
+    .powerup-pill {
+      position: fixed;
+      top: 92px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 18, 36, 0.92);
+      border: 1.5px solid var(--cyan);
+      box-shadow: 0 0 16px rgba(56, 232, 255, 0.4);
+      border-radius: 9999px;
+      padding: 3px 12px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      z-index: 12;
+      pointer-events: none;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .powerup-pill.active {
+      display: flex;
+    }
+
+    .powerup-pill span.txt {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Botões Interativos no Topo */
     .hud-btn-help {
       cursor: pointer;
       pointer-events: auto !important;
@@ -132,34 +215,42 @@
 
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.06); }
+      50% { transform: scale(1.04); }
     }
 
-    /* Recuo de 68px no mobile para não sobrepor o botão Poki no canto superior esquerdo */
     @media (max-width: 768px) {
       .hud {
-        top: 12px;
+        top: 10px;
         left: 68px !important;
-        right: 10px !important;
+        right: 8px !important;
       }
 
       .hud-badge {
-        padding: 4px 10px !important;
-        font-size: 0.8rem !important;
-        gap: 4px !important;
+        padding: 3px 8px !important;
+        font-size: 0.76rem !important;
+        gap: 3px !important;
+      }
+
+      .progress-bar-container {
+        top: 48px;
+        width: 92vw;
+      }
+
+      .powerup-pill {
+        top: 80px;
       }
     }
 
     .hint-bar {
       position: fixed;
-      bottom: 24px;
+      bottom: 22px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(56, 232, 255, 0.3);
-      padding: 8px 24px;
+      padding: 7px 20px;
       border-radius: 9999px;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--cyan);
       box-shadow: 0 0 20px rgba(56, 232, 255, 0.25);
@@ -182,7 +273,7 @@
       justify-content: center;
       padding: 20px;
       text-align: center;
-      z-index: 20;
+      z-index: 50;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -194,31 +285,30 @@
     }
 
     h1 {
-      font-size: clamp(30px, 7vw, 50px);
+      font-size: clamp(28px, 7vw, 48px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+      margin-bottom: 6px;
     }
 
     p {
-      font-size: clamp(13px, 3.8vw, 16px);
+      font-size: clamp(13px, 3.8vw, 15px);
       color: var(--text-muted);
       max-width: 420px;
-      line-height: 1.45;
-      margin-bottom: 20px;
+      line-height: 1.4;
+      margin-bottom: 16px;
     }
 
     .stats-table {
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      padding: 12px 24px;
+      padding: 10px 20px;
       display: flex;
-      gap: 20px;
+      gap: 16px;
       max-width: 90vw;
       justify-content: space-around;
     }
@@ -234,11 +324,10 @@
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 800;
-      letter-spacing: 0.06em;
     }
 
     .stats-val {
-      font-size: 1.45rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: var(--cyan);
     }
@@ -248,7 +337,7 @@
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 13px 40px;
+      padding: 12px 38px;
       font-size: 1.15rem;
       font-weight: 800;
       font-family: inherit;
@@ -270,8 +359,8 @@
       border: 1px solid rgba(56, 232, 255, 0.35);
       color: #fff;
       border-radius: 9999px;
-      padding: 11px 24px;
-      font-size: 0.95rem;
+      padding: 10px 22px;
+      font-size: 0.9rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
@@ -298,7 +387,7 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
-      z-index: 40;
+      z-index: 60;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -420,7 +509,6 @@
     .planet-badge.blue { color: var(--cyan); }
     .planet-badge.gold { color: var(--gold); }
     .planet-badge.green { color: var(--green); }
-    .planet-badge.red { color: #f87171; }
     .planet-badge.purple { color: #c084fc; }
 
     .item-desc {
@@ -439,19 +527,32 @@
     <div class="hud-group">
       <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
       <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
-      <!-- Botão de Ajuda / Previsão de Trajetória -->
       <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Previsão de Salto">
         <span>🎯</span> <span class="status" id="helpText">MIRA: ON</span>
       </button>
-      <!-- Botão Manual Cósmico -->
       <button class="hud-badge hud-btn-help" onclick="window.orbitGame.openGuideModal()" title="Manual dos Planetas e Dicas">
         <span>📖</span> <span>GUIA</span>
       </button>
     </div>
     <div class="hud-group">
       <div class="hud-badge star-badge">⭐ <span id="starsVal">0</span></div>
-      <div class="hud-badge" style="font-size: 0.9rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
+      <div class="hud-badge" style="font-size: 0.88rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
     </div>
+  </div>
+
+  <!-- Barra de Progresso até o Checkpoint / Portal Dimensional -->
+  <div class="progress-bar-container">
+    <span class="sector-tag" id="sectorName">SETOR 1: CINTURÃO SOLAR</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <span class="checkpoint-tag" id="checkpointGoal">🚪 PORTAL (0/8)</span>
+  </div>
+
+  <!-- Pílula de Power-Up Ativo (Escudo, Ímã, Slow-Mo ou Hiper-Salto) -->
+  <div class="powerup-pill" id="powerupPill">
+    <span id="powerIcon">🛡️</span>
+    <span class="txt" id="powerText">ESCUDO ATIVO</span>
   </div>
 
   <div class="hint-bar" id="hintBar">Toque ou [ESPAÇO] no momento certo para saltar!</div>
@@ -459,7 +560,7 @@
   <!-- Overlay de Início e Game Over -->
   <div class="game-overlay active" id="gameOverlay">
     <h1 id="ovTitle">KRUUJ ORBIT</h1>
-    <p id="ovDesc">Salto Gravitacional Arcade: a coruja gira pela órbita dos planetas. No momento certo, solte o estilingue cósmico! Aproveite mini-órbitas rápidas, planetas móveis e buracos negros!</p>
+    <p id="ovDesc">Salto Gravitacional Arcade: a coruja gira pela órbita dos planetas. Atinja os <strong>Portais Dimensionais (Checkpoints)</strong> para salvar seu progresso entre setores cósmicos!</p>
     
     <div class="stats-table" id="ovStats" style="display: none;">
       <div class="stats-item">
@@ -471,17 +572,17 @@
         <span class="stats-val" id="ovStars" style="color: var(--gold);">0</span>
       </div>
       <div class="stats-item">
-        <span class="stats-label">Max Combo</span>
-        <span class="stats-val" id="ovCombo" style="color: var(--pink);">1x</span>
+        <span class="stats-label">Setor Salvo</span>
+        <span class="stats-val" id="ovSector" style="color: var(--cyan);">1</span>
       </div>
       <div class="stats-item">
         <span class="stats-label">Recorde</span>
-        <span class="stats-val" id="ovBest" style="color: var(--cyan);">0</span>
+        <span class="stats-val" id="ovBest" style="color: var(--gold);">0</span>
       </div>
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; justify-content: center;">
-      <button class="btn-action" id="btnPlay" onclick="window.orbitGame.startGame()">JOGAR AGORA 🪐</button>
+      <button class="btn-action" id="btnPlay" onclick="window.orbitGame.startGame()">JOGAR DO CHECKPOINT 🪐</button>
       <button class="btn-secondary-guide" onclick="window.orbitGame.openGuideModal()">📖 MANUAL DE PLANETAS</button>
     </div>
   </div>
@@ -497,17 +598,28 @@
       <div class="guide-content">
         <!-- Como Jogar -->
         <div class="guide-section">
-          <h3 class="section-title">🚀 COMO JOGAR</h3>
+          <h3 class="section-title">🚀 COMO JOGAR & CHECKPOINTS</h3>
           <p class="guide-text">
             A coruja mascote do KRUUJ gira ao redor dos planetas por gravidade. 
             <strong>Toque na tela</strong> ou aperte <strong>ESPAÇO</strong> no momento certo para disparar o <strong>estilingue tangencial</strong> e alcançar o próximo planeta!
-            Ative o botão <strong>🎯 MIRA</strong> no topo para ver a previsão exata da rota antes de soltar.
+            No fim de cada setor espacial, entre no <strong>🚪 PORTAL DIMENSIONAL</strong> para registrar seu <strong>CHECKPOINT</strong> permanente!
+          </p>
+        </div>
+
+        <!-- Poderes Cósmicos -->
+        <div class="guide-section">
+          <h3 class="section-title">⚡ PODERES CÓSMICOS (COLETÁVEIS)</h3>
+          <p class="guide-text">
+            🛡️ <strong>Escudo de Luz:</strong> Salva a coruja de 1 erro ou queda no vácuo!<br>
+            🧲 <strong>Ímã Gravitacional:</strong> Puxa todas as estrelas próximas no voo!<br>
+            ⏱️ <strong>Frequência Slow-Mo:</strong> Desacelera o tempo permitindo miras perfeitas!<br>
+            🚀 <strong>Hiper-Salto:</strong> Dá um segundo impulso no ar para corrigir trajetórias!
           </p>
         </div>
 
         <!-- Variações de Planetas -->
         <div class="guide-section">
-          <h3 class="section-title">🌌 TIPOS DE PLANETAS E COMO PASSAR</h3>
+          <h3 class="section-title">🌌 TIPOS DE PLANETAS</h3>
           
           <div class="planet-guide-item">
             <div class="planet-badge blue">🌐 Planeta Padrão (Azul/Ciano)</div>
@@ -516,17 +628,17 @@
 
           <div class="planet-guide-item">
             <div class="planet-badge gold">⚡ Mini-Órbita Rápida (Laranja)</div>
-            <p class="item-desc"><strong>Giro acelerado:</strong> a coruja gira em alta rotação. <em>Dica:</em> observe a linha laser ficar verde e dispare com reflexo rápido!</p>
+            <p class="item-desc"><strong>Giro acelerado:</strong> a coruja gira em alta rotação. Dispare com reflexo rápido!</p>
           </div>
 
           <div class="planet-guide-item">
             <div class="planet-badge green">🟢 Planeta Oscilante (Verde)</div>
-            <p class="item-desc"><strong>Move-se para os lados:</strong> o planeta balança suavemente pelo espaço. <em>Dica:</em> calcule seu tiro antecipando a posição em que ele estará no momento do impacto.</p>
+            <p class="item-desc"><strong>Move-se para os lados:</strong> balança suavemente como pêndulo no espaço. Antecipe a posição de impacto!</p>
           </div>
 
           <div class="planet-guide-item">
             <div class="planet-badge purple">🕳️ Buraco Negro (Roxo Cósmico - Raro)</div>
-            <p class="item-desc"><strong>Gravidade extrema:</strong> suga tudo ao redor. <em>Dica:</em> você tem até <strong>10 voltas completas</strong> com bastante calma para planejar e saltar antes do horizonte de eventos colapsar!</p>
+            <p class="item-desc"><strong>Gravidade extrema:</strong> você tem até <strong>10 voltas completas</strong> com bastante calma para planejar e saltar antes do horizonte colapsar!</p>
           </div>
         </div>
 
@@ -554,16 +666,13 @@
       init() {
         if (!this.ctx) {
           const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            this.ctx = new AudioContextClass();
-          }
+          if (AudioContextClass) this.ctx = new AudioContextClass();
         }
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume().catch(() => {});
         }
       }
 
-      // Som de impulso do estilingue tangencial
       playLaunch() {
         try {
           this.init();
@@ -587,7 +696,6 @@
         } catch(e) {}
       }
 
-      // Som de captura orbital com tom musical que sobe com o Combo (Dó, Ré, Mi, Fá, Sol, Lá, Si)
       playOrbitCapture(combo = 1) {
         try {
           this.init();
@@ -613,7 +721,6 @@
         } catch(e) {}
       }
 
-      // Som de estrela dourada coletada (Arpejo Brilhante)
       playStarCollect() {
         try {
           this.init();
@@ -636,7 +743,67 @@
         } catch(e) {}
       }
 
-      // Som de Instabilidade / Perigo
+      playPowerup() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(1100, now + 0.25);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch(e) {}
+      }
+
+      playPortalCheckpoint() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.35);
+          });
+        } catch(e) {}
+      }
+
+      playShieldSave() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } catch(e) {}
+      }
+
       playWarning() {
         try {
           this.init();
@@ -659,7 +826,6 @@
         } catch(e) {}
       }
 
-      // Som de Colisão / Fim de Jogo
       playCrash() {
         try {
           this.init();
@@ -714,7 +880,7 @@
       }
     }
 
-    // ===== 3. TEXTOS FLUTUANTES ANIMADOS (PERFECT!, +50, COMBO x2) =====
+    // ===== 3. TEXTOS FLUTUANTES ANIMADOS =====
     class FloatingText {
       constructor(text, x, y, color = '#38e8ff', scale = 1.0) {
         this.text = text;
@@ -750,13 +916,23 @@
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.radius = 12;
+        this.radius = 11;
         this.angle = 0;
         this.collected = false;
       }
 
-      update() {
+      update(playerPos, magnetActive) {
         this.angle += 0.04;
+
+        if (magnetActive && !this.collected && playerPos) {
+          const dx = playerPos.x - this.x;
+          const dy = playerPos.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 260) {
+            this.x += (dx / dist) * 11;
+            this.y += (dy / dist) * 11;
+          }
+        }
       }
 
       render(ctx) {
@@ -765,12 +941,10 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
 
-        // Brilho pulsante
         ctx.shadowColor = '#ffb020';
         ctx.shadowBlur = 14;
         ctx.fillStyle = '#ffb020';
 
-        // Estrela de 4 pontas geométrica
         ctx.beginPath();
         for (let i = 0; i < 4; i++) {
           ctx.lineTo(Math.cos(i * Math.PI / 2) * this.radius, Math.sin(i * Math.PI / 2) * this.radius);
@@ -779,44 +953,160 @@
         ctx.closePath();
         ctx.fill();
 
-        // Núcleo branco brilhante
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
       }
     }
 
-    // ===== 5. PLANETA COM TIPOLOGIAS ARCADE RICAS =====
-    class Planet {
-      constructor(index, x, y, type = 'standard') {
-        this.index = index;
-        this.baseX = x;
+    // ===== 5. CÁPSULA DE PODER CÓSMICO (POWER-UP NO ESPAÇO) =====
+    // Tipos: 'shield' (🛡️), 'magnet' (🧲), 'slowmo' (⏱️), 'jump' (⚡)
+    class PowerCapsule {
+      constructor(x, y, type) {
         this.x = x;
         this.y = y;
+        this.type = type;
+        this.radius = 15;
+        this.time = Math.random() * 10;
+        this.collected = false;
+
+        const meta = {
+          shield: { icon: '🛡️', color: '#38e8ff', name: 'ESCUDO' },
+          magnet: { icon: '🧲', color: '#ffb020', name: 'ÍMÃ' },
+          slowmo: { icon: '⏱️', color: '#c084fc', name: 'SLOW-MO' },
+          jump: { icon: '⚡', color: '#10b981', name: 'HIPER-SALTO' }
+        };
+        this.meta = meta[type] || meta.shield;
+      }
+
+      update() {
+        this.time += 0.05;
+      }
+
+      render(ctx) {
+        if (this.collected) return;
+        ctx.save();
+        const floatY = this.y + Math.sin(this.time) * 4;
+        ctx.translate(this.x, floatY);
+
+        ctx.fillStyle = 'rgba(13, 18, 36, 0.88)';
+        ctx.strokeStyle = this.meta.color;
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = this.meta.color;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '15px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 0;
+        ctx.fillText(this.meta.icon, 0, 1);
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 6. PORTAL DIMENSIONAL (CHECKPOINT FINAL DO SETOR) =====
+    class StargatePortal {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 48;
+        this.angle = 0;
+      }
+
+      update() {
+        this.angle += 0.05;
+      }
+
+      render(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Vórtice giratório do portal
+        ctx.rotate(this.angle);
+
+        // Anel exterior dourado brilhante
+        ctx.strokeStyle = '#ffb020';
+        ctx.lineWidth = 4;
+        ctx.shadowColor = '#ffb020';
+        ctx.shadowBlur = 25;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Anel interno ciano pulsante
+        ctx.strokeStyle = '#38e8ff';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#38e8ff';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 0.75, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Núcleo do horizonte de eventos
+        const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, this.radius * 0.6);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.5, '#38e8ff');
+        grad.addColorStop(1, 'rgba(139, 92, 246, 0.4)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ícone indicador no topo
+        ctx.rotate(-this.angle);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 13px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🚪 CHECKPOINT', 0, -this.radius - 8);
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 7. PLANETA (RIGOROSAMENTE CONTIDO DENTRO DOS LIMITES DA TELA) =====
+    class Planet {
+      constructor(index, x, y, type = 'standard', canvasWidth = 400) {
+        this.index = index;
         this.type = type; // 'standard', 'fast', 'moving', 'blackhole'
         this.time = Math.random() * 100;
 
         // Dimensões do núcleo e campo gravitacional
         if (type === 'fast') {
-          this.coreRadius = 26;
-          this.gravityRadius = 66;
+          this.coreRadius = 24;
+          this.gravityRadius = 60;
           this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.058;
         } else if (type === 'blackhole') {
-          this.coreRadius = 38;
-          this.gravityRadius = 90;
+          this.coreRadius = 32;
+          this.gravityRadius = 76;
           this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.046;
         } else {
-          this.coreRadius = 34 + Math.random() * 12;
-          this.gravityRadius = this.coreRadius + 44 + Math.random() * 8;
+          this.coreRadius = 28 + Math.random() * 10;
+          this.gravityRadius = this.coreRadius + 38 + Math.random() * 6;
           this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.034 + Math.random() * 0.012);
         }
 
-        this.visited = index === 0;
-        this.moveAmp = (type === 'moving') ? (60 + Math.random() * 50) : 0;
+        // Amplitude de oscilação para planetas móveis
+        this.moveAmp = (type === 'moving') ? (28 + Math.random() * 20) : 0;
         this.moveFreq = 0.024 + Math.random() * 0.015;
+
+        // TRAVA RIGOROSA: Garante que a gravidade + amplitude NUNCA ultrapassem as laterais da tela
+        const safeMargin = 22;
+        const minX = this.gravityRadius + this.moveAmp + safeMargin;
+        const maxX = canvasWidth - (this.gravityRadius + this.moveAmp + safeMargin);
+
+        this.baseX = Math.max(minX, Math.min(maxX, x));
+        this.x = this.baseX;
+        this.y = y;
+
+        this.visited = index === 0;
 
         // Cores temáticas
         if (type === 'blackhole') {
@@ -842,7 +1132,7 @@
         this.hasRing = (type !== 'blackhole' && Math.random() > 0.65);
       }
 
-      update() {
+      update(canvasWidth) {
         this.time += 1;
         if (this.type === 'moving') {
           this.x = this.baseX + Math.sin(this.time * this.moveFreq) * this.moveAmp;
@@ -852,7 +1142,7 @@
       render(ctx) {
         ctx.save();
 
-        // 1. Linha Pontilhada ao Redor (Campo Gravitacional / Anel Orbital)
+        // 1. Linha Pontilhada ao Redor (Campo Gravitacional)
         if (this.type === 'blackhole') {
           ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
           ctx.lineWidth = 2.2;
@@ -873,7 +1163,6 @@
         ctx.shadowBlur = this.type === 'blackhole' ? 24 : 16;
 
         if (this.type === 'blackhole') {
-          // Vórtice de Buraco Negro com anel de acreção
           const grad = ctx.createRadialGradient(this.x, this.y, 4, this.x, this.y, this.coreRadius);
           grad.addColorStop(0, '#000000');
           grad.addColorStop(0.7, '#1e1035');
@@ -883,14 +1172,12 @@
           ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
           ctx.fill();
 
-          // Anel exterior de energia pulsante
           ctx.strokeStyle = 'rgba(192, 132, 252, 0.6)';
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(this.x, this.y, this.coreRadius + 3, 0, Math.PI * 2);
           ctx.stroke();
         } else {
-          // Planeta Esférico com Gradiente
           const grad = ctx.createRadialGradient(
             this.x - this.coreRadius * 0.3,
             this.y - this.coreRadius * 0.3,
@@ -923,32 +1210,37 @@
       }
     }
 
-    // ===== 7. PERSONAGEM (MASCOTE OFICIAL DA CORUJA KRUUJ) =====
+    // ===== 8. PERSONAGEM (MASCOTE OFICIAL DA CORUJA KRUUJ) =====
     class Player {
       constructor(x, y) {
         this.x = x;
         this.y = y;
         this.vx = 0;
         this.vy = 0;
-        this.radius = 16;
+        this.radius = 15;
         this.currentPlanet = null;
         this.lastPlanet = null;
         this.launchCooldown = 0;
         this.flightFrames = 0;
-        this.orbitRotations = 0; // Quantas voltas completou na órbita atual
+        this.orbitRotations = 0;
         this.angle = -Math.PI / 2;
-        this.orbitRadius = 80;
+        this.orbitRadius = 70;
         this.orbitSpeed = 0.038;
         this.trail = [];
+
+        // Poderes
+        this.hasShield = false;
+        this.hasHyperJump = false;
+        this.hyperJumpUsed = false;
       }
 
-      // Conecta o personagem à órbita de um planeta
       enterOrbit(planet, interceptAngle) {
         this.currentPlanet = planet;
         this.lastPlanet = null;
         this.launchCooldown = 0;
         this.flightFrames = 0;
         this.orbitRotations = 0;
+        this.hyperJumpUsed = false;
         this.orbitRadius = planet.gravityRadius;
         this.orbitSpeed = planet.orbitSpeed;
         this.angle = interceptAngle;
@@ -956,7 +1248,6 @@
         this.vy = 0;
       }
 
-      // Atualiza rotação orbital contínua
       updateOrbit() {
         if (!this.currentPlanet) return;
         this.angle += this.orbitSpeed;
@@ -965,7 +1256,6 @@
         this.y = this.currentPlanet.y + Math.sin(this.angle) * this.orbitRadius;
       }
 
-      // Desprende da órbita: lançamento tangencial retilíneo uniforme (Estilingue)
       launch(launchSpeed) {
         if (!this.currentPlanet) return;
 
@@ -982,11 +1272,20 @@
         this.currentPlanet = null;
       }
 
-      // Movimento retilíneo uniforme após o lançamento
-      updateFlight() {
+      hyperJump(speed) {
+        if (this.currentPlanet || this.hyperJumpUsed || !this.hasHyperJump) return false;
+        this.hyperJumpUsed = true;
+        this.hasHyperJump = false;
+
+        // Impulso vertical com ajuste para o topo
+        this.vy = -Math.abs(speed);
+        return true;
+      }
+
+      updateFlight(timeScale = 1.0) {
         if (this.currentPlanet) return;
-        this.x += this.vx;
-        this.y += this.vy;
+        this.x += this.vx * timeScale;
+        this.y += this.vy * timeScale;
         this.flightFrames++;
         if (this.launchCooldown > 0) this.launchCooldown--;
 
@@ -1016,72 +1315,85 @@
         // 2. Renderização da Coruja Mascote KRUUJ
         ctx.translate(this.x, this.y);
 
-        // Se estiver em voo, orienta na direção do vetor velocidade
         const rot = this.currentPlanet ? (this.angle + Math.PI / 2) : Math.atan2(this.vy, this.vx);
         ctx.rotate(rot);
+
+        // Escudo protetor de luz se ativo
+        if (this.hasShield) {
+          ctx.strokeStyle = '#38e8ff';
+          ctx.lineWidth = 2.4;
+          ctx.shadowColor = '#38e8ff';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius + 6, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(56, 232, 255, 0.15)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
 
         // Aura de propulsão cósmica
         const auraColor = combo >= 3 ? 'rgba(255, 92, 168, 0.4)' : 'rgba(56, 232, 255, 0.3)';
         ctx.fillStyle = auraColor;
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius + 4, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Corpo da Coruja KRUUJ (Roxo vibrante)
+        // Corpo da Coruja KRUUJ
         ctx.fillStyle = '#8b5cff';
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Penachos de orelha da coruja (triângulos superiores)
+        // Penachos de orelha da coruja
         ctx.fillStyle = '#6d28d9';
         ctx.beginPath();
-        ctx.moveTo(-9, -6);
-        ctx.lineTo(-14, -18);
-        ctx.lineTo(-3, -12);
+        ctx.moveTo(-8, -5);
+        ctx.lineTo(-13, -16);
+        ctx.lineTo(-2, -11);
         ctx.closePath();
         ctx.fill();
 
         ctx.beginPath();
-        ctx.moveTo(9, -6);
-        ctx.lineTo(14, -18);
-        ctx.lineTo(3, -12);
+        ctx.moveTo(8, -5);
+        ctx.lineTo(13, -16);
+        ctx.lineTo(2, -11);
         ctx.closePath();
         ctx.fill();
 
-        // Máscara / Olhos Brancos Grandes da Coruja KRUUJ
+        // Máscara e Olhos Brancos
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(-5, -2, 4.5, 0, Math.PI * 2);
-        ctx.arc(5, -2, 4.5, 0, Math.PI * 2);
+        ctx.arc(-4.5, -2, 4.2, 0, Math.PI * 2);
+        ctx.arc(4.5, -2, 4.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Íris douradas / âmbar
+        // Íris douradas
         ctx.fillStyle = '#ffb020';
         ctx.beginPath();
-        ctx.arc(-5, -2, 2.8, 0, Math.PI * 2);
-        ctx.arc(5, -2, 2.8, 0, Math.PI * 2);
+        ctx.arc(-4.5, -2, 2.6, 0, Math.PI * 2);
+        ctx.arc(4.5, -2, 2.6, 0, Math.PI * 2);
         ctx.fill();
 
         // Pupilas pretas
         ctx.fillStyle = '#000000';
         ctx.beginPath();
-        ctx.arc(-4.5, -2, 1.5, 0, Math.PI * 2);
-        ctx.arc(5.5, -2, 1.5, 0, Math.PI * 2);
+        ctx.arc(-4, -2, 1.4, 0, Math.PI * 2);
+        ctx.arc(5, -2, 1.4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bico dourado triangular
+        // Bico dourado
         ctx.fillStyle = '#f59e0b';
         ctx.beginPath();
-        ctx.moveTo(-2.5, 2);
-        ctx.lineTo(2.5, 2);
-        ctx.lineTo(0, 6);
+        ctx.moveTo(-2.2, 2);
+        ctx.lineTo(2.2, 2);
+        ctx.lineTo(0, 5.5);
         ctx.closePath();
         ctx.fill();
 
-        // Viseira tecnológica neon KRUUJ
+        // Viseira neon KRUUJ
         ctx.strokeStyle = '#38e8ff';
-        ctx.lineWidth = 1.8;
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
         ctx.arc(0, -2, this.radius - 2, -Math.PI * 0.8, -Math.PI * 0.2);
         ctx.stroke();
@@ -1090,7 +1402,7 @@
       }
     }
 
-    // ===== 8. GERENCIADOR DA CÂMERA VERTICAL (SMOOTH SCROLL) =====
+    // ===== 9. GERENCIADOR DA CÂMERA VERTICAL =====
     class Camera {
       constructor() {
         this.y = 0;
@@ -1099,7 +1411,7 @@
       }
 
       update(playerY, viewportHeight) {
-        this.targetY = playerY - viewportHeight * 0.65;
+        this.targetY = playerY - viewportHeight * 0.62;
         this.y += (this.targetY - this.y) * 0.1;
         if (this.shake > 0) this.shake *= 0.9;
       }
@@ -1109,7 +1421,41 @@
       }
     }
 
-    // ===== 9. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
+    // ===== 10. CONFIGURAÇÃO DE SETORES & CHECKPOINTS =====
+    const SECTOR_CONFIGS = [
+      {
+        sector: 1,
+        name: "CINTURÃO SOLAR",
+        planetsCount: 8,
+        starReward: 25
+      },
+      {
+        sector: 2,
+        name: "NEBULOSA CIANA",
+        planetsCount: 10,
+        starReward: 35
+      },
+      {
+        sector: 3,
+        name: "ANEL DE SATURNO",
+        planetsCount: 12,
+        starReward: 50
+      },
+      {
+        sector: 4,
+        name: "ABISMO SINGULAR",
+        planetsCount: 14,
+        starReward: 70
+      },
+      {
+        sector: 5,
+        name: "SANTUÁRIO DE KRUUJ",
+        planetsCount: 16,
+        starReward: 100
+      }
+    ];
+
+    // ===== 11. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
     class Game {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -1126,11 +1472,23 @@
         this.bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
         this.baseLaunchSpeed = 13.0;
 
+        // Checkpoint do Setor
+        this.savedSectorIndex = parseInt(localStorage.getItem('kruuj_orbit_sector') || '0', 10);
+        if (this.savedSectorIndex >= SECTOR_CONFIGS.length) this.savedSectorIndex = 0;
+        this.currentSector = SECTOR_CONFIGS[this.savedSectorIndex];
+        this.planetsVisitedInSector = 0;
+
+        // Poder ativo
+        this.activePower = null; // 'shield', 'magnet', 'slowmo', 'jump'
+        this.powerTimer = 0;
+
         this.guideEnabled = localStorage.getItem('kruuj_orbit_guide') !== 'false';
 
         this.player = null;
         this.planets = [];
         this.starsCollectibles = [];
+        this.powerCapsules = [];
+        this.portal = null;
         this.particles = [];
         this.floatingTexts = [];
         this.bgStars = [];
@@ -1145,7 +1503,6 @@
         window.addEventListener('resize', () => this.resize());
         this.updateGuideButtonUI();
 
-        // Fundo estrelado infinito
         for (let i = 0; i < 200; i++) {
           this.bgStars.push({
             x: Math.random() * 2000 - 1000,
@@ -1155,7 +1512,6 @@
           });
         }
 
-        // Input com Barra de Espaço e Toque / Clique na tela
         window.addEventListener('keydown', (e) => {
           if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
             e.preventDefault();
@@ -1164,14 +1520,11 @@
         });
 
         window.addEventListener('pointerdown', (e) => {
-          if (e.target.closest('#gameOverlay') || e.target.closest('button')) return;
+          if (e.target.closest('#gameOverlay') || e.target.closest('#modalGuide') || e.target.closest('button')) return;
           this.handleAction();
         });
 
-        // Atualiza recorde no HUD
         document.getElementById('bestVal').textContent = this.bestScore;
-
-        // Loop principal a 60 FPS
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
 
@@ -1190,11 +1543,18 @@
       handleAction() {
         if (this.state === 'play') {
           if (this.player && this.player.currentPlanet) {
-            // Lançamento com velocidade dinâmica
             const speed = this.baseLaunchSpeed + Math.min(5, this.score * 0.12);
             this.player.launch(speed);
             this.sound.playLaunch();
             this.spawnLaunchParticles();
+          } else if (this.player && !this.player.currentPlanet && this.player.hasHyperJump) {
+            // Usa o Hiper-Salto no ar!
+            if (this.player.hyperJump(this.baseLaunchSpeed)) {
+              this.sound.playPowerup();
+              this.floatingTexts.push(new FloatingText('⚡ HIPER-SALTO!', this.player.x, this.player.y - 20, '#10b981', 1.2));
+              this.spawnCaptureParticles(this.player.x, this.player.y, '#10b981');
+              this.clearPowerup();
+            }
           }
         } else if (this.state === 'over' || this.state === 'menu') {
           this.startGame();
@@ -1209,11 +1569,17 @@
         this.starsCount = 0;
         this.combo = 1;
         this.maxCombo = 1;
+        this.planetsVisitedInSector = 0;
         this.particles = [];
         this.floatingTexts = [];
         this.planets = [];
         this.starsCollectibles = [];
+        this.powerCapsules = [];
+        this.portal = null;
         this.camera.y = 0;
+        this.clearPowerup();
+
+        this.currentSector = SECTOR_CONFIGS[this.savedSectorIndex];
 
         document.getElementById('scoreVal').textContent = this.score;
         document.getElementById('starsVal').textContent = this.starsCount;
@@ -1221,46 +1587,103 @@
         document.getElementById('gameOverlay').classList.remove('active');
         document.getElementById('hintBar').style.display = 'block';
 
-        // 1. Gera o primeiro planeta na parte inferior
-        let curY = this.canvas.height * 0.75;
-        const initialPlanet = new Planet(0, this.canvas.width / 2, curY, 'standard');
-        this.planets.push(initialPlanet);
-
-        // 2. Instancia a coruja orbitando o planeta inicial
-        this.player = new Player(initialPlanet.x, initialPlanet.y);
-        this.player.enterOrbit(initialPlanet, -Math.PI / 2);
-
-        // 3. Gera os próximos 14 planetas com diversidade arcade progressiva
-        for (let i = 1; i < 15; i++) {
-          curY -= (190 + Math.random() * 55);
-          const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
-          const type = this.choosePlanetType(i);
-          this.planets.push(new Planet(i, px, curY, type));
-
-          // Gera estrelas coletáveis nos corredores
-          if (Math.random() > 0.35) {
-            this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 80 - 40), curY + 95));
-          }
-        }
+        this.buildSectorPlanets();
+        this.updateProgressUI();
 
         try {
           window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-orbit' }, '*');
         } catch(e) {}
       }
 
-      // Escolhe tipo de planeta com base na pontuação (Curva equilibrada e divertida)
+      buildSectorPlanets() {
+        this.planets = [];
+        this.starsCollectibles = [];
+        this.powerCapsules = [];
+
+        const total = this.currentSector.planetsCount;
+        let curY = this.canvas.height * 0.74;
+
+        // 1. Planeta inicial
+        const initialPlanet = new Planet(0, this.canvas.width / 2, curY, 'standard', this.canvas.width);
+        this.planets.push(initialPlanet);
+
+        this.player = new Player(initialPlanet.x, initialPlanet.y);
+        this.player.enterOrbit(initialPlanet, -Math.PI / 2);
+
+        // 2. Gera os planetas do setor
+        for (let i = 1; i < total; i++) {
+          curY -= (185 + Math.random() * 50);
+          const px = this.canvas.width / 2 + (Math.random() * 220 - 110);
+          const type = this.choosePlanetType(i);
+          this.planets.push(new Planet(i, px, curY, type, this.canvas.width));
+
+          // Estrelas nos corredores
+          if (Math.random() > 0.35) {
+            this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 60 - 30), curY + 95));
+          }
+
+          // Cápsulas de poder (Escudo, Ímã, Slow-mo, Hiper-salto)
+          if (Math.random() < 0.22) {
+            const types = ['shield', 'magnet', 'slowmo', 'jump'];
+            const chosen = types[Math.floor(Math.random() * types.length)];
+            this.powerCapsules.push(new PowerCapsule(px + (Math.random() * 70 - 35), curY + 100, chosen));
+          }
+        }
+
+        // 3. Spawna o Portal Dimensional do Checkpoint no topo do setor
+        const lastP = this.planets[this.planets.length - 1];
+        const portalY = lastP.y - 200;
+        this.portal = new StargatePortal(lastP.x, portalY);
+      }
+
       choosePlanetType(index) {
         if (index <= 2) return 'standard';
         const rand = Math.random();
 
-        // Buraco Negro: raro e apenas após planeta 7 (com 10 voltas para escapar)
-        if (index > 7 && rand < 0.16) return 'blackhole';
-
-        // Planetas oscilantes e rápidos: dinâmicos e prazerosos de saltar
+        if (index > 6 && rand < 0.16) return 'blackhole';
         if (rand < 0.58) return 'moving';
         if (rand < 0.85) return 'fast';
 
         return 'standard';
+      }
+
+      activatePowerup(type) {
+        this.activePower = type;
+        this.powerTimer = 360; // 6 segundos de duração
+
+        this.sound.playPowerup();
+
+        if (type === 'shield') {
+          this.player.hasShield = true;
+        } else if (type === 'jump') {
+          this.player.hasHyperJump = true;
+        }
+
+        const pill = document.getElementById('powerupPill');
+        const icon = document.getElementById('powerIcon');
+        const text = document.getElementById('powerText');
+        const names = {
+          shield: { icon: '🛡️', txt: 'ESCUDO ATIVO' },
+          magnet: { icon: '🧲', txt: 'ÍMÃ GRAVITACIONAL' },
+          slowmo: { icon: '⏱️', txt: 'SLOW-MO ATIVO' },
+          jump: { icon: '⚡', txt: 'HIPER-SALTO PRONTO' }
+        };
+
+        icon.textContent = names[type].icon;
+        text.textContent = names[type].txt;
+        pill.classList.add('active');
+
+        this.floatingTexts.push(new FloatingText(names[type].txt, this.player.x, this.player.y - 25, '#38e8ff', 1.15));
+      }
+
+      clearPowerup() {
+        this.activePower = null;
+        this.powerTimer = 0;
+        if (this.player) {
+          this.player.hasShield = false;
+          this.player.hasHyperJump = false;
+        }
+        document.getElementById('powerupPill').classList.remove('active');
       }
 
       spawnLaunchParticles() {
@@ -1279,36 +1702,79 @@
         }
       }
 
+      // Conquista do Checkpoint / Fim do Setor!
+      reachCheckpoint() {
+        this.sound.playPortalCheckpoint();
+        this.camera.addShake(20);
+
+        const earnedStars = this.currentSector.starReward;
+        this.starsCount += earnedStars;
+        this.score += 500;
+
+        // Salva próximo Checkpoint
+        this.savedSectorIndex = (this.savedSectorIndex + 1) % SECTOR_CONFIGS.length;
+        localStorage.setItem('kruuj_orbit_sector', String(this.savedSectorIndex));
+
+        document.getElementById('ovTitle').textContent = 'PORTAL CONQUISTADO! 🎉';
+        document.getElementById('ovDesc').textContent = `Sensacional! Você atravessou o Portal do "${this.currentSector.name}"! CHECKPOINT SALVO! Próxima partida começará daqui! (+${earnedStars} ⭐)`;
+        document.getElementById('ovScore').textContent = this.score;
+        document.getElementById('ovStars').textContent = this.starsCount;
+        document.getElementById('ovSector').textContent = this.savedSectorIndex + 1;
+        document.getElementById('ovBest').textContent = this.bestScore;
+        document.getElementById('ovStats').style.display = 'flex';
+        document.getElementById('btnPlay').textContent = 'PRÓXIMO SETOR 🚀';
+
+        this.state = 'over';
+        document.getElementById('gameOverlay').classList.add('active');
+        document.getElementById('hintBar').style.display = 'none';
+
+        try {
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { sector: this.savedSectorIndex, bestScore: this.bestScore }, score: this.score }, '*');
+        } catch(e) {}
+      }
+
       gameOver(reason = 'crash') {
+        // Se tinha escudo de luz ativo, o escudo quebra e salva a vida!
+        if (this.player && this.player.hasShield && this.player.lastPlanet) {
+          this.player.hasShield = false;
+          this.sound.playShieldSave();
+          this.camera.addShake(10);
+          this.clearPowerup();
+
+          // Teleporta de volta para o último planeta com segurança
+          this.player.enterOrbit(this.player.lastPlanet, -Math.PI / 2);
+          this.floatingTexts.push(new FloatingText('ESCUDO SALVOU VOCÊ! 🛡️', this.player.x, this.player.y - 25, '#38e8ff', 1.2));
+          this.spawnCaptureParticles(this.player.x, this.player.y, '#38e8ff');
+          return;
+        }
+
         this.state = 'over';
         this.sound.playCrash();
         this.camera.addShake(15);
+        this.clearPowerup();
 
-        // Atualiza recorde
         this.bestScore = Math.max(this.bestScore, this.score);
         localStorage.setItem('kruuj_orbit_best', String(this.bestScore));
         document.getElementById('bestVal').textContent = this.bestScore;
 
-        // Mensagens temáticas de fim de jogo
         document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
         if (reason === 'blackhole') {
           document.getElementById('ovDesc').textContent = 'Você demorou mais de 10 voltas e foi sugado pelo horizonte de eventos do Buraco Negro!';
         } else {
-          document.getElementById('ovDesc').textContent = 'Você errou a trajetória cósmica ou bateu no núcleo do planeta. Acerte o timing exato do estilingue!';
+          document.getElementById('ovDesc').textContent = `Você errou a rota! Seu Checkpoint está salvo no Setor ${this.savedSectorIndex + 1}: ${this.currentSector.name}.`;
         }
 
         document.getElementById('ovScore').textContent = this.score;
         document.getElementById('ovStars').textContent = this.starsCount;
-        document.getElementById('ovCombo').textContent = `${this.maxCombo}x`;
+        document.getElementById('ovSector').textContent = this.savedSectorIndex + 1;
         document.getElementById('ovBest').textContent = this.bestScore;
         document.getElementById('ovStats').style.display = 'flex';
-        document.getElementById('btnPlay').textContent = 'JOGAR NOVAMENTE 🪐';
+        document.getElementById('btnPlay').textContent = `JOGAR DO SETOR ${this.savedSectorIndex + 1} 🪐`;
         document.getElementById('gameOverlay').classList.add('active');
         document.getElementById('hintBar').style.display = 'none';
 
         try {
           window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-orbit', score: this.score, bestScore: this.bestScore }, '*');
-          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { bestScore: this.bestScore, stars: this.starsCount }, score: this.score }, '*');
         } catch(e) {}
       }
 
@@ -1343,7 +1809,17 @@
         }
       }
 
-      // Previsão da Trajetória do Salto (Laser Guide Inteligente)
+      updateProgressUI() {
+        const total = this.currentSector.planetsCount;
+        const current = Math.min(total, this.planetsVisitedInSector);
+        const pct = Math.min(100, Math.round((current / total) * 100));
+
+        document.getElementById('sectorName').textContent = `SETOR ${this.savedSectorIndex + 1}: ${this.currentSector.name}`;
+        document.getElementById('progressFill').style.width = `${pct}%`;
+        document.getElementById('checkpointGoal').textContent = `🚪 PORTAL (${current}/${total})`;
+      }
+
+      // Previsão de Trajetória Laser Guide
       renderTrajectoryPrediction(ctx) {
         if (!this.guideEnabled || !this.player || !this.player.currentPlanet) return;
 
@@ -1354,7 +1830,7 @@
 
         const maxDist = 380;
         const step = 8;
-        let hitType = 'none'; // 'none', 'target', 'crash'
+        let hitType = 'none';
         let targetPlanet = null;
         let interceptX = 0;
         let interceptY = 0;
@@ -1369,10 +1845,17 @@
           currY += tangentY * step;
           points.push({ x: currX, y: currY });
 
+          // Checa se mira no Portal Dimensional!
+          if (this.portal && Math.hypot(currX - this.portal.x, currY - this.portal.y) <= this.portal.radius) {
+            hitType = 'target';
+            interceptX = currX;
+            interceptY = currY;
+            break;
+          }
+
           for (let planet of this.planets) {
             const distP = Math.hypot(currX - planet.x, currY - planet.y);
 
-            // 1. Checa colisão com núcleo do planeta
             if (distP <= planet.coreRadius + this.player.radius) {
               hitType = 'crash';
               interceptX = currX;
@@ -1380,7 +1863,6 @@
               break;
             }
 
-            // 2. Checa captura de gravidade do próximo planeta
             if (planet !== curP && distP <= planet.gravityRadius + 22 && distP >= planet.coreRadius + 6) {
               hitType = 'target';
               targetPlanet = planet;
@@ -1398,10 +1880,10 @@
         let strokeColor = 'rgba(255, 255, 255, 0.28)';
         let glowColor = 'rgba(255, 255, 255, 0)';
         if (hitType === 'target') {
-          strokeColor = '#10b981'; // Verde brilhante quando a mira está perfeita
+          strokeColor = '#10b981';
           glowColor = '#38e8ff';
         } else if (hitType === 'crash') {
-          strokeColor = '#ef4444'; // Vermelho de colisão iminente
+          strokeColor = '#ef4444';
           glowColor = '#ef4444';
         }
 
@@ -1411,7 +1893,6 @@
         ctx.shadowBlur = hitType === 'target' ? 12 : 0;
         ctx.setLineDash([5, 6]);
 
-        // Traça a linha pontilhada de previsão
         ctx.beginPath();
         ctx.moveTo(points[0].x, points[0].y);
         for (let i = 1; i < points.length; i++) {
@@ -1421,7 +1902,6 @@
         ctx.setLineDash([]);
         ctx.shadowBlur = 0;
 
-        // Se encontrou alvo ou perigo, renderiza o marcador no ponto de impacto
         if (hitType === 'target') {
           ctx.strokeStyle = '#10b981';
           ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
@@ -1431,13 +1911,11 @@
           ctx.stroke();
           ctx.fill();
 
-          // Ponto central de impacto
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
           ctx.arc(interceptX, interceptY, 3, 0, Math.PI * 2);
           ctx.fill();
 
-          // Destaque brilhante na órbita de destino
           if (targetPlanet) {
             ctx.strokeStyle = 'rgba(56, 232, 255, 0.6)';
             ctx.lineWidth = 2.4;
@@ -1455,7 +1933,6 @@
         ctx.restore();
       }
 
-      // Loop de Física e Renderização
       loop() {
         requestAnimationFrame(this.loop);
 
@@ -1464,23 +1941,39 @@
           this.ctx.fillStyle = '#070914';
           this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-          // 2. Atualização dos Planetas e Coletáveis
-          this.planets.forEach(p => p.update());
-          this.starsCollectibles.forEach(s => s.update());
+          // Escala de tempo com suporte a Slow-Mo
+          let timeScale = 1.0;
+          if (this.activePower === 'slowmo') {
+            timeScale = 0.55;
+            this.powerTimer--;
+            if (this.powerTimer <= 0) this.clearPowerup();
+          }
 
-          // 3. Atualização da Física do Jogador
+          // 2. Atualizações
+          this.planets.forEach(p => p.update(this.canvas.width));
+          this.powerCapsules.forEach(p => p.update());
+          if (this.portal) this.portal.update();
+
+          const magnetActive = (this.activePower === 'magnet');
+          if (magnetActive) {
+            this.powerTimer--;
+            if (this.powerTimer <= 0) this.clearPowerup();
+          }
+
+          const playerPos = this.player ? { x: this.player.x, y: this.player.y } : null;
+          this.starsCollectibles.forEach(s => s.update(playerPos, magnetActive));
+
+          // 3. Física do Jogador
           if (this.state === 'play' && this.player) {
             if (this.player.currentPlanet) {
               this.player.updateOrbit();
 
-              // Checa perigo de Buraco Negro (tolerância ampliada para 10 voltas completas)
               const curP = this.player.currentPlanet;
               if (curP.type === 'blackhole' && this.player.orbitRotations >= 10.0) {
                 this.gameOver('blackhole');
                 return;
               }
 
-              // Aviso sonoro e visual de instabilidade (apenas a partir da 8ª volta no buraco negro)
               if (curP.type === 'blackhole' && this.player.orbitRotations >= 7.5) {
                 const now = Date.now();
                 if (now - this.lastWarningTime > 500) {
@@ -1489,9 +1982,9 @@
                 }
               }
             } else {
-              this.player.updateFlight();
+              this.player.updateFlight(timeScale);
 
-              // Coleta de Estrelas Douradas no voo
+              // Coleta de Estrelas Douradas
               for (let star of this.starsCollectibles) {
                 if (!star.collected && Math.hypot(this.player.x - star.x, this.player.y - star.y) < (this.player.radius + star.radius + 6)) {
                   star.collected = true;
@@ -1504,6 +1997,20 @@
                 }
               }
 
+              // Coleta de Cápsulas de Poder
+              for (let cap of this.powerCapsules) {
+                if (!cap.collected && Math.hypot(this.player.x - cap.x, this.player.y - cap.y) < (this.player.radius + cap.radius + 8)) {
+                  cap.collected = true;
+                  this.activatePowerup(cap.type);
+                }
+              }
+
+              // Checa entrada no Portal Dimensional do Checkpoint!
+              if (this.portal && Math.hypot(this.player.x - this.portal.x, this.player.y - this.portal.y) <= this.portal.radius + 10) {
+                this.reachCheckpoint();
+                return;
+              }
+
               // Checa colisão com planetas
               for (let planet of this.planets) {
                 if (this.player.lastPlanet === planet && this.player.launchCooldown > 0) {
@@ -1514,13 +2021,11 @@
                 const dy = this.player.y - planet.y;
                 const dist = Math.hypot(dx, dy);
 
-                // Colisão com o núcleo do planeta (Obstáculo -> Game Over)
                 if (dist <= planet.coreRadius + this.player.radius) {
                   this.gameOver('crash');
                   break;
                 }
 
-                // Interceptação da órbita gravitacional
                 if (dist <= planet.gravityRadius + 22 && dist >= planet.coreRadius + 6) {
                   const interceptAngle = Math.atan2(dy, dx);
                   const wasFast = (this.player.flightFrames < 50);
@@ -1530,8 +2035,8 @@
 
                   if (!planet.visited) {
                     planet.visited = true;
+                    this.planetsVisitedInSector++;
 
-                    // Sistema de Combo Perfect Jump
                     if (wasFast) {
                       this.combo = Math.min(5, this.combo + 1);
                       this.floatingTexts.push(new FloatingText(`PERFEITO! x${this.combo} ⚡`, this.player.x, this.player.y - 30, '#ff5ca8', 1.2));
@@ -1540,9 +2045,8 @@
                     }
 
                     this.maxCombo = Math.max(this.maxCombo, this.combo);
-                    this.score += 10 * this.combo;
+                    this.score += 15 * this.combo;
 
-                    // Atualiza HUD de Pontuação e Combo
                     document.getElementById('scoreVal').textContent = this.score;
                     const comboEl = document.getElementById('comboBadge');
                     const comboVal = document.getElementById('comboVal');
@@ -1554,24 +2058,12 @@
                     }
 
                     this.sound.playOrbitCapture(this.combo);
-
-                    // Gera dinamicamente novos planetas no topo contínuo
-                    const lastP = this.planets[this.planets.length - 1];
-                    const nextY = lastP.y - (190 + Math.random() * 55);
-                    const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
-                    const nextType = this.choosePlanetType(this.planets.length);
-                    this.planets.push(new Planet(this.planets.length, px, nextY, nextType));
-
-                    // Gera estrelas adicionais
-                    if (Math.random() > 0.35) {
-                      this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 80 - 40), nextY + 95));
-                    }
+                    this.updateProgressUI();
                   }
                   break;
                 }
               }
 
-              // Saiu dos limites da tela ou voou sem rumo por muito tempo
               if (
                 this.state === 'play' && (
                   this.player.x < -140 || 
@@ -1584,23 +2076,27 @@
               }
             }
 
-            // Atualização de Câmera fluida com efeito shake
             this.camera.update(this.player.y, this.canvas.height);
           }
 
-          // 4. Renderização do Mundo com Câmera Vertical
+          // 4. Renderização do Mundo com Câmera
           this.ctx.save();
           const shakeX = (Math.random() - 0.5) * this.camera.shake;
           const shakeY = (Math.random() - 0.5) * this.camera.shake;
           this.ctx.translate(shakeX, -this.camera.y + shakeY);
 
-          // Fundo estrelado infinito
+          // Fundo estrelado
           this.bgStars.forEach(s => {
             this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
             this.ctx.beginPath();
             this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
             this.ctx.fill();
           });
+
+          // Renderiza o Portal se visível
+          if (this.portal && this.portal.y >= this.camera.y - 200 && this.portal.y <= this.camera.y + this.canvas.height + 200) {
+            this.portal.render(this.ctx);
+          }
 
           // Renderiza todos os planetas visíveis
           this.planets.forEach(p => {
@@ -1609,14 +2105,20 @@
             }
           });
 
-          // Renderiza estrelas coletáveis visíveis
+          // Renderiza estrelas e cápsulas de poder
           this.starsCollectibles.forEach(s => {
             if (s.y >= this.camera.y - 200 && s.y <= this.camera.y + this.canvas.height + 200) {
               s.render(this.ctx);
             }
           });
 
-          // Previsão de Trajetória / Guia Preditivo (Laser Guide Inteligente)
+          this.powerCapsules.forEach(p => {
+            if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+              p.render(this.ctx);
+            }
+          });
+
+          // Previsão de Trajetória Laser Guide
           if (this.state === 'play' && this.player) {
             this.renderTrajectoryPrediction(this.ctx);
           }
@@ -1643,7 +2145,7 @@
             }
           }
 
-          // Renderiza o Jogador Coruja Mascote KRUUJ
+          // Renderiza Coruja Mascote KRUUJ
           if (this.state === 'play' && this.player) {
             this.player.render(this.ctx, this.combo);
           }
