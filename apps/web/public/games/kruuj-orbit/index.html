@@ -12,6 +12,8 @@
       --purple: #8b5cff;
       --gold: #ffb020;
       --pink: #ff5ca8;
+      --green: #10b981;
+      --red: #ef4444;
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -53,25 +55,70 @@
       align-items: center;
       pointer-events: none;
       z-index: 10;
+      gap: 8px;
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .hud-badge {
       background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 9999px;
-      padding: 6px 18px;
-      font-size: 1.05rem;
+      padding: 6px 16px;
+      font-size: 0.95rem;
       font-weight: 800;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
     }
 
     .hud-badge span {
       color: var(--cyan);
+    }
+
+    .combo-badge {
+      border-color: rgba(255, 92, 168, 0.4);
+      color: var(--pink);
+      display: none;
+      animation: pulse 1s infinite;
+    }
+
+    .combo-badge.active {
+      display: flex;
+    }
+
+    .star-badge {
+      border-color: rgba(255, 176, 32, 0.35);
+      color: var(--gold);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    /* Recuo de 68px no mobile para não sobrepor o botão Poki no canto superior esquerdo */
+    @media (max-width: 768px) {
+      .hud {
+        top: 12px;
+        left: 68px !important;
+        right: 10px !important;
+      }
+
+      .hud-badge {
+        padding: 4px 10px !important;
+        font-size: 0.8rem !important;
+        gap: 4px !important;
+      }
     }
 
     .hint-bar {
@@ -90,19 +137,21 @@
       pointer-events: none;
       z-index: 5;
       white-space: nowrap;
+      transition: opacity 0.2s;
     }
 
     /* Tela de Início / Fim de Jogo (Overlay) */
     .game-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.92) 0%, rgba(7, 9, 20, 0.98) 100%);
+      background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
       z-index: 20;
       opacity: 0;
@@ -116,7 +165,7 @@
     }
 
     h1 {
-      font-size: clamp(32px, 8vw, 54px);
+      font-size: clamp(30px, 7vw, 50px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
@@ -126,11 +175,11 @@
     }
 
     p {
-      font-size: clamp(14px, 4vw, 17px);
+      font-size: clamp(13px, 3.8vw, 16px);
       color: var(--text-muted);
-      max-width: 440px;
+      max-width: 420px;
       line-height: 1.45;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .stats-table {
@@ -138,9 +187,11 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      padding: 12px 28px;
+      padding: 12px 24px;
       display: flex;
-      gap: 32px;
+      gap: 20px;
+      max-width: 90vw;
+      justify-content: space-around;
     }
 
     .stats-item {
@@ -150,7 +201,7 @@
     }
 
     .stats-label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 800;
@@ -158,7 +209,7 @@
     }
 
     .stats-val {
-      font-size: 1.6rem;
+      font-size: 1.45rem;
       font-weight: 800;
       color: var(--cyan);
     }
@@ -168,8 +219,8 @@
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 14px 44px;
-      font-size: 1.2rem;
+      padding: 13px 40px;
+      font-size: 1.15rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
@@ -177,7 +228,7 @@
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-action:hover {
@@ -189,36 +240,47 @@
 <body>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD Superior com Score e Recorde -->
+  <!-- HUD Superior com Score, Recorde, Estrelas e Multiplicador de Combo -->
   <div class="hud">
-    <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
-    <div class="hud-badge" style="font-size: 0.95rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
+    <div class="hud-group">
+      <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
+      <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
+    </div>
+    <div class="hud-group">
+      <div class="hud-badge star-badge">⭐ <span id="starsVal">0</span></div>
+      <div class="hud-badge" style="font-size: 0.9rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
+    </div>
   </div>
 
-  <div class="hint-bar" id="hintBar">Pressione ESPAÇO ou Toque na tela para saltar!</div>
+  <div class="hint-bar" id="hintBar">Toque ou [ESPAÇO] no momento certo para saltar!</div>
 
   <!-- Overlay de Início e Game Over -->
   <div class="game-overlay active" id="gameOverlay">
     <h1 id="ovTitle">KRUUJ ORBIT</h1>
-    <p id="ovDesc">Salto Gravitacional: seu personagem gira pela órbita dos planetas. No momento certo, solte o estilingue tangencial para alcançar a próxima gravidade!</p>
+    <p id="ovDesc">Salto Gravitacional Arcade: a coruja gira pela órbita dos planetas. No momento certo, solte o estilingue cósmico! Cuidado com asteroides, buracos negros e planetas móveis!</p>
     
     <div class="stats-table" id="ovStats" style="display: none;">
       <div class="stats-item">
-        <span class="stats-label">Pontuação</span>
+        <span class="stats-label">Pontos</span>
         <span class="stats-val" id="ovScore">0</span>
       </div>
       <div class="stats-item">
-        <span class="stats-label">Melhor Score</span>
-        <span class="stats-val" id="ovBest">0</span>
+        <span class="stats-label">Estrelas</span>
+        <span class="stats-val" id="ovStars" style="color: var(--gold);">0</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Max Combo</span>
+        <span class="stats-val" id="ovCombo" style="color: var(--pink);">1x</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Recorde</span>
+        <span class="stats-val" id="ovBest" style="color: var(--cyan);">0</span>
       </div>
     </div>
 
     <button class="btn-action" id="btnPlay" onclick="window.orbitGame.startGame()">JOGAR AGORA 🪐</button>
   </div>
 
-  <!-- ================================================================= -->
-  <!-- LÓGICA DO JOGO EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
-  <!-- ================================================================= -->
   <script>
     // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
     class SoundController {
@@ -228,49 +290,57 @@
 
       init() {
         if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            this.ctx = new AudioContextClass();
+          }
         }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
         }
       }
 
-      // Som de impulso do estilingue tangencial ao soltar
+      // Som de impulso do estilingue tangencial
       playLaunch() {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
 
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(320, now);
-          osc.frequency.exponentialRampToValueAtTime(740, now + 0.15);
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
 
           gain.gain.setValueAtTime(0.001, now);
-          gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.18);
+          osc.stop(now + 0.15);
         } catch(e) {}
       }
 
-      // Som de captura no campo gravitacional do novo planeta
-      playOrbitCapture() {
+      // Som de captura orbital com tom musical que sobe com o Combo (Dó, Ré, Mi, Fá, Sol, Lá, Si)
+      playOrbitCapture(combo = 1) {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
 
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(580, now);
-          osc.frequency.exponentialRampToValueAtTime(920, now + 0.12);
+          const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+          const freq = notes[Math.min(combo - 1, notes.length - 1)] || 523.25;
 
-          gain.gain.setValueAtTime(0.1, now);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.14);
+
+          gain.gain.setValueAtTime(0.12, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
 
           osc.connect(gain);
@@ -280,30 +350,77 @@
         } catch(e) {}
       }
 
-      // Som de Game Over / Colisão
-      playCrash() {
+      // Som de estrela dourada coletada (Arpejo Brilhante)
+      playStarCollect() {
         try {
           this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1760, now + 0.18);
+
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } catch(e) {}
+      }
+
+      // Som de Instabilidade / Perigo
+      playWarning() {
+        try {
+          this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
 
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(180, now);
-          osc.frequency.exponentialRampToValueAtTime(35, now + 0.35);
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.linearRampToValueAtTime(90, now + 0.1);
 
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.35);
+          osc.stop(now + 0.12);
+        } catch(e) {}
+      }
+
+      // Som de Colisão / Fim de Jogo
+      playCrash() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
         } catch(e) {}
       }
     }
 
-    // ===== 2. SISTEMA DE PARTÍCULAS VISUAIS (RASTRO & EFEITOS) =====
+    // ===== 2. SISTEMA DE PARTÍCULAS VISUAIS =====
     class Particle {
       constructor(x, y, color, vx, vy, life = 1.0, radius = 3) {
         this.x = x;
@@ -313,7 +430,7 @@
         this.vy = vy;
         this.life = life;
         this.maxLife = life;
-        this.radius = radius;
+        this.radius = Math.max(0.5, radius);
       }
 
       update() {
@@ -325,70 +442,263 @@
       render(ctx) {
         if (this.life <= 0) return;
         ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.life / this.maxLife));
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, Math.max(0.2, this.radius * (this.life / this.maxLife)), 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
     }
 
-    // ===== 3. PLANETA COM NÚCLEO E ANEL ORBITAL PONTILHADO =====
-    class Planet {
-      constructor(index, x, y, options = {}) {
-        this.index = index;
+    // ===== 3. TEXTOS FLUTUANTES ANIMADOS (PERFECT!, +50, COMBO x2) =====
+    class FloatingText {
+      constructor(text, x, y, color = '#38e8ff', scale = 1.0) {
+        this.text = text;
         this.x = x;
         this.y = y;
-        this.coreRadius = options.coreRadius || (36 + Math.random() * 16);
-        this.gravityRadius = this.coreRadius + 44 + Math.random() * 12; // Campo gravitacional
-        this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.034 + Math.random() * 0.012);
-        this.visited = index === 0;
+        this.color = color;
+        this.scale = scale;
+        this.life = 1.0;
+        this.vy = -1.8;
+      }
 
-        // Paleta de cores cósmicas KRUUJ
-        const palettes = [
-          ['#38e8ff', '#0284c7'],
-          ['#8b5cff', '#581c87'],
-          ['#ffb020', '#b45309'],
-          ['#ff5ca8', '#be185d'],
-          ['#10b981', '#047857']
-        ];
-        const pal = palettes[index % palettes.length];
-        this.color1 = pal[0];
-        this.color2 = pal[1];
-        this.hasRing = Math.random() > 0.65;
+      update() {
+        this.y += this.vy;
+        this.life -= 0.024;
+      }
+
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.life));
+        ctx.font = `800 ${Math.round(18 * this.scale)}px 'Baloo 2', sans-serif`;
+        ctx.fillStyle = this.color;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+      }
+    }
+
+    // ===== 4. ESTRELA DOURADA COLETÁVEL =====
+    class CollectibleStar {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 12;
+        this.angle = 0;
+        this.collected = false;
+      }
+
+      update() {
+        this.angle += 0.04;
+      }
+
+      render(ctx) {
+        if (this.collected) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        // Brilho pulsante
+        ctx.shadowColor = '#ffb020';
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = '#ffb020';
+
+        // Estrela de 4 pontas geométrica
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(Math.cos(i * Math.PI / 2) * this.radius, Math.sin(i * Math.PI / 2) * this.radius);
+          ctx.lineTo(Math.cos(i * Math.PI / 2 + Math.PI / 4) * (this.radius * 0.42), Math.sin(i * Math.PI / 2 + Math.PI / 4) * (this.radius * 0.42));
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // Núcleo branco brilhante
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 5. ASTEROIDE ORBITAL (OBSTÁCULO DE PLANETA PERIGOSO) =====
+    class OrbitalHazard {
+      constructor(planet, angle, dist, speed) {
+        this.planet = planet;
+        this.angle = angle;
+        this.dist = dist;
+        this.speed = speed;
+        this.radius = 8;
+        this.x = 0;
+        this.y = 0;
+        this.update();
+      }
+
+      update() {
+        this.angle += this.speed;
+        this.x = this.planet.x + Math.cos(this.angle) * this.dist;
+        this.y = this.planet.y + Math.sin(this.angle) * this.dist;
+      }
+
+      render(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = '#ef4444';
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Núcleo incandescente
+        ctx.fillStyle = '#fca5a5';
+        ctx.beginPath();
+        ctx.arc(-1, -1, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ===== 6. PLANETA COM TIPOLOGIAS ARCADE RICAS =====
+    class Planet {
+      constructor(index, x, y, type = 'standard') {
+        this.index = index;
+        this.baseX = x;
+        this.x = x;
+        this.y = y;
+        this.type = type; // 'standard', 'fast', 'moving', 'hazard', 'blackhole'
+        this.time = Math.random() * 100;
+
+        // Dimensões do núcleo e campo gravitacional
+        if (type === 'fast') {
+          this.coreRadius = 26;
+          this.gravityRadius = 66;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.062;
+        } else if (type === 'blackhole') {
+          this.coreRadius = 38;
+          this.gravityRadius = 90;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.048;
+        } else {
+          this.coreRadius = 34 + Math.random() * 12;
+          this.gravityRadius = this.coreRadius + 44 + Math.random() * 8;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.034 + Math.random() * 0.012);
+        }
+
+        this.visited = index === 0;
+        this.moveAmp = (type === 'moving') ? (60 + Math.random() * 50) : 0;
+        this.moveFreq = 0.024 + Math.random() * 0.015;
+
+        // Cores temáticas
+        if (type === 'blackhole') {
+          this.color1 = '#7c3aed';
+          this.color2 = '#090514';
+        } else if (type === 'fast') {
+          this.color1 = '#ffb020';
+          this.color2 = '#d97706';
+        } else if (type === 'hazard') {
+          this.color1 = '#f43f5e';
+          this.color2 = '#881337';
+        } else if (type === 'moving') {
+          this.color1 = '#10b981';
+          this.color2 = '#065f46';
+        } else {
+          const standardPals = [
+            ['#38e8ff', '#0284c7'],
+            ['#8b5cff', '#581c87'],
+            ['#38bdf8', '#0369a1']
+          ];
+          const pal = standardPals[index % standardPals.length];
+          this.color1 = pal[0];
+          this.color2 = pal[1];
+        }
+
+        // Satélites obstáculos para planetas do tipo 'hazard'
+        this.hazards = [];
+        if (type === 'hazard') {
+          const count = index > 15 ? 2 : 1;
+          for (let h = 0; h < count; h++) {
+            const hAngle = (h * Math.PI) + Math.random();
+            const hSpeed = -this.orbitSpeed * 1.3;
+            this.hazards.push(new OrbitalHazard(this, hAngle, this.gravityRadius + 2, hSpeed));
+          }
+        }
+
+        this.hasRing = (type !== 'blackhole' && Math.random() > 0.65);
+      }
+
+      update() {
+        this.time += 1;
+        if (this.type === 'moving') {
+          this.x = this.baseX + Math.sin(this.time * this.moveFreq) * this.moveAmp;
+        }
+
+        this.hazards.forEach(h => h.update());
       }
 
       render(ctx) {
         ctx.save();
 
         // 1. Linha Pontilhada ao Redor (Campo Gravitacional / Anel Orbital)
-        ctx.strokeStyle = this.visited ? 'rgba(56, 232, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = 1.6;
-        ctx.setLineDash([6, 8]); // Linha pontilhada solicitada
+        if (this.type === 'blackhole') {
+          ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([4, 6]);
+        } else {
+          ctx.strokeStyle = this.visited ? 'rgba(56, 232, 255, 0.4)' : 'rgba(255, 255, 255, 0.22)';
+          ctx.lineWidth = 1.6;
+          ctx.setLineDash([6, 8]);
+        }
+
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.gravityRadius, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.setLineDash([]); // Reseta linha sólida para os próximos desenhos
+        ctx.setLineDash([]);
 
-        // 2. Núcleo Visual do Planeta (Obstáculo) com Gradiente e Brilho
+        // 2. Núcleo Visual do Planeta com Brilho Cósmico
         ctx.shadowColor = this.color1;
-        ctx.shadowBlur = 16;
-        const grad = ctx.createRadialGradient(
-          this.x - this.coreRadius * 0.3,
-          this.y - this.coreRadius * 0.3,
-          this.coreRadius * 0.1,
-          this.x,
-          this.y,
-          this.coreRadius
-        );
-        grad.addColorStop(0, this.color1);
-        grad.addColorStop(1, this.color2);
+        ctx.shadowBlur = this.type === 'blackhole' ? 24 : 16;
 
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
-        ctx.fill();
+        if (this.type === 'blackhole') {
+          // Vórtice de Buraco Negro com anel de acreção
+          const grad = ctx.createRadialGradient(this.x, this.y, 4, this.x, this.y, this.coreRadius);
+          grad.addColorStop(0, '#000000');
+          grad.addColorStop(0.7, '#1e1035');
+          grad.addColorStop(1, '#a855f7');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Anel exterior de energia pulsante
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.6)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius + 3, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          // Planeta Esférico com Gradiente
+          const grad = ctx.createRadialGradient(
+            this.x - this.coreRadius * 0.3,
+            this.y - this.coreRadius * 0.3,
+            this.coreRadius * 0.1,
+            this.x,
+            this.y,
+            this.coreRadius
+          );
+          grad.addColorStop(0, this.color1);
+          grad.addColorStop(1, this.color2);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         ctx.shadowBlur = 0;
 
         // 3. Anel Planetário Opcional
@@ -400,11 +710,14 @@
           ctx.stroke();
         }
 
+        // 4. Renderiza satélites/asteroides orbitais
+        this.hazards.forEach(h => h.render(ctx));
+
         ctx.restore();
       }
     }
 
-    // ===== 4. PERSONAGEM (ESFERA / CÁPSULA COM FÍSICA VETORIAL) =====
+    // ===== 7. PERSONAGEM (MASCOTE OFICIAL DA CORUJA KRUUJ) =====
     class Player {
       constructor(x, y) {
         this.x = x;
@@ -416,6 +729,7 @@
         this.lastPlanet = null;
         this.launchCooldown = 0;
         this.flightFrames = 0;
+        this.orbitRotations = 0; // Quantas voltas completou na órbita atual
         this.angle = -Math.PI / 2;
         this.orbitRadius = 80;
         this.orbitSpeed = 0.038;
@@ -428,6 +742,7 @@
         this.lastPlanet = null;
         this.launchCooldown = 0;
         this.flightFrames = 0;
+        this.orbitRotations = 0;
         this.orbitRadius = planet.gravityRadius;
         this.orbitSpeed = planet.orbitSpeed;
         this.angle = interceptAngle;
@@ -435,10 +750,11 @@
         this.vy = 0;
       }
 
-      // Atualiza rotação orbital contínua usando trigonometria vetorial
+      // Atualiza rotação orbital contínua
       updateOrbit() {
         if (!this.currentPlanet) return;
         this.angle += this.orbitSpeed;
+        this.orbitRotations += Math.abs(this.orbitSpeed) / (Math.PI * 2);
         this.x = this.currentPlanet.x + Math.cos(this.angle) * this.orbitRadius;
         this.y = this.currentPlanet.y + Math.sin(this.angle) * this.orbitRadius;
       }
@@ -448,10 +764,9 @@
         if (!this.currentPlanet) return;
 
         this.lastPlanet = this.currentPlanet;
-        this.launchCooldown = 18; // 18 frames de imunidade ao planeta anterior
+        this.launchCooldown = 18;
         this.flightFrames = 0;
 
-        // Vetor tangencial perpendicular ao raio orbital
         const dir = this.orbitSpeed > 0 ? 1 : -1;
         const tangentX = -Math.sin(this.angle) * dir;
         const tangentY = Math.cos(this.angle) * dir;
@@ -469,15 +784,14 @@
         this.flightFrames++;
         if (this.launchCooldown > 0) this.launchCooldown--;
 
-        // Histórico do rastro de partículas
         this.trail.push({ x: this.x, y: this.y, alpha: 0.8 });
         if (this.trail.length > 20) this.trail.shift();
       }
 
-      render(ctx) {
+      render(ctx, combo = 1) {
         ctx.save();
 
-        // 1. Rastro de partículas da cápsula (Protegido contra IndexSizeError de raio negativo)
+        // 1. Rastro de partículas da cápsula (Protegido contra raio negativo)
         for (let i = this.trail.length - 1; i >= 0; i--) {
           const t = this.trail[i];
           t.alpha -= 0.04;
@@ -486,21 +800,23 @@
             continue;
           }
           const r = Math.max(0.5, 6 * t.alpha);
-          ctx.fillStyle = `rgba(56, 232, 255, ${Math.max(0, Math.min(1, t.alpha))})`;
+          const trailColor = combo >= 3 ? `rgba(255, 92, 168, ${Math.max(0, Math.min(1, t.alpha))})` : `rgba(56, 232, 255, ${Math.max(0, Math.min(1, t.alpha))})`;
+          ctx.fillStyle = trailColor;
           ctx.beginPath();
           ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // 2. Renderização do Mascote Oficial KRUUJ (Coruja Cósmica com Penachos e Olhos)
+        // 2. Renderização da Coruja Mascote KRUUJ
         ctx.translate(this.x, this.y);
 
         // Se estiver em voo, orienta na direção do vetor velocidade
         const rot = this.currentPlanet ? (this.angle + Math.PI / 2) : Math.atan2(this.vy, this.vx);
         ctx.rotate(rot);
 
-        // Aura de energia de propulsão cósmica
-        ctx.fillStyle = 'rgba(56, 232, 255, 0.25)';
+        // Aura de propulsão cósmica
+        const auraColor = combo >= 3 ? 'rgba(255, 92, 168, 0.4)' : 'rgba(56, 232, 255, 0.3)';
+        ctx.fillStyle = auraColor;
         ctx.beginPath();
         ctx.arc(0, 0, this.radius + 4, 0, Math.PI * 2);
         ctx.fill();
@@ -557,7 +873,7 @@
         ctx.closePath();
         ctx.fill();
 
-        // Viseira / Fone tecnológico neon KRUUJ
+        // Viseira tecnológica neon KRUUJ
         ctx.strokeStyle = '#38e8ff';
         ctx.lineWidth = 1.8;
         ctx.beginPath();
@@ -568,21 +884,26 @@
       }
     }
 
-    // ===== 5. GERENCIADOR DA CÂMERA VERTICAL (SMOOTH SCROLL) =====
+    // ===== 8. GERENCIADOR DA CÂMERA VERTICAL (SMOOTH SCROLL) =====
     class Camera {
       constructor() {
         this.y = 0;
         this.targetY = 0;
+        this.shake = 0;
       }
 
       update(playerY, viewportHeight) {
-        // Acompanha suavemente o progresso vertical da subida
         this.targetY = playerY - viewportHeight * 0.65;
         this.y += (this.targetY - this.y) * 0.1;
+        if (this.shake > 0) this.shake *= 0.9;
+      }
+
+      addShake(intensity) {
+        this.shake = Math.min(25, this.shake + intensity);
       }
     }
 
-    // ===== 6. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
+    // ===== 9. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
     class Game {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -591,15 +912,22 @@
         this.sound = new SoundController();
         this.camera = new Camera();
 
-        this.state = 'menu'; // 'menu', 'play', 'over'
+        this.state = 'menu';
         this.score = 0;
+        this.starsCount = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
         this.bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
-        this.baseLaunchSpeed = 12.8;
+        this.baseLaunchSpeed = 13.0;
 
         this.player = null;
         this.planets = [];
+        this.starsCollectibles = [];
         this.particles = [];
-        this.stars = [];
+        this.floatingTexts = [];
+        this.bgStars = [];
+
+        this.lastWarningTime = 0;
 
         this.init();
       }
@@ -609,8 +937,8 @@
         window.addEventListener('resize', () => this.resize());
 
         // Fundo estrelado infinito
-        for (let i = 0; i < 180; i++) {
-          this.stars.push({
+        for (let i = 0; i < 200; i++) {
+          this.bgStars.push({
             x: Math.random() * 2000 - 1000,
             y: Math.random() * 4000 - 2000,
             size: Math.random() * 2.2 + 0.5,
@@ -638,22 +966,23 @@
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
 
-        // Telemetria oficial da plataforma KRUUJ
         try {
           window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*');
         } catch(e) {}
       }
 
       resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        const w = window.innerWidth || document.documentElement.clientWidth;
+        const h = window.innerHeight || document.documentElement.clientHeight;
+        this.canvas.width = w;
+        this.canvas.height = h;
       }
 
       handleAction() {
         if (this.state === 'play') {
           if (this.player && this.player.currentPlanet) {
-            // Arremesso tangencial (Estilingue)
-            const speed = this.baseLaunchSpeed + Math.min(4, this.score * 0.15);
+            // Lançamento com velocidade dinâmica
+            const speed = this.baseLaunchSpeed + Math.min(5, this.score * 0.12);
             this.player.launch(speed);
             this.sound.playLaunch();
             this.spawnLaunchParticles();
@@ -665,30 +994,44 @@
 
       startGame() {
         this.sound.init();
+        this.resize();
         this.state = 'play';
         this.score = 0;
+        this.starsCount = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
         this.particles = [];
+        this.floatingTexts = [];
         this.planets = [];
+        this.starsCollectibles = [];
         this.camera.y = 0;
 
         document.getElementById('scoreVal').textContent = this.score;
+        document.getElementById('starsVal').textContent = this.starsCount;
+        document.getElementById('comboBadge').classList.remove('active');
         document.getElementById('gameOverlay').classList.remove('active');
         document.getElementById('hintBar').style.display = 'block';
 
         // 1. Gera o primeiro planeta na parte inferior
         let curY = this.canvas.height * 0.75;
-        const initialPlanet = new Planet(0, this.canvas.width / 2, curY);
+        const initialPlanet = new Planet(0, this.canvas.width / 2, curY, 'standard');
         this.planets.push(initialPlanet);
 
-        // 2. Instancia o jogador orbitando o planeta inicial
+        // 2. Instancia a coruja orbitando o planeta inicial
         this.player = new Player(initialPlanet.x, initialPlanet.y);
         this.player.enterOrbit(initialPlanet, -Math.PI / 2);
 
-        // 3. Gera os próximos 12 planetas em subida vertical
-        for (let i = 1; i < 14; i++) {
-          curY -= (185 + Math.random() * 60);
+        // 3. Gera os próximos 14 planetas com diversidade arcade progressiva
+        for (let i = 1; i < 15; i++) {
+          curY -= (190 + Math.random() * 55);
           const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
-          this.planets.push(new Planet(i, px, curY));
+          const type = this.choosePlanetType(i);
+          this.planets.push(new Planet(i, px, curY, type));
+
+          // Gera estrelas coletáveis nos corredores
+          if (Math.random() > 0.35) {
+            this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 80 - 40), curY + 95));
+          }
         }
 
         try {
@@ -696,45 +1039,65 @@
         } catch(e) {}
       }
 
+      // Escolhe tipo de planeta com base na pontuação (Curva de dificuldade adaptativa)
+      choosePlanetType(index) {
+        if (index <= 2) return 'standard';
+        const rand = Math.random();
+        if (index > 10 && rand < 0.22) return 'blackhole';
+        if (index > 6 && rand < 0.45) return 'hazard';
+        if (rand < 0.70) return 'moving';
+        if (rand < 0.88) return 'fast';
+        return 'standard';
+      }
+
       spawnLaunchParticles() {
-        for (let i = 0; i < 12; i++) {
-          const vx = (Math.random() - 0.5) * 5 - this.player.vx * 0.2;
-          const vy = (Math.random() - 0.5) * 5 - this.player.vy * 0.2;
-          this.particles.push(new Particle(this.player.x, this.player.y, '#ffb020', vx, vy, 0.8, 3.5));
+        for (let i = 0; i < 14; i++) {
+          const vx = (Math.random() - 0.5) * 5 - this.player.vx * 0.25;
+          const vy = (Math.random() - 0.5) * 5 - this.player.vy * 0.25;
+          this.particles.push(new Particle(this.player.x, this.player.y, '#38e8ff', vx, vy, 0.8, 3.5));
         }
       }
 
       spawnCaptureParticles(x, y, color) {
-        for (let i = 0; i < 16; i++) {
+        for (let i = 0; i < 18; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const spd = 2 + Math.random() * 4;
+          const spd = 2 + Math.random() * 4.5;
           this.particles.push(new Particle(x, y, color, Math.cos(angle) * spd, Math.sin(angle) * spd, 1.0, 3));
         }
       }
 
-      gameOver() {
+      gameOver(reason = 'crash') {
         this.state = 'over';
         this.sound.playCrash();
+        this.camera.addShake(15);
 
         // Atualiza recorde
         this.bestScore = Math.max(this.bestScore, this.score);
         localStorage.setItem('kruuj_orbit_best', String(this.bestScore));
         document.getElementById('bestVal').textContent = this.bestScore;
 
-        // Atualiza UI do Modal
+        // Mensagens temáticas de fim de jogo
         document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
-        document.getElementById('ovDesc').textContent = 'Você errou a trajetória ou colidiu diretamente com o núcleo do planeta. Acerte o timing exato do estilingue!';
+        if (reason === 'blackhole') {
+          document.getElementById('ovDesc').textContent = 'Você demorou demais e foi sugado pelo horizonte de eventos do Buraco Negro!';
+        } else if (reason === 'hazard') {
+          document.getElementById('ovDesc').textContent = 'Você colidiu com um asteroide orbital! Cronometre a janela de passagem!';
+        } else {
+          document.getElementById('ovDesc').textContent = 'Você errou a trajetória cósmica ou bateu no núcleo do planeta. Acerte o timing exato do estilingue!';
+        }
+
         document.getElementById('ovScore').textContent = this.score;
+        document.getElementById('ovStars').textContent = this.starsCount;
+        document.getElementById('ovCombo').textContent = `${this.maxCombo}x`;
         document.getElementById('ovBest').textContent = this.bestScore;
         document.getElementById('ovStats').style.display = 'flex';
         document.getElementById('btnPlay').textContent = 'JOGAR NOVAMENTE 🪐';
         document.getElementById('gameOverlay').classList.add('active');
         document.getElementById('hintBar').style.display = 'none';
 
-        // Telemetria e persistência em nuvem
         try {
           window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-orbit', score: this.score, bestScore: this.bestScore }, '*');
-          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { bestScore: this.bestScore }, score: this.score }, '*');
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-orbit', saveData: { bestScore: this.bestScore, stars: this.starsCount }, score: this.score }, '*');
         } catch(e) {}
       }
 
@@ -747,75 +1110,154 @@
           this.ctx.fillStyle = '#070914';
           this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-          // 2. Atualização da Física
+          // 2. Atualização dos Planetas e Coletáveis
+          this.planets.forEach(p => p.update());
+          this.starsCollectibles.forEach(s => s.update());
+
+          // 3. Atualização da Física do Jogador
           if (this.state === 'play' && this.player) {
             if (this.player.currentPlanet) {
               this.player.updateOrbit();
+
+              // Checa perigo de Buraco Negro ou permanência excessiva no planeta
+              const curP = this.player.currentPlanet;
+              if (curP.type === 'blackhole' && this.player.orbitRotations > 2.2) {
+                this.gameOver('blackhole');
+                return;
+              }
+
+              // Checa colisão com asteroides orbitais
+              for (let h of curP.hazards) {
+                if (Math.hypot(this.player.x - h.x, this.player.y - h.y) < (this.player.radius + h.radius)) {
+                  this.gameOver('hazard');
+                  return;
+                }
+              }
+
+              // Aviso de instabilidade se demorar muito no mesmo planeta
+              if (this.player.orbitRotations > 2.0) {
+                const now = Date.now();
+                if (now - this.lastWarningTime > 600) {
+                  this.sound.playWarning();
+                  this.lastWarningTime = now;
+                }
+              }
             } else {
               this.player.updateFlight();
 
+              // Coleta de Estrelas Douradas no voo
+              for (let star of this.starsCollectibles) {
+                if (!star.collected && Math.hypot(this.player.x - star.x, this.player.y - star.y) < (this.player.radius + star.radius + 6)) {
+                  star.collected = true;
+                  this.starsCount += 1;
+                  this.score += 10 * this.combo;
+                  document.getElementById('starsVal').textContent = this.starsCount;
+                  document.getElementById('scoreVal').textContent = this.score;
+                  this.sound.playStarCollect();
+                  this.floatingTexts.push(new FloatingText(`+${10 * this.combo} ⭐`, star.x, star.y - 10, '#ffb020', 1.1));
+                }
+              }
+
               // Checa colisão com planetas
               for (let planet of this.planets) {
-                // Se acabou de decolar deste planeta, ignora enquanto estiver no cooldown de lançamento
                 if (this.player.lastPlanet === planet && this.player.launchCooldown > 0) {
                   continue;
+                }
+
+                // Colisão com asteroides do planeta alvo
+                for (let h of planet.hazards) {
+                  if (Math.hypot(this.player.x - h.x, this.player.y - h.y) < (this.player.radius + h.radius)) {
+                    this.gameOver('hazard');
+                    break;
+                  }
                 }
 
                 const dx = this.player.x - planet.x;
                 const dy = this.player.y - planet.y;
                 const dist = Math.hypot(dx, dy);
 
-                // 2.1 Colisão com o núcleo do planeta (Obstáculo -> Game Over)
+                // Colisão com o núcleo do planeta (Obstáculo -> Game Over)
                 if (dist <= planet.coreRadius + this.player.radius) {
-                  this.gameOver();
+                  this.gameOver('crash');
                   break;
                 }
 
-                // 2.2 Interceptação da órbita gravitacional do próximo planeta
+                // Interceptação da órbita gravitacional
                 if (dist <= planet.gravityRadius + 22 && dist >= planet.coreRadius + 6) {
                   const interceptAngle = Math.atan2(dy, dx);
+                  const wasFast = (this.player.flightFrames < 50);
+
                   this.player.enterOrbit(planet, interceptAngle);
-                  this.sound.playOrbitCapture();
                   this.spawnCaptureParticles(this.player.x, this.player.y, planet.color1);
 
                   if (!planet.visited) {
                     planet.visited = true;
-                    this.score++;
+
+                    // Sistema de Combo Perfect Jump
+                    if (wasFast) {
+                      this.combo = Math.min(5, this.combo + 1);
+                      this.floatingTexts.push(new FloatingText(`PERFEITO! x${this.combo} ⚡`, this.player.x, this.player.y - 30, '#ff5ca8', 1.2));
+                    } else {
+                      this.combo = 1;
+                    }
+
+                    this.maxCombo = Math.max(this.maxCombo, this.combo);
+                    this.score += 10 * this.combo;
+
+                    // Atualiza HUD de Pontuação e Combo
                     document.getElementById('scoreVal').textContent = this.score;
+                    const comboEl = document.getElementById('comboBadge');
+                    const comboVal = document.getElementById('comboVal');
+                    if (this.combo > 1) {
+                      comboVal.textContent = `${this.combo}x`;
+                      comboEl.classList.add('active');
+                    } else {
+                      comboEl.classList.remove('active');
+                    }
+
+                    this.sound.playOrbitCapture(this.combo);
 
                     // Gera dinamicamente novos planetas no topo contínuo
                     const lastP = this.planets[this.planets.length - 1];
-                    const nextY = lastP.y - (185 + Math.random() * 60);
+                    const nextY = lastP.y - (190 + Math.random() * 55);
                     const px = this.canvas.width / 2 + (Math.random() * 240 - 120);
-                    this.planets.push(new Planet(this.planets.length, px, nextY));
+                    const nextType = this.choosePlanetType(this.planets.length);
+                    this.planets.push(new Planet(this.planets.length, px, nextY, nextType));
+
+                    // Gera estrelas adicionais
+                    if (Math.random() > 0.35) {
+                      this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 80 - 40), nextY + 95));
+                    }
                   }
                   break;
                 }
               }
 
-              // 2.3 Saiu dos limites da tela ou voou sem rumo por muito tempo -> Game Over
+              // Saiu dos limites da tela ou voou sem rumo por muito tempo
               if (
                 this.state === 'play' && (
                   this.player.x < -140 || 
                   this.player.x > this.canvas.width + 140 || 
                   this.player.y > (this.camera.y + this.canvas.height + 150) ||
-                  this.player.flightFrames > 200
+                  this.player.flightFrames > 220
                 )
               ) {
-                this.gameOver();
+                this.gameOver('lost');
               }
             }
 
-            // Câmera vertical fluida
+            // Atualização de Câmera fluida com efeito shake
             this.camera.update(this.player.y, this.canvas.height);
           }
 
-          // 3. Renderização com Câmera (Scroll Vertical)
+          // 4. Renderização do Mundo com Câmera Vertical
           this.ctx.save();
-          this.ctx.translate(0, -this.camera.y);
+          const shakeX = (Math.random() - 0.5) * this.camera.shake;
+          const shakeY = (Math.random() - 0.5) * this.camera.shake;
+          this.ctx.translate(shakeX, -this.camera.y + shakeY);
 
-          // Fundo estrelado com parallax
-          this.stars.forEach(s => {
+          // Fundo estrelado infinito
+          this.bgStars.forEach(s => {
             this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
             this.ctx.beginPath();
             this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
@@ -824,8 +1266,15 @@
 
           // Renderiza todos os planetas visíveis
           this.planets.forEach(p => {
-            if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+            if (p.y >= this.camera.y - 250 && p.y <= this.camera.y + this.canvas.height + 250) {
               p.render(this.ctx);
+            }
+          });
+
+          // Renderiza estrelas coletáveis visíveis
+          this.starsCollectibles.forEach(s => {
+            if (s.y >= this.camera.y - 200 && s.y <= this.camera.y + this.canvas.height + 200) {
+              s.render(this.ctx);
             }
           });
 
@@ -840,9 +1289,20 @@
             }
           }
 
-          // Renderiza o Jogador Mascote KRUUJ
+          // Textos Flutuantes
+          for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+            const ft = this.floatingTexts[i];
+            ft.update();
+            if (ft.life <= 0) {
+              this.floatingTexts.splice(i, 1);
+            } else {
+              ft.render(this.ctx);
+            }
+          }
+
+          // Renderiza o Jogador Coruja Mascote KRUUJ
           if (this.state === 'play' && this.player) {
-            this.player.render(this.ctx);
+            this.player.render(this.ctx, this.combo);
           }
 
           this.ctx.restore();
