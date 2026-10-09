@@ -1381,8 +1381,12 @@ export default function App() {
 
   // Função para executar a saída do jogo (liberar trava)
   const executeExitGame = () => {
-    setView('home');
-    setSelectedGame(null);
+    // Retorna para a página de detalhes (onde mostra as informações do jogo), e não para o menu inicial
+    if (selectedGame) {
+      setView('details');
+    } else {
+      setView('home');
+    }
     setIsPlayingGame(false);
     setShowParentGate(false);
 
@@ -1439,6 +1443,18 @@ export default function App() {
 
   // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
   const handlePlayGame = async (game: Game) => {
+    // Ativação imediata de Fullscreen nativo no Mobile durante o clique do usuário para ocultar a barra de URL
+    try {
+      const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      if (isMobile && !document.fullscreenElement) {
+        const docEl = document.documentElement as any;
+        const reqFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+        if (reqFs) {
+          reqFs.call(docEl).catch(() => {});
+        }
+      }
+    } catch (e) {}
+
     setSelectedGame(game);
     setIsPlayingGame(true);
     setView('playing');
