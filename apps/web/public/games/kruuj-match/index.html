@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ MATCH: Alquimia Estelar</title>
+  <title>KRUUJ MATCH: A Saga das Corujas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   <style>
@@ -12,6 +12,7 @@
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
+      --pink: #ff5ca8;
       --red: #ef4444;
       --green: #10b981;
       --text: #f8fafc;
@@ -24,7 +25,7 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation;
+      touch-action: none;
     }
 
     html, body {
@@ -42,27 +43,29 @@
 
     /* Container Superior da Interface */
     .hud-bar {
-      width: min(92vw, 440px);
+      width: min(94vw, 440px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       padding: 0 4px;
       z-index: 10;
+      gap: 6px;
     }
 
-    .game-logo {
-      font-size: 1.3rem;
+    .level-badge {
+      font-size: 1.05rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .stats-group {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
     }
 
@@ -70,69 +73,113 @@
       background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 9999px;
-      padding: 4px 14px;
-      font-size: 0.88rem;
+      padding: 4px 12px;
+      font-size: 0.82rem;
       font-weight: 800;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
     }
 
     .stat-chip span {
       color: #fff;
     }
 
-    .btn-reset {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #cbd5e1;
-      border-radius: 9999px;
-      padding: 4px 12px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s;
+    .moves-chip {
+      border-color: rgba(255, 176, 32, 0.35);
     }
 
-    .btn-reset:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #f87171;
+    .moves-chip span {
+      color: var(--gold);
+      font-size: 0.95rem;
+    }
+
+    /* Barra de Missão e Objetivo da Fase */
+    .mission-bar {
+      width: min(94vw, 440px);
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(56, 232, 255, 0.25);
+      border-radius: 12px;
+      padding: 6px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .mission-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mission-goal {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .hud-bar {
+        padding-left: 68px !important; /* Desvia do botão Poki */
+      }
+
+      .stat-chip {
+        padding: 3px 8px !important;
+        font-size: 0.75rem !important;
+      }
     }
 
     /* Tabuleiro 8x8 Canvas */
     #board-container {
       position: relative;
-      width: min(92vw, 440px);
-      height: min(92vw, 440px);
-      background: rgba(13, 18, 36, 0.75);
+      width: min(94vw, 440px);
+      height: min(94vw, 440px);
+      background: rgba(13, 18, 36, 0.8);
       border: 2px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.15);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
       overflow: hidden;
+      touch-action: none;
     }
 
     canvas#gameCanvas {
       width: 100%;
       height: 100%;
       display: block;
-      cursor: pointer;
+      cursor: grab;
+    }
+
+    canvas#gameCanvas:active {
+      cursor: grabbing;
     }
 
     .hint-text {
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 0.8rem;
       color: var(--text-muted);
       font-weight: 700;
       text-align: center;
     }
 
-    /* Overlay de Fim de Jogo */
+    /* Overlay de Vitória / Fim de Jogo */
     .game-overlay {
       position: fixed;
       inset: 0;
       background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -151,7 +198,7 @@
     }
 
     h1 {
-      font-size: clamp(30px, 7vw, 48px);
+      font-size: clamp(28px, 7vw, 46px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
@@ -160,21 +207,29 @@
     }
 
     p {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: var(--text-muted);
       max-width: 400px;
-      line-height: 1.4;
-      margin-bottom: 22px;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .stars-display {
+      font-size: 2.2rem;
+      margin-bottom: 14px;
+      letter-spacing: 4px;
     }
 
     .stats-summary {
       display: flex;
-      gap: 24px;
+      gap: 20px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 14px;
-      padding: 12px 28px;
-      margin-bottom: 24px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
+      justify-content: space-around;
+      width: min(85vw, 360px);
     }
 
     .stat-item {
@@ -184,14 +239,14 @@
     }
 
     .stat-item .label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 800;
     }
 
     .stat-item .val {
-      font-size: 1.6rem;
+      font-size: 1.45rem;
       font-weight: 800;
       color: var(--cyan);
     }
@@ -201,7 +256,7 @@
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 12px 40px;
+      padding: 13px 40px;
       font-size: 1.15rem;
       font-weight: 800;
       font-family: inherit;
@@ -216,43 +271,48 @@
   </style>
 </head>
 <body>
-  <!-- HUD Superior -->
+  <!-- HUD Superior com Fase, Pontos e Movimentos -->
   <div class="hud-bar">
-    <div class="game-logo">KRUUJ MATCH</div>
+    <div class="level-badge" id="levelTitle">FASE 1</div>
     <div class="stats-group">
       <div class="stat-chip">PONTOS: <span id="scoreVal" style="color: var(--cyan);">0</span></div>
-      <div class="stat-chip">MOVIMENTOS: <span id="movesVal" style="color: var(--gold);">30</span></div>
-      <button class="btn-reset" onclick="window.matchGame.resetGame()">Reset</button>
+      <div class="stat-chip moves-chip">MOVIMENTOS: <span id="movesVal">20</span></div>
     </div>
   </div>
 
-  <!-- Tabuleiro Canvas -->
+  <!-- Barra de Objetivo da Fase -->
+  <div class="mission-bar">
+    <div class="mission-title" id="missionDesc">🦉 Colete 12 Corujas Roxas</div>
+    <div class="mission-goal" id="missionProgress">0 / 12</div>
+  </div>
+
+  <!-- Tabuleiro Canvas com Suporte a Arrastar (Swipe) -->
   <div id="board-container">
     <canvas id="gameCanvas"></canvas>
   </div>
 
-  <div class="hint-text">Toque em uma peça e depois em uma vizinha para trocar!</div>
+  <div class="hint-text">👆 Arraste as peças com o dedo para trocar! Combine 4 para Coruja Relâmpago ⚡</div>
 
-  <!-- Overlay de Fim de Jogo -->
+  <!-- Overlay de Fim de Jogo / Vitória -->
   <div class="game-overlay" id="endOverlay">
-    <h1 id="ovTitle">MOVIMENTOS ESGOTADOS!</h1>
-    <p id="ovDesc">Você utilizou todos os 30 movimentos na Alquimia Estelar. Veja sua pontuação final e tente bater seu recorde!</p>
+    <div class="stars-display" id="ovStars">⭐⭐⭐</div>
+    <h1 id="ovTitle">FASE CONCLUÍDA!</h1>
+    <p id="ovDesc">Parabéns! Você alcançou o objetivo da Fase e restaurou a relíquia do Santuário das Corujas!</p>
+    
     <div class="stats-summary">
       <div class="stat-item">
         <span class="label">Pontos Finais</span>
         <span class="val" id="ovFinalScore">0</span>
       </div>
       <div class="stat-item">
-        <span class="label">Melhor Score</span>
-        <span class="val" id="ovBestScore" style="color: var(--gold);">0</span>
+        <span class="label">Movimentos Restantes</span>
+        <span class="val" id="ovRemainingMoves" style="color: var(--gold);">0</span>
       </div>
     </div>
-    <button class="btn-action" onclick="window.matchGame.resetGame()">JOGAR NOVAMENTE 🔮</button>
+
+    <button class="btn-action" id="btnOverlayNext" onclick="window.matchGame.onOverlayAction()">PRÓXIMA FASE ⏩</button>
   </div>
 
-  <!-- ================================================================= -->
-  <!-- LÓGICA DO MATCH-3 EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)        -->
-  <!-- ================================================================= -->
   <script>
     // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
     class SoundController {
@@ -262,17 +322,18 @@
 
       init() {
         if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.ctx = new AudioContextClass();
         }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
         }
       }
 
-      // Som de clique/seleção
       playSelect() {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -287,10 +348,10 @@
         } catch(e) {}
       }
 
-      // Som de Match / Explosão de cristais (Acorde cristalino harmônico)
       playMatch(combo = 1) {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const baseFreq = 440 + Math.min(8, combo) * 65;
           [baseFreq, baseFreq * 1.25, baseFreq * 1.5].forEach((freq, i) => {
@@ -299,19 +360,77 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, now + i * 0.03);
             gain.gain.setValueAtTime(0.08, now + i * 0.03);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.25);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.22);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(now + i * 0.03);
-            osc.stop(now + i * 0.03 + 0.25);
+            osc.stop(now + i * 0.03 + 0.22);
           });
         } catch(e) {}
       }
 
-      // Som de troca inválida (Vai e volta)
+      playSpecialCreate() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(960, now + 0.25);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } catch(e) {}
+      }
+
+      playSpecialBlast() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.35);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } catch(e) {}
+      }
+
+      playWin() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.1);
+            gain.gain.setValueAtTime(0.12, now + i * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.1);
+            osc.stop(now + i * 0.1 + 0.35);
+          });
+        } catch(e) {}
+      }
+
       playInvalidSwap() {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -328,14 +447,14 @@
       }
     }
 
-    // ===== 2. SISTEMA DE PARTÍCULAS (POEIRA ESTELAR MÁGICA) =====
+    // ===== 2. SISTEMA DE PARTÍCULAS =====
     class Particle {
       constructor(x, y, color) {
         this.x = x;
         this.y = y;
         this.color = color;
         const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 4.5;
+        const speed = 2 + Math.random() * 5;
         this.vx = Math.cos(angle) * speed;
         this.vy = Math.sin(angle) * speed;
         this.life = 1.0;
@@ -362,15 +481,22 @@
       }
     }
 
-    // ===== 3. PEÇA / CRISTAL RÚNICO =====
+    // ===== 3. PEÇA TEMÁTICA DA CORUJA KRUUJ E RELÍQUIAS =====
+    // Tipos:
+    // 0: Coruja Roxa KRUUJ (Mascote)
+    // 1: Coruja Ciano (Cientista)
+    // 2: Pena Dourada Sagrada
+    // 3: Orbe Rubi Cósmico
+    // 4: Cristal Esmeralda Astral
+    // Special: null, 'line' (Match 4), 'bomb' (Match 5)
     class Piece {
-      constructor(row, col, type, tileSize) {
+      constructor(row, col, type, tileSize, special = null) {
         this.row = row;
         this.col = col;
         this.type = type;
         this.tileSize = tileSize;
+        this.special = special; // null, 'line', 'bomb'
 
-        // Posição visual na tela (em pixels) para animação suave
         this.x = col * tileSize;
         this.y = row * tileSize;
         this.targetX = this.x;
@@ -378,12 +504,14 @@
 
         this.scale = 1.0;
         this.alpha = 1.0;
+        this.glowAngle = Math.random() * Math.PI;
       }
 
-      // Atualiza interpolação suave da posição (Lerp)
       update() {
-        this.x += (this.targetX - this.x) * 0.28;
-        this.y += (this.targetY - this.y) * 0.28;
+        // Interpolação suave para animação fluida (Lerp 0.32)
+        this.x += (this.targetX - this.x) * 0.32;
+        this.y += (this.targetY - this.y) * 0.32;
+        this.glowAngle += 0.08;
       }
 
       isMoving() {
@@ -397,13 +525,12 @@
         this.targetY = row * this.tileSize;
       }
 
-      // Renderiza as 5 Formas Geométricas Simples no Canvas (Pronto para sprites)
       render(ctx, isSelected = false) {
         if (this.alpha <= 0) return;
 
         const cx = this.x + this.tileSize / 2;
         const cy = this.y + this.tileSize / 2;
-        const r = (this.tileSize * 0.38) * this.scale;
+        const r = (this.tileSize * 0.40) * this.scale;
 
         ctx.save();
         ctx.globalAlpha = this.alpha;
@@ -412,95 +539,210 @@
         if (isSelected) {
           ctx.strokeStyle = '#38e8ff';
           ctx.lineWidth = 2.5;
-          ctx.strokeRect(this.x + 4, this.y + 4, this.tileSize - 8, this.tileSize - 8);
+          ctx.shadowColor = '#38e8ff';
+          ctx.shadowBlur = 10;
+          ctx.strokeRect(this.x + 3, this.y + 3, this.tileSize - 6, this.tileSize - 6);
+          ctx.shadowBlur = 0;
         }
 
-        // As 5 formas/cores geométricas solicitadas:
-        // 0: Diamante Ciano (◆)
-        // 1: Ametista Roxa (▲)
-        // 2: Estrela Dourada (★)
-        // 3: Rubi Vermelho (●)
-        // 4: Esmeralda Verde (✦)
-        switch (this.type) {
-          case 0: // Diamante Ciano
-            ctx.fillStyle = '#38e8ff';
-            ctx.shadowColor = '#38e8ff';
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - r);
-            ctx.lineTo(cx + r, cy);
-            ctx.lineTo(cx, cy + r);
-            ctx.lineTo(cx - r, cy);
-            ctx.closePath();
-            ctx.fill();
-            break;
+        // Aura especial para peças criadas em Match 4 e Match 5
+        if (this.special === 'line') {
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        } else if (this.special === 'bomb') {
+          ctx.strokeStyle = '#ff5ca8';
+          ctx.lineWidth = 2.5;
+          ctx.shadowColor = '#ff5ca8';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r + 5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
 
-          case 1: // Ametista Roxa (Triângulo)
+        switch (this.type) {
+          case 0: // Coruja Roxa KRUUJ (Mascote Oficial)
+            // Corpo
             ctx.fillStyle = '#8b5cff';
             ctx.shadowColor = '#8b5cff';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 8;
             ctx.beginPath();
-            ctx.moveTo(cx, cy - r);
-            ctx.lineTo(cx + r, cy + r * 0.85);
-            ctx.lineTo(cx - r, cy + r * 0.85);
+            ctx.arc(cx, cy + 2, r * 0.82, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Penachos de orelha da coruja
+            ctx.fillStyle = '#6d28d9';
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.7, cy - r * 0.3);
+            ctx.lineTo(cx - r * 0.85, cy - r * 0.95);
+            ctx.lineTo(cx - r * 0.2, cy - r * 0.7);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(cx + r * 0.7, cy - r * 0.3);
+            ctx.lineTo(cx + r * 0.85, cy - r * 0.95);
+            ctx.lineTo(cx + r * 0.2, cy - r * 0.7);
+            ctx.closePath();
+            ctx.fill();
+
+            // Olhos brancos
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.35, cy, r * 0.32, 0, Math.PI * 2);
+            ctx.arc(cx + r * 0.35, cy, r * 0.32, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Íris dourada
+            ctx.fillStyle = '#ffb020';
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.35, cy, r * 0.2, 0, Math.PI * 2);
+            ctx.arc(cx + r * 0.35, cy, r * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Pupilas
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.35, cy, r * 0.1, 0, Math.PI * 2);
+            ctx.arc(cx + r * 0.35, cy, r * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bico dourado
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.15, cy + r * 0.15);
+            ctx.lineTo(cx + r * 0.15, cy + r * 0.15);
+            ctx.lineTo(cx, cy + r * 0.45);
             ctx.closePath();
             ctx.fill();
             break;
 
-          case 2: // Estrela Dourada (Estrela de 4 pontas geométrica)
+          case 1: // Coruja Cientista Ciano
+            ctx.fillStyle = '#06b6d4';
+            ctx.shadowColor = '#06b6d4';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(cx, cy + 2, r * 0.82, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Penachos
+            ctx.fillStyle = '#0891b2';
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.7, cy - r * 0.3);
+            ctx.lineTo(cx - r * 0.85, cy - r * 0.95);
+            ctx.lineTo(cx - r * 0.2, cy - r * 0.7);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(cx + r * 0.7, cy - r * 0.3);
+            ctx.lineTo(cx + r * 0.85, cy - r * 0.95);
+            ctx.lineTo(cx + r * 0.2, cy - r * 0.7);
+            ctx.closePath();
+            ctx.fill();
+
+            // Óculos neon
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.35, cy, r * 0.32, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(cx + r * 0.35, cy, r * 0.32, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.1, cy);
+            ctx.lineTo(cx + r * 0.1, cy);
+            ctx.stroke();
+
+            // Pupila azul
+            ctx.fillStyle = '#38e8ff';
+            ctx.beginPath();
+            ctx.arc(cx - r * 0.35, cy, r * 0.16, 0, Math.PI * 2);
+            ctx.arc(cx + r * 0.35, cy, r * 0.16, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+
+          case 2: // Pena Sagrada Dourada
             ctx.fillStyle = '#ffb020';
             ctx.shadowColor = '#ffb020';
-            ctx.shadowBlur = 12;
+            ctx.shadowBlur = 10;
             ctx.beginPath();
-            for (let i = 0; i < 8; i++) {
-              const rad = (i * Math.PI) / 4;
-              const len = i % 2 === 0 ? r : r * 0.45;
-              const px = cx + Math.cos(rad) * len;
-              const py = cy + Math.sin(rad) * len;
+            ctx.ellipse(cx, cy, r * 0.45, r * 0.88, 0.35, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eixo da pena
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.3, cy + r * 0.8);
+            ctx.lineTo(cx + r * 0.3, cy - r * 0.8);
+            ctx.stroke();
+            break;
+
+          case 3: // Orbe Rubi Cósmico
+            ctx.fillStyle = '#ef4444';
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.82, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Anel estrelado interno
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.5, 0, Math.PI * 2);
+            ctx.stroke();
+            break;
+
+          case 4: // Gema Esmeralda Astral
+            ctx.fillStyle = '#10b981';
+            ctx.shadowColor = '#10b981';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+              const ang = (i * Math.PI) / 3;
+              const px = cx + Math.cos(ang) * (r * 0.85);
+              const py = cy + Math.sin(ang) * (r * 0.85);
               if (i === 0) ctx.moveTo(px, py);
               else ctx.lineTo(px, py);
             }
             ctx.closePath();
             ctx.fill();
             break;
-
-          case 3: // Rubi Vermelho (Círculo)
-            ctx.fillStyle = '#ef4444';
-            ctx.shadowColor = '#ef4444';
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.fill();
-            break;
-
-          case 4: // Esmeralda Verde (Quadrado Chanfrado)
-            ctx.fillStyle = '#10b981';
-            ctx.shadowColor = '#10b981';
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.roundRect(cx - r * 0.85, cy - r * 0.85, r * 1.7, r * 1.7, 6);
-            ctx.fill();
-            break;
         }
 
-        // Brilho facetado interno
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.beginPath();
-        ctx.arc(cx - r * 0.25, cy - r * 0.25, r * 0.25, 0, Math.PI * 2);
-        ctx.fill();
+        // Ícone indicador sobre peça especial
+        if (this.special === 'line') {
+          ctx.fillStyle = '#fde047';
+          ctx.font = '800 14px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('⚡', cx, cy - r * 0.8);
+        } else if (this.special === 'bomb') {
+          ctx.fillStyle = '#ff5ca8';
+          ctx.font = '800 14px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('💥', cx, cy - r * 0.8);
+        }
 
         ctx.restore();
       }
     }
 
-    // ===== 4. TABULEIRO 8x8 (MATRIZ BIDIMENSIONAL) =====
+    // ===== 4. TABULEIRO COM SUPORTE A SWIPE / ARRASTE =====
     class Board {
       constructor(rows, cols, tileSize) {
         this.rows = rows;
         this.cols = cols;
         this.tileSize = tileSize;
-        this.typesCount = 5; // 5 tipos de cristais
-        this.grid = []; // Matriz 2D
+        this.typesCount = 5;
+        this.grid = [];
         this.initGridWithoutMatches();
       }
 
@@ -516,7 +758,6 @@
         }
       }
 
-      // Garante que o tabuleiro comece SEM combinações de 3 peças já prontas
       initGridWithoutMatches() {
         this.grid = [];
         for (let r = 0; r < this.rows; r++) {
@@ -541,57 +782,77 @@
         return null;
       }
 
-      // Verifica se duas posições são vizinhas ortogonais (acima, abaixo, esquerda ou direita)
       isAdjacent(p1, p2) {
         const dRow = Math.abs(p1.row - p2.row);
         const dCol = Math.abs(p1.col - p2.col);
         return (dRow === 1 && dCol === 0) || (dRow === 0 && dCol === 1);
       }
 
-      // Identifica todas as combinações de 3 ou mais peças na horizontal e vertical
+      // Detecção de Match 3, 4 e 5 em Linhas e Colunas
       findMatches() {
         const matches = new Set();
+        const specialSpawns = []; // Posições onde surgirão peças especiais de 4 ou 5
 
         // 1. Horizontal
         for (let r = 0; r < this.rows; r++) {
-          for (let c = 0; c < this.cols - 2; c++) {
+          let c = 0;
+          while (c < this.cols) {
             const p = this.grid[r][c];
-            if (!p) continue;
-            const t = p.type;
-            if (t === this.grid[r][c + 1]?.type && t === this.grid[r][c + 2]?.type) {
-              matches.add(`${r},${c}`);
-              matches.add(`${r},${c + 1}`);
-              matches.add(`${r},${c + 2}`);
-              // Se tiver 4 ou 5 em linha
-              if (t === this.grid[r][c + 3]?.type) matches.add(`${r},${c + 3}`);
-              if (t === this.grid[r][c + 4]?.type) matches.add(`${r},${c + 4}`);
+            if (!p) { c++; continue; }
+            let matchLen = 1;
+            while (c + matchLen < this.cols && this.grid[r][c + matchLen]?.type === p.type) {
+              matchLen++;
             }
+
+            if (matchLen >= 3) {
+              for (let i = 0; i < matchLen; i++) {
+                matches.add(`${r},${c + i}`);
+              }
+              // Se for Match 4 ou 5, gera especial na posição central do grupo
+              if (matchLen === 4) {
+                specialSpawns.push({ row: r, col: c + 1, type: p.type, special: 'line' });
+              } else if (matchLen >= 5) {
+                specialSpawns.push({ row: r, col: c + 2, type: p.type, special: 'bomb' });
+              }
+            }
+            c += matchLen;
           }
         }
 
         // 2. Vertical
         for (let c = 0; c < this.cols; c++) {
-          for (let r = 0; r < this.rows - 2; r++) {
+          let r = 0;
+          while (r < this.rows) {
             const p = this.grid[r][c];
-            if (!p) continue;
-            const t = p.type;
-            if (t === this.grid[r + 1][c]?.type && t === this.grid[r + 2][c]?.type) {
-              matches.add(`${r},${c}`);
-              matches.add(`${r + 1},${c}`);
-              matches.add(`${r + 2},${c}`);
-              if (t === this.grid[r + 3]?.[c]?.type) matches.add(`${r + 3},${c}`);
-              if (t === this.grid[r + 4]?.[c]?.type) matches.add(`${r + 4},${c}`);
+            if (!p) { r++; continue; }
+            let matchLen = 1;
+            while (r + matchLen < this.rows && this.grid[r + matchLen][c]?.type === p.type) {
+              matchLen++;
             }
+
+            if (matchLen >= 3) {
+              for (let i = 0; i < matchLen; i++) {
+                matches.add(`${r + i},${c}`);
+              }
+              if (matchLen === 4) {
+                specialSpawns.push({ row: r + 1, col: c, type: p.type, special: 'line' });
+              } else if (matchLen >= 5) {
+                specialSpawns.push({ row: r + 2, col: c, type: p.type, special: 'bomb' });
+              }
+            }
+            r += matchLen;
           }
         }
 
-        return Array.from(matches).map(pos => {
-          const [row, col] = pos.split(',').map(Number);
-          return { row, col, piece: this.grid[row][col] };
-        });
+        return {
+          matches: Array.from(matches).map(pos => {
+            const [row, col] = pos.split(',').map(Number);
+            return { row, col, piece: this.grid[row][col] };
+          }),
+          specialSpawns
+        };
       }
 
-      // Troca duas peças na matriz
       swap(p1, p2) {
         this.grid[p1.row][p1.col] = p2;
         this.grid[p2.row][p2.col] = p1;
@@ -601,14 +862,12 @@
         p2.setGridPosition(r1, c1);
       }
 
-      // Aplica gravidade e preenche o topo (Refill/Cascade)
       applyGravityAndRefill() {
         let hasFallen = false;
 
         for (let c = 0; c < this.cols; c++) {
           let emptyRow = this.rows - 1;
 
-          // Desce peças existentes
           for (let r = this.rows - 1; r >= 0; r--) {
             if (this.grid[r][c] !== null) {
               if (emptyRow !== r) {
@@ -621,11 +880,10 @@
             }
           }
 
-          // Spawna novas peças no topo
           for (let r = emptyRow; r >= 0; r--) {
             const newType = Math.floor(Math.random() * this.typesCount);
             const piece = new Piece(r, c, newType, this.tileSize);
-            piece.y = -((emptyRow - r + 1) * this.tileSize); // Começa acima da tela
+            piece.y = -((emptyRow - r + 1) * this.tileSize);
             this.grid[r][c] = piece;
             hasFallen = true;
           }
@@ -652,7 +910,6 @@
       }
 
       render(ctx, selectedPiece) {
-        // Grade sutil de fundo
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
         ctx.lineWidth = 1;
         for (let i = 0; i <= this.cols; i++) {
@@ -666,7 +923,6 @@
           ctx.stroke();
         }
 
-        // Renderiza peças
         for (let r = 0; r < this.rows; r++) {
           for (let c = 0; c < this.cols; c++) {
             const p = this.grid[r][c];
@@ -676,7 +932,56 @@
       }
     }
 
-    // ===== 5. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    // ===== 5. SAGA DAS CORUJAS: DEFINIÇÃO DE FASES E METAS =====
+    const SAGA_LEVELS = [
+      {
+        level: 1,
+        title: "O Despertar da Coruja",
+        desc: "🦉 Colete 12 Corujas Roxas",
+        moves: 20,
+        targetType: 0,
+        targetCount: 12,
+        targetScore: 1000
+      },
+      {
+        level: 2,
+        title: "A Pena Dourada Sagrada",
+        desc: "🪶 Colete 15 Penas Douradas",
+        moves: 20,
+        targetType: 2,
+        targetCount: 15,
+        targetScore: 1800
+      },
+      {
+        level: 3,
+        title: "O Enigma do Cientista",
+        desc: "👓 Colete 16 Corujas Ciano",
+        moves: 18,
+        targetType: 1,
+        targetCount: 16,
+        targetScore: 2400
+      },
+      {
+        level: 4,
+        title: "O Santuário de Rubi",
+        desc: "🔮 Colete 18 Orbes Cósmicos",
+        moves: 22,
+        targetType: 3,
+        targetCount: 18,
+        targetScore: 3200
+      },
+      {
+        level: 5,
+        title: "O Guardião Cósmico",
+        desc: "🦉 Colete 25 Corujas Roxas",
+        moves: 24,
+        targetType: 0,
+        targetCount: 25,
+        targetScore: 5000
+      }
+    ];
+
+    // ===== 6. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
     class Game {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -689,12 +994,19 @@
 
         this.board = new Board(this.rows, this.cols, this.tileSize);
         this.selectedPiece = null;
-        this.isBusy = false; // Trava de clique enquanto anima
+        this.isBusy = false;
 
+        this.currentLevelIndex = parseInt(localStorage.getItem('kruuj_match_level') || '0', 10);
+        if (this.currentLevelIndex >= SAGA_LEVELS.length) this.currentLevelIndex = 0;
+
+        this.levelData = SAGA_LEVELS[this.currentLevelIndex];
         this.score = 0;
-        this.movesLeft = 30; // Limite de 30 movimentos especificado
-        this.bestScore = parseInt(localStorage.getItem('kruuj_match_best') || '0', 10);
+        this.movesLeft = this.levelData.moves;
+        this.progressCount = 0;
         this.particles = [];
+
+        // Controle do Arraste (Swipe)
+        this.dragStart = null;
 
         this.init();
       }
@@ -703,9 +1015,13 @@
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
+        // Eventos de Toque e Mouse com Arraste (Drag/Swipe)
         this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+        this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
+        window.addEventListener('pointerup', () => { this.dragStart = null; });
+        window.addEventListener('pointercancel', () => { this.dragStart = null; });
 
-        this.updateUI();
+        this.loadLevel(this.currentLevelIndex);
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
 
@@ -723,168 +1039,280 @@
         this.board.resize(this.tileSize);
       }
 
-      async onPointerDown(e) {
-        // Bloqueio de cliques durante animação de queda ou explosão
-        if (this.isBusy || this.movesLeft <= 0) return;
+      loadLevel(index) {
+        this.currentLevelIndex = index;
+        localStorage.setItem('kruuj_match_level', String(index));
+        this.levelData = SAGA_LEVELS[index % SAGA_LEVELS.length];
 
+        this.score = 0;
+        this.movesLeft = this.levelData.moves;
+        this.progressCount = 0;
+        this.selectedPiece = null;
+        this.isBusy = false;
+        this.particles = [];
+
+        this.board.initGridWithoutMatches();
+        document.getElementById('endOverlay').classList.remove('active');
+        this.updateUI();
+      }
+
+      onPointerDown(e) {
+        if (this.isBusy || this.movesLeft <= 0) return;
         this.sound.init();
+
         const rect = this.canvas.getBoundingClientRect();
         const col = Math.floor((e.clientX - rect.left) / this.tileSize);
         const row = Math.floor((e.clientY - rect.top) / this.tileSize);
 
-        const clicked = this.board.getPiece(row, col);
-        if (!clicked) return;
+        const piece = this.board.getPiece(row, col);
+        if (!piece) return;
 
-        // 1. Primeiro clique: Seleciona a peça
+        // Registra ponto inicial do arraste
+        this.dragStart = {
+          row,
+          col,
+          clientX: e.clientX,
+          clientY: e.clientY,
+          piece
+        };
+
+        // Suporte alternativo a clique
         if (!this.selectedPiece) {
-          this.selectedPiece = clicked;
+          this.selectedPiece = piece;
           this.sound.playSelect();
-          return;
-        }
-
-        // Se clicou na mesma peça: Desmarca
-        if (this.selectedPiece === clicked) {
+        } else if (this.selectedPiece === piece) {
           this.selectedPiece = null;
-          return;
-        }
-
-        // 2. Segundo clique: Verifica se é vizinha ortogonal
-        if (this.board.isAdjacent(this.selectedPiece, clicked)) {
-          const pieceA = this.selectedPiece;
-          const pieceB = clicked;
+        } else if (this.board.isAdjacent(this.selectedPiece, piece)) {
+          const pA = this.selectedPiece;
+          const pB = piece;
           this.selectedPiece = null;
-
-          await this.attemptSwap(pieceA, pieceB);
+          this.dragStart = null;
+          this.attemptSwap(pA, pB);
         } else {
-          // Se clicou em uma peça distante, muda a seleção para ela
-          this.selectedPiece = clicked;
+          this.selectedPiece = piece;
           this.sound.playSelect();
         }
       }
 
-      // Executa a lógica de troca com validação e "vai e volta" se inválida
-      async attemptSwap(p1, p2) {
-        this.isBusy = true; // Trava o clique do jogador
+      onPointerMove(e) {
+        // Se estiver arrastando e moveu mais de 16px, calcula direção cardinal do swipe
+        if (!this.dragStart || this.isBusy || this.movesLeft <= 0) return;
 
-        // 1. Faz a troca visual
+        const dx = e.clientX - this.dragStart.clientX;
+        const dy = e.clientY - this.dragStart.clientY;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 18) {
+          let targetRow = this.dragStart.row;
+          let targetCol = this.dragStart.col;
+
+          if (Math.abs(dx) > Math.abs(dy)) {
+            targetCol += (dx > 0 ? 1 : -1);
+          } else {
+            targetRow += (dy > 0 ? 1 : -1);
+          }
+
+          const targetPiece = this.board.getPiece(targetRow, targetCol);
+          const startPiece = this.dragStart.piece;
+
+          this.dragStart = null;
+          this.selectedPiece = null;
+
+          if (targetPiece) {
+            this.attemptSwap(startPiece, targetPiece);
+          }
+        }
+      }
+
+      async attemptSwap(p1, p2) {
+        this.isBusy = true;
+
         this.board.swap(p1, p2);
         await this.waitForBoardMovement();
 
-        // 2. Verifica se a troca resultou em match
-        const matches = this.board.findMatches();
+        const { matches } = this.board.findMatches();
 
         if (matches.length > 0) {
-          // Troca válida!
           this.movesLeft--;
           this.updateUI();
           await this.processBoardCascades();
         } else {
-          // Troca INVÁLIDA: Animação rápida de "vai e volta" (Desfaz a troca)
           this.sound.playInvalidSwap();
-          await new Promise(r => setTimeout(r, 120));
+          await new Promise(r => setTimeout(r, 110));
 
           this.board.swap(p1, p2);
           await this.waitForBoardMovement();
         }
 
-        // Checa se os movimentos acabaram
-        if (this.movesLeft <= 0) {
-          this.gameOver();
-        }
+        // Verifica vitória da fase ou fim de movimentos
+        this.checkLevelStatus();
 
-        this.isBusy = false; // Libera o clique do jogador
+        this.isBusy = false;
       }
 
-      // Aguarda as peças terminarem o deslocamento visual suave
       async waitForBoardMovement() {
         while (this.board.isAnyPieceMoving()) {
           await new Promise(r => setTimeout(r, 16));
         }
       }
 
-      // Processa a destruição, cascata e novos combos em cadeia
       async processBoardCascades() {
-        let matches = this.board.findMatches();
+        let matchResult = this.board.findMatches();
         let comboCount = 0;
 
-        while (matches.length > 0) {
+        while (matchResult.matches.length > 0) {
           comboCount++;
-          this.sound.playMatch(comboCount);
 
-          // Pontuação por combo
-          this.score += matches.length * 15 * comboCount;
-          this.updateUI();
+          const specialSpawns = matchResult.specialSpawns;
+          if (specialSpawns.length > 0) {
+            this.sound.playSpecialCreate();
+          } else {
+            this.sound.playMatch(comboCount);
+          }
 
-          // Destrói peças combinadas e gera explosão de poeira estelar
-          matches.forEach(m => {
-            const piece = this.board.grid[m.row][m.col];
+          // Computa pontuação e objetivos
+          matchResult.matches.forEach(m => {
+            const piece = m.piece;
             if (piece) {
-              const colors = ['#38e8ff', '#8b5cff', '#ffb020', '#ef4444', '#10b981'];
+              if (piece.type === this.levelData.targetType) {
+                this.progressCount++;
+              }
+              const colors = ['#8b5cff', '#06b6d4', '#ffb020', '#ef4444', '#10b981'];
               this.spawnExplosion(piece.x + this.tileSize / 2, piece.y + this.tileSize / 2, colors[piece.type]);
+
+              // Se a peça era especial, detona raio ou explosão
+              if (piece.special === 'line') {
+                this.sound.playSpecialBlast();
+                this.clearRowAndColumn(m.row, m.col);
+              } else if (piece.special === 'bomb') {
+                this.sound.playSpecialBlast();
+                this.clearArea(m.row, m.col);
+              }
+
               this.board.grid[m.row][m.col] = null;
             }
           });
 
-          await new Promise(r => setTimeout(r, 140));
+          this.score += matchResult.matches.length * 20 * comboCount;
+          this.updateUI();
 
-          // Queda de peças e novos cristais no topo (Cascade/Refill)
+          // Cria novas peças especiais nos pontos de Match 4 e Match 5
+          specialSpawns.forEach(sp => {
+            if (this.board.grid[sp.row][sp.col] === null) {
+              this.board.grid[sp.row][sp.col] = new Piece(sp.row, sp.col, sp.type, this.tileSize, sp.special);
+            }
+          });
+
+          await new Promise(r => setTimeout(r, 130));
+
           this.board.applyGravityAndRefill();
           await this.waitForBoardMovement();
 
-          // Aguarda um instante e re-checa se surgiram novos combos
-          await new Promise(r => setTimeout(r, 100));
-          matches = this.board.findMatches();
+          await new Promise(r => setTimeout(r, 90));
+          matchResult = this.board.findMatches();
+        }
+      }
+
+      clearRowAndColumn(row, col) {
+        for (let c = 0; c < this.cols; c++) {
+          if (this.board.grid[row][c]) {
+            this.spawnExplosion(this.board.grid[row][c].x + this.tileSize / 2, this.board.grid[row][c].y + this.tileSize / 2, '#fde047');
+            this.board.grid[row][c] = null;
+          }
+        }
+        for (let r = 0; r < this.rows; r++) {
+          if (this.board.grid[r][col]) {
+            this.spawnExplosion(this.board.grid[r][col].x + this.tileSize / 2, this.board.grid[r][col].y + this.tileSize / 2, '#fde047');
+            this.board.grid[r][col] = null;
+          }
+        }
+      }
+
+      clearArea(centerRow, centerCol) {
+        for (let r = centerRow - 1; r <= centerRow + 1; r++) {
+          for (let c = centerCol - 1; c <= centerCol + 1; c++) {
+            if (r >= 0 && r < this.rows && c >= 0 && c < this.cols && this.board.grid[r][c]) {
+              this.spawnExplosion(this.board.grid[r][c].x + this.tileSize / 2, this.board.grid[r][c].y + this.tileSize / 2, '#ff5ca8');
+              this.board.grid[r][c] = null;
+            }
+          }
         }
       }
 
       spawnExplosion(x, y, color) {
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 8; i++) {
           this.particles.push(new Particle(x, y, color));
         }
       }
 
-      resetGame() {
-        this.score = 0;
-        this.movesLeft = 30;
-        this.selectedPiece = null;
-        this.isBusy = false;
-        this.particles = [];
-        this.board.initGridWithoutMatches();
-        document.getElementById('endOverlay').classList.remove('active');
-        this.updateUI();
+      checkLevelStatus() {
+        const isGoalMet = this.progressCount >= this.levelData.targetCount;
+
+        if (isGoalMet) {
+          // Vitória da Fase!
+          this.sound.playWin();
+          const stars = this.movesLeft >= 6 ? '⭐⭐⭐' : (this.movesLeft >= 2 ? '⭐⭐' : '⭐');
+
+          document.getElementById('ovStars').textContent = stars;
+          document.getElementById('ovTitle').textContent = 'FASE CONCLUÍDA!';
+          document.getElementById('ovDesc').textContent = `Excelente trabalho! Você concluiu a ${this.levelData.title} e restaurou o Santuário!`;
+          document.getElementById('ovFinalScore').textContent = this.score;
+          document.getElementById('ovRemainingMoves').textContent = this.movesLeft;
+          document.getElementById('btnOverlayNext').textContent = 'PRÓXIMA FASE ⏩';
+          document.getElementById('btnOverlayNext').onclick = () => this.nextLevel();
+
+          document.getElementById('endOverlay').classList.add('active');
+
+          try {
+            window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-match', saveData: { level: this.currentLevelIndex + 1 }, score: this.score }, '*');
+          } catch(e) {}
+        } else if (this.movesLeft <= 0) {
+          // Derrota (Movimentos esgotados)
+          document.getElementById('ovStars').textContent = '❌';
+          document.getElementById('ovTitle').textContent = 'MOVIMENTOS ESGOTADOS!';
+          document.getElementById('ovDesc').textContent = `Você não conseguiu atingir a meta da ${this.levelData.title}. Tente novamente!`;
+          document.getElementById('ovFinalScore').textContent = this.score;
+          document.getElementById('ovRemainingMoves').textContent = '0';
+          document.getElementById('btnOverlayNext').textContent = 'TENTAR NOVAMENTE 🔄';
+          document.getElementById('btnOverlayNext').onclick = () => this.restartLevel();
+
+          document.getElementById('endOverlay').classList.add('active');
+        }
       }
 
-      gameOver() {
-        this.bestScore = Math.max(this.bestScore, this.score);
-        localStorage.setItem('kruuj_match_best', String(this.bestScore));
+      nextLevel() {
+        this.loadLevel((this.currentLevelIndex + 1) % SAGA_LEVELS.length);
+      }
 
-        document.getElementById('ovFinalScore').textContent = this.score;
-        document.getElementById('ovBestScore').textContent = this.bestScore;
-        document.getElementById('endOverlay').classList.add('active');
+      restartLevel() {
+        this.loadLevel(this.currentLevelIndex);
+      }
 
-        try {
-          window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-match', score: this.score, bestScore: this.bestScore }, '*');
-          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-match', saveData: { bestScore: this.bestScore }, score: this.score }, '*');
-        } catch(e) {}
+      onOverlayAction() {
+        if (this.progressCount >= this.levelData.targetCount) {
+          this.nextLevel();
+        } else {
+          this.restartLevel();
+        }
       }
 
       updateUI() {
+        document.getElementById('levelTitle').textContent = `FASE ${this.levelData.level}: ${this.levelData.title}`;
         document.getElementById('scoreVal').textContent = this.score;
         document.getElementById('movesVal').textContent = this.movesLeft;
+        document.getElementById('missionDesc').textContent = this.levelData.desc;
+        document.getElementById('missionProgress').textContent = `${Math.min(this.levelData.targetCount, this.progressCount)} / ${this.levelData.targetCount}`;
       }
 
       loop() {
         requestAnimationFrame(this.loop);
 
-        // 1. Limpa o Canvas
         this.ctx.fillStyle = '#0a0d1f';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 2. Atualiza e Renderiza o Tabuleiro
         this.board.update();
         this.board.render(this.ctx, this.selectedPiece);
 
-        // 3. Atualiza e Renderiza Partículas de Explosão
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const pt = this.particles[i];
           pt.update();

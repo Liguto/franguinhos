@@ -11,6 +11,7 @@
       --cyan: #38e8ff;
       --purple: #8b5cff;
       --gold: #ffb020;
+      --pink: #ff5ca8;
       --green: #10b981;
       --text: #f8fafc;
       --text-muted: #94a3b8;
@@ -36,36 +37,119 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px 20px 16px;
+      padding: 12px 14px 18px 14px;
     }
 
-    /* Cabeçalho da Rodada */
+    /* Cabeçalho da Rodada (com recuo de 68px no mobile para não sobrepor o botão Poki) */
     .header-bar {
       width: 100%;
       max-width: 440px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .game-logo {
-      font-size: 1.35rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.01em;
+      gap: 6px;
+      z-index: 10;
     }
 
     .level-badge {
       background: rgba(13, 18, 36, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 9999px;
-      padding: 4px 14px;
-      font-size: 0.88rem;
+      padding: 4px 12px;
+      font-size: 0.82rem;
       font-weight: 800;
       color: var(--cyan);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
+    }
+
+    .stats-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .stat-chip {
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .stat-chip span {
+      color: #fff;
+    }
+
+    .feather-chip {
+      border-color: rgba(255, 176, 32, 0.35);
+    }
+
+    .feather-chip span {
+      color: var(--gold);
+    }
+
+    @media (max-width: 768px) {
+      .header-bar {
+        padding-left: 68px !important;
+      }
+
+      .stat-chip {
+        padding: 3px 8px !important;
+        font-size: 0.75rem !important;
+      }
+    }
+
+    /* Barra de Ações Rápidas: Dica da Coruja e Embaralhar */
+    .actions-bar {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      margin-top: 4px;
+      z-index: 10;
+    }
+
+    .btn-powerup {
+      background: rgba(13, 18, 36, 0.85);
+      border: 1.5px solid rgba(56, 232, 255, 0.35);
+      color: #fff;
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 0 15px rgba(56, 232, 255, 0.2);
+      transition: all 0.2s;
+    }
+
+    .btn-powerup:hover:not(:disabled) {
+      background: rgba(56, 232, 255, 0.2);
+      border-color: var(--cyan);
+      transform: scale(1.05);
+    }
+
+    .btn-powerup:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-powerup .cost {
+      color: var(--gold);
+      font-size: 0.7rem;
     }
 
     /* Grade de Palavras-Cruzadas (Crossword Slots em HTML/CSS) */
@@ -77,33 +161,31 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
+      gap: 8px;
+      margin: 6px 0;
     }
 
     .word-row {
       display: flex;
-      gap: 6px;
+      gap: 5px;
     }
 
-    /* Blocos estilo madeira/pedra rúnica */
     .slot-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
       background: rgba(22, 28, 54, 0.65);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: transparent;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
-      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Bloco Revelado com Brilho Dourado e Efeito de Luz */
     .slot-box.revealed {
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(139, 92, 246, 0.4));
       border-color: var(--cyan);
@@ -112,10 +194,17 @@
       transform: scale(1.06);
     }
 
+    .slot-box.hinted {
+      background: rgba(255, 176, 32, 0.25);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 12px rgba(255, 176, 32, 0.4);
+    }
+
     /* Palavra sendo formada em tempo real durante o arraste */
     .preview-box {
-      height: 36px;
-      font-size: 1.35rem;
+      height: 32px;
+      font-size: 1.3rem;
       font-weight: 800;
       letter-spacing: 3px;
       color: var(--gold);
@@ -125,10 +214,10 @@
       justify-content: center;
     }
 
-    /* Toast Flutuante de Palavra Bônus / Feedback */
+    /* Toast Flutuante de Feedback */
     .bonus-toast {
       position: fixed;
-      top: 56px;
+      top: 54px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
       background: rgba(13, 18, 36, 0.95);
@@ -154,16 +243,16 @@
     /* Roda Mística de Letras (Canvas + Botão de Embaralhar) */
     .wheel-wrapper {
       position: relative;
-      width: 250px;
-      height: 230px;
+      width: 240px;
+      height: 220px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     canvas#wheelCanvas {
-      width: 220px;
-      height: 220px;
+      width: 210px;
+      height: 210px;
       display: block;
       cursor: crosshair;
     }
@@ -171,7 +260,7 @@
     .btn-shuffle {
       position: absolute;
       left: 0;
-      bottom: 20px;
+      bottom: 14px;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -199,6 +288,7 @@
       inset: 0;
       background: radial-gradient(circle at center, rgba(13, 18, 36, 0.94) 0%, rgba(7, 9, 20, 0.98) 100%);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -217,7 +307,7 @@
     }
 
     h1 {
-      font-size: clamp(30px, 7vw, 46px);
+      font-size: clamp(28px, 7vw, 44px);
       font-weight: 800;
       background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
       -webkit-background-clip: text;
@@ -226,11 +316,48 @@
     }
 
     p {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: var(--text-muted);
       max-width: 400px;
       line-height: 1.45;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+    }
+
+    .stars-display {
+      font-size: 2.2rem;
+      margin-bottom: 12px;
+      letter-spacing: 4px;
+    }
+
+    .stats-summary {
+      display: flex;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 24px;
+      margin-bottom: 20px;
+      justify-content: space-around;
+      width: min(85vw, 360px);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-item .label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stat-item .val {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--cyan);
     }
 
     .btn-action {
@@ -238,9 +365,10 @@
       color: #fff;
       border: none;
       border-radius: 9999px;
-      padding: 12px 38px;
+      padding: 13px 40px;
       font-size: 1.15rem;
       font-weight: 800;
+      font-family: inherit;
       cursor: pointer;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
       transition: all 0.2s;
@@ -254,11 +382,19 @@
 <body>
   <!-- Cabeçalho -->
   <div class="header-bar">
-    <div class="game-logo">KRUUJ WORD</div>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <div class="level-badge" id="scoreIndicator" style="color: var(--gold);">0 PTS</div>
-      <div class="level-badge" id="levelIndicator">FASE 1</div>
+    <div class="level-badge" id="levelIndicator">FASE 1</div>
+    <div class="stats-group">
+      <div class="stat-chip feather-chip">🪶 <span id="feathersVal">50</span></div>
+      <div class="stat-chip">PTS: <span id="scoreVal">0</span></div>
     </div>
+  </div>
+
+  <!-- Barra de Ações: Dica da Coruja e Embaralhar -->
+  <div class="actions-bar">
+    <button class="btn-powerup" id="btnHint" onclick="window.wordGame.useOwlHint()" title="Revela uma letra no tabuleiro">
+      <span>🦉💡 DICA</span> <span class="cost">(20 🪶)</span>
+    </button>
+    <div class="level-badge" id="themeBadge" style="color: var(--gold); font-size: 0.76rem;">NINHO DA SABEDORIA</div>
   </div>
 
   <!-- Toast Flutuante de Feedback / Palavra Bônus -->
@@ -276,11 +412,24 @@
     <canvas id="wheelCanvas" width="220" height="220"></canvas>
   </div>
 
-  <!-- Overlay -->
+  <!-- Overlay de Início e Vitória -->
   <div class="game-overlay active" id="gameOverlay">
+    <div class="stars-display" id="ovStars">⭐⭐⭐</div>
     <h1 id="ovTitle">O ENIGMA DAS CORUJAS</h1>
-    <p id="ovDesc">Deslize o cursor ou o dedo conectando as letras místicas para decifrar todas as palavras secretas do tabuleiro!</p>
-    <button class="btn-action" onclick="window.wordGame.startGame()">DESVENDAR 🦉</button>
+    <p id="ovDesc">Deslize o cursor ou o dedo conectando as letras místicas para decifrar as palavras secretas do tabuleiro! Ganhe 🪶 Penas Cósmicas para usar as Dicas da Coruja 🦉💡!</p>
+    
+    <div class="stats-summary" id="ovStats" style="display: none;">
+      <div class="stat-item">
+        <span class="label">Pontos da Fase</span>
+        <span class="val" id="ovScore">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Penas Coletadas</span>
+        <span class="val" id="ovFeathers" style="color: var(--gold);">0</span>
+      </div>
+    </div>
+
+    <button class="btn-action" id="btnOverlayAction" onclick="window.wordGame.onOverlayAction()">DESVENDAR 🦉</button>
   </div>
 
   <!-- ================================================================= -->
@@ -295,17 +444,18 @@
 
       init() {
         if (!this.ctx) {
-          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.ctx = new AudioContextClass();
         }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
         }
       }
 
-      // Tom melódico suave por letra conectada (escala musical crescente)
       playLetterTone(index = 0) {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -327,10 +477,10 @@
         } catch(e) {}
       }
 
-      // Som de palavra correta descoberta (Acorde triunfante)
       playWordCorrect() {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           [587, 740, 880].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -347,10 +497,49 @@
         } catch(e) {}
       }
 
-      // Som de embaralhar (Swoosh)
+      playHint() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.2);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch(e) {}
+      }
+
+      playWin() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.35);
+          });
+        } catch(e) {}
+      }
+
       playShuffle() {
         try {
           this.init();
+          if (!this.ctx) return;
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
@@ -384,7 +573,6 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Fundo do botão da letra
         ctx.fillStyle = isSelected ? '#8b5cff' : 'rgba(22, 28, 54, 0.85)';
         ctx.strokeStyle = isSelected ? '#38e8ff' : 'rgba(255, 255, 255, 0.2)';
         ctx.lineWidth = 2.5;
@@ -399,7 +587,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // Letra tipográfica em alto contraste
         ctx.fillStyle = '#ffffff';
         ctx.font = "800 20px 'Baloo 2', sans-serif";
         ctx.textAlign = 'center';
@@ -457,7 +644,6 @@
           this.currentPointer = pos;
 
           const hitIndex = this.getHitIndex(pos.x, pos.y);
-          // Impede conectar a mesma letra duas vezes na mesma jogada
           if (hitIndex !== -1 && !this.selectedIndices.includes(hitIndex)) {
             this.selectedIndices.push(hitIndex);
             this.onConnectCallback(this.getSelectedWord(), this.selectedIndices.length - 1);
@@ -494,7 +680,6 @@
         return this.selectedIndices.map(i => this.letters[i].char).join('');
       }
 
-      // Distribuição trigonométrica das letras em círculo
       setLetters(chars) {
         this.letters = [];
         const n = chars.length;
@@ -527,7 +712,7 @@
         this.ctx.fill();
         this.ctx.stroke();
 
-        // 2. Linhas de Luz (Ciano) Conectando as Letras em Tempo Real
+        // 2. Linhas de Luz Conectando as Letras
         if (this.selectedIndices.length > 0) {
           this.ctx.save();
           this.ctx.strokeStyle = '#38e8ff';
@@ -544,7 +729,6 @@
             else this.ctx.lineTo(node.x, node.y);
           });
 
-          // Linha elástica seguindo o dedo/cursor até a posição atual
           if (this.isDragging) {
             this.ctx.lineTo(this.currentPointer.x, this.currentPointer.y);
           }
@@ -560,52 +744,59 @@
       }
     }
 
-    // ===== 4. CLASSE PRINCIPAL DO JOGO =====
+    // ===== 4. CAMPANHA DE FASES E DICIONÁRIOS TEMÁTICOS =====
+    const WORD_LEVELS = [
+      {
+        level: 1,
+        theme: "NINHO DA SABEDORIA",
+        letters: ['A', 'M', 'O', 'R'],
+        requiredSlots: [4, 4, 3, 3],
+        secretBonus: 'RAMO',
+        validWords: ['AMOR', 'ROMA', 'MORA', 'RAMO', 'ORAM', 'MAR', 'AMO', 'ORA', 'ROA', 'MOA', 'ARO']
+      },
+      {
+        level: 2,
+        theme: "O SANTUÁRIO DA CORUJA",
+        letters: ['C', 'O', 'R', 'U', 'J', 'A'],
+        requiredSlots: [6, 4, 4, 3, 3],
+        secretBonus: 'CORUJA',
+        validWords: ['CORUJA', 'ARCO', 'ROCA', 'JATO', 'JURA', 'COAR', 'OCRA', 'ORCA', 'RUA', 'OCA', 'COR', 'COA', 'AJO']
+      },
+      {
+        level: 3,
+        theme: "AS PENAS SAGRADAS",
+        letters: ['P', 'E', 'N', 'A', 'S'],
+        requiredSlots: [5, 4, 4, 3, 3],
+        secretBonus: 'PENAS',
+        validWords: ['PENAS', 'PENA', 'PESA', 'SENA', 'SEPA', 'PAES', 'PAN', 'PAZ', 'PAS', 'NAS']
+      },
+      {
+        level: 4,
+        theme: "CONSTELAÇÃO ESTELAR",
+        letters: ['E', 'S', 'T', 'R', 'E', 'L', 'A'],
+        requiredSlots: [7, 5, 4, 4, 3],
+        secretBonus: 'ESTRELA',
+        validWords: ['ESTRELA', 'RESTA', 'LESTE', 'TELA', 'REAL', 'SELA', 'SETA', 'RATO', 'LAR', 'ERA', 'SAL', 'ELA', 'ATE', 'TER']
+      },
+      {
+        level: 5,
+        theme: "ALQUIMIA CÓSMICA",
+        letters: ['S', 'O', 'L', 'A', 'R'],
+        requiredSlots: [5, 4, 4, 3, 3],
+        secretBonus: 'SOLAR',
+        validWords: ['SOLAR', 'ROSAL', 'SOLA', 'ROSA', 'ORAL', 'LAR', 'SOL', 'SAL', 'OLA', 'ALO']
+      }
+    ];
+
+    // ===== 5. CLASSE PRINCIPAL DO JOGO =====
     class Game {
       constructor() {
         this.sound = new SoundController();
         this.score = 0;
+        this.feathers = parseInt(localStorage.getItem('kruuj_words_feathers') || '60', 10);
+        this.currentLevelIndex = parseInt(localStorage.getItem('kruuj_words_level') || '0', 10);
+        if (this.currentLevelIndex >= WORD_LEVELS.length) this.currentLevelIndex = 0;
 
-        // Banco de Dados Multinível com Slots Adaptáveis e Dicionário de Anagramas Reais
-        this.levelDatabase = [
-          {
-            letters: ['A', 'M', 'O', 'R'],
-            requiredSlots: [4, 4, 3, 3], // 2 palavras de 4 letras e 2 de 3 letras
-            validWords: [
-              'AMOR', 'ROMA', 'MORA', 'RAMO', 'ORAM', 'MAR', 'AMO', 'ORA', 'ROA', 'MOA', 'ARO'
-            ]
-          },
-          {
-            letters: ['C', 'O', 'R', 'U', 'J', 'A'],
-            requiredSlots: [6, 4, 4, 3, 3],
-            validWords: [
-              'CORUJA', 'ARCO', 'ROCA', 'JATO', 'JURA', 'COAR', 'OCRA', 'ORCA', 'RUA', 'OCA', 'COR', 'COA', 'AJO'
-            ]
-          },
-          {
-            letters: ['P', 'E', 'N', 'A', 'S'],
-            requiredSlots: [5, 4, 4, 3, 3],
-            validWords: [
-              'PENAS', 'PENA', 'PESA', 'SENA', 'SEPA', 'PAES', 'PAN', 'PAZ', 'PAS', 'NAS'
-            ]
-          },
-          {
-            letters: ['E', 'S', 'T', 'R', 'E', 'L', 'A'],
-            requiredSlots: [7, 5, 4, 4, 3],
-            validWords: [
-              'ESTRELA', 'RESTA', 'LESTE', 'TELA', 'REAL', 'SELA', 'SETA', 'RATO', 'LAR', 'ERA', 'SAL', 'ELA', 'ATE', 'TER'
-            ]
-          },
-          {
-            letters: ['S', 'O', 'L', 'A', 'R'],
-            requiredSlots: [5, 4, 4, 3, 3],
-            validWords: [
-              'SOLAR', 'ROSAL', 'SOLA', 'ROSA', 'ORAL', 'LAR', 'SOL', 'SAL', 'OLA', 'ALO'
-            ]
-          }
-        ];
-
-        this.currentLevelIndex = 0;
         this.foundWords = new Set();
         this.slots = [];
         this.currentChars = [];
@@ -625,7 +816,7 @@
       startGame() {
         this.sound.init();
         document.getElementById('gameOverlay').classList.remove('active');
-        this.loadLevel(0);
+        this.loadLevel(this.currentLevelIndex);
 
         try {
           window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-words' }, '*');
@@ -633,24 +824,27 @@
       }
 
       loadLevel(index) {
-        this.currentLevelIndex = index % this.levelDatabase.length;
-        const levelData = this.levelDatabase[this.currentLevelIndex];
+        this.currentLevelIndex = index % WORD_LEVELS.length;
+        localStorage.setItem('kruuj_words_level', String(this.currentLevelIndex));
 
+        const levelData = WORD_LEVELS[this.currentLevelIndex];
         this.currentChars = [...levelData.letters];
         this.foundWords = new Set();
-        document.getElementById('levelIndicator').textContent = `FASE ${this.currentLevelIndex + 1}`;
+
+        document.getElementById('levelIndicator').textContent = `FASE ${levelData.level}`;
+        document.getElementById('themeBadge').textContent = levelData.theme;
         document.getElementById('wordPreview').textContent = '';
 
-        // Monta os slots vazios adaptáveis por comprimento de palavra
         this.slots = levelData.requiredSlots.map((len, idx) => ({
           id: idx,
           length: len,
-          word: null
+          word: null,
+          hintedLetters: {} // Posições reveladas pela Dica
         }));
 
         this.buildCrosswordBoard();
         this.wheel.setLetters(this.currentChars);
-        this.updateScore();
+        this.updateUI();
       }
 
       buildCrosswordBoard() {
@@ -667,6 +861,7 @@
           for (let i = 0; i < slot.length; i++) {
             const box = document.createElement('div');
             box.className = 'slot-box';
+            box.id = `box-${slot.id}-${i}`;
             box.textContent = '';
             row.appendChild(box);
           }
@@ -687,9 +882,57 @@
         }, 1800);
       }
 
-      updateScore() {
-        const scoreEl = document.getElementById('scoreIndicator');
-        if (scoreEl) scoreEl.textContent = `${this.score} PTS`;
+      useOwlHint() {
+        if (this.feathers < 20) {
+          this.showToast('⚠️ Penas insuficientes! Encontre palavras para ganhar mais.');
+          return;
+        }
+
+        // Procura um slot vazio para revelar uma letra
+        const uncompletedSlots = this.slots.filter(s => !s.word);
+        if (uncompletedSlots.length === 0) return;
+
+        const levelData = WORD_LEVELS[this.currentLevelIndex];
+        // Encontra uma palavra válida do tamanho do slot que ainda não foi revelada
+        const targetSlot = uncompletedSlots[0];
+        const candidateWords = levelData.validWords.filter(w => w.length === targetSlot.length && !this.foundWords.has(w));
+        const chosenWord = candidateWords[0] || levelData.validWords.find(w => w.length === targetSlot.length);
+
+        if (!chosenWord) return;
+
+        // Acha o primeiro caractere ainda não revelado
+        let hintIndex = -1;
+        for (let i = 0; i < chosenWord.length; i++) {
+          if (!targetSlot.hintedLetters[i]) {
+            hintIndex = i;
+            break;
+          }
+        }
+
+        if (hintIndex !== -1) {
+          this.feathers -= 20;
+          localStorage.setItem('kruuj_words_feathers', String(this.feathers));
+          targetSlot.hintedLetters[hintIndex] = chosenWord[hintIndex];
+
+          this.sound.playHint();
+          const box = document.getElementById(`box-${targetSlot.id}-${hintIndex}`);
+          if (box) {
+            box.textContent = chosenWord[hintIndex];
+            box.classList.add('hinted');
+          }
+
+          this.showToast(`🦉 A Coruja revelou a letra "${chosenWord[hintIndex]}"! (-20 🪶)`);
+          this.updateUI();
+        }
+      }
+
+      updateUI() {
+        document.getElementById('scoreVal').textContent = `${this.score}`;
+        document.getElementById('feathersVal').textContent = `${this.feathers}`;
+        const btnHint = document.getElementById('btnHint');
+        if (btnHint) {
+          btnHint.disabled = (this.feathers < 20);
+        }
       }
 
       shuffleLetters() {
@@ -702,28 +945,32 @@
         if (!word || word.length < 2) return;
 
         word = word.trim().toUpperCase();
-        const levelData = this.levelDatabase[this.currentLevelIndex];
+        const levelData = WORD_LEVELS[this.currentLevelIndex];
 
-        // 1. Checa se já foi encontrada
         if (this.foundWords.has(word)) {
           this.showToast(`⚠️ "${word}" já foi encontrada!`);
           return;
         }
 
-        // 2. Valida se é uma palavra real existente no dicionário do nível
         if (!levelData.validWords.includes(word)) {
           this.showToast(`❌ "${word}" não reconhecida`);
           return;
         }
 
-        // 3. Procura o primeiro slot vazio compatível com o tamanho da palavra encontrada
+        const isSecret = (word === levelData.secretBonus);
         const emptySlot = this.slots.find(s => s.length === word.length && !s.word);
 
         if (emptySlot) {
-          // Adapta e preenche o slot disponível!
           emptySlot.word = word;
           this.foundWords.add(word);
-          this.score += word.length * 25;
+
+          const earnedScore = word.length * 30 + (isSecret ? 100 : 0);
+          const earnedFeathers = word.length * 5 + (isSecret ? 25 : 0);
+
+          this.score += earnedScore;
+          this.feathers += earnedFeathers;
+          localStorage.setItem('kruuj_words_feathers', String(this.feathers));
+
           this.sound.playWordCorrect();
 
           const row = document.getElementById(`slot-row-${emptySlot.id}`);
@@ -731,27 +978,67 @@
             const boxes = row.querySelectorAll('.slot-box');
             boxes.forEach((b, i) => {
               b.textContent = word[i];
+              b.classList.remove('hinted');
               b.classList.add('revealed');
             });
           }
 
-          this.showToast(`✨ Encontrou: ${word}! (+${word.length * 25} pts)`);
-          this.updateScore();
+          if (isSecret) {
+            this.showToast(`👑 PALAVRA SAGRADA: ${word}! (+${earnedScore} pts, +${earnedFeathers} 🪶)`, true);
+          } else {
+            this.showToast(`✨ Encontrou: ${word}! (+${earnedScore} pts, +${earnedFeathers} 🪶)`);
+          }
 
-          // Se completou todos os slots da fase: avança de nível
+          this.updateUI();
+
+          // Se completou todos os slots da fase: Vitória!
           if (this.slots.every(s => s.word !== null)) {
             setTimeout(() => {
-              this.loadLevel(this.currentLevelIndex + 1);
-            }, 950);
+              this.levelCompleted();
+            }, 800);
           }
         } else {
-          // Se todos os slots desse tamanho já foram preenchidos,
-          // ou for uma palavra real extra: conta como PALAVRA BÔNUS!
+          // Palavra bônus extra
           this.foundWords.add(word);
           this.score += word.length * 15;
+          this.feathers += 8;
+          localStorage.setItem('kruuj_words_feathers', String(this.feathers));
+
           this.sound.playWordCorrect();
-          this.showToast(`⭐ Palavra Bônus: ${word}! (+${word.length * 15} pts)`, true);
-          this.updateScore();
+          this.showToast(`⭐ Palavra Bônus: ${word}! (+${word.length * 15} pts, +8 🪶)`, true);
+          this.updateUI();
+        }
+      }
+
+      levelCompleted() {
+        this.sound.playWin();
+
+        const levelData = WORD_LEVELS[this.currentLevelIndex];
+        const bonusFeathers = 35;
+        this.feathers += bonusFeathers;
+        localStorage.setItem('kruuj_words_feathers', String(this.feathers));
+
+        document.getElementById('ovStars').textContent = '⭐⭐⭐';
+        document.getElementById('ovTitle').textContent = 'FASE CONCLUÍDA!';
+        document.getElementById('ovDesc').textContent = `Sensacional! Você desvendou todas as palavras do "${levelData.theme}" e faturou +${bonusFeathers} Penas Cósmicas!`;
+        document.getElementById('ovScore').textContent = this.score;
+        document.getElementById('ovFeathers').textContent = `+${bonusFeathers} 🪶`;
+        document.getElementById('ovStats').style.display = 'flex';
+        document.getElementById('btnOverlayAction').textContent = 'PRÓXIMA FASE ⏩';
+
+        document.getElementById('gameOverlay').classList.add('active');
+
+        try {
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-words', saveData: { level: this.currentLevelIndex + 1, feathers: this.feathers }, score: this.score }, '*');
+        } catch(e) {}
+      }
+
+      onOverlayAction() {
+        if (this.slots.length > 0 && this.slots.every(s => s.word !== null)) {
+          this.loadLevel(this.currentLevelIndex + 1);
+          document.getElementById('gameOverlay').classList.remove('active');
+        } else {
+          this.startGame();
         }
       }
     }
