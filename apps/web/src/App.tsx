@@ -4125,40 +4125,42 @@ export default function App() {
         </div>
       </footer>
 
-      {/* --- MOBILE BOTTOM NAVIGATION BAR --- */}
-      <nav className="kruuj-bottom-bar">
-        <button 
-          className={`kruuj-bottom-btn ${view === 'home' ? 'active' : ''}`}
-          onClick={() => { setView('home'); setSelectedGame(null); }}
-        >
-          <Gamepad2 className="w-5 h-5" />
-          <span>Início</span>
-        </button>
+      {/* --- MOBILE BOTTOM NAVIGATION BAR (Oculta durante gameplay para desobstruir os controles do jogo) --- */}
+      {!selectedGame && (
+        <nav className="kruuj-bottom-bar">
+          <button 
+            className={`kruuj-bottom-btn ${view === 'home' ? 'active' : ''}`}
+            onClick={() => { setView('home'); setSelectedGame(null); }}
+          >
+            <Gamepad2 className="w-5 h-5" />
+            <span>Início</span>
+          </button>
 
-        <button 
-          className={`kruuj-bottom-btn ${view === 'explore' ? 'active' : ''}`}
-          onClick={() => { setView('explore'); setSelectedGame(null); }}
-        >
-          <Compass className="w-5 h-5" />
-          <span>Explorar</span>
-        </button>
+          <button 
+            className={`kruuj-bottom-btn ${view === 'explore' ? 'active' : ''}`}
+            onClick={() => { setView('explore'); setSelectedGame(null); }}
+          >
+            <Compass className="w-5 h-5" />
+            <span>Explorar</span>
+          </button>
 
-        <button 
-          className={`kruuj-bottom-btn ${view === 'favorites' ? 'active' : ''}`}
-          onClick={() => { setView('favorites'); setSelectedGame(null); }}
-        >
-          <Heart className={`w-5 h-5 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
-          <span>Favoritos</span>
-        </button>
+          <button 
+            className={`kruuj-bottom-btn ${view === 'favorites' ? 'active' : ''}`}
+            onClick={() => { setView('favorites'); setSelectedGame(null); }}
+          >
+            <Heart className={`w-5 h-5 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
+            <span>Favoritos</span>
+          </button>
 
-        <button 
-          className={`kruuj-bottom-btn ${view === 'profile' ? 'active' : ''}`}
-          onClick={() => { setView('profile'); setSelectedGame(null); }}
-        >
-          <User className="w-5 h-5" />
-          <span>Perfil</span>
-        </button>
-      </nav>
+          <button 
+            className={`kruuj-bottom-btn ${view === 'profile' ? 'active' : ''}`}
+            onClick={() => { setView('profile'); setSelectedGame(null); }}
+          >
+            <User className="w-5 h-5" />
+            <span>Perfil</span>
+          </button>
+        </nav>
+      )}
 
 
 

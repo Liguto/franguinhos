@@ -8,8 +8,8 @@
   <style>
     :root {
       --bg-dark: #070914;
-      --bg-sidebar: #0d1224;
-      --bg-card: rgba(22, 28, 54, 0.7);
+      --bg-dock: rgba(13, 18, 36, 0.94);
+      --bg-card: rgba(22, 28, 54, 0.85);
       --border-color: rgba(255, 255, 255, 0.12);
       --cyan: #38e8ff;
       --purple: #8b5cff;
@@ -41,31 +41,27 @@
       font-family: 'Baloo 2', sans-serif;
     }
 
-    /* Layout Principal (Web PC: Sidebar | Mobile: Bottom Dock) */
-    #app-layout {
-      display: flex;
+    /* Container Principal do Jogo (Focado na Tela Limpa Estilo Bloons TD 6) */
+    #game-container {
+      position: relative;
       width: 100vw;
       height: 100vh;
-      position: relative;
-    }
-
-    #canvas-container {
-      flex: 1;
-      position: relative;
-      height: 100%;
       overflow: hidden;
-      background: #090d1c;
+      display: flex;
+      flex-direction: column;
     }
 
     canvas#gameCanvas {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       display: block;
       cursor: crosshair;
     }
 
-    /* Barra Superior do Canvas (HUD de Recursos e Controles Rápidos) */
-    .canvas-top-bar {
+    /* ===== TOP BAR (MINIMALISTA FLUTUANTE ESTILO BLOONS TD 6) ===== */
+    .top-bar-bloons {
       position: absolute;
       top: 10px;
       left: 10px;
@@ -74,21 +70,22 @@
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
-      z-index: 10;
+      z-index: 20;
     }
 
-    .hud-chips {
+    .top-stats {
       display: flex;
       gap: 6px;
+      pointer-events: auto;
     }
 
-    .hud-chip {
-      background: rgba(13, 18, 36, 0.88);
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(10px);
+    .stat-badge {
+      background: rgba(13, 18, 36, 0.9);
+      border: 1.5px solid var(--border-color);
+      backdrop-filter: blur(12px);
       border-radius: 9999px;
       padding: 4px 12px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -97,19 +94,31 @@
       color: #fff;
     }
 
-    .hud-controls {
+    .top-controls {
       display: flex;
       gap: 6px;
       pointer-events: auto;
     }
 
-    .ctrl-btn {
-      background: rgba(13, 18, 36, 0.88);
-      border: 1px solid var(--border-color);
-      backdrop-filter: blur(10px);
+    .round-badge {
+      background: rgba(13, 18, 36, 0.9);
+      border: 1.5px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--cyan);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-top-ctrl {
+      background: rgba(13, 18, 36, 0.9);
+      border: 1.5px solid var(--border-color);
+      backdrop-filter: blur(12px);
       border-radius: 9999px;
       padding: 4px 10px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 800;
       color: #cbd5e1;
       font-family: inherit;
@@ -121,32 +130,32 @@
       transition: all 0.2s;
     }
 
-    .ctrl-btn:hover {
+    .btn-top-ctrl:hover {
       border-color: var(--cyan);
       color: #fff;
     }
 
-    .ctrl-btn.active {
-      background: rgba(56, 232, 255, 0.2);
+    .btn-top-ctrl.active {
+      background: rgba(56, 232, 255, 0.25);
       border-color: var(--cyan);
       color: var(--cyan);
     }
 
-    /* Barra de Vida do Boss / Balão Titã (Rounds 10, 20, 30) */
+    /* Barra de Vida do Boss Titã */
     #boss-hud {
       position: absolute;
-      top: 52px;
+      top: 50px;
       left: 50%;
       transform: translateX(-50%);
       width: min(90vw, 360px);
       background: rgba(13, 18, 36, 0.92);
       border: 1.5px solid #ef4444;
       border-radius: 12px;
-      padding: 6px 12px;
+      padding: 5px 12px;
       display: none;
       flex-direction: column;
-      gap: 4px;
-      z-index: 10;
+      gap: 3px;
+      z-index: 20;
       box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
     }
 
@@ -173,243 +182,206 @@
       transition: width 0.15s ease-out;
     }
 
-    /* Menu Lateral / Loja (Sidebar Web PC) */
-    #sidebar-ui {
-      width: 310px;
-      height: 100%;
-      background: var(--bg-sidebar);
-      border-left: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 16px;
-      box-sizing: border-box;
-      z-index: 20;
-      box-shadow: -6px 0 25px rgba(0, 0, 0, 0.5);
-    }
-
-    .sidebar-header {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .logo-row {
+    /* ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6) ===== */
+    .bottom-dock-bloons {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: var(--bg-dock);
+      border-top: 2px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 6px 12px;
+      z-index: 30;
+      box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
     }
 
-    .game-logo {
-      font-size: 1.25rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.01em;
-    }
-
-    .objective-chip {
-      background: rgba(56, 232, 255, 0.1);
-      border: 1px solid rgba(56, 232, 255, 0.25);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      color: var(--cyan);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .menu-nav-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 2px;
-    }
-
-    .nav-btn {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      color: #cbd5e1;
-      border-radius: 8px;
-      padding: 5px 6px;
-      font-size: 0.72rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
-    }
-
-    .nav-btn:hover {
-      background: rgba(56, 232, 255, 0.15);
-      border-color: var(--cyan);
-      color: #fff;
-    }
-
-    /* Loja de Torres */
-    .shop-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin: 8px 0;
-      overflow-y: auto;
-    }
-
-    .shop-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--cyan);
-      letter-spacing: 0.08em;
-    }
-
-    .tower-card-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--bg-card);
+    /* 1. Lado Esquerdo: Caixa de Upgrades / Inspeção de Torre */
+    .dock-upgrades-box {
+      width: 130px;
+      height: 66px;
+      background: rgba(22, 28, 54, 0.85);
       border: 1.5px solid var(--border-color);
       border-radius: 12px;
-      padding: 7px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4px 8px;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .dock-upgrades-box.has-selection {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.1);
+      box-shadow: 0 0 15px rgba(56, 232, 255, 0.25);
+    }
+
+    .upgrade-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 800;
       color: #fff;
-      cursor: grab;
+    }
+
+    .btn-upgrade-action {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
       font-family: inherit;
-      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-      text-align: left;
-      touch-action: none;
-      position: relative;
-    }
-
-    .tower-card-btn:active {
-      cursor: grabbing;
-    }
-
-    .tower-card-btn:hover:not(:disabled) {
-      border-color: var(--cyan);
-      background: rgba(56, 232, 255, 0.08);
-      transform: translateX(3px);
-    }
-
-    .tower-card-btn.selected {
-      border-color: var(--cyan);
-      background: rgba(56, 232, 255, 0.18);
-      box-shadow: 0 0 15px rgba(56, 232, 255, 0.3);
-    }
-
-    .tower-card-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      filter: grayscale(0.7);
-    }
-
-    .tower-avatar-preview {
-      width: 36px;
-      height: 36px;
-      border-radius: 9px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
-      background: rgba(255, 255, 255, 0.08);
-      flex-shrink: 0;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 3px;
+      transition: all 0.2s;
     }
 
-    .tower-meta {
+    .btn-upgrade-action:hover:not(:disabled) {
+      transform: scale(1.03);
+    }
+
+    .btn-upgrade-action:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-sell-action {
+      background: transparent;
+      border: none;
+      color: #f87171;
+      font-size: 0.65rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* 2. Centro: Cards Quadrados das 5 Corujas (Bloons TD 6) */
+    .dock-cards-scroll {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 6px;
+      scrollbar-width: none;
+    }
+
+    .dock-cards-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .bloons-tower-card {
+      width: 54px;
+      height: 66px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
-      flex: 1;
-      min-width: 0;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: grab;
+      touch-action: none;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .tower-name {
-      font-size: 0.8rem;
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .bloons-tower-card:active {
+      cursor: grabbing;
     }
 
-    .tower-desc {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      line-height: 1.15;
+    .bloons-tower-card:hover:not(:disabled) {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.12);
+      transform: translateY(-2px);
     }
 
-    .tower-price {
-      font-size: 0.8rem;
+    .bloons-tower-card.selected {
+      border-color: var(--cyan);
+      background: rgba(56, 232, 255, 0.25);
+      box-shadow: 0 0 16px rgba(56, 232, 255, 0.5);
+      transform: translateY(-4px);
+    }
+
+    .bloons-tower-card:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+    }
+
+    .card-icon {
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    .card-price {
+      font-size: 0.72rem;
       font-weight: 800;
       color: var(--gold);
     }
 
-    .sidebar-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    /* 3. Lado Direito: Botão Verde Bloons TD de Ação / Avanço */
+    .dock-action-box {
+      width: 76px;
+      height: 66px;
+      flex-shrink: 0;
     }
 
-    .btn-start-round {
+    .btn-bloons-play {
       width: 100%;
+      height: 100%;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 14px;
       color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 0.95rem;
+      font-size: 1.25rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
-      transition: all 0.2s;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s;
     }
 
-    .btn-start-round:hover:not(:disabled) {
-      transform: scale(1.02);
-      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);
+    .btn-bloons-play:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
     }
 
-    .btn-start-round:disabled {
-      opacity: 0.5;
+    .btn-bloons-play:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: transparent;
+      color: #64748b;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
-    /* Painel de Inspeção e Venda */
-    #tower-inspector {
-      background: rgba(22, 28, 54, 0.95);
-      border: 1.5px solid var(--cyan);
-      border-radius: 12px;
-      padding: 6px 12px;
-      display: none;
-      flex-direction: column;
-      gap: 3px;
-      margin-bottom: 6px;
-    }
-
-    .inspector-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .btn-sell-tower {
-      background: rgba(239, 68, 68, 0.2);
-      border: 1px solid #ef4444;
-      color: #f87171;
-      border-radius: 9999px;
-      padding: 2px 8px;
-      font-size: 0.7rem;
+    .btn-bloons-play span.lbl {
+      font-size: 0.65rem;
       font-weight: 800;
-      cursor: pointer;
+      letter-spacing: 0.05em;
     }
 
-    /* Modais Popups e Telas de Menu */
+    /* Modais Popups e Menus */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -428,7 +400,7 @@
     }
 
     .modal-card {
-      width: min(92vw, 500px);
+      width: min(92vw, 480px);
       max-height: 85vh;
       background: #0d1224;
       border: 1.5px solid rgba(255, 255, 255, 0.15);
@@ -460,23 +432,23 @@
 
     /* Tela de Menu Inicial Oficial */
     .main-menu-card {
-      width: min(92vw, 420px);
+      width: min(92vw, 400px);
       background: rgba(13, 18, 36, 0.95);
       border: 1.5px solid var(--border-color);
       border-radius: 24px;
-      padding: 28px 24px;
+      padding: 26px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 16px;
+      gap: 14px;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.25);
     }
 
     .menu-buttons-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
     }
 
@@ -484,9 +456,9 @@
       background: rgba(255, 255, 255, 0.06);
       border: 1.5px solid var(--border-color);
       color: #fff;
-      border-radius: 14px;
-      padding: 12px 18px;
-      font-size: 1rem;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-size: 0.95rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
@@ -494,7 +466,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-menu-action:hover {
@@ -507,7 +479,7 @@
       background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
       border: none;
       box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
-      font-size: 1.15rem;
+      font-size: 1.1rem;
     }
 
     .track-card {
@@ -559,176 +531,93 @@
       border-radius: 12px;
       padding: 10px;
     }
-
-    /* Responsividade Mobile (< 768px) */
-    @media (max-width: 768px) {
-      #app-layout {
-        flex-direction: column;
-      }
-
-      #sidebar-ui {
-        width: 100%;
-        height: auto;
-        border-left: none;
-        border-top: 1px solid var(--border-color);
-        padding: 6px 10px;
-        gap: 5px;
-      }
-
-      .shop-section {
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 6px;
-        margin: 2px 0;
-        padding-bottom: 2px;
-      }
-
-      .tower-card-btn {
-        flex-direction: column;
-        padding: 6px 8px;
-        min-width: 72px;
-        text-align: center;
-        gap: 2px;
-      }
-
-      .tower-desc {
-        display: none;
-      }
-
-      .logo-row {
-        display: none;
-      }
-    }
   </style>
 </head>
 <body>
-  <div id="app-layout">
-    <!-- 1. Canvas do Jogo -->
-    <div id="canvas-container">
-      <div class="canvas-top-bar">
-        <div class="hud-chips">
-          <div class="hud-chip">💰 <span id="hud-money" style="color: var(--gold);">$650</span></div>
-          <div class="hud-chip">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
-          <div class="hud-chip">🎈 Onda <span id="hud-round" style="color: var(--cyan);">1</span></div>
-        </div>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
 
-        <div class="hud-controls">
-          <!-- Botão de Velocidade 2x -->
-          <button class="ctrl-btn" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()">
-            <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
-          </button>
-          <!-- Botão de Início Automático -->
-          <button class="ctrl-btn" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()">
-            <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
-          </button>
-          <!-- Botão de Abrir Menu -->
-          <button class="ctrl-btn" onclick="window.guardiansGame.openModal('mainmenu')">
-            <span>⚙️ Menu</span>
-          </button>
-        </div>
+    <!-- ===== TOP BAR FLUTUANTE (ESTILO BLOONS TD 6) ===== -->
+    <div class="top-bar-bloons">
+      <div class="top-stats">
+        <div class="stat-badge">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
+        <div class="stat-badge">🪙 <span id="hud-money" style="color: var(--gold);">$650</span></div>
       </div>
 
-      <!-- Barra de Vida do Boss / Balão Titã (Rounds 10, 20, 30) -->
-      <div id="boss-hud">
-        <div class="boss-name">
-          <span>👾 TITÃ CÓSMICO</span>
-          <span id="boss-hp-text">80 / 80 HP</span>
-        </div>
-        <div class="boss-hp-track">
-          <div class="boss-hp-fill" id="boss-hp-bar"></div>
-        </div>
+      <div class="top-controls">
+        <div class="round-badge">ONDA <span id="hud-round">1</span>/<span id="target-round">10</span></div>
+        <button class="btn-top-ctrl" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()">
+          <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
+        </button>
+        <button class="btn-top-ctrl" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()">
+          <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
+        </button>
+        <button class="btn-top-ctrl" onclick="window.guardiansGame.openModal('mainmenu')" title="Menu e Fases">
+          <span>⚙️</span>
+        </button>
       </div>
-
-      <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- 2. UI Lateral / Loja das Torres -->
-    <aside id="sidebar-ui">
-      <div class="sidebar-header">
-        <div class="logo-row">
-          <div class="game-logo">KRUUJ GUARDIANS</div>
-          <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;" id="track-name-badge">CÓSMICA</span>
-        </div>
-
-        <div class="objective-chip">
-          <span id="objective-text">🎯 Meta: Vencer Onda 10</span>
-          <span style="color: var(--gold);" id="phase-label">Fase 1</span>
-        </div>
-
-        <div class="menu-nav-row">
-          <button class="nav-btn" onclick="window.guardiansGame.openModal('phases')">🗺️ Fases</button>
-          <button class="nav-btn" onclick="window.guardiansGame.openModal('encyclopedia')">🦉 Corujas</button>
-          <button class="nav-btn" onclick="window.guardiansGame.openModal('howto')">📖 Como Jogar</button>
-        </div>
+    <!-- Barra de Vida do Boss Titã Cósmico -->
+    <div id="boss-hud">
+      <div class="boss-name">
+        <span>👾 TITÃ CÓSMICO</span>
+        <span id="boss-hp-text">80 / 80 HP</span>
       </div>
-
-      <!-- Card de Inspeção de Torre Selecionada -->
-      <div id="tower-inspector">
-        <div class="inspector-header">
-          <span style="font-size: 0.8rem; font-weight: 800; color: #fff;" id="insp-name">Coruja</span>
-          <button class="btn-sell-tower" onclick="window.guardiansGame.sellSelectedTower()">Vender ($140)</button>
-        </div>
-        <div style="font-size: 0.68rem; color: var(--text-muted);" id="insp-stats">Dano: 1 • Alcance: 130</div>
+      <div class="boss-hp-track">
+        <div class="boss-hp-fill" id="boss-hp-bar"></div>
       </div>
+    </div>
 
-      <!-- Loja das 5 Torres (Arrastar ou Tocar para Posicionar) -->
-      <div class="shop-section">
-        <div class="shop-title">Arraste ou Toque</div>
-
-        <button class="tower-card-btn" id="shop-btn-0" data-index="0">
-          <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
-          <div class="tower-meta">
-            <span class="tower-name">Coruja Avatar (1)</span>
-            <span class="tower-desc">Tiro único balanceado</span>
-          </div>
-          <span class="tower-price">$200</span>
-        </button>
-
-        <button class="tower-card-btn" id="shop-btn-1" data-index="1">
-          <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
-          <div class="tower-meta">
-            <span class="tower-name">Mascote Ninja (2)</span>
-            <span class="tower-desc">Velocidade ultra rápida</span>
-          </div>
-          <span class="tower-price">$300</span>
-        </button>
-
-        <button class="tower-card-btn" id="shop-btn-2" data-index="2">
-          <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
-          <div class="tower-meta">
-            <span class="tower-name">Sniper Cósmico (3)</span>
-            <span class="tower-desc">Alcance extremo, dano 3</span>
-          </div>
-          <span class="tower-price">$400</span>
-        </button>
-
-        <button class="tower-card-btn" id="shop-btn-3" data-index="3">
-          <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
-          <div class="tower-meta">
-            <span class="tower-name">Canhão Explosivo (4)</span>
-            <span class="tower-desc">Dano em área (AOE)</span>
-          </div>
-          <span class="tower-price">$500</span>
-        </button>
-
-        <button class="tower-card-btn" id="shop-btn-4" data-index="4">
-          <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
-          <div class="tower-meta">
-            <span class="tower-name">Coruja Glacial (5)</span>
-            <span class="tower-desc">Desacelera 50% por 2s</span>
-          </div>
-          <span class="tower-price">$250</span>
+    <!-- ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6) ===== -->
+    <div class="bottom-dock-bloons">
+      <!-- 1. Caixa de Upgrades / Inspeção de Torre Selecionada -->
+      <div class="dock-upgrades-box" id="dock-inspect-box">
+        <div class="upgrade-header-row">
+          <span id="insp-title">Sem Seleção</span>
+          <button class="btn-sell-action" id="btn-sell" style="display: none;" onclick="window.guardiansGame.sellSelectedTower()">Vender</button>
+        </div>
+        <button class="btn-upgrade-action" id="btn-upgrade" disabled onclick="window.guardiansGame.upgradeSelectedTower()">
+          <span id="upgrade-btn-text">Toque no mapa</span>
         </button>
       </div>
 
-      <!-- Ações da Rodada -->
-      <div class="sidebar-footer">
-        <button class="btn-start-round" id="btn-start-round" onclick="window.guardiansGame.startNextRound()">
-          <span>INICIAR ONDA</span>
-          <span id="round-indicator">1</span> 🎈
+      <!-- 2. Cards Quadrados das 5 Corujas (Bloons TD 6) -->
+      <div class="dock-cards-scroll">
+        <button class="bloons-tower-card" id="shop-btn-0" data-index="0">
+          <span class="card-icon">🦉</span>
+          <span class="card-price">$200</span>
+        </button>
+
+        <button class="bloons-tower-card" id="shop-btn-1" data-index="1">
+          <span class="card-icon">⚡</span>
+          <span class="card-price">$300</span>
+        </button>
+
+        <button class="bloons-tower-card" id="shop-btn-2" data-index="2">
+          <span class="card-icon">🎯</span>
+          <span class="card-price">$400</span>
+        </button>
+
+        <button class="bloons-tower-card" id="shop-btn-3" data-index="3">
+          <span class="card-icon">💥</span>
+          <span class="card-price">$500</span>
+        </button>
+
+        <button class="bloons-tower-card" id="shop-btn-4" data-index="4">
+          <span class="card-icon">❄️</span>
+          <span class="card-price">$250</span>
         </button>
       </div>
-    </aside>
+
+      <!-- 3. Botão Verde Bloons TD de Ação / Iniciar Rodada -->
+      <div class="dock-action-box">
+        <button class="btn-bloons-play" id="btn-start-round" onclick="window.guardiansGame.startNextRound()">
+          <span>▶▶</span>
+          <span class="lbl">ONDA</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== MODAIS POPUPS ===== -->
@@ -816,47 +705,47 @@
   <div class="modal-backdrop" id="modal-encyclopedia">
     <div class="modal-card">
       <div class="modal-title">
-        <span>🦉 Grimório das Corujas Guardiãs</span>
+        <span>🦉 Grimório das Corujas & Upgrades</span>
         <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
       </div>
 
       <div class="encyclopedia-item">
-        <div class="tower-avatar-preview" style="background: rgba(139, 92, 246, 0.2); border-color: #8b5cff;">🦉</div>
+        <span style="font-size: 2rem;">🦉</span>
         <div>
           <div style="font-weight: 800;">Coruja Avatar ($200)</div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">Alcance médio (130px), cadência equilibrada. Excelente escolha para o início de jogo em esquinas.</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($150): +Dano e +Alcance ⭐ • Nv. 3 ($300): Feixe Cósmico Penetrante ⭐⭐.</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
-        <div class="tower-avatar-preview" style="background: rgba(56, 232, 255, 0.2); border-color: #38e8ff;">⚡</div>
+        <span style="font-size: 2rem;">⚡</span>
         <div>
           <div style="font-weight: 800;">Mascote Ninja ($300)</div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">Cadência ultra rápida (12 frames). Estoura enxames densos de balões vermelhos e azuis com facilidade.</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($225): Disparo Duplo ⭐ • Nv. 3 ($450): Shurikens Triplos Ultra-Rápidos ⭐⭐.</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
-        <div class="tower-avatar-preview" style="background: rgba(234, 179, 8, 0.2); border-color: #eab308;">🎯</div>
+        <span style="font-size: 2rem;">🎯</span>
         <div>
           <div style="font-weight: 800;">Sniper Cósmico ($400)</div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">Alcance colossal (240px) e Dano 3. Crucial para eliminar balões cerâmicos e o Titã de longe.</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($300): Dano 5 e Alcance 300px ⭐ • Nv. 3 ($600): Laser Perfurador de Titãs Dano 10 ⭐⭐.</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
-        <div class="tower-avatar-preview" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444;">💥</div>
+        <span style="font-size: 2rem;">💥</span>
         <div>
           <div style="font-weight: 800;">Canhão Explosivo ($500)</div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">Dano em área (AOE raio 55px). Destrói aglomerados de balões com uma única ogiva estelar.</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($375): Raio de Explosão 78px ⭐ • Nv. 3 ($750): Supernova Atômica Dano 8 ⭐⭐.</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
-        <div class="tower-avatar-preview" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6;">❄️</div>
+        <span style="font-size: 2rem;">❄️</span>
         <div>
           <div style="font-weight: 800;">Coruja Glacial ($250)</div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">Congela e reduz 50% da velocidade por 2 segundos. Dobra o tempo que outras corujas têm para atirar!</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Evolução Nv. 2 ($190): Nevasca 3.5s ⭐ • Nv. 3 ($380): Congelamento Total Instantâneo ⭐⭐.</div>
         </div>
       </div>
     </div>
@@ -870,10 +759,9 @@
         <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()">✕</button>
       </div>
       <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: flex; flex-direction: column; gap: 8px;">
-        <p>🎈 <b>Balões em Camadas:</b> Cada golpe remove uma camada. Balões Verdes (3 vidas) viram Azuis (2 vidas) e depois Vermelhos (1 vida). Balões Dourados são ultra velozes!</p>
-        <p>👾 <b>Rodadas Redondas (Chefões):</b> Nas ondas 10, 20 e 30 surge um <b>Balão Titã Zepelim</b> resistente. Concentre Snipers e Canhões para derrubá-lo antes que libere os balões internos!</p>
-        <p>🖐️ <b>Arrastar ou Tocar:</b> No PC ou celular, arraste a coruja da loja ou toque nela para selecionar e toque no mapa para posicionar.</p>
-        <p>⏩ <b>Controles Rápidos:</b> Use o botão <b>2x</b> para acelerar o jogo e ative o <b>Auto: ON</b> para jogar as ondas em sequência sem pausas.</p>
+        <p>🎈 <b>Bloons TD Gameplay:</b> Arraste as corujas da barra inferior ou toque nelas para posicionar estrategicamente ao longo da pista.</p>
+        <p>⬆️ <b>Evolução das Corujas:</b> Toque em qualquer coruja posicionada no mapa para abrir o <b>painel de Upgrades</b> à esquerda. Gaste suas moedas para evoluir até o Nível 3 Supremo!</p>
+        <p>👾 <b>Chefões Titãs:</b> Nas rodadas 10, 20 e 30 surge um Zepelim Titã. Use Snipers e Canhões evoluídos para derrotá-lo antes que alcance o ninho!</p>
       </div>
     </div>
   </div>
@@ -887,8 +775,8 @@
       <div style="font-size: 2.2rem; margin: 8px 0;" id="vic-stars">⭐⭐⭐</div>
 
       <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
-        <button class="btn-start-round" style="background: linear-gradient(135deg, #0284c7, #8b5cff);" onclick="window.guardiansGame.continueFreeplay()">MODO INFINITO ♾️</button>
-        <button class="btn-start-round" onclick="window.guardiansGame.nextPhase()">PRÓXIMA FASE ⏩</button>
+        <button class="btn-bloons-play" style="flex: 1; height: 48px; background: linear-gradient(135deg, #0284c7, #8b5cff);" onclick="window.guardiansGame.continueFreeplay()">MODO INFINITO ♾️</button>
+        <button class="btn-bloons-play" style="flex: 1; height: 48px;" onclick="window.guardiansGame.nextPhase()">PRÓXIMA FASE ⏩</button>
       </div>
     </div>
   </div>
@@ -897,8 +785,8 @@
   <div class="modal-backdrop" id="modal-gameover">
     <div class="modal-card" style="text-align: center; align-items: center;">
       <h1 style="font-size: 2rem; color: #ef4444; margin-bottom: 2px;">OVO CAPTURADO! 💥</h1>
-      <p style="font-size: 0.95rem; color: #cbd5e1;">Os balões ultrapassaram o ninho sagrado. Reestruture suas corujas desaceleradoras e snipers!</p>
-      <button class="btn-start-round" style="margin-top: 10px; width: 100%;" onclick="window.guardiansGame.restartGame()">TENTAR NOVAMENTE 🦉</button>
+      <p style="font-size: 0.95rem; color: #cbd5e1;">Os balões ultrapassaram o ninho sagrado. Evolua suas corujas já posicionadas para aumentar seu poder!</p>
+      <button class="btn-bloons-play" style="margin-top: 10px; width: 100%; height: 48px;" onclick="window.guardiansGame.restartGame()">TENTAR NOVAMENTE 🦉</button>
     </div>
   </div>
 
@@ -927,15 +815,12 @@
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'triangle';
           const startFreq = (520 + Math.random() * 80) * pitch;
           osc.frequency.setValueAtTime(startFreq, now);
           osc.frequency.exponentialRampToValueAtTime(70 * pitch, now + 0.055);
-
           gain.gain.setValueAtTime(0.18, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
@@ -997,6 +882,25 @@
         } catch(e) {}
       }
 
+      playUpgrade() {
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          [520, 650, 780, 1040].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+            gain.gain.setValueAtTime(0.08, now + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.04);
+            osc.stop(now + idx * 0.04 + 0.2);
+          });
+        } catch(e) {}
+      }
+
       playBossHorn() {
         try {
           this.init();
@@ -1024,7 +928,7 @@
         bgColor: '#090d1c',
         pathColor: '#111833',
         pathGlow: 'rgba(56, 232, 255, 0.25)',
-        pathEdge: 'rgba(56, 232, 255, 0.4)',
+        pathEdge: 'rgba(56, 232, 255, 0.45)',
         nestColor: '#ff5ca8',
         phases: [
           { name: 'Fase 1: Órbita Estelar', targetWave: 10, layout: 0 },
@@ -1040,7 +944,7 @@
         bgColor: '#160808',
         pathColor: '#2b100d',
         pathGlow: 'rgba(239, 68, 68, 0.28)',
-        pathEdge: 'rgba(249, 115, 22, 0.5)',
+        pathEdge: 'rgba(249, 115, 22, 0.55)',
         nestColor: '#f97316',
         phases: [
           { name: 'Fase 1: Margem de Lava', targetWave: 10, layout: 0 },
@@ -1056,7 +960,7 @@
         bgColor: '#08111e',
         pathColor: '#0e1d33',
         pathGlow: 'rgba(56, 232, 255, 0.3)',
-        pathEdge: 'rgba(96, 165, 250, 0.5)',
+        pathEdge: 'rgba(96, 165, 250, 0.55)',
         nestColor: '#38e8ff',
         phases: [
           { name: 'Fase 1: Vale Nevado', targetWave: 10, layout: 0 },
@@ -1088,7 +992,8 @@
 
       buildWaypoints() {
         const w = this.width;
-        const h = this.height;
+        // Reserva os 80px inferiores para o Bloons Dock
+        const h = Math.max(200, this.height - 80);
 
         switch(this.layoutIndex % 5) {
           case 0:
@@ -1194,7 +1099,7 @@
         ctx.stroke();
 
         ctx.strokeStyle = this.track.pathEdge;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
 
         const endPt = this.waypoints[this.waypoints.length - 1];
@@ -1202,7 +1107,7 @@
         ctx.shadowColor = this.track.nestColor;
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(endPt.x > this.width ? this.width - 20 : endPt.x, endPt.y > this.height ? this.height - 20 : endPt.y, 18, 0, Math.PI * 2);
+        ctx.arc(endPt.x > this.width ? this.width - 20 : endPt.x, endPt.y > this.height - 80 ? this.height - 100 : endPt.y, 18, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -1210,7 +1115,7 @@
       }
     }
 
-    // ===== 4. INIMIGO (BALÕES CÓSMICOS & BALÃO TITÃ CHEFÃO) =====
+    // ===== 4. INIMIGO (BALÕES CÓSMICOS & BALÃO TITÃ) =====
     class Enemy {
       constructor(type, waypoints, hpOverride = null) {
         this.type = type;
@@ -1368,6 +1273,7 @@
         this.color = tower.projColor;
         this.isFinished = false;
         this.radius = 4;
+        this.level = tower.level;
       }
 
       update(game, timeScale = 1.0) {
@@ -1402,7 +1308,7 @@
           game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
         } else {
           if (this.target.isAlive) {
-            if (this.isSlow) this.target.slowTimer = 120;
+            if (this.isSlow) this.target.slowTimer = this.level >= 2 ? 180 : 120;
             this.target.takeDamage(this.damage);
             if (!this.target.isAlive) {
               game.onEnemyKilled(this.target);
@@ -1419,22 +1325,25 @@
         ctx.save();
         ctx.fillStyle = this.color;
         ctx.shadowColor = this.color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = this.level >= 2 ? 14 : 8;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.level >= 3 ? this.radius * 1.5 : this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
     }
 
-    // ===== 6. TORRE ("MACACO / GUARDIÃ") =====
+    // ===== 6. TORRE COM SISTEMA DE EVOLUÇÃO (UPGRADES) =====
     class Tower {
       constructor(typeIndex, x, y, config) {
         this.typeIndex = typeIndex;
         this.x = x;
         this.y = y;
         this.name = config.name;
-        this.cost = config.cost;
+        this.baseCost = config.cost;
+        this.totalInvested = config.cost;
+        this.level = 1; // Nível 1 Base, Nível 2 Avançado ⭐, Nível 3 Supremo ⭐⭐
+
         this.range = config.range;
         this.cooldownMax = config.cooldown;
         this.cooldown = 0;
@@ -1449,6 +1358,35 @@
         this.radius = 18;
         this.target = null;
         this.angle = 0;
+      }
+
+      // Custo para evoluir para o próximo nível
+      getUpgradeCost() {
+        if (this.level === 1) return Math.round(this.baseCost * 0.75);
+        if (this.level === 2) return Math.round(this.baseCost * 1.5);
+        return null; // Nível Máximo (MAX)
+      }
+
+      // Aplica a evolução na torre
+      upgrade() {
+        if (this.level >= 3) return false;
+        const cost = this.getUpgradeCost();
+        this.level++;
+        this.totalInvested += cost;
+
+        // Buffs de Evolução por Nível
+        if (this.level === 2) {
+          this.range = Math.round(this.range * 1.25);
+          this.cooldownMax = Math.round(this.cooldownMax * 0.8);
+          this.damage += 1;
+          if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.35);
+        } else if (this.level === 3) {
+          this.range = Math.round(this.range * 1.3);
+          this.cooldownMax = Math.round(this.cooldownMax * 0.75);
+          this.damage += 2;
+          if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.45);
+        }
+        return true;
       }
 
       update(game, timeScale = 1.0) {
@@ -1477,6 +1415,16 @@
           if (this.cooldown <= 0) {
             this.cooldown = this.cooldownMax;
             game.projectiles.push(new Projectile(this.x, this.y, this.target, this));
+
+            // No Nível 3, o Mascote Ninja dispara shuriken duplo!
+            if (this.level === 3 && this.typeIndex === 1) {
+              setTimeout(() => {
+                if (this.target && this.target.isAlive) {
+                  game.projectiles.push(new Projectile(this.x, this.y, this.target, this));
+                }
+              }, 60);
+            }
+
             game.sound.playShoot();
           }
         }
@@ -1486,6 +1434,7 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
+        // 1. Círculo de Alcance
         if (isSelected) {
           ctx.strokeStyle = 'rgba(56, 232, 255, 0.45)';
           ctx.fillStyle = 'rgba(56, 232, 255, 0.08)';
@@ -1496,6 +1445,25 @@
           ctx.stroke();
         }
 
+        // 2. Aura de Evolução
+        if (this.level === 2) {
+          ctx.strokeStyle = 'rgba(255, 176, 32, 0.4)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius + 4, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (this.level === 3) {
+          ctx.strokeStyle = '#38e8ff';
+          ctx.shadowColor = '#38e8ff';
+          ctx.shadowBlur = 12;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius + 6, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // 3. Base da Torre
         ctx.fillStyle = '#161c36';
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 2.5;
@@ -1504,6 +1472,7 @@
         ctx.fill();
         ctx.stroke();
 
+        // 4. Canhão/Direcionador
         ctx.rotate(this.angle);
         ctx.fillStyle = this.color;
         ctx.fillRect(4, -4, 14, 8);
@@ -1511,11 +1480,21 @@
         ctx.arc(0, 0, this.radius * 0.65, 0, Math.PI * 2);
         ctx.fill();
 
+        // 5. Ícone
         ctx.rotate(-this.angle);
         ctx.font = '14px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.icon, 0, 1);
+
+        // 6. Estrelas de Nível de Evolução no Topo da Torre
+        if (this.level === 2) {
+          ctx.font = '10px sans-serif';
+          ctx.fillText('⭐', 0, -this.radius - 3);
+        } else if (this.level === 3) {
+          ctx.font = '10px sans-serif';
+          ctx.fillText('⭐⭐', 0, -this.radius - 4);
+        }
 
         ctx.restore();
       }
@@ -1561,7 +1540,6 @@
         this.sound = new SoundManager();
         this.map = new GameMap(window.innerWidth, window.innerHeight);
 
-        // Recursos e Progressão
         this.money = 650;
         this.lives = 20;
         this.round = 1;
@@ -1569,13 +1547,11 @@
         this.autoStart = false;
         this.gameSpeed = 1.0;
 
-        // Trilha e Fase Atual
         this.currentTrackIndex = 0;
         this.currentPhaseIndex = 0;
         this.targetWave = 10;
         this.freeplayMode = false;
 
-        // Entidades
         this.enemies = [];
         this.towers = [];
         this.projectiles = [];
@@ -1583,22 +1559,22 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Estados de Arrastar e Soltar (Drag & Drop) e Seleção Mobile
+        // Estados de Arrastar/Tocar e Seleção
         this.selectedShopIndex = null;
         this.draggingShopIndex = null;
         this.isTouchInteraction = false;
-        this.touchOffsetY = -50; // Offset ergonômico no mobile para o dedo não tapar o preview!
+        this.touchOffsetY = -50;
         this.inspectingTower = null;
         this.mousePos = { x: -100, y: -100 };
         this.activeBoss = null;
 
         // Configuração das 5 Torres
         this.towerConfigs = [
-          { name: 'Coruja Avatar (Básica)', cost: 200, range: 130, cooldown: 35, damage: 1, color: '#8b5cff', projColor: '#ffb020', projSpeed: 10, icon: '🦉' },
-          { name: 'Mascote Ninja (Rápida)', cost: 300, range: 95, cooldown: 12, damage: 1, color: '#38e8ff', projColor: '#38e8ff', projSpeed: 12, icon: '⚡' },
-          { name: 'Sniper Cósmico (Longo)', cost: 400, range: 240, cooldown: 68, damage: 3, color: '#eab308', projColor: '#fde047', projSpeed: 16, icon: '🎯' },
-          { name: 'Canhão Explosivo (AOE)', cost: 500, range: 140, cooldown: 60, damage: 2, isAOE: true, aoeRadius: 55, color: '#ef4444', projColor: '#f97316', projSpeed: 9, icon: '💥' },
-          { name: 'Coruja Glacial (Slow)', cost: 250, range: 125, cooldown: 32, damage: 0, isSlow: true, color: '#3b82f6', projColor: '#60a5fa', projSpeed: 9, icon: '❄️' }
+          { name: 'Avatar', cost: 200, range: 130, cooldown: 35, damage: 1, color: '#8b5cff', projColor: '#ffb020', projSpeed: 10, icon: '🦉' },
+          { name: 'Ninja', cost: 300, range: 95, cooldown: 12, damage: 1, color: '#38e8ff', projColor: '#38e8ff', projSpeed: 12, icon: '⚡' },
+          { name: 'Sniper', cost: 400, range: 240, cooldown: 68, damage: 3, color: '#eab308', projColor: '#fde047', projSpeed: 16, icon: '🎯' },
+          { name: 'Canhão', cost: 500, range: 140, cooldown: 60, damage: 2, isAOE: true, aoeRadius: 55, color: '#ef4444', projColor: '#f97316', projSpeed: 9, icon: '💥' },
+          { name: 'Glacial', cost: 250, range: 125, cooldown: 32, damage: 0, isSlow: true, color: '#3b82f6', projColor: '#60a5fa', projSpeed: 9, icon: '❄️' }
         ];
 
         this.init();
@@ -1608,10 +1584,8 @@
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Configura Drag & Drop e Touch em todos os botões da loja
         this.initDragAndDrop();
 
-        // Eventos no Canvas
         this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
         this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
 
@@ -1638,18 +1612,16 @@
       }
 
       resize() {
-        const container = document.getElementById('canvas-container');
-        this.canvas.width = container.clientWidth;
-        this.canvas.height = container.clientHeight;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
         this.map.resize(this.canvas.width, this.canvas.height);
       }
 
-      // ===== DRAG & DROP PERFEITO PARA MOBILE E PC COM OFFSET DE DEDO =====
+      // ===== ARRASTAR E SOLTAR COM OFFSET DE DEDO NO TOUCH =====
       initDragAndDrop() {
         const getCanvasCoords = (clientX, clientY) => {
           const rect = this.canvas.getBoundingClientRect();
           const isTouch = this.isTouchInteraction;
-          // No mobile, eleva a coruja em -50px para não ficar embaixo do polegar!
           const offsetY = isTouch ? this.touchOffsetY : 0;
           return {
             x: clientX - rect.left,
@@ -1661,7 +1633,6 @@
           const btn = document.getElementById(`shop-btn-${idx}`);
           if (!btn) return;
 
-          // Inicia toque ou clique no botão
           const handleStart = (e) => {
             if (this.money < cfg.cost) return;
 
@@ -1670,7 +1641,7 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-            // Se tocar no mesmo botão que já estava selecionado no modo clique, cancela
+            // Se tocar no mesmo botão que já estava selecionado no modo toque, desmarca
             if (this.selectedShopIndex === idx && !e.type.startsWith('touch') && this.draggingShopIndex === null) {
               this.cancelPurchase();
               return;
@@ -1679,7 +1650,7 @@
             this.draggingShopIndex = idx;
             this.selectedShopIndex = idx;
             this.inspectingTower = null;
-            this.updateInspectorUI();
+            this.updateInspectorBox();
 
             const coords = getCanvasCoords(clientX, clientY);
             this.mousePos.x = coords.x;
@@ -1688,12 +1659,9 @@
           };
 
           btn.addEventListener('pointerdown', handleStart);
-          btn.addEventListener('touchstart', (e) => {
-            handleStart(e);
-          }, { passive: true });
+          btn.addEventListener('touchstart', handleStart, { passive: true });
         });
 
-        // Rastreamento global contínuo no window para garantir que o preview siga o dedo em tempo real
         const handleGlobalMove = (e) => {
           if (this.draggingShopIndex !== null || this.selectedShopIndex !== null) {
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1709,7 +1677,6 @@
         window.addEventListener('pointermove', handleGlobalMove);
         window.addEventListener('touchmove', handleGlobalMove, { passive: true });
 
-        // Soltar no Canvas (PointerUp / TouchEnd)
         const handleGlobalEnd = (e) => {
           if (this.draggingShopIndex !== null) {
             const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
@@ -1720,23 +1687,25 @@
               const dropX = coords.x;
               const dropY = coords.y;
 
-              // Se soltou dentro do Canvas e longe da barra de loja inferior
-              const isOverCanvas = dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= this.canvas.height;
+              // Soltou dentro da área jogável do Canvas (acima do dock de 80px)
+              const isOverCanvas = dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= (this.canvas.height - 80);
               
               if (isOverCanvas) {
                 const cfg = this.towerConfigs[this.draggingShopIndex];
                 if (this.money >= cfg.cost && this.canPlaceTower(dropX, dropY)) {
                   this.money -= cfg.cost;
-                  this.towers.push(new Tower(this.draggingShopIndex, dropX, dropY, cfg));
+                  const newTower = new Tower(this.draggingShopIndex, dropX, dropY, cfg);
+                  this.towers.push(newTower);
                   this.sound.playBuy();
                   this.cancelPurchase();
                   this.draggingShopIndex = null;
+                  this.inspectingTower = newTower;
+                  this.updateInspectorBox();
                   this.updateUI();
                   return;
                 }
               }
             }
-            // Se apenas deu um toque rápido sem arrastar, mantém selecionado para modo toque
             this.draggingShopIndex = null;
             this.updateUI();
           }
@@ -1760,20 +1729,26 @@
         const clickX = e.clientX - rect.left;
         const clickY = e.clientY - rect.top;
 
-        // Modo Toque para Posicionar (Quando clicou/tocou no botão da loja antes)
+        // Se clicou na área do dock inferior (80px), ignora clique no canvas
+        if (clickY > this.canvas.height - 80) return;
+
+        // Modo Toque para Posicionar (Quando tocou no botão de compra antes)
         if (this.selectedShopIndex !== null && this.draggingShopIndex === null) {
           const cfg = this.towerConfigs[this.selectedShopIndex];
           if (this.money >= cfg.cost && this.canPlaceTower(clickX, clickY)) {
             this.money -= cfg.cost;
-            this.towers.push(new Tower(this.selectedShopIndex, clickX, clickY, cfg));
+            const newTower = new Tower(this.selectedShopIndex, clickX, clickY, cfg);
+            this.towers.push(newTower);
             this.sound.playBuy();
             this.cancelPurchase();
+            this.inspectingTower = newTower;
+            this.updateInspectorBox();
             this.updateUI();
           }
           return;
         }
 
-        // Inspeção de torre existente
+        // Inspeção de torre existente no mapa
         let clickedTower = null;
         for (let t of this.towers) {
           if (Math.hypot(t.x - clickX, t.y - clickY) <= t.radius) {
@@ -1783,11 +1758,11 @@
         }
 
         this.inspectingTower = clickedTower;
-        this.updateInspectorUI();
+        this.updateInspectorBox();
       }
 
       canPlaceTower(x, y) {
-        if (x < 25 || x > this.canvas.width - 25 || y < 25 || y > this.canvas.height - 25) return false;
+        if (x < 25 || x > this.canvas.width - 25 || y < 25 || y > this.canvas.height - 100) return false;
         if (this.map.isPointNearPath(x, y, 36)) return false;
         for (let t of this.towers) {
           if (Math.hypot(t.x - x, t.y - y) < 40) return false;
@@ -1799,7 +1774,7 @@
         if (this.money < this.towerConfigs[index].cost) return;
         this.selectedShopIndex = index;
         this.inspectingTower = null;
-        this.updateInspectorUI();
+        this.updateInspectorBox();
         this.updateUI();
       }
 
@@ -1809,9 +1784,22 @@
         this.updateUI();
       }
 
+      // ===== EVOLUÇÃO / UPGRADE DA TORRE =====
+      upgradeSelectedTower() {
+        if (!this.inspectingTower) return;
+        const cost = this.inspectingTower.getUpgradeCost();
+        if (cost !== null && this.money >= cost) {
+          this.money -= cost;
+          this.inspectingTower.upgrade();
+          this.sound.playUpgrade();
+          this.updateInspectorBox();
+          this.updateUI();
+        }
+      }
+
       sellSelectedTower() {
         if (!this.inspectingTower) return;
-        const refund = Math.floor(this.inspectingTower.cost * 0.7);
+        const refund = Math.floor(this.inspectingTower.totalInvested * 0.7);
         this.money += refund;
         this.sound.playPop(0.8);
 
@@ -1819,7 +1807,7 @@
         if (idx !== -1) this.towers.splice(idx, 1);
 
         this.inspectingTower = null;
-        this.updateInspectorUI();
+        this.updateInspectorBox();
         this.updateUI();
       }
 
@@ -1857,7 +1845,6 @@
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Rodadas Redondas 10/20/30 -> Balão Titã Zepelim
         if (r % 10 === 0) {
           this.sound.playBossHorn();
           const bossHp = 80 + (r / 10 - 1) * 170;
@@ -1893,6 +1880,7 @@
           document.getElementById('boss-hud').style.display = 'none';
         }
 
+        this.updateInspectorBox();
         this.updateUI();
       }
 
@@ -1933,10 +1921,7 @@
         this.targetWave = phase.targetWave;
 
         this.map.setTrackAndLayout(track, phase.layout);
-        document.getElementById('track-name-badge').textContent = track.name.replace('Trilha ', '').toUpperCase();
-        document.getElementById('track-name-badge').style.color = track.nestColor;
-        document.getElementById('phase-label').textContent = `Fase ${this.currentPhaseIndex + 1}`;
-        document.getElementById('objective-text').textContent = `🎯 Meta: Vencer Onda ${this.targetWave}`;
+        document.getElementById('target-round').textContent = this.targetWave;
       }
 
       checkObjectiveSuccess() {
@@ -1998,7 +1983,8 @@
         this.activeBoss = null;
         document.getElementById('boss-hud').style.display = 'none';
 
-        this.updateInspectorUI();
+        this.inspectingTower = null;
+        this.updateInspectorBox();
         this.updateUI();
       }
 
@@ -2006,7 +1992,6 @@
         document.getElementById('hud-money').textContent = `$${this.money}`;
         document.getElementById('hud-lives').textContent = this.lives;
         document.getElementById('hud-round').textContent = this.round;
-        document.getElementById('round-indicator').textContent = this.round;
 
         const startBtn = document.getElementById('btn-start-round');
         startBtn.disabled = this.isRoundRunning;
@@ -2020,18 +2005,38 @@
         });
       }
 
-      updateInspectorUI() {
-        const inspector = document.getElementById('tower-inspector');
+      // Atualiza a Caixa de Upgrades Bloons TD no canto inferior esquerdo
+      updateInspectorBox() {
+        const box = document.getElementById('dock-inspect-box');
+        const titleEl = document.getElementById('insp-title');
+        const btnUpgrade = document.getElementById('btn-upgrade');
+        const textUpgrade = document.getElementById('upgrade-btn-text');
+        const btnSell = document.getElementById('btn-sell');
+
         if (!this.inspectingTower) {
-          inspector.style.display = 'none';
+          box.classList.remove('has-selection');
+          titleEl.textContent = 'Sem Seleção';
+          textUpgrade.textContent = 'Toque no mapa';
+          btnUpgrade.disabled = true;
+          btnSell.style.display = 'none';
           return;
         }
 
-        inspector.style.display = 'flex';
-        document.getElementById('insp-name').textContent = this.inspectingTower.name;
-        document.getElementById('insp-stats').textContent = `Dano: ${this.inspectingTower.damage} • Alcance: ${this.inspectingTower.range}`;
-        const refund = Math.floor(this.inspectingTower.cost * 0.7);
-        inspector.querySelector('.btn-sell-tower').textContent = `Vender ($${refund})`;
+        box.classList.add('has-selection');
+        const t = this.inspectingTower;
+        const stars = t.level === 1 ? '' : (t.level === 2 ? ' ⭐' : ' ⭐⭐');
+        titleEl.textContent = `${t.icon} Nv.${t.level}${stars}`;
+        btnSell.style.display = 'block';
+        btnSell.textContent = `Vender ($${Math.floor(t.totalInvested * 0.7)})`;
+
+        const cost = t.getUpgradeCost();
+        if (cost !== null) {
+          textUpgrade.textContent = `⬆️ Evoluir ($${cost})`;
+          btnUpgrade.disabled = this.money < cost;
+        } else {
+          textUpgrade.textContent = 'Nível Máximo! 👑';
+          btnUpgrade.disabled = true;
+        }
       }
 
       loop() {
@@ -2039,14 +2044,11 @@
 
         const timeScale = this.gameSpeed;
 
-        // 1. Limpa o Canvas
         this.ctx.fillStyle = this.map.track.bgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 2. Renderiza Percurso da Trilha
         this.map.render(this.ctx);
 
-        // 3. Spawna Inimigos durante a rodada
         if (this.isRoundRunning && this.spawnQueue.length > 0) {
           this.spawnTimer += timeScale;
           if (this.spawnTimer >= 26) {
@@ -2063,14 +2065,12 @@
           }
         }
 
-        // Barra de Vida do Boss
         if (this.activeBoss && this.activeBoss.isAlive) {
           const pct = Math.max(0, (this.activeBoss.health / this.activeBoss.maxHp) * 100);
           document.getElementById('boss-hp-bar').style.width = `${pct}%`;
           document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.activeBoss.health)} / ${this.activeBoss.maxHp} HP`;
         }
 
-        // 4. Inimigos
         for (let i = this.enemies.length - 1; i >= 0; i--) {
           const e = this.enemies[i];
           e.update(timeScale);
@@ -2091,12 +2091,12 @@
           }
         }
 
-        // 5. Fim da rodada
         if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
           this.isRoundRunning = false;
           this.money += 80 + this.round * 6;
           this.round++;
           this.sound.playBuy();
+          this.updateInspectorBox();
           this.updateUI();
 
           this.checkObjectiveSuccess();
@@ -2108,13 +2108,11 @@
           }
         }
 
-        // 6. Torres
         this.towers.forEach(t => {
           t.update(this, timeScale);
           t.render(this.ctx, t === this.inspectingTower);
         });
 
-        // 7. Projéteis
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
           const p = this.projectiles[i];
           p.update(this, timeScale);
@@ -2125,7 +2123,6 @@
           }
         }
 
-        // 8. Partículas
         for (let i = this.particles.length - 1; i >= 0; i--) {
           const pt = this.particles[i];
           pt.update(timeScale);
@@ -2136,16 +2133,15 @@
           }
         }
 
-        // 9. Preview Holográfico do Fantasma da Torre e Círculo de Alcance
+        // Preview Holográfico Bloons TD
         const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
-        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.y >= 0) {
+        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.y >= 0 && this.mousePos.y < this.canvas.height - 80) {
           const cfg = this.towerConfigs[activePreviewIndex];
           const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
 
           this.ctx.save();
           this.ctx.translate(this.mousePos.x, this.mousePos.y);
 
-          // Círculo de Alcance Holográfico (Ciano se válido, Vermelho com alerta se inválido)
           this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.85)' : 'rgba(239, 68, 68, 0.85)';
           this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.15)' : 'rgba(239, 68, 68, 0.18)';
           this.ctx.lineWidth = 2.5;
@@ -2154,14 +2150,12 @@
           this.ctx.fill();
           this.ctx.stroke();
 
-          // Corpo da Torre Fantasma
           this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
           this.ctx.globalAlpha = 0.8;
           this.ctx.beginPath();
           this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
           this.ctx.fill();
 
-          // Ícone da Torre
           this.ctx.font = '14px sans-serif';
           this.ctx.textAlign = 'center';
           this.ctx.textBaseline = 'middle';
@@ -2172,7 +2166,6 @@
       }
     }
 
-    // Instanciação Global
     window.addEventListener('DOMContentLoaded', () => {
       window.guardiansGame = new Game();
     });
