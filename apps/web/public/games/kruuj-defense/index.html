@@ -188,7 +188,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 80px;
+      height: 76px;
       background: var(--bg-dock);
       border-top: 2px solid rgba(255, 255, 255, 0.12);
       backdrop-filter: blur(20px);
@@ -196,87 +196,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 12px;
+      padding: 6px 10px;
       z-index: 30;
       box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
     }
 
-    /* 1. Lado Esquerdo: Caixa de Upgrades / Inspeção de Torre */
-    .dock-upgrades-box {
-      width: 130px;
-      height: 66px;
-      background: rgba(22, 28, 54, 0.85);
-      border: 1.5px solid var(--border-color);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 4px 8px;
-      gap: 3px;
-      flex-shrink: 0;
-    }
-
-    .dock-upgrades-box.has-selection {
-      border-color: var(--cyan);
-      background: rgba(56, 232, 255, 0.1);
-      box-shadow: 0 0 15px rgba(56, 232, 255, 0.25);
-    }
-
-    .upgrade-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .btn-upgrade-action {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 4px 6px;
-      font-size: 0.72rem;
-      font-weight: 800;
-      font-family: inherit;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      transition: all 0.2s;
-    }
-
-    .btn-upgrade-action:hover:not(:disabled) {
-      transform: scale(1.03);
-    }
-
-    .btn-upgrade-action:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-      cursor: not-allowed;
-    }
-
-    .btn-sell-action {
-      background: transparent;
-      border: none;
-      color: #f87171;
-      font-size: 0.65rem;
-      font-weight: 800;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* 2. Centro: Cards Quadrados das 5 Corujas (Bloons TD 6) */
+    /* Cards Quadrados das 5 Corujas (Espaçamento Generoso e Limpo) */
     .dock-cards-scroll {
       flex: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      justify-content: space-around;
+      gap: 6px;
       overflow-x: auto;
-      padding: 0 6px;
+      padding: 0 4px;
       scrollbar-width: none;
     }
 
@@ -286,7 +219,7 @@
 
     .bloons-tower-card {
       width: 54px;
-      height: 66px;
+      height: 64px;
       background: rgba(255, 255, 255, 0.05);
       border: 1.5px solid var(--border-color);
       border-radius: 12px;
@@ -351,11 +284,144 @@
       color: var(--gold);
     }
 
-    /* 3. Lado Direito: Botão Verde Bloons TD de Ação / Avanço */
+    /* Botão Verde Bloons TD de Ação */
     .dock-action-box {
-      width: 76px;
-      height: 66px;
+      width: 66px;
+      height: 64px;
       flex-shrink: 0;
+      margin-left: 6px;
+    }
+
+    /* Card Flutuante de Inspeção / Upgrade (Só aparece quando uma coruja é tocada no mapa) */
+    .upgrade-sheet {
+      position: absolute;
+      bottom: 84px;
+      left: 10px;
+      right: 10px;
+      max-width: 440px;
+      margin: 0 auto;
+      background: rgba(13, 18, 36, 0.96);
+      border: 1.5px solid var(--cyan);
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 25;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 232, 255, 0.3);
+      backdrop-filter: blur(14px);
+      transform: translateY(140%);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .upgrade-sheet.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sheet-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sheet-avatar {
+      font-size: 1.6rem;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .sheet-name {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .sheet-rank {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .sheet-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #94a3b8;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .sheet-stats {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-sheet-upgrade {
+      flex: 1;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 3px 12px rgba(16, 185, 129, 0.35);
+      transition: all 0.2s;
+    }
+
+    .btn-sheet-upgrade:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-sheet-sell {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #f87171;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
     .btn-bloons-play {
@@ -552,7 +618,7 @@
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- ===== TOP BAR FLUTUANTE (ESTILO BLOONS TD 6) ===== -->
+    <!-- ===== TOP BAR FLUTUANTE (ESTILO BLOONS TD 6 - CLEAN & ESSENCIAL) ===== -->
     <div class="top-bar-bloons">
       <div class="top-stats">
         <div class="stat-badge">❤️ <span id="hud-lives" style="color: var(--pink);">20</span></div>
@@ -561,14 +627,8 @@
 
       <div class="top-controls">
         <div class="round-badge" id="hud-round-badge">⭐ Onda 1/30</div>
-        <button class="btn-top-ctrl" id="btn-difficulty" onclick="window.guardiansGame.toggleDifficulty()" title="Alternar Dificuldade">
-          🟡 Médio
-        </button>
-        <button class="btn-top-ctrl" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()">
+        <button class="btn-top-ctrl" id="btn-speed" onclick="window.guardiansGame.toggleSpeed()" title="Velocidade">
           <span id="speed-icon">▶</span> <span id="speed-text">1x</span>
-        </button>
-        <button class="btn-top-ctrl" id="btn-autostart" onclick="window.guardiansGame.toggleAutoStart()">
-          <span>Auto:</span> <span id="autostart-status" style="color: #ef4444;">OFF</span>
         </button>
         <button class="btn-top-ctrl" onclick="window.guardiansGame.openModal('mainmenu')" title="Menu e Fases">
           <span>⚙️</span>
@@ -587,20 +647,34 @@
       </div>
     </div>
 
-    <!-- ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6) ===== -->
-    <div class="bottom-dock-bloons">
-      <!-- 1. Caixa de Upgrades / Inspeção de Torre Selecionada -->
-      <div class="dock-upgrades-box" id="dock-inspect-box">
-        <div class="upgrade-header-row">
-          <span id="insp-title">Sem Seleção</span>
-          <button class="btn-sell-action" id="btn-sell" style="display: none;" onclick="window.guardiansGame.sellSelectedTower()">Vender</button>
+    <!-- ===== CARD FLUTUANTE DE UPGRADE / INSPEÇÃO (SÓ APARECE AO TOCAR NA CORUJA) ===== -->
+    <div id="floating-upgrade-sheet" class="upgrade-sheet">
+      <div class="sheet-header">
+        <div class="sheet-title-group">
+          <div class="sheet-avatar" id="insp-avatar">🦉</div>
+          <div>
+            <div class="sheet-name" id="insp-name">Coruja Aprendiz</div>
+            <div class="sheet-rank" id="insp-rank">Patente: Veterana ⭐</div>
+          </div>
         </div>
-        <button class="btn-upgrade-action" id="btn-upgrade" disabled onclick="window.guardiansGame.upgradeSelectedTower()">
-          <span id="upgrade-btn-text">Toque no mapa</span>
-        </button>
+        <button class="sheet-close-btn" onclick="window.guardiansGame.deselectTower()" title="Fechar">✕</button>
       </div>
 
-      <!-- 2. Cards Quadrados dos 5 Arquétipos de Corujas (Bloons TD 6) -->
+      <div class="sheet-stats" id="insp-stats">Dano: 2 • Alcance: 165 • Cadência: Rápida</div>
+
+      <div class="sheet-actions">
+        <button class="btn-sheet-upgrade" id="btn-upgrade" onclick="window.guardiansGame.upgradeSelectedTower()">
+          <span id="upgrade-btn-text">⬆️ Evoluir ($260)</span>
+        </button>
+        <button class="btn-sheet-sell" id="btn-sell" onclick="window.guardiansGame.sellSelectedTower()">
+          Vender ($140)
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== BOTTOM DOCK (ESTILO OFICIAL BLOONS TD 6 - 100% ESPAÇO PARA AS CORUJAS) ===== -->
+    <div class="bottom-dock-bloons">
+      <!-- Cards Quadrados dos 5 Arquétipos de Corujas -->
       <div class="dock-cards-scroll">
         <!-- Coruja Aprendiz ($200) -->
         <button class="bloons-tower-card" id="shop-btn-0" data-index="0" title="Coruja Aprendiz ($200)">
@@ -697,7 +771,7 @@
         </button>
       </div>
 
-      <!-- 3. Botão Verde Bloons TD de Ação / Iniciar Rodada -->
+      <!-- Botão Verde Bloons TD de Ação / Iniciar Rodada -->
       <div class="dock-action-box">
         <button class="btn-bloons-play" id="btn-start-round" onclick="window.guardiansGame.startNextRound()">
           <span>▶▶</span>
@@ -718,6 +792,28 @@
       <div style="font-size: 2.8rem; margin-bottom: -10px;">🦉🎈</div>
       <h1 style="font-size: clamp(26px, 6vw, 36px); margin: 0;">KRUUJ GUARDIANS</h1>
       <p style="font-size: 0.88rem; color: var(--cyan); margin: 0; font-weight: 700;">Defesa Cósmica das Corujas • Bloons TD</p>
+
+      <!-- Card de Continuar Partida Salva (Se houver jogo não terminado) -->
+      <div id="resume-game-card" style="display: none; width: 100%; background: rgba(56, 232, 255, 0.1); border: 1.5px solid var(--cyan); border-radius: 14px; padding: 12px; text-align: left; box-shadow: 0 0 20px rgba(56, 232, 255, 0.2);">
+        <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--cyan); font-weight: 800; letter-spacing: 0.05em; display: flex; justify-content: space-between;">
+          <span>💾 PARTIDA EM ANDAMENTO</span>
+          <span style="color: var(--text-muted); font-size: 0.68rem;">Salvo</span>
+        </div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 3px 0;" id="save-info-text">
+          Trilha Cósmica • Fase 1 (Onda 14)
+        </div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;" id="save-detail-text">
+          Dificuldade: Médio • 3 Corujas no mapa
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-menu-action primary" style="flex: 1; padding: 8px 12px; font-size: 0.9rem;" onclick="window.guardiansGame.resumeSavedGame()">
+            <span>▶️</span> CONTINUAR FASE
+          </button>
+          <button class="btn-menu-action" style="padding: 8px 12px; font-size: 0.78rem; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;" onclick="window.guardiansGame.discardSavedGame()">
+            Descartar
+          </button>
+        </div>
+      </div>
 
       <!-- Seletor de Dificuldade no Menu -->
       <div style="width: 100%; display: flex; flex-direction: column; gap: 4px; margin: 4px 0;">
@@ -1982,6 +2078,7 @@
 
         this.applyTrackPhase();
         this.updateUI();
+        this.checkSavedGameForMenu();
 
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
@@ -2082,6 +2179,7 @@
                   this.inspectingTower = newTower;
                   this.updateInspectorBox();
                   this.updateUI();
+                  this.saveGameState();
                   return;
                 }
               }
@@ -2124,6 +2222,7 @@
             this.inspectingTower = newTower;
             this.updateInspectorBox();
             this.updateUI();
+            this.saveGameState();
           }
           return;
         }
@@ -2137,8 +2236,12 @@
           }
         }
 
-        this.inspectingTower = clickedTower;
-        this.updateInspectorBox();
+        if (clickedTower) {
+          this.inspectingTower = clickedTower;
+          this.updateInspectorBox();
+        } else {
+          this.deselectTower();
+        }
       }
 
       canPlaceTower(x, y) {
@@ -2167,13 +2270,14 @@
       // ===== EVOLUÇÃO / UPGRADE DA TORRE =====
       upgradeSelectedTower() {
         if (!this.inspectingTower) return;
-        const cost = this.inspectingTower.getUpgradeCost();
+        const cost = this.inspectingTower.getUpgradeCost(this.difficulty.costMult);
         if (cost !== null && this.money >= cost) {
           this.money -= cost;
           this.inspectingTower.upgrade();
           this.sound.playUpgrade();
           this.updateInspectorBox();
           this.updateUI();
+          this.saveGameState();
         }
       }
 
@@ -2186,9 +2290,9 @@
         const idx = this.towers.indexOf(this.inspectingTower);
         if (idx !== -1) this.towers.splice(idx, 1);
 
-        this.inspectingTower = null;
-        this.updateInspectorBox();
+        this.deselectTower();
         this.updateUI();
+        this.saveGameState();
       }
 
       toggleSpeed() {
@@ -2391,6 +2495,7 @@
             this.modalOrigin = 'mainmenu';
           }
         } else {
+          this.checkSavedGameForMenu();
           const hasProgress = this.round > 1 || this.towers.length > 0;
           const resumeBtn = document.getElementById('btn-menu-resume');
           const restartBtn = document.getElementById('btn-menu-restart');
@@ -2419,6 +2524,7 @@
 
       gameOver() {
         this.isRoundRunning = false;
+        this.clearSavedGame();
         this.openModal('gameover');
         try {
           window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-defense', score: this.round * 100 }, '*');
@@ -2427,6 +2533,7 @@
 
       restartGame() {
         this.closeModal();
+        this.clearSavedGame();
         this.money = 650;
         this.lives = this.difficulty.lives;
         this.round = 1;
@@ -2440,8 +2547,7 @@
         this.activeBoss = null;
         document.getElementById('boss-hud').style.display = 'none';
 
-        this.inspectingTower = null;
-        this.updateInspectorBox();
+        this.deselectTower();
         this.updateUI();
       }
 
@@ -2482,33 +2588,34 @@
         });
       }
 
-      // Atualiza a Caixa de Upgrades Bloons TD no canto inferior esquerdo com a Patente da Coruja
+      // Atualiza o Card Flutuante de Inspeção / Upgrade (Bloons TD 6)
       updateInspectorBox() {
-        const box = document.getElementById('dock-inspect-box');
-        const titleEl = document.getElementById('insp-title');
-        const btnUpgrade = document.getElementById('btn-upgrade');
-        const textUpgrade = document.getElementById('upgrade-btn-text');
-        const btnSell = document.getElementById('btn-sell');
+        const sheet = document.getElementById('floating-upgrade-sheet');
+        if (!sheet) return;
 
         if (!this.inspectingTower) {
-          box.classList.remove('has-selection');
-          titleEl.textContent = 'Sem Seleção';
-          textUpgrade.textContent = 'Toque no mapa';
-          btnUpgrade.disabled = true;
-          btnSell.style.display = 'none';
+          sheet.classList.remove('active');
           return;
         }
 
-        box.classList.add('has-selection');
+        sheet.classList.add('active');
         const t = this.inspectingTower;
         const currentRank = t.getCurrentRank ? t.getCurrentRank() : `Nv.${t.level}`;
         const nextRank = t.getNextRank ? t.getNextRank() : null;
         const stars = t.level === 1 ? '' : (t.level === 2 ? ' ⭐' : ' ⭐⭐');
-        titleEl.textContent = `${t.name}: ${currentRank}${stars}`;
-        btnSell.style.display = 'block';
+
+        document.getElementById('insp-avatar').textContent = t.icon;
+        document.getElementById('insp-name').textContent = t.name;
+        document.getElementById('insp-rank').textContent = `Patente: ${currentRank}${stars}`;
+        document.getElementById('insp-stats').textContent = `Dano: ${t.damage} • Alcance: ${t.range} • Cadência: ${Math.round(60 / (t.cooldownMax || 30) * 10) / 10} t/s`;
+
+        const btnUpgrade = document.getElementById('btn-upgrade');
+        const textUpgrade = document.getElementById('upgrade-btn-text');
+        const btnSell = document.getElementById('btn-sell');
+
         btnSell.textContent = `Vender ($${Math.floor(t.totalInvested * 0.7)})`;
 
-        const cost = t.getUpgradeCost();
+        const cost = t.getUpgradeCost(this.difficulty.costMult);
         if (cost !== null && nextRank) {
           textUpgrade.textContent = `⬆️ ${nextRank} ($${cost})`;
           btnUpgrade.disabled = this.money < cost;
@@ -2516,6 +2623,135 @@
           textUpgrade.textContent = 'Patente Máxima! 👑';
           btnUpgrade.disabled = true;
         }
+      }
+
+      deselectTower() {
+        this.inspectingTower = null;
+        this.updateInspectorBox();
+      }
+
+      // ===== PERSISTÊNCIA & CONTINUAR FASE ONDE PAROU =====
+      saveGameState() {
+        if (this.lives <= 0 || (this.round <= 1 && this.towers.length === 0)) {
+          return;
+        }
+
+        const saveData = {
+          trackIndex: this.currentTrackIndex,
+          phaseIndex: this.currentPhaseIndex,
+          difficultyIndex: this.difficultyIndex,
+          round: this.round,
+          money: this.money,
+          lives: this.lives,
+          starsEarned: this.starsEarned,
+          freeplayMode: this.freeplayMode,
+          towers: this.towers.map(t => ({
+            typeIndex: t.typeIndex,
+            x: Math.round(t.x),
+            y: Math.round(t.y),
+            level: t.level,
+            totalInvested: t.totalInvested
+          })),
+          timestamp: Date.now()
+        };
+
+        try {
+          localStorage.setItem('kruuj_guardians_save_v1', JSON.stringify(saveData));
+          window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-defense', saveData }, '*');
+        } catch(e) {}
+      }
+
+      clearSavedGame() {
+        try {
+          localStorage.removeItem('kruuj_guardians_save_v1');
+        } catch(e) {}
+      }
+
+      loadSavedGame() {
+        try {
+          const raw = localStorage.getItem('kruuj_guardians_save_v1');
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch(e) {
+          return null;
+        }
+      }
+
+      checkSavedGameForMenu() {
+        const saved = this.loadSavedGame();
+        const card = document.getElementById('resume-game-card');
+        if (!card) return;
+
+        if (saved && saved.round && (saved.round > 1 || (saved.towers && saved.towers.length > 0))) {
+          card.style.display = 'block';
+          const trackName = THEMATIC_TRACKS[saved.trackIndex]?.name || 'Trilha';
+          document.getElementById('save-info-text').textContent = `${trackName} • Fase ${saved.phaseIndex + 1} (Onda ${saved.round})`;
+          const diff = DIFFICULTIES[saved.difficultyIndex]?.name || 'Médio';
+          const count = saved.towers?.length || 0;
+          document.getElementById('save-detail-text').textContent = `Dificuldade: ${diff} • ${count} Corujas no mapa • ❤️ ${saved.lives} • 🪙 $${saved.money}`;
+        } else {
+          card.style.display = 'none';
+        }
+      }
+
+      resumeSavedGame() {
+        const saved = this.loadSavedGame();
+        if (!saved) {
+          this.closeModal();
+          return;
+        }
+
+        this.currentTrackIndex = saved.trackIndex || 0;
+        this.currentPhaseIndex = saved.phaseIndex || 0;
+        this.difficultyIndex = saved.difficultyIndex !== undefined ? saved.difficultyIndex : 1;
+        this.difficulty = DIFFICULTIES[this.difficultyIndex];
+
+        this.round = saved.round || 1;
+        this.money = saved.money !== undefined ? saved.money : 650;
+        this.lives = saved.lives !== undefined ? saved.lives : this.difficulty.lives;
+        this.starsEarned = saved.starsEarned || 0;
+        this.freeplayMode = saved.freeplayMode || false;
+        this.isRoundRunning = false;
+
+        this.applyTrackPhase();
+
+        this.towers = [];
+        if (Array.isArray(saved.towers)) {
+          saved.towers.forEach(st => {
+            const tower = createTower(st.typeIndex, st.x, st.y);
+            tower.level = st.level || 1;
+            tower.totalInvested = st.totalInvested || tower.baseCost;
+
+            if (tower.level === 2) {
+              tower.range = Math.round(tower.range * 1.25);
+              tower.cooldownMax = Math.round(tower.cooldownMax * 0.8);
+              tower.damage += 1;
+              if (tower.isAOE) tower.aoeRadius = Math.round(tower.aoeRadius * 1.35);
+            } else if (tower.level === 3) {
+              tower.range = Math.round(tower.range * 1.55);
+              tower.cooldownMax = Math.round(tower.cooldownMax * 0.6);
+              tower.damage += 3;
+              if (tower.isAOE) tower.aoeRadius = Math.round(tower.aoeRadius * 1.85);
+            }
+
+            this.towers.push(tower);
+          });
+        }
+
+        this.enemies = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.activeBoss = null;
+        document.getElementById('boss-hud').style.display = 'none';
+
+        this.deselectTower();
+        this.closeModal();
+        this.updateUI();
+      }
+
+      discardSavedGame() {
+        this.clearSavedGame();
+        this.checkSavedGameForMenu();
       }
 
       loop() {
@@ -2580,6 +2816,7 @@
           this.updateUI();
 
           this.checkObjectiveSuccess();
+          this.saveGameState();
 
           if (this.autoStart) {
             setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
