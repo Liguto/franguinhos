@@ -439,15 +439,42 @@ export async function syncDatabaseWithCatalog() {
   try {
     const validSlugs = new Set(REAL_18_GAMES.map(g => g.slug));
 
-    // 1. Despublicar/remover jogos fictícios no Supabase para que não apareçam mais no site
-    await prisma.game.updateMany({
+    // 1. Excluir definitivamente do Supabase todos os jogos que não estão listados para jogar
+    const obsoleteGames = await prisma.game.findMany({
       where: {
         slug: { notIn: Array.from(validSlugs) }
       },
-      data: {
-        statusEditorial: 'rascunho'
-      }
+      select: { id: true, slug: true, title: true }
     });
+
+    if (obsoleteGames.length > 0) {
+      const obsoleteIds = obsoleteGames.map(g => g.id);
+      const obsoleteSlugs = obsoleteGames.map(g => g.slug);
+      console.log(`[Supabase Cleanup] Removendo ${obsoleteGames.length} jogos não listados/poluídos do banco:`, obsoleteSlugs);
+
+      // Remove contratos vinculados
+      await prisma.contract.deleteMany({
+        where: { gameId: { in: obsoleteIds } }
+      });
+
+      // Remove favoritos vinculados
+      await prisma.favorite.deleteMany({
+        where: { gameId: { in: obsoleteIds } }
+      });
+
+      // Remove sessões de analytics associadas
+      await prisma.analyticsEvent.updateMany({
+        where: { gameSlug: { in: obsoleteSlugs } },
+        data: { gameId: null }
+      });
+
+      // Deleta definitivamente os jogos da tabela Game
+      const deleteResult = await prisma.game.deleteMany({
+        where: { id: { in: obsoleteIds } }
+      });
+
+      console.log(`[Supabase Cleanup] ${deleteResult.count} jogos obsoletos foram removidos definitivamente do Supabase!`);
+    }
 
     // 2. Atualizar todos os 18 jogos no banco com títulos, banners e ícones oficiais
     for (const item of REAL_18_GAMES) {
