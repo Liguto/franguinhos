@@ -4056,6 +4056,165 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   gap: 14px;
 }
 
+/* ======================================================================
+   KRUUJ POKI-STYLE CLEAN MOSAIC GRID (Página Inicial & Recomendações)
+   ====================================================================== */
+.kruuj-poki-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.kruuj-poki-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+.kruuj-poki-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #11172b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.kruuj-poki-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(56, 232, 255, 0.5);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 232, 255, 0.25);
+  z-index: 2;
+}
+
+.kruuj-poki-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  background: #090d1a;
+}
+
+.kruuj-poki-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.kruuj-poki-card:hover .kruuj-poki-thumb img {
+  transform: scale(1.08);
+}
+
+.kruuj-poki-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 9, 20, 0.4);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.kruuj-poki-card:hover .kruuj-poki-overlay {
+  opacity: 1;
+}
+
+.kruuj-poki-play-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(56, 232, 255, 0.6);
+  transform: scale(0.85);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.kruuj-poki-card:hover .kruuj-poki-play-icon {
+  transform: scale(1);
+}
+
+.kruuj-poki-like-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(13, 18, 36, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  z-index: 5;
+}
+
+.kruuj-poki-like-btn:hover {
+  transform: scale(1.15);
+  background: rgba(13, 18, 36, 0.95);
+}
+
+.kruuj-poki-meta {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kruuj-poki-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.kruuj-poki-cat {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .kruuj-shelf-header {
   display: flex;
   align-items: center;

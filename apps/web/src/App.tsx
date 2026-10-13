@@ -2606,152 +2606,38 @@ export default function App() {
                           </div>
                         </section>
                       ) : (
-                        <>
-                          {/* 3. Prateleiras de Jogos Oficiais */}
-                      {/* Prateleira 1: Em alta agora */}
-                      <section className="kruuj-shelf-section">
-                        <div className="kruuj-shelf-header">
-                          <h3 className="kruuj-shelf-title">
-                            <Flame className="w-5 h-5 text-orange-500 fill-orange-500/20" /> {t.trending}
-                          </h3>
-                          <span 
-                            className="kruuj-shelf-see-all"
-                            onClick={() => { setView('explore'); setExploreGenre('Ação'); }}
-                          >
-                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="kruuj-shelf-row">
-                          {shelfTrending.map(game => (
-                            <div 
-                              key={game.id} 
-                              className="kruuj-game-card-clean"
-                              onClick={() => handleOpenDetails(game)}
-                            >
-                              <div className="kruuj-game-thumb">
-                                {renderGameCover(game)}
-                                <button
-                                  className="kruuj-game-like-btn"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title="Favoritar"
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                                </button>
+                        <div className="kruuj-poki-section" style={{ marginTop: '16px' }}>
+                          <div className="kruuj-poki-grid">
+                            {getFilteredGames().map((game) => (
+                              <div 
+                                key={game.id} 
+                                className="kruuj-poki-card"
+                                onClick={() => handlePlayGame(game)}
+                                title={`Jogar ${game.title}`}
+                              >
+                                <div className="kruuj-poki-thumb">
+                                  {renderGameCover(game)}
+                                  <div className="kruuj-poki-overlay">
+                                    <div className="kruuj-poki-play-icon">
+                                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                                    </div>
+                                  </div>
+                                  <button
+                                    className="kruuj-poki-like-btn"
+                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                                    title="Favoritar"
+                                  >
+                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                  </button>
+                                </div>
+                                <div className="kruuj-poki-meta">
+                                  <span className="kruuj-poki-title">{game.title}</span>
+                                  <span className="kruuj-poki-cat">{game.category}</span>
+                                </div>
                               </div>
-                              <div className="kruuj-game-title-clean">{game.title}</div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </section>
-
-                      {/* Prateleira 2: Descobertas para você */}
-                      <section className="kruuj-shelf-section">
-                        <div className="kruuj-shelf-header">
-                          <h3 className="kruuj-shelf-title">
-                            <span>🦉</span> {t.discoveries}
-                          </h3>
-                          <span 
-                            className="kruuj-shelf-see-all"
-                            onClick={() => { setView('explore'); setExploreMoment('Relaxar'); }}
-                          >
-                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="kruuj-shelf-row">
-                          {shelfDiscoveries.map(game => (
-                            <div 
-                              key={game.id} 
-                              className="kruuj-game-card-clean"
-                              onClick={() => handleOpenDetails(game)}
-                            >
-                              <div className="kruuj-game-thumb">
-                                {renderGameCover(game)}
-                                <button
-                                  className="kruuj-game-like-btn"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title="Favoritar"
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                                </button>
-                              </div>
-                              <div className="kruuj-game-title-clean">{game.title}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-
-                      {/* Prateleira 3: Novidades da semana */}
-                      <section className="kruuj-shelf-section">
-                        <div className="kruuj-shelf-header">
-                          <h3 className="kruuj-shelf-title">
-                            <span className="text-xs bg-cyan-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded">NOVO</span> {t.newReleases}
-                          </h3>
-                          <span 
-                            className="kruuj-shelf-see-all"
-                            onClick={() => { setView('explore'); setExploreMoment('5 minutos'); }}
-                          >
-                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="kruuj-shelf-row">
-                          {shelfNewReleases.map(game => (
-                            <div 
-                              key={game.id} 
-                              className="kruuj-game-card-clean"
-                              onClick={() => handleOpenDetails(game)}
-                            >
-                              <div className="kruuj-game-thumb">
-                                {renderGameCover(game)}
-                                <button
-                                  className="kruuj-game-like-btn"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title="Favoritar"
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                                </button>
-                              </div>
-                              <div className="kruuj-game-title-clean">{game.title}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-
-                      {/* Prateleira 4: Mais jogados */}
-                      <section className="kruuj-shelf-section">
-                        <div className="kruuj-shelf-header">
-                          <h3 className="kruuj-shelf-title">
-                            <Trophy className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> {t.mostPlayed}
-                          </h3>
-                          <span 
-                            className="kruuj-shelf-see-all"
-                            onClick={() => { setView('explore'); setExploreAudience('Play'); }}
-                          >
-                            Ver todos <ChevronRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                        <div className="kruuj-shelf-row">
-                          {shelfMostPlayed.map(game => (
-                            <div 
-                              key={game.id} 
-                              className="kruuj-game-card-clean"
-                              onClick={() => handleOpenDetails(game)}
-                            >
-                              <div className="kruuj-game-thumb">
-                                {renderGameCover(game)}
-                                <button
-                                  className="kruuj-game-like-btn"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title="Favoritar"
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                                </button>
-                              </div>
-                              <div className="kruuj-game-title-clean">{game.title}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </section>
-                        </>
                       )}
                     </>
                   )}
@@ -2790,86 +2676,62 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="kruuj-details-split">
-                    {/* Esquerda: Capa Grande + Botão de Ação */}
-                    <div className="flex flex-col gap-4">
-                      <div className="kruuj-details-cover-box">
-                        <img src={selectedGame.bannerUrl} alt={selectedGame.title} />
-                        <div className="kruuj-details-cover-overlay">
-                          <h2 className="text-2xl font-black text-white">{selectedGame.title}</h2>
-                          <p className="text-xs text-gray-300 mt-1">
-                            {selectedGame.author} • {selectedGame.category} • Class: {selectedGame.ageRating}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="kruuj-details-actions">
-                        <button 
-                          className="kruuj-featured-play-btn flex-1 justify-center py-3 text-sm"
-                          onClick={() => handlePlayGame(selectedGame)}
-                        >
-                          <Play className="w-4 h-4 fill-current" /> Jogar agora
-                        </button>
-                        <button 
-                          className="btn-secondary px-6 text-xs"
-                          onClick={() => handleToggleFavorite(selectedGame.id)}
-                        >
-                          <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                          {isGameFavorited(selectedGame) ? 'Favoritado' : 'Favoritar'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Direita: Sobre o Jogo + Metadados */}
-                    <div className="kruuj-details-info-box">
-                      <div>
-                        <h3 className="text-lg font-bold text-white mb-2">Sobre o jogo</h3>
-                        <p className="text-xs text-gray-300 leading-relaxed">
-                          {selectedGame.description}
+                  <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
+                    {/* Capa de Apresentação Estilo Cinema */}
+                    <div className="kruuj-details-cover-box" style={{ maxHeight: '380px' }}>
+                      <img src={selectedGame.bannerUrl} alt={selectedGame.title} />
+                      <div className="kruuj-details-cover-overlay">
+                        <h2 className="text-3xl font-black text-white">{selectedGame.title}</h2>
+                        <p className="text-xs text-gray-300 mt-1 font-bold">
+                          {selectedGame.category} • Class: {selectedGame.ageRating}
                         </p>
                       </div>
-
-                      <div className="kruuj-meta-chips-grid">
-                        <div className="kruuj-meta-chip">
-                          <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-bold">
-                            <Clock className="w-3.5 h-3.5" /> Duração média
-                          </div>
-                          <span className="text-xs font-semibold text-white">5-10 min</span>
-                        </div>
-
-                        <div className="kruuj-meta-chip">
-                          <div className="flex items-center gap-1.5 text-purple-400 text-xs font-bold">
-                            <Users className="w-3.5 h-3.5" /> Jogadores
-                          </div>
-                          <span className="text-xs font-semibold text-white">1 Jogador</span>
-                        </div>
-
-                        <div className="kruuj-meta-chip">
-                          <div className="flex items-center gap-1.5 text-pink-400 text-xs font-bold">
-                            <Smartphone className="w-3.5 h-3.5" /> Plataforma
-                          </div>
-                          <span className="text-xs font-semibold text-white">Web / Mobile</span>
-                        </div>
-                      </div>
                     </div>
-                  </div>
 
-                  {/* Jogos Relacionados */}
-                  <div className="pt-4 border-t border-white/5 space-y-3">
-                    <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Jogos Recomendados</h4>
-                    <div className="kruuj-shelf-row">
-                      {getRelatedGames(selectedGame).map(rel => (
-                        <div 
-                          key={rel.id} 
-                          className="kruuj-game-card-clean"
-                          onClick={() => handleOpenDetails(rel)}
-                        >
-                          <div className="kruuj-game-thumb">
-                            {renderGameCover(rel)}
+                    <div className="flex gap-3 justify-center items-center">
+                      <button 
+                        className="kruuj-featured-play-btn flex-1 max-w-md justify-center py-3.5 text-base"
+                        onClick={() => handlePlayGame(selectedGame)}
+                      >
+                        <Play className="w-5 h-5 fill-current" /> {t.playNow}
+                      </button>
+                      <button 
+                        className="btn-secondary px-6 py-3 text-xs"
+                        onClick={() => handleToggleFavorite(selectedGame.id)}
+                      >
+                        <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
+                        {isGameFavorited(selectedGame) ? 'Favoritado' : 'Favoritar'}
+                      </button>
+                    </div>
+
+                    {/* Jogos Recomendados em Grid Poki */}
+                    <div className="pt-6 border-t border-white/5 space-y-4">
+                      <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>🦉</span> Mais Jogos Recomendados
+                      </h4>
+                      <div className="kruuj-poki-grid">
+                        {getRelatedGames(selectedGame).map(rel => (
+                          <div 
+                            key={rel.id} 
+                            className="kruuj-poki-card"
+                            onClick={() => handlePlayGame(rel)}
+                            title={`Jogar ${rel.title}`}
+                          >
+                            <div className="kruuj-poki-thumb">
+                              {renderGameCover(rel)}
+                              <div className="kruuj-poki-overlay">
+                                <div className="kruuj-poki-play-icon">
+                                  <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="kruuj-poki-meta">
+                              <span className="kruuj-poki-title">{rel.title}</span>
+                              <span className="kruuj-poki-cat">{rel.category}</span>
+                            </div>
                           </div>
-                          <div className="kruuj-game-title-clean">{rel.title}</div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3491,117 +3353,40 @@ export default function App() {
                   <div className="ad-slot-leaderboard hidden md:block"></div>
                 )}
 
-                {/* LAYOUT DE INFORMAÇÕES DEBAIXO DO JOGO (Apenas no Desktop) */}
-                <div className="play-info-split hidden md:grid">
-                  
-                  {/* COLUNA ESQUERDA */}
-                  <div className="space-y-6">
-                    
-                    {/* Descrição do Jogo */}
-                    <div className="glass-panel p-6 space-y-4">
-                      <h3 className="text-lg font-bold text-cyan-300 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-cyan-400" /> Descrição do Circuito
-                      </h3>
-                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                        {selectedGame.description}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
-                        {selectedGame.tags.map(t => (
-                          <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-cyan-950/40 text-cyan-300 border border-cyan-800/20 font-bold">
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Grid Premium de Recomendados */}
-                    <div className="space-y-4">
-                      <h3 className="text-md font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                        <Grid className="w-5 h-5 text-cyan-400" /> Continue Jogando (Sugeridos)
-                      </h3>
-                      <div className="game-grid">
-                        {getRelatedGames(selectedGame).map(game => (
-                          <div 
-                            key={game.id}
-                            className="glass-card p-4 flex flex-col justify-between cursor-pointer group"
-                            onClick={() => handlePlayGame(game)}
+                {/* MAIS JOGOS RECOMENDADOS (Estilo Poki.com) */}
+                <div className="mt-8 space-y-4 hidden md:block">
+                  <h3 className="text-md font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                    <Grid className="w-5 h-5 text-cyan-400" /> Mais Jogos para Você
+                  </h3>
+                  <div className="kruuj-poki-grid">
+                    {getRelatedGames(selectedGame).map(game => (
+                      <div 
+                        key={game.id}
+                        className="kruuj-poki-card"
+                        onClick={() => handlePlayGame(game)}
+                        title={`Jogar ${game.title}`}
+                      >
+                        <div className="kruuj-poki-thumb">
+                          {renderGameCover(game)}
+                          <div className="kruuj-poki-overlay">
+                            <div className="kruuj-poki-play-icon">
+                              <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                            </div>
+                          </div>
+                          <button
+                            className="kruuj-poki-like-btn"
+                            onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                            title="Favoritar"
                           >
-                            <div>
-                              <div className="game-card-icon-container">
-                                {renderGameCover(game)}
-                                
-                                <div 
-                                  className="game-card-like-pill"
-                                  onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                  title={favorites.includes(game.id) ? 'Remover dos favoritos' : 'Favoritar este jogo'}
-                                >
-                                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(game.id) ? 'fill-pink-500 text-pink-500 animate-heart' : 'text-gray-400'}`} />
-                                  <span>{likesCount[game.id] || 0}</span>
-                                </div>
-                              </div>
-                              <h4 className="font-bold text-sm tracking-tight text-white truncate group-hover:text-cyan-400 transition">{game.title}</h4>
-                              <p className="text-[11px] text-purple-300 font-bold uppercase mt-1">{game.category}</p>
-                            </div>
-                            <div className="flex justify-between items-center mt-3 pt-2 border-t border-white/5">
-                              <span className="text-[10px] text-gray-400">Class: {game.ageRating}</span>
-                              <span className="text-[10px] font-bold text-cyan-400 font-mono">🎮 JOGAR</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* COLUNA DIREITA */}
-                  <div className="info-panel">
-                    
-                    {/* Ficha Técnica & Controles */}
-                    <div className="glass-panel p-6 space-y-4">
-                      <h3 className="text-md font-bold text-cyan-300 flex items-center gap-2 uppercase tracking-wider">
-                        <Settings className="w-4 h-4 text-cyan-400" /> Especificações & Controles
-                      </h3>
-                      
-                      <div className="space-y-3 text-xs">
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-gray-400">Desenvolvedor:</span>
-                          <span className="font-bold text-purple-300">{selectedGame.author}</span>
+                            <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                          </button>
                         </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-gray-400">Acordo Licença:</span>
-                          <span className="font-bold text-green-400">{selectedGame.licenseName}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-gray-400">Classificação:</span>
-                          <span className="font-extrabold text-cyan-400">{selectedGame.ageRating}</span>
-                        </div>
-                        
-                        <div className="pt-2">
-                          <span className="text-gray-400 block mb-2">Compatibilidade:</span>
-                          <div className="flex gap-2">
-                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.toque ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
-                              <Smartphone className="w-4 h-4" />
-                              <span className="text-[9px]">Toque</span>
-                            </div>
-                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.teclado ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
-                              <Gamepad2 className="w-4 h-4" />
-                              <span className="text-[9px]">Teclado</span>
-                            </div>
-                            <div className={`p-2 rounded-lg flex flex-col items-center gap-1 flex-1 ${selectedGame.controls.mouse ? 'bg-cyan-950/40 border border-cyan-500/25 text-cyan-400' : 'bg-white/5 text-gray-600'}`}>
-                              <Volume2 className="w-4 h-4" />
-                              <span className="text-[9px]">Mouse</span>
-                            </div>
-                          </div>
+                        <div className="kruuj-poki-meta">
+                          <span className="kruuj-poki-title">{game.title}</span>
+                          <span className="kruuj-poki-cat">{game.category}</span>
                         </div>
                       </div>
-                    </div>
-
-                    {/* SLOT DE ANÚNCIO RETANGULAR LATERAL */}
-                    {consentOptions.advertising && (
-                      <div className="ad-slot-rectangle"></div>
-                    )}
-
+                    ))}
                   </div>
                 </div>
               </div>
