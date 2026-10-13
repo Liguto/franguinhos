@@ -2436,17 +2436,67 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      {/* 1. Hero Card: Boas-vindas + Mascote */}
-                      <div className="kruuj-hero-welcome">
-                        <div className="kruuj-hero-text">
-                          <h1>
-                            Olá, <span className="kruuj-hero-gradient-text">Explorador!</span>
-                          </h1>
-                          <h2>O que você quer jogar hoje?</h2>
-                          <p>A KRUUJ encontra o jogo certo para você.</p>
+                      {/* 1. Banner Carrossel Destaque (KRUUJ recomenda) no Topo do Layout */}
+                      <div 
+                        className="kruuj-featured-banner"
+                        style={{
+                          backgroundImage: `linear-gradient(90deg, rgba(8, 14, 26, 0.96) 0%, rgba(8, 14, 26, 0.84) 48%, rgba(8, 14, 26, 0.3) 80%, rgba(8, 14, 26, 0.1) 100%), url('${featuredGames[featuredIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
+                          backgroundPosition: 'right center',
+                          backgroundSize: 'cover',
+                          backgroundRepeat: 'no-repeat'
+                        }}
+                      >
+                        <button 
+                          className="kruuj-featured-arrow-left"
+                          onClick={prevFeatured}
+                          title="Anterior"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex flex-col z-10 pl-6 pr-4">
+                          <span className="kruuj-featured-badge">
+                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> {featuredGames[featuredIndex].tag}
+                          </span>
+                          <h2 className="kruuj-featured-title">
+                            {featuredGames[featuredIndex].title}
+                          </h2>
+                          <p className="kruuj-featured-desc">
+                            {featuredGames[featuredIndex].subtitle}
+                          </p>
+                          <div>
+                            <button 
+                              className="kruuj-featured-play-btn"
+                              onClick={() => {
+                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || games[0];
+                                handlePlayGame(matched);
+                              }}
+                            >
+                              <Play className="w-4 h-4 fill-current" /> {t.playNow}
+                            </button>
+                          </div>
                         </div>
-                        <div className="kruuj-hero-mascot-wrapper">
-                          <img src="/kruuj-mascote.png" alt="Mascote KRUUJ" className="kruuj-hero-mascot-img" />
+
+                        <div className="hidden md:flex items-center gap-4 z-10 pr-4 shrink-0">
+                          {/* Espaço reservado para visualização limpa do banner de fundo */}
+                        </div>
+
+                        <button 
+                          className="kruuj-featured-arrow-right"
+                          onClick={nextFeatured}
+                          title="Próximo"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+
+                        <div className="kruuj-featured-dots">
+                          {featuredGames.map((_, i) => (
+                            <span 
+                              key={i} 
+                              className={`kruuj-dot ${featuredIndex === i ? 'active' : ''}`}
+                              onClick={() => setFeaturedIndex(i)}
+                            />
+                          ))}
                         </div>
                       </div>
 
@@ -2557,71 +2607,7 @@ export default function App() {
                         </section>
                       ) : (
                         <>
-                          {/* 3. Banner Carrossel Destaque (KRUUJ recomenda) */}
-                      <div 
-                        className="kruuj-featured-banner"
-                        style={{
-                          backgroundImage: `linear-gradient(90deg, rgba(8, 14, 26, 0.96) 0%, rgba(8, 14, 26, 0.84) 48%, rgba(8, 14, 26, 0.3) 80%, rgba(8, 14, 26, 0.1) 100%), url('${featuredGames[featuredIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
-                          backgroundPosition: 'right center',
-                          backgroundSize: 'cover',
-                          backgroundRepeat: 'no-repeat'
-                        }}
-                      >
-                        <button 
-                          className="kruuj-featured-arrow-left"
-                          onClick={prevFeatured}
-                          title="Anterior"
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-
-                        <div className="flex flex-col z-10 pl-6 pr-4">
-                          <span className="kruuj-featured-badge">
-                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> {featuredGames[featuredIndex].tag}
-                          </span>
-                          <h2 className="kruuj-featured-title">
-                            {featuredGames[featuredIndex].title}
-                          </h2>
-                          <p className="kruuj-featured-desc">
-                            {featuredGames[featuredIndex].subtitle}
-                          </p>
-                          <div>
-                            <button 
-                              className="kruuj-featured-play-btn"
-                              onClick={() => {
-                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || games[0];
-                                handlePlayGame(matched);
-                              }}
-                            >
-                              <Play className="w-4 h-4 fill-current" /> {t.playNow}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="hidden md:flex items-center gap-4 z-10 pr-4 shrink-0">
-                          {/* Espaço reservado para visualização limpa do banner de fundo */}
-                        </div>
-
-                        <button 
-                          className="kruuj-featured-arrow-right"
-                          onClick={nextFeatured}
-                          title="Próximo"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-
-                        <div className="kruuj-featured-dots">
-                          {featuredGames.map((_, i) => (
-                            <span 
-                              key={i} 
-                              className={`kruuj-dot ${featuredIndex === i ? 'active' : ''}`}
-                              onClick={() => setFeaturedIndex(i)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* 4. Prateleiras de Jogos Oficiais */}
+                          {/* 3. Prateleiras de Jogos Oficiais */}
                       {/* Prateleira 1: Em alta agora */}
                       <section className="kruuj-shelf-section">
                         <div className="kruuj-shelf-header">
