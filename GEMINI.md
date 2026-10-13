@@ -81,3 +81,18 @@ npm run dev:admin   # Inicia o Cockpit na porta 3001
 
 - **Compilação Completa:** `npm run build` compila todos os pacotes e garante integridade estrita de tipagem.
 - **Rollback de Jogos:** O diretório de cada jogo no Cloud Storage é versionado (ex: `/games/snake-v1/index.html`). O rollback técnico é feito instantaneamente editando o campo `prefixUrl` da ficha técnica do jogo no Cockpit Admin.
+
+---
+
+## 🤖 Subagentes Especializados do Projeto (Gemini CLI)
+
+O repositório conta com subagentes especializados configurados em `.gemini/agents/` para manter 100% do contexto vivo entre sessões:
+
+### 1. `@kruuj-game-engineer` (`.gemini/agents/kruuj-game-engineer.md`)
+- **Foco:** Criação de novos jogos em HTML5 Canvas, WebAudio, física de colisão, mecânicas arcade, telas de carregamento `KruujLoader`, responsividade mobile fullscreen (desvio de 68px do botão Poki) e integração de catálogo no portal (`App.tsx` e `catalogSync.ts`).
+- **Como invocar no chat:** `@kruuj-game-engineer crie um novo jogo de tiro cósmico...` ou peça alterações de gameplay.
+
+### 2. `@kruuj-business-architect` (`.gemini/agents/kruuj-business-architect.md`)
+- **Foco:** Consultoria de produto, expansão do portal KRUUJ, alinhamento com o White Paper v1.0, 7 verticais de públicos (Parent Gate para bebês, Sênior 60+, Kids), modelos de monetização (Rewarded Ads, Pre-roll) e governança jurídica LGPD/ECA.
+- **Como invocar no chat:** `@kruuj-business-architect como podemos aumentar a retenção da vertical infantil...` ou dúvidas de roadmap.
+
