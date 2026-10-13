@@ -1370,6 +1370,67 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
     }
 
+    // ===== i18n INTERNACIONALIZAÇÃO GLOBAL (PT, EN, ES) =====
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+
+    const I18N_ORBIT = {
+      pt: {
+        tagline: 'Prepare os fones, a coruja já está chegando.',
+        tips: ['Toque na tela no momento certo para disparar o estilingue!', 'Cada 10 planetas você alcança uma Linha de Checkpoint!', 'Colete estrelas e cápsulas de poder no vácuo espacial.'],
+        hint: 'Suba de planeta em planeta! Alcance os Checkpoints tracejados!',
+        playBtn: 'JOGAR COM 3 VIDAS 🪐',
+        playAgain: 'JOGAR NOVAMENTE 🪐',
+        aimOn: 'MIRA: ON',
+        aimOff: 'MIRA: OFF',
+        gameOverTitle: 'FIM DE VOO!',
+        gameOverDesc: (cp, sc) => `Suas 3 vidas acabaram! Você alcançou o Checkpoint ${cp} e fez ${sc} pontos!`,
+        perfect: 'PERFEITO!',
+        cpSaved: (cp) => `✨ CHECKPOINT ${cp} SALVO! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ATIVO`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ RESPAWN! Restam ${lv} vidas`,
+        shieldSaved: 'ESCUDO SALVOU VOCÊ! 🛡️',
+        hyperJump: '⚡ HIPER-SALTO!'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Tap the screen at the right moment to slingshot!', 'Every 10 planets you reach a Checkpoint line!', 'Collect stars and cosmic power capsules in space.'],
+        hint: 'Leap from planet to planet! Reach the dashed Checkpoints!',
+        playBtn: 'PLAY WITH 3 LIVES 🪐',
+        playAgain: 'PLAY AGAIN 🪐',
+        aimOn: 'AIM: ON',
+        aimOff: 'AIM: OFF',
+        gameOverTitle: 'FLIGHT OVER!',
+        gameOverDesc: (cp, sc) => `Your 3 lives ended! You reached Checkpoint ${cp} and scored ${sc} points!`,
+        perfect: 'PERFECT!',
+        cpSaved: (cp) => `✨ CHECKPOINT ${cp} SAVED! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ACTIVE`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ RESPAWN! ${lv} lives left`,
+        shieldSaved: 'SHIELD SAVED YOU! 🛡️',
+        hyperJump: '⚡ HYPER JUMP!'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['¡Toca la pantalla en el momento justo para impulsarte!', '¡Cada 10 planetas alcanzas una Línea de Checkpoint!', 'Recoge estrellas y cápsulas de poder en el espacio.'],
+        hint: '¡Salta de planeta en planeta! ¡Alcanza los Checkpoints!',
+        playBtn: 'JUGAR CON 3 VIDAS 🪐',
+        playAgain: 'JUGAR DE NUEVO 🪐',
+        aimOn: 'MIRA: ON',
+        aimOff: 'MIRA: OFF',
+        gameOverTitle: '¡FIN DEL VUELO!',
+        gameOverDesc: (cp, sc) => `¡Tus 3 vidas se acabaron! ¡Llegaste al Checkpoint ${cp} y conseguiste ${sc} puntos!`,
+        perfect: '¡PERFECTO!',
+        cpSaved: (cp) => `✨ ¡CHECKPOINT ${cp} GUARDADO! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ACTIVO`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ ¡RESPAWN! Quedan ${lv} vidas`,
+        shieldSaved: '¡EL ESCUDO TE SALVÓ! 🛡️',
+        hyperJump: '⚡ ¡HÍPER SALTO!'
+      }
+    };
+    const tO = I18N_ORBIT[LANG] || I18N_ORBIT.en;
+
     // ===== 9. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
     class Game {
       constructor() {
@@ -1415,6 +1476,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.updateGuideButtonUI();
+
+        // Inicializa textos traduzidos nos elementos HTML
+        const hintEl = document.getElementById('hintBar');
+        if (hintEl) hintEl.textContent = tO.hint;
+        const btnPlayEl = document.getElementById('btnPlay');
+        if (btnPlayEl) btnPlayEl.textContent = tO.playBtn;
 
         for (let i = 0; i < 200; i++) {
           this.bgStars.push({
@@ -1659,7 +1726,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           this.camera.y = respawnTarget.y - this.canvas.height * 0.62;
           this.camera.targetY = this.camera.y;
 
-          this.floatingTexts.push(new FloatingText(`❤️ RESPAWN! Restam ${this.lives} vidas`, this.player.x, this.player.y - 28, '#f87171', 1.2));
+          this.floatingTexts.push(new FloatingText(tO.respawn(this.lives), this.player.x, this.player.y - 28, '#f87171', 1.2));
           this.spawnCaptureParticles(this.player.x, this.player.y, '#f87171');
         } else {
           // Game Over Definitivo (esgotou as 3 vidas)
@@ -1671,15 +1738,15 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           localStorage.setItem('kruuj_orbit_best', String(this.bestScore));
           document.getElementById('bestVal').textContent = this.bestScore;
 
-          document.getElementById('ovTitle').textContent = 'FIM DE VOO!';
-          document.getElementById('ovDesc').textContent = `Suas 3 vidas acabaram! Você alcançou o Checkpoint ${this.highestCheckpointReached} e fez ${this.score} pontos!`;
+          document.getElementById('ovTitle').textContent = tO.gameOverTitle;
+          document.getElementById('ovDesc').textContent = tO.gameOverDesc(this.highestCheckpointReached, this.score);
 
           document.getElementById('ovScore').textContent = this.score;
           document.getElementById('ovStars').textContent = this.starsCount;
           document.getElementById('ovCheckpoint').textContent = this.highestCheckpointReached;
           document.getElementById('ovBest').textContent = this.bestScore;
           document.getElementById('ovStats').style.display = 'flex';
-          document.getElementById('btnPlay').textContent = 'JOGAR NOVAMENTE 🪐';
+          document.getElementById('btnPlay').textContent = tO.playAgain;
           document.getElementById('gameOverlay').classList.add('active');
           document.getElementById('hintBar').style.display = 'none';
 
@@ -1711,11 +1778,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         if (!btn || !text) return;
         if (this.guideEnabled) {
           btn.classList.remove('off');
-          text.textContent = 'MIRA: ON';
+          text.textContent = tO.aimOn;
           text.style.color = '#38e8ff';
         } else {
           btn.classList.add('off');
-          text.textContent = 'MIRA: OFF';
+          text.textContent = tO.aimOff;
           text.style.color = '#94a3b8';
         }
       }
@@ -2139,7 +2206,8 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ ORBIT',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tO.tagline,
+      tips: tO.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {

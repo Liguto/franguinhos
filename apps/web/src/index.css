@@ -3695,6 +3695,54 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
 }
 
+/* Seletor Internacional de Idioma (i18n) */
+.kruuj-lang-selector {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 2px;
+  gap: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.kruuj-lang-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-family: var(--font-family);
+  padding: 3px 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.kruuj-lang-btn:hover {
+  color: #ffffff;
+}
+
+.kruuj-lang-btn.active {
+  background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 232, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  .kruuj-lang-selector {
+    padding: 1px;
+    gap: 1px;
+  }
+  .kruuj-lang-btn {
+    font-size: 0.62rem;
+    padding: 2px 5px;
+  }
+}
+
 .kruuj-sidebar-sublink {
   display: flex;
   align-items: center;

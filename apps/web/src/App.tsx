@@ -85,6 +85,79 @@ export default function App() {
     localStorage.setItem('arcade_tea_mode', String(teaMode));
   }, [teaMode]);
 
+  // --- FUNDAÇÃO i18n (Português, Inglês e Espanhol) ---
+  const [currentLang, setCurrentLang] = useState<'pt' | 'en' | 'es'>(() => {
+    const saved = localStorage.getItem('kruuj_lang') as 'pt' | 'en' | 'es';
+    if (saved && ['pt', 'en', 'es'].includes(saved)) return saved;
+    const nav = (navigator.language || 'pt').toLowerCase();
+    if (nav.startsWith('en')) return 'en';
+    if (nav.startsWith('es')) return 'es';
+    return 'pt';
+  });
+
+  const changeLanguage = (lang: 'pt' | 'en' | 'es') => {
+    setCurrentLang(lang);
+    localStorage.setItem('kruuj_lang', lang);
+  };
+
+  const I18N_TEXTS = {
+    pt: {
+      searchPlaceholder: "Buscar jogos, categorias...",
+      calmMode: "Calmo",
+      playNow: "Jogar agora",
+      trending: "Em alta",
+      discoveries: "Descobertas",
+      newReleases: "Novos Lançamentos",
+      mostPlayed: "Mais Jogados",
+      favorites: "Favoritos",
+      explore: "Explorar",
+      share: "Compartilhar",
+      details: "Detalhes",
+      unlock: "Desbloquear",
+      exit: "Sair do Jogo",
+      all: "Tudo",
+      login: "Entrar",
+      profile: "Perfil"
+    },
+    en: {
+      searchPlaceholder: "Search games, categories...",
+      calmMode: "Calm",
+      playNow: "Play now",
+      trending: "Trending",
+      discoveries: "Discoveries",
+      newReleases: "New Releases",
+      mostPlayed: "Most Played",
+      favorites: "Favorites",
+      explore: "Explore",
+      share: "Share",
+      details: "Details",
+      unlock: "Unlock",
+      exit: "Exit Game",
+      all: "All",
+      login: "Sign In",
+      profile: "Profile"
+    },
+    es: {
+      searchPlaceholder: "Buscar juegos, categorías...",
+      calmMode: "Calma",
+      playNow: "Jugar ahora",
+      trending: "Tendencias",
+      discoveries: "Descubrimientos",
+      newReleases: "Novedades",
+      mostPlayed: "Más Jugados",
+      favorites: "Favoritos",
+      explore: "Explorar",
+      share: "Compartir",
+      details: "Detalles",
+      unlock: "Desbloquear",
+      exit: "Salir del Juego",
+      all: "Todos",
+      login: "Iniciar sesión",
+      profile: "Perfil"
+    }
+  };
+  const t = I18N_TEXTS[currentLang];
+
   // Sempre que a rota/view mudar, rola a página de volta ao topo absoluto após a renderização do React
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1918,7 +1991,7 @@ export default function App() {
     }
   };
 
-  // Helper para garantir URL física index.html e evitar fallback de rotas SPA do Vite (site dentro de site)
+  // Helper para garantir URL física index.html e injetar parâmetro de idioma (i18n)
   const getGameUrl = (game: Game) => {
     let url = game.prefixUrl;
     if (!url) return '';
@@ -1928,7 +2001,8 @@ export default function App() {
       }
       url += 'index.html';
     }
-    return url;
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}lang=${currentLang}`;
   };
 
   // Helper para verificar se o jogo possui código físico implementado localmente
@@ -2123,7 +2197,7 @@ export default function App() {
               <input 
                 type="text" 
                 className="kruuj-topbar-search-input"
-                placeholder="Buscar jogos, categorias..."
+                placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -2135,6 +2209,28 @@ export default function App() {
             </div>
 
             <div className="kruuj-topbar-actions">
+              {/* Seletor Internacional de Idioma (i18n) */}
+              <div className="kruuj-lang-selector" title="Alterar Idioma / Change Language">
+                <button 
+                  className={`kruuj-lang-btn ${currentLang === 'pt' ? 'active' : ''}`}
+                  onClick={() => changeLanguage('pt')}
+                >
+                  PT
+                </button>
+                <button 
+                  className={`kruuj-lang-btn ${currentLang === 'en' ? 'active' : ''}`}
+                  onClick={() => changeLanguage('en')}
+                >
+                  EN
+                </button>
+                <button 
+                  className={`kruuj-lang-btn ${currentLang === 'es' ? 'active' : ''}`}
+                  onClick={() => changeLanguage('es')}
+                >
+                  ES
+                </button>
+              </div>
+
               {/* Botão Acesso Rápido KRUUJ Calmo (TEA) - Visível no Topbar */}
               <button 
                 className={`kruuj-calmo-pill-btn ${teaMode ? 'active' : ''}`}
@@ -2142,7 +2238,7 @@ export default function App() {
                 title="Modo Calmo (Acessibilidade a estímulos sensoriais / TEA)"
               >
                 <span className="text-xs">🍃</span>
-                <span className="kruuj-calmo-pill-text">Calmo</span>
+                <span className="kruuj-calmo-pill-text">{t.calmMode}</span>
                 <span className={`kruuj-calmo-pill-badge ${teaMode ? 'on' : 'off'}`}>{teaMode ? 'ON' : 'OFF'}</span>
               </button>
 
@@ -2497,7 +2593,7 @@ export default function App() {
                                 handlePlayGame(matched);
                               }}
                             >
-                              <Play className="w-4 h-4 fill-current" /> Jogar agora
+                              <Play className="w-4 h-4 fill-current" /> {t.playNow}
                             </button>
                           </div>
                         </div>
@@ -2530,7 +2626,7 @@ export default function App() {
                       <section className="kruuj-shelf-section">
                         <div className="kruuj-shelf-header">
                           <h3 className="kruuj-shelf-title">
-                            <Flame className="w-5 h-5 text-orange-500 fill-orange-500/20" /> Em alta agora
+                            <Flame className="w-5 h-5 text-orange-500 fill-orange-500/20" /> {t.trending}
                           </h3>
                           <span 
                             className="kruuj-shelf-see-all"
@@ -2566,7 +2662,7 @@ export default function App() {
                       <section className="kruuj-shelf-section">
                         <div className="kruuj-shelf-header">
                           <h3 className="kruuj-shelf-title">
-                            <span>🦉</span> Descobertas para você
+                            <span>🦉</span> {t.discoveries}
                           </h3>
                           <span 
                             className="kruuj-shelf-see-all"
@@ -2602,7 +2698,7 @@ export default function App() {
                       <section className="kruuj-shelf-section">
                         <div className="kruuj-shelf-header">
                           <h3 className="kruuj-shelf-title">
-                            <span className="text-xs bg-cyan-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded">NOVO</span> Novidades da semana
+                            <span className="text-xs bg-cyan-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded">NOVO</span> {t.newReleases}
                           </h3>
                           <span 
                             className="kruuj-shelf-see-all"
@@ -2638,7 +2734,7 @@ export default function App() {
                       <section className="kruuj-shelf-section">
                         <div className="kruuj-shelf-header">
                           <h3 className="kruuj-shelf-title">
-                            <Trophy className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> Mais jogados
+                            <Trophy className="w-5 h-5 text-yellow-500 fill-yellow-500/20" /> {t.mostPlayed}
                           </h3>
                           <span 
                             className="kruuj-shelf-see-all"
