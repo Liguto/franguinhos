@@ -96,3 +96,8 @@ O repositório conta com subagentes especializados configurados em `.gemini/agen
 - **Foco:** Consultoria de produto, expansão do portal KRUUJ, alinhamento com o White Paper v1.0, 7 verticais de públicos (Parent Gate para bebês, Sênior 60+, Kids), modelos de monetização (Rewarded Ads, Pre-roll) e governança jurídica LGPD/ECA.
 - **Como invocar no chat:** `@kruuj-business-architect como podemos aumentar a retenção da vertical infantil...` ou dúvidas de roadmap.
 
+### 3. `@kruuj-fullstack-engineer` (`.gemini/agents/kruuj-fullstack-engineer.md`)
+- **Foco:** Desenvolvimento e alteração de layout no portal KRUUJ (React 18 + Vite em `apps/web/src/App.tsx`), estilização CSS (`index.css`), responsividade mobile estilo Poki (eliminação de faixas pretas, botão flutuante `kruuj-poki-back-btn`), rotas da API Express (`apps/api`) e sincronização de banco de dados Supabase (`catalogSync.ts`).
+- **Como invocar no chat:** `@kruuj-fullstack-engineer ajuste a prateleira de jogos...` ou peça alterações de componentes, CSS e backend.
+
+
