@@ -1,6 +1,6 @@
 import { prisma } from './prisma';
 
-export const REAL_14_GAMES = [
+export const REAL_18_GAMES = [
   {
     title: 'Rocket Rise',
     slug: 'rocket-rise',
@@ -312,12 +312,132 @@ export const REAL_14_GAMES = [
     author: 'KRUUJ Studio',
     licenseName: 'Proprietário',
     contractNumber: 'CON-2026-031'
+  },
+  {
+    title: 'KRUUJ OVERDRIVE',
+    slug: 'kruuj-overdrive',
+    description: 'KRUUJ OVERDRIVE — World Tour! Acelere pelas ruas de Tóquio, Miami e Berlim em uma corrida arcade alucinante estilo OutRun.',
+    category: 'Arcade',
+    subcategories: 'Corrida,Retrô,Ação',
+    tags: 'corrida,outrun,retro,kruuj,arcade,carros',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
+    iconUrl: 'rocket',
+    prefixUrl: '/games/kruuj-overdrive/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: true,
+    toque: true,
+    gamepad: false,
+    orientation: 'landscape',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Studio',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-032'
+  },
+  {
+    title: 'KRUUJ Solitaire',
+    slug: 'kruuj-solitaire',
+    description: 'KRUUJ Solitaire — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
+    category: 'Terceira Idade',
+    subcategories: 'Cartas,Paciência,Clássico,Relaxante',
+    tags: 'cartas,paciencia,solitaire,idoso,relaxante,kruuj',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
+    iconUrl: 'grid',
+    prefixUrl: '/games/kruuj-solitaire/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: false,
+    toque: true,
+    gamepad: false,
+    orientation: 'portrait',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Studio',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-033'
+  },
+  {
+    title: 'Penalty Shootout 3D',
+    slug: 'kruuj-penalty',
+    description: 'KRUUJ 3D Penalty Shootout! Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis e física realista. Torne-se o campeão da Copa!',
+    category: 'Ação',
+    subcategories: 'Esporte,Futebol,3D,Competitivo',
+    tags: 'futebol,penalti,esporte,3d,kruuj,chute',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
+    iconUrl: 'award',
+    prefixUrl: '/games/kruuj-penalty/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: false,
+    toque: true,
+    gamepad: false,
+    orientation: 'landscape',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Studio',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-034'
+  },
+  {
+    title: 'Domínio Neon',
+    slug: 'kruuj-dominio',
+    description: 'Domínio Neon: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
+    category: 'Estratégia',
+    subcategories: 'Tabuleiro,Neon,Abstrato,Tático',
+    tags: 'estrategia,tabuleiro,neon,dominio,kruuj,tatico',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=60',
+    iconUrl: 'cpu',
+    prefixUrl: '/games/kruuj-dominio/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: false,
+    toque: true,
+    gamepad: false,
+    orientation: 'both',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Studio',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-035'
+  },
+  {
+    title: 'KRUUJ Pintar',
+    slug: 'kruuj-paint',
+    description: 'Livre sua criatividade com Kruuj Pintar! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+    category: 'Bebês',
+    subcategories: 'Arte,Desenho,Criativo,Infantil',
+    tags: 'arte,pintar,desenho,bebes,infantil,criatividade,kruuj',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=60',
+    iconUrl: 'edit2',
+    prefixUrl: '/games/kruuj-paint/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: false,
+    toque: true,
+    gamepad: false,
+    orientation: 'both',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Original',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-036'
   }
 ];
 
 export async function syncDatabaseWithCatalog() {
   try {
-    const validSlugs = new Set(REAL_14_GAMES.map(g => g.slug));
+    const validSlugs = new Set(REAL_18_GAMES.map(g => g.slug));
 
     // 1. Despublicar/remover jogos fictícios no Supabase para que não apareçam mais no site
     await prisma.game.updateMany({
@@ -329,8 +449,8 @@ export async function syncDatabaseWithCatalog() {
       }
     });
 
-    // 2. Atualizar todos os 14 jogos no banco com títulos, banners e ícones oficiais
-    for (const item of REAL_14_GAMES) {
+    // 2. Atualizar todos os 18 jogos no banco com títulos, banners e ícones oficiais
+    for (const item of REAL_18_GAMES) {
       const existing = await prisma.game.findUnique({
         where: { slug: item.slug }
       });
@@ -375,7 +495,7 @@ export async function syncDatabaseWithCatalog() {
         });
       }
     }
-    console.log('[Supabase Sync] Catálogo limpo! 14 jogos físicos reais sincronizados com banners e ícones oficiais.');
+    console.log('[Supabase Sync] Catálogo limpo! 18 jogos físicos reais sincronizados com banners e ícones oficiais.');
   } catch (err: any) {
     console.warn('[Supabase Sync] Aviso na sincronização:', err?.message);
   }

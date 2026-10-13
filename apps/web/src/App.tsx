@@ -764,6 +764,111 @@ export default function App() {
       statusDoc: 'aprovado',
       author: 'KRUUJ Studio',
       licenseName: 'Proprietário'
+    },
+    {
+      id: '15',
+      slug: 'kruuj-overdrive',
+      title: 'KRUUJ OVERDRIVE',
+      description: 'KRUUJ OVERDRIVE — World Tour! Acelere pelas ruas de Tóquio, Miami e Berlim em uma corrida arcade alucinante estilo OutRun.',
+      category: 'Arcade',
+      subcategories: ['Corrida', 'Retrô', 'Ação'],
+      tags: ['corrida', 'outrun', 'retro', 'kruuj', 'arcade', 'carros'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'rocket',
+      prefixUrl: '/games/kruuj-overdrive/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+      orientation: 'landscape',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '16',
+      slug: 'kruuj-solitaire',
+      title: 'KRUUJ Solitaire',
+      description: 'KRUUJ Solitaire — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
+      category: 'Terceira Idade',
+      subcategories: ['Cartas', 'Paciência', 'Clássico', 'Relaxante'],
+      tags: ['cartas', 'paciencia', 'solitaire', 'idoso', 'relaxante', 'kruuj'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'grid',
+      prefixUrl: '/games/kruuj-solitaire/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'portrait',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '17',
+      slug: 'kruuj-penalty',
+      title: 'Penalty Shootout 3D',
+      description: 'KRUUJ 3D Penalty Shootout! Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis e física realista. Torne-se o campeão da Copa!',
+      category: 'Ação',
+      subcategories: ['Esporte', 'Futebol', '3D', 'Competitivo'],
+      tags: ['futebol', 'penalti', 'esporte', '3d', 'kruuj', 'chute'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'award',
+      prefixUrl: '/games/kruuj-penalty/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'landscape',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '18',
+      slug: 'kruuj-dominio',
+      title: 'Domínio Neon',
+      description: 'Domínio Neon: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
+      category: 'Estratégia',
+      subcategories: ['Tabuleiro', 'Neon', 'Abstrato', 'Tático'],
+      tags: ['estrategia', 'tabuleiro', 'neon', 'dominio', 'kruuj', 'tatico'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'cpu',
+      prefixUrl: '/games/kruuj-dominio/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '19',
+      slug: 'kruuj-paint',
+      title: 'KRUUJ Pintar',
+      description: 'Livre sua criatividade com Kruuj Pintar! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+      category: 'Bebês',
+      subcategories: ['Arte', 'Desenho', 'Criativo', 'Infantil'],
+      tags: ['arte', 'pintar', 'desenho', 'bebes', 'infantil', 'criatividade', 'kruuj'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'edit2',
+      prefixUrl: '/games/kruuj-paint/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Original',
+      licenseName: 'Proprietário'
     }
   ];
 
@@ -1834,12 +1939,52 @@ export default function App() {
   // --- Helpers e Dados do Layout KRUUJ Oficial ---
   const featuredGames = [
     {
+      title: 'KRUUJ OVERDRIVE',
+      subtitle: 'Acelere pelas ruas de Tóquio, Miami e Berlim em uma corrida arcade alucinante!',
+      tag: 'NOVO Lançamento • CORRIDA RETRÔ',
+      slug: 'kruuj-overdrive',
+      bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
+      category: 'Arcade / Corrida'
+    },
+    {
       title: 'KRUUJ ORBIT',
       subtitle: 'Salte entre órbitas planetárias com física cósmica e pegue o impulso certo!',
       tag: 'NOVO • ARCADE CÓSMICO',
       slug: 'kruuj-orbit',
       bannerUrl: '/banners/kruuj-orbit.jpg',
       category: 'Arcade / Gravidade'
+    },
+    {
+      title: 'KRUUJ SOLITAIRE',
+      subtitle: 'O clássico Paciência repaginado! Relaxe com cartas de visual moderno.',
+      tag: 'EM ALTA • CARTAS',
+      slug: 'kruuj-solitaire',
+      bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
+      category: 'Paciência / Clássico'
+    },
+    {
+      title: 'PENALTY SHOOTOUT 3D',
+      subtitle: 'Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis!',
+      tag: 'ESPORTES',
+      slug: 'kruuj-penalty',
+      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
+      category: 'Esporte / Futebol'
+    },
+    {
+      title: 'DOMÍNIO NEON',
+      subtitle: 'Um jogo de estratégia abstrato: cerque e domine a malha cibernética!',
+      tag: 'NOVO • ESTRATÉGIA',
+      slug: 'kruuj-dominio',
+      bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=60',
+      category: 'Estratégia / Tabuleiro'
+    },
+    {
+      title: 'KRUUJ PINTAR',
+      subtitle: 'Ambiente lúdico e seguro para crianças desenharem e colorirem.',
+      tag: 'INFANTIL • LÚDICO',
+      slug: 'kruuj-paint',
+      bannerUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=60',
+      category: 'Bebês / Arte'
     },
     {
       title: 'KRUUJ.IO ARENA',
@@ -1852,7 +1997,7 @@ export default function App() {
     {
       title: 'KRUUJ MATCH',
       subtitle: 'Alquimia estelar relaxante! Combine 3 cristais rúnicos e liberte super poderes!',
-      tag: 'NOVO • PUZZLE ZEN',
+      tag: 'PUZZLE ZEN',
       slug: 'kruuj-match',
       bannerUrl: '/banners/kruuj-match.jpg',
       category: 'Puzzle / Match-3'
@@ -1860,7 +2005,7 @@ export default function App() {
     {
       title: 'KRUUJ GUARDIANS',
       subtitle: 'Tower defense tático estilo Bloons TD! Estoure balões cósmicos com Corujas Guardiãs!',
-      tag: 'NOVO • ESTRATÉGIA',
+      tag: 'ESTRATÉGIA',
       slug: 'kruuj-defense',
       bannerUrl: '/banners/kruuj-defense.jpg',
       category: 'Estratégia / Defesa'
@@ -1868,7 +2013,7 @@ export default function App() {
     {
       title: 'KRUUJ WORD',
       subtitle: 'O enigma das corujas! Conecte letras cósmicas e descubra as palavras secretas!',
-      tag: 'NOVO • EDUCACIONAL',
+      tag: 'EDUCACIONAL',
       slug: 'kruuj-words',
       bannerUrl: '/banners/kruuj-words.jpg',
       category: 'Educacional / Palavras'
@@ -1880,14 +2025,6 @@ export default function App() {
       slug: 'kruujdoku',
       bannerUrl: '/banners/kruujdoku.jpg',
       category: 'Puzzle / Raciocínio'
-    },
-    {
-      title: 'Rocket Rise',
-      subtitle: 'Acelere nessa aventura intergaláctica e desvie dos asteroides!',
-      tag: 'KRUUJ recomenda',
-      slug: 'rocket-rise',
-      bannerUrl: '/banners/rocket-rise.jpg',
-      category: 'Arcade / Corrida'
     }
   ];
 
@@ -1900,41 +2037,41 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  // 4 Prateleiras Oficiais — Baseadas 100% nos Jogos Físicos Reais
+  // 4 Prateleiras Oficiais — Atualizadas com os novos 5 jogos
   const shelfTrending = [
+    games.find(g => g.slug === 'kruuj-overdrive') || defaultGamesCatalog[14],
     games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[8],
-    games.find(g => g.slug === 'rocket-rise') || defaultGamesCatalog[0],
+    games.find(g => g.slug === 'kruuj-penalty') || defaultGamesCatalog[16],
     games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[7],
+    games.find(g => g.slug === 'kruuj-solitaire') || defaultGamesCatalog[15],
     games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[9],
-    games.find(g => g.slug === 'bubble-pop') || defaultGamesCatalog[3],
-    games.find(g => g.slug === 'space-defense') || defaultGamesCatalog[1],
   ].filter(Boolean) as Game[];
 
   const shelfDiscoveries = [
+    games.find(g => g.slug === 'kruuj-dominio') || defaultGamesCatalog[17],
     games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[10],
     games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[11],
-    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[12],
     games.find(g => g.slug === 'snake-retro') || defaultGamesCatalog[2],
     games.find(g => g.slug === 'sudoku-zen') || defaultGamesCatalog[4],
     games.find(g => g.slug === 'memory-match') || defaultGamesCatalog[6],
   ].filter(Boolean) as Game[];
 
   const shelfNewReleases = [
+    games.find(g => g.slug === 'kruuj-overdrive') || defaultGamesCatalog[14],
+    games.find(g => g.slug === 'kruuj-solitaire') || defaultGamesCatalog[15],
+    games.find(g => g.slug === 'kruuj-penalty') || defaultGamesCatalog[16],
+    games.find(g => g.slug === 'kruuj-dominio') || defaultGamesCatalog[17],
+    games.find(g => g.slug === 'kruuj-paint') || defaultGamesCatalog[18],
     games.find(g => g.slug === 'kruuj-orbit') || defaultGamesCatalog[9],
-    games.find(g => g.slug === 'kruuj-match') || defaultGamesCatalog[10],
-    games.find(g => g.slug === 'kruuj-defense') || defaultGamesCatalog[11],
-    games.find(g => g.slug === 'math-run') || defaultGamesCatalog[5],
-    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[12],
-    games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[8],
   ].filter(Boolean) as Game[];
 
   const shelfMostPlayed = [
+    games.find(g => g.slug === 'kruuj-penalty') || defaultGamesCatalog[16],
     games.find(g => g.slug === 'rocket-rise') || defaultGamesCatalog[0],
-    games.find(g => g.slug === 'kruujio') || defaultGamesCatalog[8],
-    games.find(g => g.slug === 'snake-retro') || defaultGamesCatalog[2],
-    games.find(g => g.slug === 'bubble-pop') || defaultGamesCatalog[3],
+    games.find(g => g.slug === 'space-defense') || defaultGamesCatalog[1],
     games.find(g => g.slug === 'math-run') || defaultGamesCatalog[5],
-    games.find(g => g.slug === 'kruujdoku') || defaultGamesCatalog[7],
+    games.find(g => g.slug === 'bubble-pop') || defaultGamesCatalog[3],
+    games.find(g => g.slug === 'kruuj-words') || defaultGamesCatalog[12],
   ].filter(Boolean) as Game[];
 
   return (
