@@ -410,9 +410,9 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-035'
   },
   {
-    title: 'KRUUJ PAITING',
+    title: 'KRUUJ BABY PAINT',
     slug: 'kruuj-paint',
-    description: 'Livre sua criatividade com KRUUJ PAITING! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+    description: 'Livre sua criatividade com KRUUJ BABY PAINT! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
     category: 'Bebês',
     subcategories: 'Arte,Desenho,Criativo,Infantil',
     tags: 'arte,pintar,desenho,bebes,infantil,criatividade,kruuj',

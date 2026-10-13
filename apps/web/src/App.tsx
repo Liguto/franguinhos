@@ -852,8 +852,8 @@ export default function App() {
     {
       id: '19',
       slug: 'kruuj-paint',
-      title: 'KRUUJ PAITING',
-      description: 'Livre sua criatividade com KRUUJ PAITING! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+      title: 'KRUUJ BABY PAINT',
+      description: 'Livre sua criatividade com KRUUJ BABY PAINT! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
       category: 'Bebês',
       subcategories: ['Arte', 'Desenho', 'Criativo', 'Infantil'],
       tags: ['arte', 'pintar', 'desenho', 'bebes', 'infantil', 'criatividade', 'kruuj'],
@@ -1979,7 +1979,7 @@ export default function App() {
       category: 'Estratégia / Tabuleiro'
     },
     {
-      title: 'KRUUJ PAITING',
+      title: 'KRUUJ BABY PAINT',
       subtitle: 'Ambiente lúdico e seguro para crianças desenharem e colorirem.',
       tag: 'INFANTIL • LÚDICO',
       slug: 'kruuj-paint',
