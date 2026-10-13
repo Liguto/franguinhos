@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+<script>
+const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+const I18N_GEN = {
+  pt: { tagline: tG.tagline, tips: tG.tips, tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
+  en: { tagline: tG.tagline, tips: tG.tips, tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
+  es: { tagline: tG.tagline, tips: tG.tips, tips: ['¡Diviértete con los juegos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
+};
+const tG = I18N_GEN[LANG_GENERIC] || I18N_GEN.en;
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 
   <meta charset="UTF-8">
@@ -355,7 +366,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'Bubble Boom',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tG.tagline, tips: tG.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {

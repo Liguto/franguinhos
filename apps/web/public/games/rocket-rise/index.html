@@ -1006,6 +1006,27 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
 <script>
 
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N_ROCKET = {
+      pt: {
+        tagline: tR.tagline, tips: tR.tips,
+        tips: ['Desvie dos asteroides espaciais e colete propulsores turbo!', 'Toque ou use as setas para manobrar no vácuo.'],
+        score: 'PONTOS', best: 'RECORDE', play: 'DECOLAR 🚀', playAgain: 'JOGAR NOVAMENTE 🚀', over: 'FIM DE VOO!'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Dodge space asteroids and collect turbo thrusters!', 'Tap or use arrows to maneuver in the vacuum.'],
+        score: 'SCORE', best: 'BEST', play: 'LAUNCH 🚀', playAgain: 'PLAY AGAIN 🚀', over: 'FLIGHT OVER!'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['¡Esquiva los asteroides espaciales y recoge propulsores turbo!', 'Toca o usa las flechas para maniobrar en el espacio.'],
+        score: 'PUNTOS', best: 'RÉCORD', play: 'DESPEGAR 🚀', playAgain: 'JUGAR DE NUEVO 🚀', over: '¡FIN DEL VUELO!'
+      }
+    };
+    const tR = I18N_ROCKET[LANG] || I18N_ROCKET.en;
+
+
 // Avisar o portal mãe que o jogo foi carregado com sucesso
 function sendEvent(type, data = {}) {
     window.parent.postMessage({ type, gameSlug: 'rocket-rise', ...data }, '*');
@@ -6400,7 +6421,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ Rocket Rise',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tR.tagline, tips: tR.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {

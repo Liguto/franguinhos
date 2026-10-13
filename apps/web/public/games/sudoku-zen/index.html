@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+<script>
+const LANG_CLASSIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+const I18N_CLASSIC = {
+  pt: { play: 'JOGAR', score: 'PONTOS', over: 'FIM DE JOGO', restart: 'JOGAR NOVAMENTE' },
+  en: { play: 'PLAY', score: 'SCORE', over: 'GAME OVER', restart: 'PLAY AGAIN' },
+  es: { play: 'JUGAR', score: 'PUNTOS', over: 'FIN DEL JUEGO', restart: 'JUGAR DE NUEVO' }
+};
+const tC = I18N_CLASSIC[LANG_CLASSIC] || I18N_CLASSIC.en;
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('button').forEach(btn => {
+    const txt = btn.textContent.trim().toUpperCase();
+    if (txt.includes('JOGAR') || txt.includes('PLAY')) btn.textContent = tC.play;
+    if (txt.includes('RECOMEÇAR') || txt.includes('NOVAMENTE') || txt.includes('RESTART') || txt.includes('RETRY')) btn.textContent = tC.restart;
+  });
+});
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sudoku Zen Master</title>

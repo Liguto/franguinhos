@@ -1063,6 +1063,39 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     ];
 
     // ===== 6. CLASSE PRINCIPAL DO JOGO (ENGINE COMPLETA) =====
+    
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N_MATCH = {
+      pt: {
+        tagline: tM.tagline, tips: tM.tips,
+        tips: ['Combine 3 ou mais relíquias iguais para marcar pontos.', 'Faça quadrados 2x2 ou 4 em linha para criar a Coruja Relâmpago ⚡!'],
+        level: 'FASE', score: 'PONTOS', moves: 'MOVIMENTOS',
+        hint: '👆 Arraste as peças com o dedo para trocar! Quadrados 2x2 e linhas de 4 geram Coruja Relâmpago ⚡',
+        winTitle: tM.winTitle, nextLevel: tM.nextLevel,
+        loseTitle: tM.loseTitle, tryAgain: tM.tryAgain,
+        finalScore: 'Pontos Finais', remMoves: 'Movimentos Restantes'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Match 3 or more relics to score points.', 'Match 2x2 squares or 4 in a line to create the Lightning Owl ⚡!'],
+        level: 'LEVEL', score: 'SCORE', moves: 'MOVES',
+        hint: '👆 Swipe pieces to swap! 2x2 squares and lines of 4 create the Lightning Owl ⚡',
+        winTitle: 'LEVEL COMPLETED!', nextLevel: 'NEXT LEVEL ⏩',
+        loseTitle: 'OUT OF MOVES!', tryAgain: 'TRY AGAIN 🔄',
+        finalScore: 'Final Score', remMoves: 'Moves Left'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['Combina 3 o más reliquias para sumar puntos.', '¡Haz cuadrados 2x2 o líneas de 4 para crear el Búho Relámpago ⚡!'],
+        level: 'NIVEL', score: 'PUNTOS', moves: 'MOVIMIENTOS',
+        hint: '👆 ¡Desliza piezas para intercambiar! Cuadrados 2x2 y líneas de 4 generan Búho Relámpago ⚡',
+        winTitle: '¡NIVEL COMPLETADO!', nextLevel: 'SIGUIENTE NIVEL ⏩',
+        loseTitle: '¡SIN MOVIMIENTOS!', tryAgain: 'REINTENTAR 🔄',
+        finalScore: 'Puntos Finales', remMoves: 'Movimientos Restantes'
+      }
+    };
+    const tM = I18N_MATCH[LANG] || I18N_MATCH.en;
+
     class Game {
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -1335,11 +1368,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           const stars = this.movesLeft >= 6 ? '⭐⭐⭐' : (this.movesLeft >= 2 ? '⭐⭐' : '⭐');
 
           document.getElementById('ovStars').textContent = stars;
-          document.getElementById('ovTitle').textContent = 'FASE CONCLUÍDA!';
+          document.getElementById('ovTitle').textContent = tM.winTitle;
           document.getElementById('ovDesc').textContent = `Excelente trabalho! Você concluiu a ${this.levelData.title} e restaurou o Santuário!`;
           document.getElementById('ovFinalScore').textContent = this.score;
           document.getElementById('ovRemainingMoves').textContent = this.movesLeft;
-          document.getElementById('btnOverlayNext').textContent = 'PRÓXIMA FASE ⏩';
+          document.getElementById('btnOverlayNext').textContent = tM.nextLevel;
           document.getElementById('btnOverlayNext').onclick = () => this.nextLevel();
 
           document.getElementById('endOverlay').classList.add('active');
@@ -1350,11 +1383,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         } else if (this.movesLeft <= 0) {
           // Derrota (Movimentos esgotados)
           document.getElementById('ovStars').textContent = '❌';
-          document.getElementById('ovTitle').textContent = 'MOVIMENTOS ESGOTADOS!';
+          document.getElementById('ovTitle').textContent = tM.loseTitle;
           document.getElementById('ovDesc').textContent = `Você não conseguiu atingir a meta da ${this.levelData.title}. Tente novamente!`;
           document.getElementById('ovFinalScore').textContent = this.score;
           document.getElementById('ovRemainingMoves').textContent = '0';
-          document.getElementById('btnOverlayNext').textContent = 'TENTAR NOVAMENTE 🔄';
+          document.getElementById('btnOverlayNext').textContent = tM.tryAgain;
           document.getElementById('btnOverlayNext').onclick = () => this.restartLevel();
 
           document.getElementById('endOverlay').classList.add('active');
@@ -1378,7 +1411,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       updateUI() {
-        document.getElementById('levelTitle').textContent = `FASE ${this.levelData.level}: ${this.levelData.title}`;
+        document.getElementById('levelTitle').textContent = `${tM.level} ${this.levelData.level}: ${this.levelData.title}`;
         document.getElementById('scoreVal').textContent = this.score;
         document.getElementById('movesVal').textContent = this.movesLeft;
         document.getElementById('missionDesc').textContent = this.levelData.desc;
@@ -1458,7 +1491,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ MATCH',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tM.tagline, tips: tM.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {

@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" translate="no">
 <head>
+
+<script>
+const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+const I18N_GEN = {
+  pt: { tagline: tG.tagline, tips: tG.tips, tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
+  en: { tagline: tG.tagline, tips: tG.tips, tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
+  es: { tagline: tG.tagline, tips: tG.tips, tips: ['¡Diviértete con los juegos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
+};
+const tG = I18N_GEN[LANG_GENERIC] || I18N_GEN.en;
+</script>
+
 <meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
@@ -227,7 +238,7 @@ const KruujLoader=(()=>{
     setProgress(v){cfg.manual=true;target=Math.max(target,Math.min(1,v))},
     finish(){finished=true;target=1}};
 })();
-KruujLoader.start({gameName:'KRUUJ OVERDRIVE',tagline:'Start your engines — the owl is on the grid.',splash:3600,minTime:5200,
+KruujLoader.start({gameName:'KRUUJ OVERDRIVE',tagline: tG.tagline, tips: tG.tips,splash:3600,minTime:5200,
   tips:['Brake + steer to drift and recharge your nitro.','Overtake cleanly to refill your nitro.','Upgrade your car in the Garage.','Finish in the top 3 to unlock the next race.','Tap the center of the screen to pause.','Each city has its own soundtrack.','Rivals draft, defend and make mistakes — just like people.']});
 {const T0=Date.now(),SPL=3600,MIN=5200,iv=setInterval(()=>{const e=Date.now()-T0-SPL; // a barra anda junto com o tempo; fecha quando o jogo está pronto
   if(e>0)KruujLoader.setProgress(Math.min(0.97,e/MIN));

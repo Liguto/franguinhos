@@ -846,6 +846,33 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     ];
 
     // ===== 5. CLASSE PRINCIPAL DO JOGO =====
+    
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N_WORDS = {
+      pt: {
+        tagline: tW.tagline, tips: tW.tips,
+        tips: ['Deslize pelas letras para formar palavras.', 'Encontre palavras bônus para acumular Penas Cósmicas!'],
+        level: 'FASE', pts: 'PTS', feathers: 'PENAS', hintBtn: '🦉💡 DICA',
+        winTitle: tW.winTitle, nextLevel: tW.nextLevel,
+        actionBtn: 'DESVENDAR 🦉', bonusFound: 'Palavra Bônus', alreadyFound: 'já foi encontrada'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Swipe through letters to connect words.', 'Find bonus words to earn Cosmic Feathers!'],
+        level: 'LEVEL', pts: 'PTS', feathers: 'FEATHERS', hintBtn: '🦉💡 HINT',
+        winTitle: 'LEVEL COMPLETED!', nextLevel: 'NEXT LEVEL ⏩',
+        actionBtn: 'UNCOVER 🦉', bonusFound: 'Bonus Word', alreadyFound: 'already found'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['Desliza por las letras para formar palabras.', '¡Encuentra palabras adicionales para ganar Plumas Cósmicas!'],
+        level: 'NIVEL', pts: 'PTS', feathers: 'PLUMAS', hintBtn: '🦉💡 PISTA',
+        winTitle: '¡NIVEL COMPLETADO!', nextLevel: 'SIGUIENTE NIVEL ⏩',
+        actionBtn: 'DESCIFRAR 🦉', bonusFound: 'Palabra Extra', alreadyFound: 'ya fue encontrada'
+      }
+    };
+    const tW = I18N_WORDS[LANG] || I18N_WORDS.en;
+
     class Game {
       constructor() {
         this.sound = new SoundController();
@@ -888,7 +915,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.currentChars = [...levelData.letters];
         this.foundWords = new Set();
 
-        document.getElementById('levelIndicator').textContent = `FASE ${levelData.level}`;
+        document.getElementById('levelIndicator').textContent = `${tW.level} ${levelData.level}`;
         document.getElementById('themeBadge').textContent = levelData.theme;
         document.getElementById('wordPreview').textContent = '';
 
@@ -1076,12 +1103,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         localStorage.setItem('kruuj_words_feathers', String(this.feathers));
 
         document.getElementById('ovStars').textContent = '⭐⭐⭐';
-        document.getElementById('ovTitle').textContent = 'FASE CONCLUÍDA!';
+        document.getElementById('ovTitle').textContent = tW.winTitle;
         document.getElementById('ovDesc').textContent = `Sensacional! Você desvendou todas as palavras do "${levelData.theme}" e faturou +${bonusFeathers} Penas Cósmicas!`;
         document.getElementById('ovScore').textContent = this.score;
         document.getElementById('ovFeathers').textContent = `+${bonusFeathers} 🪶`;
         document.getElementById('ovStats').style.display = 'flex';
-        document.getElementById('btnOverlayAction').textContent = 'PRÓXIMA FASE ⏩';
+        document.getElementById('btnOverlayAction').textContent = tW.nextLevel;
 
         document.getElementById('gameOverlay').classList.add('active');
 
@@ -1152,7 +1179,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ WORD',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tW.tagline, tips: tW.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {

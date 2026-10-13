@@ -1279,6 +1279,27 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   <!-- LÓGICA COMPLETA EM PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)          -->
   <!-- ================================================================= -->
   <script>
+
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N_DEFENSE = {
+      pt: {
+        tagline: tD.tagline, tips: tD.tips,
+        tips: ['Posicione suas corujas estrategicamente ao longo da trilha.', 'Estoure balões cósmicos para ganhar mana e invocar reforços!'],
+        lives: 'VIDAS', wave: 'ONDA', mana: 'MANA', startWave: 'ONDA ▶', victory: 'VITÓRIA!', defeat: 'DERROTA!', retry: 'RECOMEÇAR 🔄'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Position your guardian owls strategically along the path.', 'Pop cosmic balloons to gain mana and summon towers!'],
+        lives: 'LIVES', wave: 'WAVE', mana: 'MANA', startWave: 'WAVE ▶', victory: 'VICTORY!', defeat: 'DEFEAT!', retry: 'RETRY 🔄'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['Coloca tus búhos guardianes estratégicamente en el camino.', '¡Revienta globos cósmicos para ganar maná y torres!'],
+        lives: 'VIDAS', wave: 'OLEADA', mana: 'MANÁ', startWave: 'OLEADA ▶', victory: '¡VICTORIA!', defeat: '¡DERROTA!', retry: 'REINTENTAR 🔄'
+      }
+    };
+    const tD = I18N_DEFENSE[LANG] || I18N_DEFENSE.en;
+
     // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
     class SoundManager {
       constructor() {
@@ -3285,7 +3306,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ GUARDIANS',
-      tagline: 'Prepare os fones, a coruja já está chegando.',
+      tagline: tD.tagline, tips: tD.tips,
       splash: 2000,
       minTime: 1200,
       onComplete: () => {
