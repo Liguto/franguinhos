@@ -495,7 +495,7 @@ export default function App() {
     {
       id: '1',
       slug: 'rocket-rise',
-      title: 'Rocket Rise',
+      title: 'KRUUJ Rocket Rise',
       description: 'Acelere nessa aventura intergaláctica cheia de adrenalina! Pilote sua nave espacial, desvie de chuvas de meteoros e colete energia estelar para subir o mais alto possível.',
       category: 'Arcade',
       subcategories: ['Corrida', 'Espaço', 'Ação'],
@@ -789,8 +789,8 @@ export default function App() {
     {
       id: '16',
       slug: 'kruuj-solitaire',
-      title: 'KRUUJ Solitaire',
-      description: 'KRUUJ Solitaire — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
+      title: 'KRUUJ SOLITAIRE',
+      description: 'KRUUJ SOLITAIRE — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
       category: 'Terceira Idade',
       subcategories: ['Cartas', 'Paciência', 'Clássico', 'Relaxante'],
       tags: ['cartas', 'paciencia', 'solitaire', 'idoso', 'relaxante', 'kruuj'],
@@ -810,7 +810,7 @@ export default function App() {
     {
       id: '17',
       slug: 'kruuj-penalty',
-      title: 'Penalty Shootout 3D',
+      title: 'KRUUJ 3D PENALTY SHOOTOUT',
       description: 'KRUUJ 3D Penalty Shootout! Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis e física realista. Torne-se o campeão da Copa!',
       category: 'Ação',
       subcategories: ['Esporte', 'Futebol', '3D', 'Competitivo'],
@@ -831,8 +831,8 @@ export default function App() {
     {
       id: '18',
       slug: 'kruuj-dominio',
-      title: 'Domínio Neon',
-      description: 'Domínio Neon: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
+      title: 'KRUUJ NEON DOMAIN',
+      description: 'KRUUJ NEON DOMAIN: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
       category: 'Estratégia',
       subcategories: ['Tabuleiro', 'Neon', 'Abstrato', 'Tático'],
       tags: ['estrategia', 'tabuleiro', 'neon', 'dominio', 'kruuj', 'tatico'],
@@ -852,8 +852,8 @@ export default function App() {
     {
       id: '19',
       slug: 'kruuj-paint',
-      title: 'KRUUJ Pintar',
-      description: 'Livre sua criatividade com Kruuj Pintar! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+      title: 'KRUUJ PAITING',
+      description: 'Livre sua criatividade com KRUUJ PAITING! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
       category: 'Bebês',
       subcategories: ['Arte', 'Desenho', 'Criativo', 'Infantil'],
       tags: ['arte', 'pintar', 'desenho', 'bebes', 'infantil', 'criatividade', 'kruuj'],
@@ -1963,7 +1963,7 @@ export default function App() {
       category: 'Paciência / Clássico'
     },
     {
-      title: 'PENALTY SHOOTOUT 3D',
+      title: 'KRUUJ 3D PENALTY SHOOTOUT',
       subtitle: 'Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis!',
       tag: 'ESPORTES',
       slug: 'kruuj-penalty',
@@ -1971,7 +1971,7 @@ export default function App() {
       category: 'Esporte / Futebol'
     },
     {
-      title: 'DOMÍNIO NEON',
+      title: 'KRUUJ NEON DOMAIN',
       subtitle: 'Um jogo de estratégia abstrato: cerque e domine a malha cibernética!',
       tag: 'NOVO • ESTRATÉGIA',
       slug: 'kruuj-dominio',
@@ -1979,7 +1979,7 @@ export default function App() {
       category: 'Estratégia / Tabuleiro'
     },
     {
-      title: 'KRUUJ PINTAR',
+      title: 'KRUUJ PAITING',
       subtitle: 'Ambiente lúdico e seguro para crianças desenharem e colorirem.',
       tag: 'INFANTIL • LÚDICO',
       slug: 'kruuj-paint',

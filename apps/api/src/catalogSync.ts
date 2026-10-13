@@ -2,7 +2,7 @@ import { prisma } from './prisma';
 
 export const REAL_18_GAMES = [
   {
-    title: 'Rocket Rise',
+    title: 'KRUUJ Rocket Rise',
     slug: 'rocket-rise',
     description: 'Acelere nessa aventura intergaláctica cheia de adrenalina! Pilote sua nave espacial, desvie de chuvas de meteoros e colete energia estelar para subir o mais alto possível.',
     category: 'Arcade',
@@ -338,9 +338,9 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-032'
   },
   {
-    title: 'KRUUJ Solitaire',
+    title: 'KRUUJ SOLITAIRE',
     slug: 'kruuj-solitaire',
-    description: 'KRUUJ Solitaire — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
+    description: 'KRUUJ SOLITAIRE — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
     category: 'Terceira Idade',
     subcategories: 'Cartas,Paciência,Clássico,Relaxante',
     tags: 'cartas,paciencia,solitaire,idoso,relaxante,kruuj',
@@ -362,7 +362,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-033'
   },
   {
-    title: 'Penalty Shootout 3D',
+    title: 'KRUUJ 3D PENALTY SHOOTOUT',
     slug: 'kruuj-penalty',
     description: 'KRUUJ 3D Penalty Shootout! Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis e física realista. Torne-se o campeão da Copa!',
     category: 'Ação',
@@ -386,9 +386,9 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-034'
   },
   {
-    title: 'Domínio Neon',
+    title: 'KRUUJ NEON DOMAIN',
     slug: 'kruuj-dominio',
-    description: 'Domínio Neon: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
+    description: 'KRUUJ NEON DOMAIN: Conquiste o território! Um jogo de estratégia abstrato onde você deve cercar e dominar a malha cibernética antes dos adversários.',
     category: 'Estratégia',
     subcategories: 'Tabuleiro,Neon,Abstrato,Tático',
     tags: 'estrategia,tabuleiro,neon,dominio,kruuj,tatico',
@@ -410,9 +410,9 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-035'
   },
   {
-    title: 'KRUUJ Pintar',
+    title: 'KRUUJ PAITING',
     slug: 'kruuj-paint',
-    description: 'Livre sua criatividade com Kruuj Pintar! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
+    description: 'Livre sua criatividade com KRUUJ PAITING! Um ambiente lúdico e seguro para crianças desenharem e colorirem os personagens da coruja.',
     category: 'Bebês',
     subcategories: 'Arte,Desenho,Criativo,Infantil',
     tags: 'arte,pintar,desenho,bebes,infantil,criatividade,kruuj',
