@@ -570,6 +570,9 @@ body.playing-game-mode, html.playing-game-mode {
     align-items: center !important;
     gap: 6px !important;
     position: fixed !important;
+    left: 0 !important;
+    right: auto !important;
+    margin-left: 0 !important;
     z-index: 10000000 !important;
     user-select: none !important;
     -webkit-user-select: none !important;
@@ -6640,11 +6643,12 @@ html, body {
     border-radius: 0 !important;
   }
 
-  /* No modo tela cheia ativa, o botão de voltar Poki na esquerda fica visível */
+  /* No modo tela cheia ativa, o botão de voltar Poki na esquerda fica visível e colado na lateral */
   .poki-stage-player-wrapper.mobile-fullscreen-active .kruuj-poki-top-cluster {
     display: flex !important;
     position: fixed !important;
-    left: env(safe-area-inset-left, 0px) !important;
+    left: 0 !important;
+    margin-left: 0 !important;
     right: auto !important;
     z-index: 100000000 !important;
   }

@@ -145,20 +145,17 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
   onLock,
   onUnlockRequest
 }) => {
-  const [side, setSide] = useState<'left' | 'right'>(() => {
-    return (localStorage.getItem('kruuj_back_btn_side') as 'left' | 'right') || 'left';
-  });
+  const side = 'left';
   const [topY, setTopY] = useState<number>(() => {
     const saved = localStorage.getItem('kruuj_back_btn_top');
-    return saved ? Math.max(10, Math.min(window.innerHeight - 60, parseInt(saved, 10))) : 14;
+    return saved ? Math.max(10, Math.min(window.innerHeight - 50, parseInt(saved, 10))) : 20;
   });
   const [isGhost, setIsGhost] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const dragRef = useRef<{ startX: number; startY: number; initialY: number; moved: boolean }>({
-    startX: 0,
+  const dragRef = useRef<{ startY: number; initialY: number; moved: boolean }>({
     startY: 0,
-    initialY: 14,
+    initialY: 20,
     moved: false
   });
   const idleTimerRef = useRef<any>(null);
@@ -178,70 +175,117 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
     };
   }, []);
 
-  // Rastreamento global por Window durante arraste para resposta tátil 100% fluida
+  // Clampa a posição vertical ao alternar entre retrato e paisagem para nunca vazar a tela
   useEffect(() => {
-    if (!isDragging) return;
-
-    const handlePointerMove = (e: PointerEvent) => {
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
-      if (Math.hypot(dx, dy) > 5) {
-        dragRef.current.moved = true;
-        const newY = Math.max(8, Math.min(window.innerHeight - 52, dragRef.current.initialY + dy));
-        setTopY(newY);
-        resetIdleTimer();
-      }
+    const handleResize = () => {
+      setTopY(prev => Math.max(8, Math.min(window.innerHeight - 50, prev)));
     };
-
-    const handlePointerUp = (e: PointerEvent) => {
-      setIsDragging(false);
-      if (dragRef.current.moved) {
-        // Permanece fixo na lateral esquerda
-        const finalY = Math.max(8, Math.min(window.innerHeight - 52, dragRef.current.initialY + (e.clientY - dragRef.current.startY)));
-        setTopY(finalY);
-        localStorage.setItem('kruuj_back_btn_top', String(finalY));
-        resetIdleTimer();
-      }
-    };
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('pointerup', handlePointerUp);
-    window.addEventListener('pointercancel', handlePointerUp);
-
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
     return () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-      window.removeEventListener('pointercancel', handlePointerUp);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
     };
-  }, [isDragging]);
+  }, []);
 
-  const handlePointerDown = (e: React.PointerEvent) => {
+  const startDrag = (clientY: number) => {
     setIsDragging(true);
     dragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
+      startY: clientY,
       initialY: topY,
       moved: false
     };
     resetIdleTimer();
   };
 
+  // Rastreamento global unificado por Window (Pointer e Touch)
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.abs(dy) > 4) {
+        dragRef.current.moved = true;
+        const maxY = Math.max(10, window.innerHeight - 50);
+        const newY = Math.max(8, Math.min(maxY, dragRef.current.initialY + dy));
+        setTopY(newY);
+        resetIdleTimer();
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches && e.touches[0]) {
+        const dy = e.touches[0].clientY - dragRef.current.startY;
+        if (Math.abs(dy) > 4) {
+          dragRef.current.moved = true;
+          const maxY = Math.max(10, window.innerHeight - 50);
+          const newY = Math.max(8, Math.min(maxY, dragRef.current.initialY + dy));
+          setTopY(newY);
+          resetIdleTimer();
+        }
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      setIsDragging(false);
+      if (dragRef.current.moved) {
+        const maxY = Math.max(10, window.innerHeight - 50);
+        const finalY = Math.max(8, Math.min(maxY, dragRef.current.initialY + (e.clientY - dragRef.current.startY)));
+        setTopY(finalY);
+        try { localStorage.setItem('kruuj_back_btn_top', String(finalY)); } catch(e) {}
+        resetIdleTimer();
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      setIsDragging(false);
+      if (dragRef.current.moved && e.changedTouches && e.changedTouches[0]) {
+        const maxY = Math.max(10, window.innerHeight - 50);
+        const finalY = Math.max(8, Math.min(maxY, dragRef.current.initialY + (e.changedTouches[0].clientY - dragRef.current.startY)));
+        setTopY(finalY);
+        try { localStorage.setItem('kruuj_back_btn_top', String(finalY)); } catch(e) {}
+        resetIdleTimer();
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [isDragging]);
+
   return (
     <div 
-      className={`kruuj-poki-top-cluster side-${side} ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
+      className={`kruuj-poki-top-cluster side-left ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
-        top: `calc(${topY}px + env(safe-area-inset-top, 0px))`,
-        left: 'env(safe-area-inset-left, 0px)', right: 'auto'
+        top: `${topY}px`,
+        left: 0,
+        right: 'auto',
+        touchAction: 'none'
       }}
-      onPointerDown={handlePointerDown}
+      onPointerDown={(e) => startDrag(e.clientY)}
+      onTouchStart={(e) => {
+        if (e.touches && e.touches[0]) startDrag(e.touches[0].clientY);
+      }}
       onMouseEnter={resetIdleTimer}
-      onTouchStart={resetIdleTimer}
     >
       {!isScreenLocked && (
         <button 
           className="kruuj-poki-back-btn" 
           style={{ touchAction: 'none' }}
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => startDrag(e.clientY)}
+          onTouchStart={(e) => {
+            if (e.touches && e.touches[0]) startDrag(e.touches[0].clientY);
+          }}
           onClick={(e) => {
             e.stopPropagation();
             if (dragRef.current.moved) return;
@@ -249,11 +293,7 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
           }}
           title="Toque para sair ou arraste para mover"
         >
-          {side === 'left' ? (
-            <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
-          ) : (
-            <ChevronRight style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
-          )}
+          <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
           <img 
             src="/kruuj-avatar.png" 
             alt="KRUUJ" 
@@ -268,7 +308,10 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
         <button
           className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
           style={{ touchAction: 'none' }}
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => startDrag(e.clientY)}
+          onTouchStart={(e) => {
+            if (e.touches && e.touches[0]) startDrag(e.touches[0].clientY);
+          }}
           onClick={(e) => {
             e.stopPropagation();
             if (dragRef.current.moved) return;
