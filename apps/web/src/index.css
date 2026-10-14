@@ -790,6 +790,308 @@ body.playing-game-mode, html.playing-game-mode {
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+/* ======================================================================
+   POKI.COM EXACT GAME STAGE ARCHITECTURE (tela-poki-jogo.png)
+   ====================================================================== */
+.poki-stage-container {
+  width: 100%;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 12px 16px 60px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* 1. Grade Superior Principal do Palco (Esquerda - Centro - Direita) */
+.poki-stage-top-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 320px;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+}
+
+@media (max-width: 1440px) {
+  .poki-stage-top-row {
+    grid-template-columns: 110px 1fr 280px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .poki-stage-top-row {
+    grid-template-columns: 1fr 280px;
+  }
+  .poki-stage-left-rail {
+    display: none !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .poki-stage-top-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .poki-stage-right-mosaic {
+    display: none !important;
+  }
+}
+
+/* Coluna Esquerda: Pílula Branca do Logo + Skyscraper */
+.poki-stage-left-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 14px;
+}
+
+.poki-stage-brand-pill {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.poki-stage-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.poki-stage-logo:hover {
+  transform: scale(1.05);
+}
+
+.poki-stage-logo span {
+  font-family: var(--font-family);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #0b132b;
+}
+
+.poki-stage-pill-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: space-around;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+
+.poki-stage-pill-btn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.poki-stage-pill-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.poki-stage-skyscraper {
+  width: 100%;
+  height: 520px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Coluna Central: Player + Barra Branca */
+.poki-stage-center {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+.poki-stage-player-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 160px);
+  background: #000000;
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.65);
+}
+
+.poki-stage-iframe-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.poki-stage-iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Barra Branca Poki de Ações (Fiel ao tela-poki-jogo.png) */
+.poki-stage-action-bar {
+  background: #ffffff;
+  border-radius: 0 0 18px 18px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.poki-bar-game-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.poki-bar-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.poki-bar-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poki-bar-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.poki-bar-title {
+  font-family: var(--font-family);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poki-bar-author {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.poki-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.poki-bar-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.15s ease;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.poki-bar-action-item:hover {
+  color: #0284c7;
+  transform: translateY(-1px);
+}
+
+.poki-bar-action-item.liked {
+  color: #0284c7;
+}
+
+.poki-bar-action-item.liked svg {
+  fill: #0284c7;
+}
+
+.poki-bar-action-count {
+  font-family: var(--font-family);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+/* Coluna Direita: Mosaico de Jogos Recomendados (2 Colunas com cards 2x2 e 1x1) */
+.poki-stage-right-mosaic {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 110px;
+  grid-auto-flow: dense;
+  gap: 10px;
+  width: 100%;
+}
+
+.poki-stage-right-mosaic .kruuj-poki-card {
+  border-radius: 14px;
+}
+
+.poki-stage-right-mosaic .kruuj-poki-card.tile-2x2 {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.poki-stage-right-mosaic .kruuj-poki-card.tile-1x1 {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+/* Linha de Jogos Abaixo do Palco (Fiel ao tela-poki-jogo.png) */
+.poki-stage-bottom-mosaic {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
 /* =========================================================
    BARRA DEDICADA DE NAVEGAÇÃO DO JOGO (EXTERNA, SEM SOBREPOSIÇÃO)
 ========================================================= */

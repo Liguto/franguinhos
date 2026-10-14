@@ -4,7 +4,8 @@ import {
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, Sparkles,
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
   FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
-  MessageSquare, Send, Compass, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile
+  MessageSquare, Send, Compass, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile,
+  ThumbsUp, ThumbsDown, Flag
 } from 'lucide-react';
 
 // Interfaces internas
@@ -1902,11 +1903,8 @@ export default function App() {
 
   // Função para executar a saída do jogo (liberar trava)
   const executeExitGame = () => {
-    if (selectedGame) {
-      setView('details');
-    } else {
-      setView('home');
-    }
+    setView('home');
+    setSelectedGame(null);
     setIsPlayingGame(false);
     setShowParentGate(false);
 
@@ -2573,11 +2571,7 @@ export default function App() {
   const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
   const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
 
-  const handleOpenDetails = (game: Game) => {
-    setSelectedGame(game);
-    setView('details');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleOpenDetails = (game: Game) => { handlePlayGame(game); };
 
   // 4 Prateleiras Oficiais — Atualizadas com os novos 5 jogos
   const shelfTrending = [
@@ -2888,7 +2882,7 @@ export default function App() {
                           <div 
                             key={game.id} 
                             className="kruuj-game-card-clean"
-                            onClick={() => handleOpenDetails(game)}
+                            onClick={() => handlePlayGame(game)}
                           >
                             <div className="kruuj-game-thumb">
                               {renderGameCover(game)}
@@ -3058,7 +3052,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handleOpenDetails(game)}
+                                onClick={() => handlePlayGame(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3091,7 +3085,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handleOpenDetails(game)}
+                                onClick={() => handlePlayGame(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3121,121 +3115,6 @@ export default function App() {
                     </>
                   )}
                 </>
-              )}
-
-              {/* VIEW: DETALHES DO JOGO (WEB) */}
-              {view === 'details' && selectedGame && (
-                <div className="kruuj-details-panel">
-                  <div className="kruuj-details-top-bar">
-                    <button 
-                      className="btn-secondary py-2 px-4 text-xs" 
-                      onClick={() => setView('home')}
-                    >
-                      <ArrowLeft className="w-4 h-4" /> Voltar ao Início
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      <button 
-                        className="kruuj-action-circle-btn"
-                        onClick={() => {
-                          navigator.clipboard?.writeText(window.location.href);
-                          alert('Link do jogo copiado com sucesso!');
-                        }}
-                        title="Compartilhar"
-                      >
-                        <Share2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        className={`kruuj-action-circle-btn ${isGameFavorited(selectedGame) ? 'text-pink-500 border-pink-500/50' : ''}`}
-                        onClick={() => handleToggleFavorite(selectedGame.id)}
-                        title="Favoritar"
-                      >
-                        <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
-                    {/* Capa de Apresentação Estilo Cinema */}
-                    <div 
-                      className="kruuj-details-cover-box cursor-pointer group relative overflow-hidden" 
-                      style={{ maxHeight: '440px' }}
-                      onClick={() => handlePlayGame(selectedGame)}
-                      title="Clique para Jogar em Tela Cheia"
-                    >
-                      <img 
-                        src={selectedGame.bannerUrl} 
-                        alt={selectedGame.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                      />
-                      
-                      {/* Botão Central Pulsante de Play no Palco Cinema */}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-cyan-500/50 group-hover:scale-110 transition-transform">
-                          <Play className="w-8 h-8 fill-white text-white ml-1" />
-                        </div>
-                      </div>
-
-                      <div className="kruuj-details-cover-overlay">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-400 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
-                            {selectedGame.category}
-                          </span>
-                          <span className="text-[11px] font-bold text-gray-400">
-                            Classificação: {selectedGame.ageRating}
-                          </span>
-                        </div>
-                        <h2 className="text-2xl md:text-4xl font-black text-white">{selectedGame.title}</h2>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 justify-center items-center">
-                      <button 
-                        className="kruuj-featured-play-btn flex-1 max-w-md justify-center py-3.5 text-base"
-                        onClick={() => handlePlayGame(selectedGame)}
-                      >
-                        <Play className="w-5 h-5 fill-current" /> {t.playNow}
-                      </button>
-                      <button 
-                        className="btn-secondary px-6 py-3 text-xs"
-                        onClick={() => handleToggleFavorite(selectedGame.id)}
-                      >
-                        <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                        {isGameFavorited(selectedGame) ? 'Favoritado' : 'Favoritar'}
-                      </button>
-                    </div>
-
-                    {/* Jogos Recomendados em Grid Poki */}
-                    <div className="pt-6 border-t border-white/5 space-y-4">
-                      <h4 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-                        <span>🦉</span> Mais Jogos Recomendados
-                      </h4>
-                      <div className="kruuj-poki-grid">
-                        {getRelatedGames(selectedGame).map(rel => (
-                          <div 
-                            key={rel.id} 
-                            className={`kruuj-poki-card ${getTileClass(rel.slug)} ${isGameFavorited(rel) ? 'is-favorited' : ''}`}
-                            onClick={() => handleOpenDetails(rel)}
-                            title={`Jogar ${rel.title}`}
-                          >
-                            <div className="kruuj-poki-thumb">
-                              {renderGameCover(rel)}
-                              <div className="kruuj-poki-overlay">
-                                <div className="kruuj-poki-play-icon">
-                                  <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="kruuj-poki-meta">
-                              <span className="kruuj-poki-title">{rel.title}</span>
-                              <span className="kruuj-poki-cat">{rel.category}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
               )}
 
               {/* VIEW: EXPLORAR / CATEGORIAS */}
@@ -3311,7 +3190,7 @@ export default function App() {
                         <div 
                           key={game.id} 
                           className="kruuj-game-card-clean"
-                          onClick={() => handleOpenDetails(game)}
+                          onClick={() => handlePlayGame(game)}
                         >
                           <div className="kruuj-game-thumb">
                             {renderGameCover(game)}
