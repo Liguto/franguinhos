@@ -6533,7 +6533,7 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 50;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.45);
@@ -6543,6 +6543,18 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .mobile-stage-play-overlay {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) and (hover: hover) and (pointer: fine) {
+  .mobile-stage-play-overlay {
+    display: none !important;
+  }
 }
 
 .mobile-stage-play-badge {

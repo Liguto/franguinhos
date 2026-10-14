@@ -825,7 +825,7 @@ export default function App() {
 
   // --- Bloqueio de rolagem do fundo quando um jogo estiver ativo ---
   useEffect(() => {
-    if (view === 'playing' && selectedGame && isMobileMode) {
+    if (view === 'playing' && selectedGame && isMobileMode && isMobileFullscreen) {
       document.body.classList.add('playing-game-mode');
       document.documentElement.classList.add('playing-game-mode');
     } else {
@@ -836,7 +836,7 @@ export default function App() {
       document.body.classList.remove('playing-game-mode');
       document.documentElement.classList.remove('playing-game-mode');
     };
-  }, [view, selectedGame]);
+  }, [view, selectedGame, isMobileMode, isMobileFullscreen]);
 
   // --- SEO Dinâmico (Long-Tail SEO Engine) ---
   useEffect(() => {
@@ -3710,6 +3710,29 @@ export default function App() {
                           </div>
                         )}
                       </div>
+
+                      {/* BOTÃO FLUTUANTE DE PLAY NO PALCO MOBILE (PADRÃO POKI MOBILE) */}
+                      {!isMobileFullscreen && (
+                        <div 
+                          className="mobile-stage-play-overlay"
+                          onClick={() => {
+                            setIsMobileFullscreen(true);
+                            handleManualFullscreen();
+                            try {
+                              gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
+                              gameIframeRef.current?.focus();
+                            } catch(e) {}
+                          }}
+                          title="Toque para jogar em tela cheia"
+                        >
+                          <div className="mobile-stage-play-badge">
+                            <div className="mobile-stage-play-circle">
+                              <Play className="w-8 h-8 fill-white text-white ml-1" />
+                            </div>
+                            <span className="mobile-stage-play-label">{t.playNow}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* BARRA BRANCA POKI DE AÇÕES (IDÊNTICA À tela-poki-jogo.png) */}
