@@ -510,7 +510,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
 </style>
 
-<!-- KruujLoader nativo roda com orgulho dentro do iframe do jogo -->
+<!-- KruujLoader nativo ativo -->
 </head>
 <body>
 <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
@@ -2209,8 +2209,8 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ ORBIT',
-      tagline: 'Salte entre órbitas com a coruja cósmica!',
-      tips: ['Toque para se soltar e capturar o próximo planeta.', 'Colete estrelas e faça combos para multiplicar pontos!'],
+      tagline: tO.tagline,
+      tips: tO.tips,
       splash: 2200,
       minTime: 3000,
       onComplete: () => {

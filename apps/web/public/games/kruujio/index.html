@@ -1,7 +1,107 @@
 <!DOCTYPE html><html lang="pt-BR"><head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
 
-<!-- KruujLoader nativo roda com orgulho dentro do iframe do jogo -->
+<script>
+const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+const I18N_GEN = {
+  pt: { tagline: 'Prepare os fones, a coruja já está chegando.', tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
+  en: { tagline: 'Put on your headphones, the owl is coming.', tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
+  es: { tagline: 'Prepara los auriculares, el búho está llegando.', tips: ['¡Diviértete con los jogos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
+};
+const tG = I18N_GEN[LANG_GENERIC] || I18N_GEN.en;
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<meta charset="utf-8"><title>KRUUJ.io</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07061a;--p:#8b5cff;--o:#ffb020;--c:#38e8ff;--t:#f3f0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:none}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font-family:'Baloo 2','Trebuchet MS',sans-serif;overflow:hidden}
+canvas#g{position:fixed;inset:0;width:100%;height:100%}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;background:radial-gradient(ellipse at 50% 30%,#2a1a6e99,#07061acc 70%);overflow:auto}
+.scr.on{display:flex}
+.logo{font-size:clamp(48px,12vw,110px);font-weight:800;line-height:1;background:linear-gradient(90deg,var(--c),var(--p),var(--o));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #8b5cff88)}
+h2{margin:0;font-size:clamp(28px,6vw,52px)}
+.sub{letter-spacing:.3em;color:var(--c);font-weight:600}
+button{font:inherit;font-weight:800;color:var(--t);background:#ffffff14;border:2px solid #ffffff30;border-radius:14px;padding:8px 22px;font-size:18px;cursor:pointer;touch-action:manipulation}
+button:hover{background:#ffffff26}
+button.big{font-size:28px;padding:12px 48px;background:linear-gradient(135deg,var(--p),#ff5ca8);border:0;box-shadow:0 0 28px #8b5cffaa}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.cards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:760px}
+.card{width:110px;padding:6px;border-radius:14px;background:#ffffff0f;border:2px solid #ffffff22;cursor:pointer;font-size:14px}
+.card.sel{border-color:var(--o);box-shadow:0 0 16px #ffb02088}.card.lock{opacity:.4}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;max-width:640px;text-align:left}
+.how div{background:#ffffff10;border-radius:12px;padding:8px 12px;font-size:14px}.how b{color:var(--o);display:block;font-size:18px}
+#hud{position:fixed;inset:0;pointer-events:none;display:none}#hud.on{display:block}
+#hud .tl{position:absolute;left:12px;top:calc(8px + env(safe-area-inset-top,0px))}
+#hud .tl .logo{font-size:28px}
+#sc{position:absolute;left:12px;top:calc(46px + env(safe-area-inset-top,0px));text-align:left;font-weight:800;font-size:20px;text-shadow:0 0 10px #000}
+#sc small{display:block;font-size:14px;color:var(--c)}
+#lb{position:absolute;right:10px;top:calc(8px + env(safe-area-inset-top,0px));background:#0008;border:1px solid #ffffff22;border-radius:12px;padding:6px 9px;font-size:11px;line-height:1.3;min-width:120px;max-width:150px;text-align:left}
+#lb .me{background:#ffffff1c;border-radius:6px;font-weight:800}#lbl{display:flex;flex-direction:column;gap:1px}#lbl>div{display:flex;flex-direction:row;justify-content:space-between;gap:8px;padding:0 3px}#lb i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}#lb span{white-space:nowrap}
+#rk{color:var(--o);font-weight:800;font-size:13px;margin-bottom:3px}
+#big{position:fixed;inset:0;display:none;align-items:center;justify-content:center;font-size:clamp(80px,25vw,200px);font-weight:800;pointer-events:none;text-shadow:0 0 40px var(--p)}
+#pz{position:fixed;left:12px;bottom:12px;display:none;pointer-events:auto}
+#joy{position:fixed;left:24px;bottom:30px;width:130px;height:130px;border-radius:50%;border:2px solid #ffffff44;background:#ffffff10;display:none}
+#knob{position:absolute;left:45px;top:45px;width:40px;height:40px;border-radius:50%;background:#ffffff77}
+#bst{position:fixed;right:24px;bottom:40px;width:96px;height:96px;border-radius:50%;display:none;--bp:100%;background:linear-gradient(to top,#ffb020 0%,#ff5ca8 var(--bp),#ffffff1c var(--bp));border:3px solid #ffffff55;font-size:18px;text-shadow:0 1px 6px #000c;overflow:hidden}#bst.low{border-color:#ff4d6d;color:#ffffffaa}
+.touch #joy,.touch #bst{display:block}
+#fps{position:fixed;left:12px;bottom:50px;font-size:12px;color:#8f8}
+table{border-collapse:collapse}td{padding:3px 14px;text-align:left}td+td{text-align:right;color:var(--o);font-weight:800}
+label{display:flex;gap:10px;align-items:center;font-size:18px}
+.mrow{display:grid;grid-template-columns:repeat(4,170px);gap:10px}.mrow button{width:100%;height:48px;padding:0 6px;font-size:16px;white-space:nowrap}
+@media(max-width:760px){.mrow{grid-template-columns:repeat(2,1fr);width:min(340px,100%)}}
+.scr,.scr *{touch-action:pan-y}.scr{justify-content:flex-start}.scr>:first-child{margin-top:auto}.scr>:last-child{margin-bottom:auto}
+.how{width:100%;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+@media(max-width:600px){.how{grid-template-columns:1fr 1fr;gap:6px}.how div{font-size:12px;padding:6px 8px}.how b{font-size:15px}.cards .card{width:100px}}
+#pz{left:50%!important;bottom:auto!important;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%)}#pz button{font-size:13px;padding:4px 12px}
+@media(orientation:landscape) and (max-height:520px){.scr{gap:6px;padding:8px 12px}.logo{font-size:clamp(32px,10vh,56px)}h2{font-size:clamp(20px,7vh,30px)}.sub{font-size:12px}#hero{width:84px;height:84px}#oc{width:72px;height:72px}button{font-size:15px;padding:6px 16px}button.big{font-size:22px;padding:8px 36px}.mrow{grid-template-columns:repeat(4,1fr);width:min(640px,100%);gap:8px}.mrow button{height:40px;font-size:13px}.cards{gap:6px}.cards .card{width:78px;font-size:11px;padding:4px}.card canvas{width:56px;height:56px}.how{grid-template-columns:repeat(3,1fr)}.how div{font-size:11px;padding:4px 8px}.how b{font-size:13px}td{padding:1px 12px;font-size:14px}label{font-size:15px}}
+#pname{font:inherit;font-weight:800;font-size:18px;text-align:center;color:var(--t);background:#ffffff14;border:2px solid #ffffff30;border-radius:14px;padding:8px 14px;width:min(260px,80%);outline:0;user-select:text;-webkit-user-select:text;touch-action:manipulation}#pname:focus{border-color:var(--o)}#pname::placeholder{color:#f3f0ff66}
+@media(orientation:landscape) and (max-height:520px){#pname{padding:5px 12px;font-size:15px}}
+</style>
+<style>
+
+:root{--bg:#050b24;--purple:#8338fc;--blue:#289afd;--orange:#fda41d;--lav:#d8d4fd;--white:#f1f1f6;--navy:#1a214c;color-scheme:dark;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-family:'Outfit',system-ui,sans-serif}
+
+/* ===== KRUUJ LOADER (copiar este bloco CSS + o HTML #kl + o JS para cada jogo) ===== */
+#kl{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s}
+#kl.out{opacity:0;visibility:hidden}
+#kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
+#kl .ph.off{opacity:0;pointer-events:none}
+.splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both,glow 2.4s ease-in-out .9s infinite}
+.splash .logo{width:min(54vw,240px);height:auto;margin-top:20px;animation:rise .8s ease .7s both}
+.splash .sub{margin:8px 0 0;font-weight:600;font-size:.85rem;letter-spacing:.38em;padding-left:.38em;color:var(--lav);animation:rise .8s ease 1.1s both}
+.load{text-align:center}
+.load h1{margin:0;font-weight:800;font-size:clamp(2.2rem,9vw,3.6rem);line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.load .tag{margin:12px 0 0;color:var(--lav);font-size:1.05rem}
+.track{position:relative;width:100%;height:10px;margin:64px 0 0;border-radius:99px;background:var(--navy)}
+.fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--blue))}
+.rider{position:absolute;top:50%;left:0;width:54px;aspect-ratio:1;margin:-27px 0 0 -27px;border-radius:50%;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--orange)}
+.pct{margin-top:30px;font-weight:600;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.tip{min-height:1.5em;margin:10px 0 0;color:var(--lav);opacity:.85;font-size:.95rem;transition:opacity .4s}
+.brand{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom,0px));font-size:.8rem;color:var(--lav);opacity:.6;transition:opacity .5s}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 30px 2px #8338fc55}50%{box-shadow:0 0 64px 10px #8338fc99}}
+@media (prefers-reduced-motion:reduce){#kl *{animation:none!important;transition:none!important}}
+/* ===== fim do loader ===== */
+
+.demo{position:fixed;inset:0;display:grid;place-content:center;gap:16px;text-align:center;padding:24px}
+.demo p{margin:0;color:var(--lav)}
+.demo form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.demo input,.demo button{font:inherit;padding:12px 16px;border-radius:12px;border:1px solid var(--navy)}
+.demo input{background:var(--navy);color:var(--white);min-width:0}
+.demo button{background:var(--purple);color:#fff;font-weight:600;cursor:pointer}
+.demo :focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+</style>
+
+<!-- KruujLoader nativo ativo -->
 
 </head><body>
 <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
@@ -323,7 +423,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ.IO ARENA',
-      tagline: 'A grande arena cósmica das corujas!', tips: ['Colete energia estelar para crescer.', 'Use o boost com cuidado para encurralar adversários!'],
+      tagline: tG.tagline, tips: tG.tips,
       splash: 2200,
       minTime: 3000,
       onComplete: () => {

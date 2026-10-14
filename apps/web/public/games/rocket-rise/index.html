@@ -559,7 +559,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
 </style>
 
-<!-- KruujLoader nativo roda com orgulho dentro do iframe do jogo -->
+<!-- KruujLoader nativo ativo -->
 </head>
 
 <body>
@@ -1012,7 +1012,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
     const I18N_ROCKET = {
       pt: {
-        tagline: 'Pilote sua nave e suba o mais alto possível!', tips: ['Desvie de meteoros espaciais.', 'Colete energia estelar para turbo!'],
+        tagline: tR.tagline, tips: tR.tips,
         tips: ['Desvie dos asteroides espaciais e colete propulsores turbo!', 'Toque ou use as setas para manobrar no vácuo.'],
         score: 'PONTOS', best: 'RECORDE', play: 'DECOLAR 🚀', playAgain: 'JOGAR NOVAMENTE 🚀', over: 'FIM DE VOO!'
       },

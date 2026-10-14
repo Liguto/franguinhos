@@ -2,7 +2,143 @@
 <html lang="pt-BR"><head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
 
-<!-- KruujLoader nativo roda com orgulho dentro do iframe do jogo -->
+<script>
+const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+const I18N_GEN = {
+  pt: { tagline: 'Prepare os fones, a coruja já está chegando.', tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
+  en: { tagline: 'Put on your headphones, the owl is coming.', tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
+  es: { tagline: 'Prepara los auriculares, el búho está llegando.', tips: ['¡Diviértete con los jogos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
+};
+const tG = I18N_GEN[LANG_GENERIC] || I18N_GEN.en;
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no'><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>KRUUJ · Domínio Neon</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#080a22;--ink:#eceaff;--lav:#d9d3ff;--pur:#7a3cff;--blu:#2f8cff;--ora:#ffa21a;--card:rgba(11,13,40,.86);--bd:rgba(122,60,255,.55);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--navy);color:var(--ink);font:600 14px Sora,"Trebuchet MS",system-ui,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.pill{position:fixed;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:10px 14px;box-shadow:0 0 18px rgba(122,60,255,.35);backdrop-filter:blur(6px);pointer-events:none}
+#hud{left:max(12px,env(safe-area-inset-left));top:calc(12px + env(safe-area-inset-top,0px))}
+#hud b{font-size:30px;display:block;line-height:1.1;color:var(--lav);text-shadow:0 0 12px var(--pur)}
+#lb{right:max(12px,env(safe-area-inset-right));top:calc(12px + env(safe-area-inset-top,0px));min-width:160px;font-size:12.5px}
+#lb div{display:flex;gap:8px;align-items:center;padding:2px 0}#lb i{width:9px;height:9px;transform:rotate(45deg);box-shadow:0 0 8px currentColor}#lb span{flex:1}#lb .me{font-weight:800}#lb .dead{opacity:.4;text-decoration:line-through}
+#left{position:fixed;left:max(12px,env(safe-area-inset-left));top:calc(12px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:10px;align-items:flex-start;pointer-events:none}
+#left .pill{position:static}
+#mmw{padding:8px}
+#mm{display:block;width:min(26vw,150px);height:min(26vw,150px)}
+@media(max-width:600px){#mm{width:min(30vw,110px);height:min(30vw,110px)}}
+#skw{margin:0 0 18px}
+button.sec{background:rgba(122,60,255,.18);box-shadow:none;border:1px solid var(--bd);font-size:13px;font-weight:600;padding:8px 16px;display:inline-flex;align-items:center;gap:12px;color:var(--lav);text-align:left;border-radius:16px}
+button.sec small{opacity:.7;font-weight:500}#skbc{width:40px;height:40px}
+#skp{position:fixed;inset:0;z-index:5;display:flex;align-items:flex-start;justify-content:center;padding:clamp(56px,12vh,120px) 0 12px;box-sizing:border-box;background:rgba(5,6,20,.85);backdrop-filter:blur(5px)}
+#skp.h{display:none}#skp .card{display:flex;flex-direction:column;width:calc(100% - 24px);max-width:560px;height:100%;max-height:680px;margin:0;padding:16px;box-sizing:border-box;overflow:hidden}
+.skhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.skbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.skview{flex:0 0 auto;text-align:center}.skopts{flex:1;min-height:0;overflow-y:auto;padding:2px;text-align:center}
+
+#skp h2{margin:0;font-size:22px}
+#pvc{width:min(100%,calc(34vh*1.6));height:auto;border-radius:16px;border:1px solid var(--bd);display:block;margin:0 auto 8px}
+#pvn{font-size:13px;color:var(--lav);margin-bottom:12px;min-height:34px}#pvn span{opacity:.7;font-size:11.5px}
+#skg{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,84px));justify-content:center;gap:8px;margin-bottom:12px}
+#skg button{padding:6px 2px 4px;border-radius:14px;background:rgba(122,60,255,.14);border:1.5px solid transparent;box-shadow:none;font-size:11px;font-weight:600;color:var(--lav);position:relative}
+#skg button.on{border-color:var(--ora);background:rgba(255,162,26,.16)}#skg button.cur::after{content:"✓";position:absolute;top:2px;right:6px;color:var(--ora)}
+#skg canvas{display:block;margin:0 auto 2px;width:48px;height:48px}
+#clr{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px}
+#clr button{width:30px;height:30px;padding:0;border-radius:10px;box-shadow:none;border:2px solid transparent}
+#clr button.on{border-color:#fff;box-shadow:0 0 10px rgba(255,255,255,.55)}
+.row{display:flex;gap:10px;justify-content:center;padding-top:12px}
+.x{width:38px;height:38px;padding:0;border-radius:12px;font-size:17px;background:rgba(217,211,255,.18);box-shadow:none;border:1px solid var(--bd);color:var(--lav)}.cap{font-size:11px;color:var(--lav);margin-bottom:8px;opacity:.85}
+#sk{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+#sk button{padding:6px 4px 4px;width:64px;border-radius:14px;background:rgba(122,60,255,.14);border:1.5px solid transparent;box-shadow:none;font-size:10.5px;font-weight:600;color:var(--lav)}
+#sk button.on{border-color:var(--ora);background:rgba(255,162,26,.16)}
+#sk canvas{display:block;margin:0 auto 2px;width:40px;height:40px}
+#ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,6,20,.6);backdrop-filter:blur(4px)}
+#ov.h{display:none}
+.card{background:linear-gradient(160deg,#141645,#0a0c28);border:1px solid var(--bd);border-radius:28px;padding:30px 34px;max-width:390px;margin:16px;text-align:center;box-shadow:0 0 40px rgba(122,60,255,.45)}
+h1{margin:0 0 6px;font-size:40px;font-weight:800;letter-spacing:.02em;text-shadow:0 0 18px var(--pur)}
+.tag{margin:0 0 14px;font-weight:800}.tag span:nth-child(1){color:#8b5cff}.tag span:nth-child(2){color:var(--blu)}
+p{margin:0 0 20px;line-height:1.55;font-weight:500;color:var(--lav)}
+button{font:inherit;font-weight:800;font-size:16px;padding:13px 34px;border:0;border-radius:999px;background:linear-gradient(90deg,var(--pur),var(--blu));color:#fff;cursor:pointer;box-shadow:0 0 22px rgba(47,140,255,.55)}
+button:focus-visible{outline:3px solid var(--ora);outline-offset:3px}
+@media(max-width:600px){#lb{min-width:125px;font-size:11.5px}}
+#skp .card{display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:10px}
+.skview{position:relative;flex:none;height:clamp(170px,32vh,290px);border-radius:16px;overflow:hidden;border:1px solid var(--bd)}
+#pvc{position:absolute;inset:0;width:100%;height:100%;display:block;margin:0;border:0;border-radius:0}
+#pvn{margin:0;min-height:0;text-align:center}
+.skopts{min-height:0;overflow-y:auto}
+html,body{overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}canvas#c{touch-action:none}
+#ov{overflow:auto}#ov .card{max-height:calc(100% - 16px);overflow:auto}
+#joy{position:fixed;left:calc(max(18px,env(safe-area-inset-left)) + 6px);bottom:calc(18px + env(safe-area-inset-bottom,0px));width:140px;height:140px;border-radius:50%;background:rgba(122,60,255,.16);border:2px solid rgba(122,60,255,.55);box-shadow:0 0 22px rgba(122,60,255,.35),inset 0 0 18px rgba(47,140,255,.2);touch-action:none;display:none;z-index:4}
+#joy::before{content:"";position:absolute;inset:-30px}
+#knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8fc0ff,#7a3cff);box-shadow:0 0 18px rgba(47,140,255,.7);pointer-events:none}
+#rot{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:radial-gradient(circle at 50% 40%,#1a1d4f,#05061a);text-align:center;padding:20px}
+#rot.h{display:none}
+.phone{width:56px;height:94px;border:4px solid var(--lav);border-radius:14px;position:relative;animation:rotp 2.6s ease-in-out infinite;box-shadow:0 0 24px rgba(122,60,255,.7)}
+.phone::after{content:"";position:absolute;left:50%;bottom:6px;width:14px;height:4px;border-radius:2px;background:var(--lav);transform:translateX(-50%)}
+@keyframes rotp{0%,25%{transform:rotate(0)}65%,100%{transform:rotate(-90deg)}}
+.rt{font-size:22px;font-weight:800;text-shadow:0 0 14px var(--pur)}.rs{opacity:.7;font-size:13px}
+@media (max-height:520px){
+ .pill{padding:6px 10px;border-radius:14px}#hud b{font-size:22px}#hud{font-size:12px}#lb{font-size:11px;min-width:112px}#mmw{padding:5px}#mm{width:84px;height:84px}
+ #joy{width:116px;height:116px}#knob{width:52px;height:52px;margin:-26px 0 0 -26px}
+ #ov .card{padding:14px 22px}h1{font-size:28px;margin-bottom:2px}.tag{margin-bottom:6px}p{margin-bottom:10px;font-size:13px;line-height:1.4}#skw{margin-bottom:10px}button{font-size:15px;padding:10px 26px}
+ #skp{padding:8px 0}
+ #skp .card{height:100%;max-height:none;grid-template-columns:42% 1fr;grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"h h" "v o" "n o" "r r";column-gap:12px;row-gap:6px;padding:10px 14px}
+ .skhead{grid-area:h;margin:0}.skview{grid-area:v;height:auto;min-height:0}#pvn{grid-area:n;font-size:12px}.skopts{grid-area:o}.row{grid-area:r;padding-top:6px}
+ #skp h2{font-size:18px}#skg{grid-template-columns:repeat(auto-fit,minmax(64px,74px))}#skg canvas{width:40px;height:40px}
+}
+#toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:999px;background:var(--card);border:1px solid var(--bd);font-weight:800;opacity:0;transition:opacity .25s;pointer-events:none;z-index:6;box-shadow:0 0 18px rgba(122,60,255,.4)}#toast.on{opacity:1}
+#snd{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:7;width:42px;height:42px;padding:0;border-radius:14px;font-size:18px;background:var(--card);border:1px solid var(--bd);box-shadow:none}
+.gn{font-size:13px;letter-spacing:.42em;text-transform:uppercase;color:var(--ora);font-weight:800;margin:-2px 0 10px;text-shadow:0 0 12px rgba(255,162,26,.6)}
+#aud{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:8;width:220px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--bd);box-shadow:0 0 22px rgba(122,60,255,.4);backdrop-filter:blur(6px);box-sizing:border-box}
+#aud.h{display:none}.ah{font-weight:800;margin-bottom:6px}
+#aud label{display:block;font-size:12px;margin:10px 0 2px;color:var(--lav)}#aud label span{float:right;opacity:.75}
+#aud input[type=range]{width:100%;accent-color:#7a3cff;margin:4px 0 0}
+#aud .sec{width:100%;justify-content:center;margin-top:10px}
+</style>
+<style>
+
+:root{--bg:#050b24;--purple:#8338fc;--blue:#289afd;--orange:#fda41d;--lav:#d8d4fd;--white:#f1f1f6;--navy:#1a214c;color-scheme:dark;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-family:'Outfit',system-ui,sans-serif}
+
+/* ===== KRUUJ LOADER (copiar este bloco CSS + o HTML #kl + o JS para cada jogo) ===== */
+#kl{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s}
+#kl.out{opacity:0;visibility:hidden}
+#kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
+#kl .ph.off{opacity:0;pointer-events:none}
+.splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both,glow 2.4s ease-in-out .9s infinite}
+.splash .logo{width:min(54vw,240px);height:auto;margin-top:20px;animation:rise .8s ease .7s both}
+.splash .sub{margin:8px 0 0;font-weight:600;font-size:.85rem;letter-spacing:.38em;padding-left:.38em;color:var(--lav);animation:rise .8s ease 1.1s both}
+.load{text-align:center}
+.load h1{margin:0;font-weight:800;font-size:clamp(2.2rem,9vw,3.6rem);line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.load .tag{margin:12px 0 0;color:var(--lav);font-size:1.05rem}
+.track{position:relative;width:100%;height:10px;margin:64px 0 0;border-radius:99px;background:var(--navy)}
+.fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--blue))}
+.rider{position:absolute;top:50%;left:0;width:54px;aspect-ratio:1;margin:-27px 0 0 -27px;border-radius:50%;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--orange)}
+.pct{margin-top:30px;font-weight:600;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.tip{min-height:1.5em;margin:10px 0 0;color:var(--lav);opacity:.85;font-size:.95rem;transition:opacity .4s}
+.brand{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom,0px));font-size:.8rem;color:var(--lav);opacity:.6;transition:opacity .5s}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 30px 2px #8338fc55}50%{box-shadow:0 0 64px 10px #8338fc99}}
+@media (prefers-reduced-motion:reduce){#kl *{animation:none!important;transition:none!important}}
+/* ===== fim do loader ===== */
+
+.demo{position:fixed;inset:0;display:grid;place-content:center;gap:16px;text-align:center;padding:24px}
+.demo p{margin:0;color:var(--lav)}
+.demo form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.demo input,.demo button{font:inherit;padding:12px 16px;border-radius:12px;border:1px solid var(--navy)}
+.demo input{background:var(--navy);color:var(--white);min-width:0}
+.demo button{background:var(--purple);color:#fff;font-weight:600;cursor:pointer}
+.demo :focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+</style>
+
+<!-- KruujLoader nativo ativo -->
 
 </head><body>
 <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
@@ -734,7 +870,7 @@ window.addEventListener('DOMContentLoaded', () => {
   try {
     KruujLoader.start({
       gameName: 'KRUUJ NEON DOMAIN',
-      tagline: 'Conquiste território na malha neon!', tips: ['Cerce áreas para conquistar território.', 'Evite cruzar seu próprio rastro antes de fechar o circuito!'],
+      tagline: tG.tagline, tips: tG.tips,
       splash: 2200,
       minTime: 3000,
       onComplete: () => {
