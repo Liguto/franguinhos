@@ -1012,7 +1012,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
     const I18N_ROCKET = {
       pt: {
-        tagline: tR.tagline, tips: tR.tips,
+        tagline: 'Coloque os fones, a coruja está chegando.',
         tips: ['Desvie dos asteroides espaciais e colete propulsores turbo!', 'Toque ou use as setas para manobrar no vácuo.'],
         score: 'PONTOS', best: 'RECORDE', play: 'DECOLAR 🚀', playAgain: 'JOGAR NOVAMENTE 🚀', over: 'FIM DE VOO!'
       },
@@ -6341,8 +6341,8 @@ function setupMobileControls() {
         mobilePauseBtn.addEventListener("click", triggerPause);
     }
 
-    // Toque direto no canvas para iniciar o foguete
-    canvas.addEventListener("touchstart", (e) => {
+    // Toque ou clique direto no canvas para iniciar o foguete
+    const onLaunchTap = (e) => {
         if (!gameRunning || paused || gameOver) return;
         if (!player.started) {
             player.started = true;
@@ -6351,7 +6351,9 @@ function setupMobileControls() {
             const lm = document.getElementById("launchMessage");
             if (lm) lm.style.display = "none";
         }
-    }, { passive: true });
+    };
+    canvas.addEventListener("touchstart", onLaunchTap, { passive: true });
+    canvas.addEventListener("pointerdown", onLaunchTap);
 
     // Mensagem amigável de lançamento em touch screens
     if (isTouch) {
