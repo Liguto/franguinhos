@@ -4822,6 +4822,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   align-items: center;
   justify-content: center;
   transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 
 .kruuj-poki-card:hover .kruuj-poki-overlay {
@@ -6318,3 +6319,12 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 
+
+
+/* POKI STAGE DESKTOP SCROLL ENSURANCE */
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh;
+}

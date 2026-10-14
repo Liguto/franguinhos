@@ -828,7 +828,7 @@ export default function App() {
 
   // --- Bloqueio de rolagem do fundo quando um jogo estiver ativo ---
   useEffect(() => {
-    if (view === 'playing' && selectedGame) {
+    if (view === 'playing' && selectedGame && isMobileMode) {
       document.body.classList.add('playing-game-mode');
       document.documentElement.classList.add('playing-game-mode');
     } else {
@@ -1983,9 +1983,11 @@ export default function App() {
   };
 
   // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
-  const handlePlayGame = async (game: Game) => {
+  const handlePlayGame = async (game?: Game | null) => {
+    if (!game) return;
     setDismissRotateNotice(false);
-    setPortalLoaderActive(true);
+    setPortalLoaderActive(false); // O loading é nativo dentro do iframe de cada jogo!
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setSelectedGame(game);
     setIsPlayingGame(true);
     setView('playing');
@@ -2941,7 +2943,7 @@ export default function App() {
                             <button 
                               className="kruuj-featured-play-btn"
                               onClick={() => {
-                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || games[0];
+                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || defaultGamesCatalog.find(g => g.slug === featuredGames[featuredIndex].slug) || defaultGamesCatalog[0];
                                 handlePlayGame(matched);
                               }}
                             >
@@ -3609,13 +3611,7 @@ export default function App() {
                   {/* CENTRO: O PALCO DO JOGO + BARRA BRANCA POKI */}
                   <div className="poki-stage-center">
                     <div className="poki-stage-player-wrapper" id="game-fullscreen-target">
-                      {portalLoaderActive && (
-                        <KruujPortalLoader
-                          game={selectedGame}
-                          lang={currentLang}
-                          onFinish={() => setPortalLoaderActive(false)}
-                        />
-                      )}
+                      {/* Loader oficial rodando nativamente dentro do iframe do próprio jogo */}
 
                       {(isMobileMode || isScreenLocked) && (
                         <AdaptivePokiCluster
@@ -3663,6 +3659,12 @@ export default function App() {
                         {isPhysicalGame(selectedGame.slug) ? (
                           <iframe
                             ref={gameIframeRef}
+                            onLoad={() => {
+                              try {
+                                gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
+                                gameIframeRef.current?.focus();
+                              } catch(e) {}
+                            }}
                             key={selectedGame.id}
                             src={getGameUrl(selectedGame)}
                             sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
