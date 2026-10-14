@@ -6653,3 +6653,53 @@ html, body {
     z-index: 100000000 !important;
   }
 }
+
+
+/* ==========================================================================
+   POKI ROTATE SHIELD (TELA DE ROTAÇÃO OBRIGATÓRIA / ENCAIXE INTELIGENTE)
+   ========================================================================== */
+.poki-rotate-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 100000010;
+  background: rgba(7, 9, 20, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.poki-rotate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 320px;
+}
+
+.poki-rotate-icon-anim {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
+}
+
+@keyframes phoneRotateAnim {
+  0% { transform: rotate(0deg); }
+  35% { transform: rotate(90deg); }
+  65% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-phone-rotate {
+  animation: phoneRotateAnim 2.2s infinite ease-in-out;
+}

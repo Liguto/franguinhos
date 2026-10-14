@@ -248,15 +248,20 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
       }
     };
 
+    const onNativeTouchMove = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault();
+      handleTouchMove(e);
+    };
+
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchmove', onNativeTouchMove, { passive: false });
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('touchend', handleTouchEnd);
     window.addEventListener('pointercancel', handlePointerUp);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchmove', onNativeTouchMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('pointercancel', handlePointerUp);
@@ -264,8 +269,22 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
   }, [isDragging]);
 
   return (
-    <div 
-      className={`kruuj-poki-top-cluster side-left ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
+    <>
+      {/* Escudo transparente para impedir que o iframe consuma o toque durante o arraste */}
+      {isDragging && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999999,
+            touchAction: 'none',
+            cursor: 'grabbing',
+            background: 'transparent'
+          }}
+        />
+      )}
+      <div 
+        className={`kruuj-poki-top-cluster side-left ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
         top: `${topY}px`,
         left: 0,
@@ -328,6 +347,7 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
         </button>
       )}
     </div>
+    </>
   );
 };
 
@@ -358,6 +378,10 @@ export default function App() {
 
   // Detecção Inteligente e Reativa de Mobile vs Web (Retrato e Paisagem/Landscape)
   const [isMobileFullscreen, setIsMobileFullscreen] = useState<boolean>(false);
+  const [deviceOrientation, setDeviceOrientation] = useState<'portrait' | 'landscape'>(() => {
+    if (typeof window === 'undefined') return 'portrait';
+    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+  });
 
   // Sistema de Curtidas e Dislikes Reais por Jogo (Persistente e Reativo)
   const [gameVotes, setGameVotes] = useState<Record<string, { likes: number; dislikes: number }>>(() => {
@@ -447,9 +471,17 @@ export default function App() {
     checkDevice();
     window.addEventListener('resize', checkDevice);
     window.addEventListener('orientationchange', checkDevice);
+    const checkOrientation = () => {
+      setDeviceOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+    };
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
     return () => {
       window.removeEventListener('resize', checkDevice);
       window.removeEventListener('orientationchange', checkDevice);
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
     };
   }, []);
 
@@ -3822,7 +3854,48 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* PARENT GATE EMBUTIDO NO PLAYER PARA SUPORTE TOTAL A FULLSCREEN */}
+                      
+                      {/* TELA DE ORIENTAÇÃO INTELIGENTE POKI (GIRAR DISPOSITIVO QUANDO INCOMPATÍVEL) */}
+                      {isMobileMode && isMobileFullscreen && selectedGame && selectedGame.orientation !== 'both' && (
+                        (selectedGame.orientation === 'landscape' && deviceOrientation === 'portrait') ||
+                        (selectedGame.orientation === 'portrait' && deviceOrientation === 'landscape')
+                      ) && (
+                        <div className="poki-rotate-shield">
+                          <div className="poki-rotate-card">
+                            <div className="poki-rotate-icon-anim">
+                              <Smartphone className="w-12 h-12 text-cyan-400 animate-phone-rotate" />
+                            </div>
+                            <h3 className="text-xl font-black text-white tracking-wide">
+                              {selectedGame.orientation === 'landscape'
+                                ? (currentLang === 'en' ? 'Rotate phone to Landscape' : currentLang === 'es' ? 'Gira tu celular a Horizontal' : 'Gire o celular na Horizontal')
+                                : (currentLang === 'en' ? 'Rotate phone to Portrait' : currentLang === 'es' ? 'Gira tu celular a Vertical' : 'Gire o celular na Vertical')
+                              }
+                            </h3>
+                            <p className="text-xs text-slate-300 max-w-xs">
+                              {currentLang === 'en'
+                                ? `"${selectedGame.title}" was designed for the best experience in ${selectedGame.orientation} mode.`
+                                : currentLang === 'es'
+                                ? `"${selectedGame.title}" fue diseñado para la mejor experiencia en modo ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'}.`
+                                : `"${selectedGame.title}" foi projetado para a melhor experiência na posição ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'}.`
+                              }
+                            </p>
+                            <button 
+                              className="btn-secondary py-1.5 px-4 text-xs font-bold rounded-full mt-2"
+                              onClick={() => {
+                                if (document.fullscreenElement) {
+                                  document.exitFullscreen().catch(() => {});
+                                }
+                                setIsMobileFullscreen(false);
+                              }}
+                            >
+                              {currentLang === 'en' ? 'Voltar ao Palco' : currentLang === 'es' ? 'Volver al Escenario' : 'Voltar ao Palco'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+
+                        {/* PARENT GATE EMBUTIDO NO PLAYER PARA SUPORTE TOTAL A FULLSCREEN */}
                         {showParentGate && (
                           <div className="modal-backdrop parent-gate-backdrop" style={{ zIndex: 1000000005, position: 'fixed', inset: 0 }}>
                             <div className="glass-panel modal-content parent-gate-card text-center space-y-6" style={{ zIndex: 1000000010, position: 'relative' }}>
@@ -3896,7 +3969,14 @@ export default function App() {
                           className="mobile-stage-play-overlay"
                           onClick={() => {
                             setIsMobileFullscreen(true);
-                            handleManualFullscreen();
+        handleManualFullscreen();
+        if (selectedGame && selectedGame.orientation && selectedGame.orientation !== 'both') {
+          if (typeof screen !== 'undefined' && (screen as any).orientation && (screen as any).orientation.lock) {
+            try {
+              (screen as any).orientation.lock(selectedGame.orientation).catch(() => {});
+            } catch(e) {}
+          }
+        }
                             try {
                               gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
                               gameIframeRef.current?.focus();
