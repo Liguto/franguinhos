@@ -975,35 +975,43 @@ body.playing-game-mode, html.playing-game-mode {
   display: block;
 }
 
-/* Barra Branca Poki de Ações (Fiel ao tela-poki-jogo.png) */
+/* Barra Poki de Ações Slim e Discreta (Redesign Moderno e Elegante) */
 .poki-stage-action-bar {
-  background: #ffffff;
-  border-radius: 0 0 18px 18px;
-  padding: 10px 18px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  padding: 6px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   user-select: none;
   -webkit-user-select: none;
+  transition: all 0.2s ease;
 }
 
 .poki-bar-game-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
 .poki-bar-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
   background: #0f172a;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .poki-bar-thumb img {
@@ -1020,9 +1028,9 @@ body.playing-game-mode, html.playing-game-mode {
 
 .poki-bar-title {
   font-family: var(--font-family);
-  font-size: 1.05rem;
-  font-weight: 900;
-  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f8fafc;
   margin: 0;
   line-height: 1.2;
   white-space: nowrap;
@@ -1031,49 +1039,69 @@ body.playing-game-mode, html.playing-game-mode {
 }
 
 .poki-bar-author {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
   letter-spacing: 0.02em;
 }
 
 .poki-bar-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .poki-bar-action-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  background: transparent;
-  border: none;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
-  color: #475569;
+  color: #94a3b8;
   transition: all 0.15s ease;
-  padding: 2px 6px;
-  border-radius: 8px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
 }
 
 .poki-bar-action-item:hover {
-  color: #0284c7;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.16);
   transform: translateY(-1px);
 }
 
+.poki-bar-action-item:active {
+  transform: scale(0.94);
+}
+
 .poki-bar-action-item.liked {
-  color: #0284c7;
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.4);
+  color: #38bdf8;
 }
 
 .poki-bar-action-item.liked svg {
-  fill: #0284c7;
+  fill: #38bdf8;
+  color: #38bdf8;
+}
+
+.poki-bar-action-item.disliked {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #fb7185;
+}
+
+.poki-bar-action-item.disliked svg {
+  fill: #fb7185;
+  color: #fb7185;
 }
 
 .poki-bar-action-count {
   font-family: var(--font-family);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 800;
 }
 
@@ -1116,36 +1144,13 @@ body.playing-game-mode, html.playing-game-mode {
 
 /* 1. MODO RETRATO NO CELULAR (MOBILE PORTRAIT: MAX-WIDTH 768PX) */
 @media (max-width: 768px), (pointer: coarse) and (max-width: 900px) {
-  .poki-stage-container {
-    padding: 6px 8px 40px 8px !important;
-    gap: 10px !important;
-  }
-
-  .poki-stage-top-row {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0 !important;
-    width: 100% !important;
-  }
-
-  .poki-stage-left-rail,
-  .poki-stage-right-mosaic {
-    display: none !important;
-  }
-
-  .poki-stage-player-wrapper {
-    border-radius: 14px 14px 0 0 !important;
-    aspect-ratio: 16 / 9 !important;
-    max-height: 54vh !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
-  }
-
-  /* Na barra branca mobile: despoluir e organizar os botões */
   .poki-stage-action-bar {
     border-radius: 0 0 14px 14px !important;
-    padding: 8px 12px !important;
-    gap: 10px !important;
-    background: #ffffff !important;
+    padding: 6px 10px !important;
+    gap: 8px !important;
+    background: rgba(15, 23, 42, 0.92) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top: none !important;
   }
 
   .poki-bar-game-info {
@@ -1155,23 +1160,23 @@ body.playing-game-mode, html.playing-game-mode {
   }
 
   .poki-bar-thumb {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    border-radius: 10px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
   }
 
   .poki-bar-title {
-    font-size: 0.92rem !important;
-    max-width: 130px !important;
+    font-size: 0.85rem !important;
+    max-width: 120px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
 
   .poki-bar-author {
-    font-size: 0.65rem !important;
+    font-size: 0.62rem !important;
     opacity: 0.8 !important;
   }
 
@@ -1190,34 +1195,34 @@ body.playing-game-mode, html.playing-game-mode {
   }
 
   .poki-bar-action-item {
-    background: #f1f5f9 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
     border-radius: 10px !important;
-    padding: 6px 10px !important;
-    min-height: 38px !important;
-    min-width: 38px !important;
+    padding: 5px 8px !important;
+    min-height: 32px !important;
+    min-width: 32px !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 4px !important;
-    color: #334155 !important;
+    color: #e2e8f0 !important;
     transition: transform 0.12s ease, background 0.12s ease !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
   .poki-bar-action-item:active {
     transform: scale(0.92) !important;
-    background: #e2e8f0 !important;
+    background: rgba(255, 255, 255, 0.12) !important;
   }
 
   .poki-bar-action-item.liked {
-    background: #e0f2fe !important;
-    border-color: #bae6fd !important;
-    color: #0284c7 !important;
+    background: rgba(14, 165, 233, 0.2) !important;
+    border-color: rgba(56, 189, 248, 0.5) !important;
+    color: #38bdf8 !important;
   }
 
   .poki-bar-action-item.liked svg {
-    fill: #0284c7 !important;
+    fill: #38bdf8 !important;
   }
 
   .poki-bar-action-count {

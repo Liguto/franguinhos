@@ -56,6 +56,7 @@ export interface Game {
   publishedAt?: Date;
   revisedAt?: Date;
   accessibilityMetadata?: string;
+  likes?: number;
   createdAt: Date;
   updatedAt: Date;
 }

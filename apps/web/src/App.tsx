@@ -34,6 +34,7 @@ interface Game {
   statusDoc: string;
   author: string;
   licenseName: string;
+  likes?: number;
 }
 
 interface UserProfile {
@@ -240,7 +241,9 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
         <button 
           className="kruuj-poki-back-btn" 
           style={{ touchAction: 'none' }}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
+            e.stopPropagation();
             if (dragRef.current.moved) return;
             onExit();
           }}
@@ -265,7 +268,9 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
         <button
           className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
           style={{ touchAction: 'none' }}
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
+            e.stopPropagation();
             if (dragRef.current.moved) return;
             if (isScreenLocked) {
               onUnlockRequest(); // Abre o Parent Gate matemático para desbloquear e continuar jogando!
@@ -310,6 +315,66 @@ export default function App() {
 
   // Detecção Inteligente e Reativa de Mobile vs Web (Retrato e Paisagem/Landscape)
   const [isMobileFullscreen, setIsMobileFullscreen] = useState<boolean>(false);
+
+  // Sistema de Curtidas e Dislikes Reais por Jogo (Persistente e Reativo)
+  const [gameVotes, setGameVotes] = useState<Record<string, { likes: number; dislikes: number }>>(() => {
+    try {
+      const saved = localStorage.getItem('kruuj_game_votes');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  const [userVotes, setUserVotes] = useState<Record<string, 'like' | 'dislike' | null>>(() => {
+    try {
+      const saved = localStorage.getItem('kruuj_user_votes');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  const getGameVotes = (gameId: string) => {
+    if (gameVotes[gameId]) return gameVotes[gameId];
+    const foundGame = games.find(g => g.id === gameId) || defaultGamesCatalog.find(g => g.id === gameId);
+    const baseLikes = foundGame?.likes || 0;
+    return { likes: baseLikes, dislikes: 0 };
+  };
+
+  const handleVoteGame = (gameId: string, type: 'like' | 'dislike') => {
+    setUserVotes(prevUser => {
+      const currentVote = prevUser[gameId] || null;
+      let nextVote: 'like' | 'dislike' | null = null;
+
+      setGameVotes(prevVotes => {
+        const counts = prevVotes[gameId] || getGameVotes(gameId);
+        let newLikes = counts.likes;
+        let newDislikes = counts.dislikes;
+
+        if (currentVote === type) {
+          nextVote = null;
+          if (type === 'like') newLikes = Math.max(0, newLikes - 1);
+          if (type === 'dislike') newDislikes = Math.max(0, newDislikes - 1);
+        } else {
+          nextVote = type;
+          if (type === 'like') {
+            newLikes += 1;
+            if (currentVote === 'dislike') newDislikes = Math.max(0, newDislikes - 1);
+          } else {
+            newDislikes += 1;
+            if (currentVote === 'like') newLikes = Math.max(0, newLikes - 1);
+          }
+        }
+
+        const updated = { ...prevVotes, [gameId]: { likes: newLikes, dislikes: newDislikes } };
+        try { localStorage.setItem('kruuj_game_votes', JSON.stringify(updated)); } catch(e) {}
+        return updated;
+      });
+
+      const updatedUser = { ...prevUser, [gameId]: nextVote };
+      try { localStorage.setItem('kruuj_user_votes', JSON.stringify(updatedUser)); } catch(e) {}
+      return updatedUser;
+    });
+  };
   const [isMobileMode, setIsMobileMode] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     const isCoarse = window.matchMedia('(pointer: coarse)').matches;
@@ -3641,6 +3706,9 @@ export default function App() {
                           } catch (e) {}
                         }}
                         onUnlockRequest={() => {
+                          if (document.fullscreenElement) {
+                            document.exitFullscreen().catch(() => {});
+                          }
                           const isMult = Math.random() > 0.4;
                           const n1 = Math.floor(Math.random() * 5) + 2;
                           const n2 = Math.floor(Math.random() * 5) + 2;
@@ -3711,7 +3779,75 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* BOTÃO FLUTUANTE DE PLAY NO PALCO MOBILE (PADRÃO POKI MOBILE) */}
+                      {/* PARENT GATE EMBUTIDO NO PLAYER PARA SUPORTE TOTAL A FULLSCREEN */}
+                        {showParentGate && (
+                          <div className="modal-backdrop parent-gate-backdrop" style={{ zIndex: 1000000005, position: 'fixed', inset: 0 }}>
+                            <div className="glass-panel modal-content parent-gate-card text-center space-y-6" style={{ zIndex: 1000000010, position: 'relative' }}>
+                              <div className="w-14 h-14 bg-pink-950/40 border border-pink-500/30 rounded-full flex items-center justify-center mx-auto text-pink-500 animate-bounce">
+                                <Lock className="w-6 h-6" />
+                              </div>
+                              <h3 className="text-xl font-extrabold text-pink-500">🔐 Área Exclusiva para Adultos</h3>
+                              <p className="text-xs text-gray-400">
+                                Para desbloquear os controles e continuar jogando normalmente, resolva o desafio matemático:
+                              </p>
+                              <form onSubmit={handleParentGateSubmit} className="space-y-4">
+                                <div className="text-3xl font-extrabold text-white mb-4 font-mono">
+                                  {parentMath.n1} {parentMath.op} {parentMath.n2} = ?
+                                </div>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  className="input-field text-center text-2xl font-bold bg-black/60 border-pink-500/30 text-white rounded-lg p-2"
+                                  style={{ maxWidth: '160px', margin: '0 auto', display: 'block' }}
+                                  value={parentInput}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (/^\d*$/.test(val)) {
+                                      setParentInput(val);
+                                      const expected = parentMath.op === 'x' ? parentMath.n1 * parentMath.n2 : parentMath.n1 + parentMath.n2;
+                                      if (parseInt(val, 10) === expected) {
+                                        setTimeout(() => {
+                                          setIsScreenLocked(false);
+                                          setShowParentGate(false);
+                                          setParentInput('');
+                                        }, 150);
+                                      }
+                                    }
+                                  }}
+                                  autoFocus
+                                  required
+                                  placeholder="?"
+                                />
+                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                  <button 
+                                    type="submit" 
+                                    className="btn-primary flex-1 justify-center py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold shadow-lg shadow-teal-500/20"
+                                  >
+                                    🔓 Desbloquear Jogo
+                                  </button>
+                                  <button 
+                                    type="button" 
+                                    className="btn-secondary flex-1 justify-center py-2.5 rounded-xl font-bold border-pink-500/30 hover:border-pink-500 text-pink-300"
+                                    onClick={() => handleUnlockAndExit()}
+                                  >
+                                    🚪 Desbloquear e Sair
+                                  </button>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className="text-xs text-gray-400 hover:text-white underline pt-1 block mx-auto"
+                                  onClick={() => { setShowParentGate(false); setParentInput(''); }}
+                                >
+                                  Cancelar (Manter Bloqueado)
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* BOTÃO FLUTUANTE DE PLAY NO PALCO MOBILE (PADRÃO POKI MOBILE) */}
                       {!isMobileFullscreen && (
                         <div 
                           className="mobile-stage-play-overlay"
@@ -3748,24 +3884,24 @@ export default function App() {
                       </div>
 
                       <div className="poki-bar-actions">
-                        {/* Curtir / Like 👍 */}
+                        {/* Curtir / Like 👍 (Contagem Real Persistente) */}
                         <button 
-                          className={`poki-bar-action-item poki-action-like ${isGameFavorited(selectedGame) ? 'liked' : ''}`}
-                          onClick={() => handleToggleFavorite(selectedGame.id)}
+                          className={`poki-bar-action-item poki-action-like ${(userVotes[selectedGame.id] === 'like' || isGameFavorited(selectedGame)) ? 'liked' : ''}`}
+                          onClick={() => handleVoteGame(selectedGame.id, 'like')}
                           title="Gostei"
                         >
-                          <ThumbsUp className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-blue-600 text-blue-600' : 'text-gray-500'}`} />
-                          <span className="poki-bar-action-count">{likesCount[selectedGame.id] || 124}</span>
+                          <ThumbsUp className={`w-3.5 h-3.5 ${(userVotes[selectedGame.id] === 'like' || isGameFavorited(selectedGame)) ? 'fill-sky-400 text-sky-400' : 'text-gray-400'}`} />
+                          <span className="poki-bar-action-count">{getGameVotes(selectedGame.id).likes}</span>
                         </button>
 
-                        {/* Não Gostei 👎 (Oculto no mobile para despoluir) */}
+                        {/* Não Gostei 👎 (Contagem Real Persistente) */}
                         <button 
-                          className="poki-bar-action-item poki-action-dislike"
-                          onClick={() => alert("Obrigado pelo feedback!")}
+                          className={`poki-bar-action-item poki-action-dislike ${userVotes[selectedGame.id] === 'dislike' ? 'disliked' : ''}`}
+                          onClick={() => handleVoteGame(selectedGame.id, 'dislike')}
                           title="Não gostei"
                         >
-                          <ThumbsDown className="w-4 h-4 text-gray-400" />
-                          <span className="poki-bar-action-count">3</span>
+                          <ThumbsDown className={`w-3.5 h-3.5 ${userVotes[selectedGame.id] === 'dislike' ? 'fill-rose-400 text-rose-400' : 'text-gray-400'}`} />
+                          <span className="poki-bar-action-count">{getGameVotes(selectedGame.id).dislikes}</span>
                         </button>
 
                         {/* Compartilhar */}
