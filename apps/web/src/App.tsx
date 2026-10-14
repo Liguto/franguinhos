@@ -43,6 +43,90 @@ interface UserProfile {
   agePreference: string;
 }
 
+interface KruujPortalLoaderProps {
+  game: Game;
+  lang: 'pt' | 'en' | 'es';
+  onFinish: () => void;
+}
+
+const KruujPortalLoader: React.FC<KruujPortalLoaderProps> = ({ game, lang, onFinish }) => {
+  const [progress, setProgress] = useState(0);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [tipIndex, setTipIndex] = useState(0);
+
+  const tipsMap = {
+    pt: [
+      'Prepare os fones, a coruja já está chegando.',
+      'Dica: use fones de ouvido para imersão estéreo.',
+      'Colete recordes e desbloqueie conquistas na KRUUJ Studio!',
+      'Gire o celular na horizontal para jogar em tela cheia!'
+    ],
+    en: [
+      'Put on your headphones, the owl is coming.',
+      'Tip: use headphones for the best stereo immersion.',
+      'Beat high scores and unlock achievements on KRUUJ Studio!',
+      'Turn your phone to landscape to play in full screen!'
+    ],
+    es: [
+      'Prepara los auriculares, el búho está llegando.',
+      'Consejo: usa auriculares para una mejor inmersión.',
+      '¡Supera los récords y desbloquea logros en KRUUJ Studio!',
+      '¡Gira tu celular en horizontal para jugar en pantalla completa!'
+    ]
+  };
+
+  const tips = tipsMap[lang] || tipsMap.pt;
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const minDuration = 3000; // 3.0 segundos garantidos de prestígio de marca
+
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(100, Math.round((elapsed / (minDuration - 250)) * 100));
+      setProgress(pct);
+
+      if (elapsed >= minDuration) {
+        clearInterval(progressInterval);
+        setIsFadingOut(true);
+        setTimeout(() => {
+          onFinish();
+        }, 500);
+      }
+    }, 40);
+
+    const tipInterval = setInterval(() => {
+      setTipIndex(prev => (prev + 1) % tips.length);
+    }, 1500);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(tipInterval);
+    };
+  }, [tips.length, onFinish]);
+
+  return (
+    <div className={`kruuj-portal-loader-overlay ${isFadingOut ? 'fade-out' : ''}`}>
+      <div className="kruuj-loader-owl-wrap">
+        <img src="/kruuj-avatar.png" alt="KRUUJ" className="kruuj-loader-owl-img" />
+      </div>
+
+      <div className="kruuj-loader-brand-title">KRUUJ STUDIO</div>
+      <h2 className="kruuj-loader-game-name">{game.title}</h2>
+      <p className="kruuj-loader-tagline">{tips[0]}</p>
+
+      <div className="kruuj-loader-track">
+        <div className="kruuj-loader-fill" style={{ width: `${progress}%` }} />
+      </div>
+
+      <div className="kruuj-loader-pct">{progress}%</div>
+      <p className="kruuj-loader-tip">🦉 {tips[tipIndex]}</p>
+
+      <div className="kruuj-loader-studio-footer">Jogue • Descubra • Conecte</div>
+    </div>
+  );
+};
+
 export default function App() {
   // --- Estados do Portal ---
   const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
@@ -382,6 +466,7 @@ export default function App() {
   const [showAdOverlay, setShowAdOverlay] = useState<boolean>(false);
   const [adCountdown, setAdCountdown] = useState<number>(3);
   const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
+  const [portalLoaderActive, setPortalLoaderActive] = useState<boolean>(true);
 
   // --- Histórico de Jogos Recentes (Requisito de MVP) ---
   interface RecentPlay {
@@ -1663,18 +1748,7 @@ export default function App() {
 
   // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
   const handlePlayGame = async (game: Game) => {
-    // Ativação imediata de Fullscreen nativo no Mobile durante o clique do usuário para ocultar a barra de URL
-    try {
-      const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-      if (isMobile && !document.fullscreenElement) {
-        const docEl = document.documentElement as any;
-        const reqFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
-        if (reqFs) {
-          reqFs.call(docEl).catch(() => {});
-        }
-      }
-    } catch (e) {}
-
+    setPortalLoaderActive(true);
     setSelectedGame(game);
     setIsPlayingGame(true);
     setView('playing');
@@ -3255,11 +3329,17 @@ export default function App() {
           <>
             {view === 'playing' && selectedGame && (
               <div className="kruuj-playing-container">
+                {portalLoaderActive && (
+                  <KruujPortalLoader
+                    game={selectedGame}
+                    lang={currentLang}
+                    onFinish={() => setPortalLoaderActive(false)}
+                  />
+                )}
                 
                 {/* BOTÃO FLUTUANTE ESTILO POKI (APENAS MOBILE) COM CORUJA MASCOTE DO KRUUJ E SETA */}
                 {!isScreenLocked && (
-                  <button 
-                    className="kruuj-poki-back-btn md:hidden" 
+                  <button className="kruuj-poki-back-btn" 
                     onClick={triggerExitGame}
                     title="Voltar ao Portal"
                   >
@@ -3275,7 +3355,7 @@ export default function App() {
 
                 {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
                 {!isScreenLocked && (
-                  <div className="kruuj-playing-header-bar hidden md:flex">
+                  <div className="kruuj-playing-header-bar">
                     {/* Botão de Voltar ao Portal no Desktop */}
                     <button 
                       className="kruuj-playing-back-btn" 

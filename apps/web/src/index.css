@@ -520,18 +520,21 @@ body.playing-game-mode, html.playing-game-mode {
   max-height: 100% !important;
 }
 
-/* Botão Poki Mobile-Only: NUNCA aparece no Desktop/Web */
+/* Botão Poki Mobile-Only: NUNCA aparece no Desktop/Web com mouse e tela grande */
 .kruuj-poki-back-btn {
   display: none !important;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 551px) and (hover: hover) {
   .kruuj-poki-back-btn {
     display: none !important;
   }
 }
 
-@media (max-width: 768px) {
+/* Abrange Mobile Retrato E Mobile Paisagem (Landscape em smartphones) */
+@media (max-width: 768px), 
+       (orientation: landscape) and (max-height: 550px),
+       ((hover: none) and (pointer: coarse) and (max-height: 600px)) {
   body.playing-game-mode, html.playing-game-mode {
     position: fixed !important;
     inset: 0 !important;
@@ -4048,6 +4051,133 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   width: 20px;
   border-radius: 9999px;
   background: #38bdf8;
+}
+
+/* ======================================================================
+   KRUUJ PORTAL UNIVERSAL BRANDING LOADER (Garante 3s em 100% dos jogos)
+   ====================================================================== */
+.kruuj-portal-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999999;
+  background: radial-gradient(ellipse at 50% 40%, #101a52 0%, #050b24 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 24px calc(20px + env(safe-area-inset-bottom, 0px));
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.kruuj-portal-loader-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.kruuj-loader-owl-wrap {
+  position: relative;
+  width: min(30vw, 110px);
+  aspect-ratio: 1;
+  margin-bottom: 14px;
+  animation: popIn 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+
+.kruuj-loader-owl-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: drop-shadow(0 0 20px rgba(131, 56, 252, 0.6));
+  animation: owlGlow 2.4s ease-in-out infinite;
+}
+
+.kruuj-loader-brand-title {
+  font-size: clamp(1.4rem, 5vw, 2.2rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(135deg, #38e8ff, #8b5cff, #ffb020);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.kruuj-loader-game-name {
+  font-size: clamp(1rem, 3.5vw, 1.4rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.kruuj-loader-tagline {
+  font-size: 0.85rem;
+  color: #d8d4fd;
+  opacity: 0.85;
+  margin-bottom: 24px;
+  text-align: center;
+  max-width: 360px;
+}
+
+.kruuj-loader-track {
+  position: relative;
+  width: min(85vw, 320px);
+  height: 8px;
+  background: #1a214c;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.kruuj-loader-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #8338fc, #289afd, #fda41d);
+  border-radius: 9999px;
+  transition: width 0.15s linear;
+  box-shadow: 0 0 12px rgba(56, 232, 255, 0.6);
+}
+
+.kruuj-loader-pct {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #38e8ff;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 14px;
+}
+
+.kruuj-loader-tip {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  text-align: center;
+  max-width: 320px;
+  line-height: 1.4;
+  min-height: 2.2em;
+}
+
+.kruuj-loader-studio-footer {
+  position: absolute;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #d8d4fd;
+  opacity: 0.55;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes owlGlow {
+  0%, 100% { filter: drop-shadow(0 0 16px rgba(131, 56, 252, 0.5)); }
+  50% { filter: drop-shadow(0 0 28px rgba(56, 232, 255, 0.8)); }
 }
 
 /* 4. Prateleiras de Jogos (Shelves) */
