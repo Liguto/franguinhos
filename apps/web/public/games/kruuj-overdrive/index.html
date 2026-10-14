@@ -238,11 +238,19 @@ const KruujLoader=(()=>{
     setProgress(v){cfg.manual=true;target=Math.max(target,Math.min(1,v))},
     finish(){finished=true;target=1}};
 })();
-KruujLoader.start({gameName:'KRUUJ OVERDRIVE',tagline: tG.tagline, tips: tG.tips,splash: 2200,minTime: 3000,
-  tips:['Brake + steer to drift and recharge your nitro.','Overtake cleanly to refill your nitro.','Upgrade your car in the Garage.','Finish in the top 3 to unlock the next race.','Tap the center of the screen to pause.','Each city has its own soundtrack.','Rivals draft, defend and make mistakes — just like people.']});
-{const T0=Date.now(),SPL=3600,MIN=5200,iv=setInterval(()=>{const e=Date.now()-T0-SPL; // a barra anda junto com o tempo; fecha quando o jogo está pronto
-  if(e>0)KruujLoader.setProgress(Math.min(0.97,e/MIN));
-  if((e>=MIN&&window.__gameReady)||Date.now()-T0>30000){clearInterval(iv);KruujLoader.finish();}},100);}
+KruujLoader.start({
+  gameName: 'KRUUJ OVERDRIVE',
+  tagline: tG.tagline,
+  tips: tG.tips,
+  splash: 2200,
+  minTime: 3000,
+  onComplete: () => {
+    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-overdrive' }, '*'); } catch(e){}
+  }
+});
+setTimeout(() => {
+  KruujLoader.finish();
+}, 2800);
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>

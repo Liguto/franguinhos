@@ -2640,24 +2640,33 @@ export default function App() {
                             </button>
                           </div>
 
-                          <div className="kruuj-shelf-row" style={{ marginTop: '16px' }}>
+                          <div className="kruuj-poki-grid" style={{ marginTop: '16px' }}>
                             {getFilteredGames().map(game => (
                               <div 
                                 key={game.id} 
-                                className="kruuj-game-card-clean"
-                                onClick={() => handleOpenDetails(game)}
+                                className={`kruuj-poki-card ${isGameFavorited(game) ? 'is-favorited' : ''}`}
+                                onClick={() => handlePlayGame(game)}
+                                title={`Jogar ${game.title}`}
                               >
-                                <div className="kruuj-game-thumb">
+                                <div className="kruuj-poki-thumb">
                                   {renderGameCover(game)}
+                                  <div className="kruuj-poki-overlay">
+                                    <div className="kruuj-poki-play-icon">
+                                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                                    </div>
+                                  </div>
                                   <button
-                                    className="kruuj-game-like-btn"
+                                    className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                    title="Favoritar"
+                                    title={isGameFavorited(game) ? 'Remover dos favoritos' : 'Favoritar'}
                                   >
-                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
                                   </button>
                                 </div>
-                                <div className="kruuj-game-title-clean">{game.title}</div>
+                                <div className="kruuj-poki-meta">
+                                  <span className="kruuj-poki-title">{game.title}</span>
+                                  <span className="kruuj-poki-cat">{game.category}</span>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -2674,11 +2683,6 @@ export default function App() {
                               >
                                 <div className="kruuj-poki-thumb">
                                   {renderGameCover(game)}
-                                  {isGameFavorited(game) && (
-                                    <span className="kruuj-fav-tag">
-                                      ❤️ {t.favBadge}
-                                    </span>
-                                  )}
                                   <div className="kruuj-poki-overlay">
                                     <div className="kruuj-poki-play-icon">
                                       <Play className="w-5 h-5 fill-white text-white ml-0.5" />
@@ -3375,6 +3379,7 @@ export default function App() {
                        sandbox="allow-scripts allow-same-origin allow-forms"
                        allow="fullscreen; autoplay; screen-wake-lock; orientation-lock"
                        allowFullScreen
+                       scrolling="no"
                        title={selectedGame.title}
                        style={{
                          position: 'absolute',
@@ -3408,48 +3413,6 @@ export default function App() {
                       <p className="text-cyan-400 font-bold mb-4 neon-glow-cyan">Injetando chips estelares...</p>
                     </div>
                   )}
-                </div>
-
-                {/* SLOT DE ANÚNCIO LEADERBOARD DEBAIXO DO JOGO (Apenas no Desktop) */}
-                {consentOptions.advertising && (
-                  <div className="ad-slot-leaderboard hidden md:block"></div>
-                )}
-
-                {/* MAIS JOGOS RECOMENDADOS (Estilo Poki.com) */}
-                <div className="mt-8 space-y-4 hidden md:block">
-                  <h3 className="text-md font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
-                    <Grid className="w-5 h-5 text-cyan-400" /> Mais Jogos para Você
-                  </h3>
-                  <div className="kruuj-poki-grid">
-                    {getRelatedGames(selectedGame).map(game => (
-                      <div 
-                        key={game.id}
-                        className="kruuj-poki-card"
-                        onClick={() => handlePlayGame(game)}
-                        title={`Jogar ${game.title}`}
-                      >
-                        <div className="kruuj-poki-thumb">
-                          {renderGameCover(game)}
-                          <div className="kruuj-poki-overlay">
-                            <div className="kruuj-poki-play-icon">
-                              <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                            </div>
-                          </div>
-                          <button
-                            className="kruuj-poki-like-btn"
-                            onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                            title="Favoritar"
-                          >
-                            <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                          </button>
-                        </div>
-                        <div className="kruuj-poki-meta">
-                          <span className="kruuj-poki-title">{game.title}</span>
-                          <span className="kruuj-poki-cat">{game.category}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             )}
