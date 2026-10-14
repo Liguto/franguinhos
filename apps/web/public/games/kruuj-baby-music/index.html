@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Baby Sinfonia – Sonhos da Corujinha</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    // Suprime KruujLoader interno se carregado dentro do Portal
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    // Suporte a i18n em PT, EN, ES
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N = {
+      pt: {
+        title: 'KRUUJ Baby Sinfonia',
+        tagline: 'Toque nas estrelas, dance com a corujinha e ouça a magia.',
+        modeChimes: 'Sinos',
+        modeBox: 'Caixinha',
+        modeXylo: 'Xilofone',
+        lullaby: 'Canção de Ninar',
+        lullabyOn: 'Ninar: Ligado',
+        lullabyOff: 'Ninar: Parar',
+        stars: 'Estrelas',
+        owlCheer: ['Piu-piu!', 'Que lindo!', 'Amei!', 'Viva!'],
+        tips: [
+          'Toque ou arraste o dedinho em qualquer lugar da tela.',
+          'Nenhum som desafina: a escala pentatônica é sempre doce e harmoniosa.',
+          'Toque na corujinha para vê-la dançar!'
+        ]
+      },
+      en: {
+        title: 'KRUUJ Baby Symphony',
+        tagline: 'Touch the stars, dance with the little owl and hear the magic.',
+        modeChimes: 'Chimes',
+        modeBox: 'Music Box',
+        modeXylo: 'Xylophone',
+        lullaby: 'Lullaby',
+        lullabyOn: 'Lullaby: On',
+        lullabyOff: 'Lullaby: Off',
+        stars: 'Stars',
+        owlCheer: ['Piu-piu!', 'So sweet!', 'Loved it!', 'Yay!'],
+        tips: [
+          'Tap or drag little fingers anywhere on the screen.',
+          'Zero discordant sounds: pure pentatonic harmony.',
+          'Tap the little owl to see her dance!'
+        ]
+      },
+      es: {
+        title: 'KRUUJ Baby Sinfonía',
+        tagline: 'Toca las estrellas, baila con el búho y siente la magia.',
+        modeChimes: 'Campanas',
+        modeBox: 'Cajita',
+        modeXylo: 'Xilófono',
+        lullaby: 'Canción de Cuna',
+        lullabyOn: 'Cuna: Activa',
+        lullabyOff: 'Cuna: Parar',
+        stars: 'Estrellas',
+        owlCheer: ['¡Piu-piu!', '¡Qué lindo!', '¡Me encanta!', '¡Viva!'],
+        tips: [
+          'Toca o arrastra los deditos en cualquier parte de la pantalla.',
+          'Sonidos siempre dulces en escala pentatónica relajante.',
+          '¡Toca al pequeño búho para verlo bailar!'
+        ]
+      }
+    };
+    const tG = I18N[URL_LANG] || I18N.pt;
+  </script>
+
+  <style>
+    :root {
+      --bg-top: #0a0e2a;
+      --bg-bottom: #1a1642;
+      --purple: #8338fc;
+      --blue: #289afd;
+      --orange: #fda41d;
+      --pink: #ff65a6;
+      --yellow: #ffd043;
+      --green: #48e59b;
+      --lav: #d8d4fd;
+      --white: #ffffff;
+      --navy: #151c4a;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, var(--bg-top), var(--bg-bottom));
+      color: var(--white);
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+
+    /* HUD Superior de Controles — Recuo Poki obrigatório de 68px no mobile */
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        padding-left: 68px !important;
+      }
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .hud-btn {
+      background: rgba(21, 28, 74, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 8px 16px;
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .hud-btn:active {
+      transform: scale(0.94);
+    }
+
+    .hud-btn.active {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      border-color: #ffd043;
+      box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+    }
+
+    .hud-badge {
+      background: rgba(21, 28, 74, 0.85);
+      border: 2px solid rgba(255, 208, 67, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 7px 14px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffd043;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Notificação flutuante de afeto */
+    .toast-msg {
+      position: fixed;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(255, 255, 255, 0.92);
+      color: #3b1464;
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 8px 22px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 20;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== KRUUJ LOADER OFICIAL ===== */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #101a52 0%, var(--bg-top) 65%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity 0.5s ease; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl { width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; animation: pop 0.9s cubic-bezier(.2,1.3,.4,1) both, glow 2.4s ease-in-out 0.9s infinite; }
+    .splash .logo { width: min(54vw, 240px); height: auto; margin-top: 20px; animation: rise 0.8s ease 0.7s both; }
+    .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; padding-left: 0.38em; color: var(--lav); animation: rise 0.8s ease 1.1s both; }
+    .load { text-align: center; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
+    .load .tag { margin: 12px 0 0; color: var(--lav); font-size: 1.05rem; }
+    .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--purple), var(--blue)); }
+    .rider { position: absolute; top: 50%; left: 0; width: 48px; aspect-ratio: 1; margin: -24px 0 0 -24px; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg-top), 0 0 0 5px var(--orange); }
+    .pct { margin-top: 26px; font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+    .tip { min-height: 1.5em; margin: 10px 0 0; color: var(--lav); opacity: 0.85; font-size: 0.95rem; transition: opacity 0.4s; }
+    .brand { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); font-size: 0.8rem; color: var(--lav); opacity: 0.6; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes rise { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 30px 2px #8338fc55; } 50% { box-shadow: 0 0 64px 10px #8338fc99; } }
+  </style>
+</head>
+
+<body>
+  <!-- KruujLoader Oficial -->
+  <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
+    <div class="ph splash">
+      <img class="owl" alt="KRUUJ" src="/kruuj-avatar.png" onerror="this.src='/kruuj-mascote.png'">
+      <img class="logo" alt="Kruuj" src="/kruuj-logo.png" onerror="this.style.display='none'">
+      <p class="sub">STUDIO</p>
+    </div>
+    <div class="ph load off">
+      <h1 id="kl-name">KRUUJ Baby Sinfonia</h1>
+      <p class="tag" id="kl-tag">Toque nas estrelas e ouça a magia.</p>
+      <div class="track">
+        <div class="fill" id="kl-fill"></div>
+        <img class="rider" id="kl-rider" alt="" src="/kruuj-avatar.png">
+      </div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip"></p>
+    </div>
+    <div class="brand" id="kl-brand">Kruuj Studio</div>
+  </div>
+
+  <!-- HUD do Jogo (Respeitando recuo de segurança mobile) -->
+  <header class="hud">
+    <div class="hud-group">
+      <button class="hud-btn active" id="btnSoundMode" onclick="toggleInstrument()" title="Trocar Instrumento">
+        <span id="soundIcon">🔔</span>
+        <span id="soundLabel">Sinos</span>
+      </button>
+      <button class="hud-btn" id="btnLullaby" onclick="toggleLullaby()" title="Canção de Ninar Automática">
+        <span>✨</span>
+        <span id="lullabyLabel">Ninar</span>
+      </button>
+    </div>
+    <div class="hud-group">
+      <div class="hud-badge" id="starBadge">
+        <span>⭐</span>
+        <span id="starCount">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="toast-msg" id="toastMsg">Que fofo! ❤️</div>
+
+  <!-- Canvas Principal -->
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // ==========================================
+    // 1. ÁUDIO SINTÉTICO (WEBAUDIO PENTATÔNICO)
+    // ==========================================
+    // Escala Pentatônica Maior de Dó (C4 até C6) — 100% harmoniosa e doce para bebês
+    const PENTATONIC_FREQS = [
+      261.63, // C4
+      293.66, // D4
+      329.63, // E4
+      392.00, // G4
+      440.00, // A4
+      523.25, // C5
+      587.33, // D5
+      659.25, // E5
+      783.99, // G5
+      880.00, // A5
+      1046.50 // C6
+    ];
+
+    let audioCtx = null;
+    let currentInstrument = 0; // 0: Sinos (Celeste), 1: Caixinha de Música, 2: Xilofone Mágico
+    const INSTRUMENTS = [
+      { id: 'chimes', icon: '🔔', labelKey: 'modeChimes' },
+      { id: 'box', icon: '🎵', labelKey: 'modeBox' },
+      { id: 'xylo', icon: '🌈', labelKey: 'modeXylo' }
+    ];
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playNote(freqIndex, durationMultiplier = 1.0) {
+      initAudio();
+      if (!audioCtx) return;
+
+      const idx = Math.max(0, Math.min(PENTATONIC_FREQS.length - 1, freqIndex));
+      const freq = PENTATONIC_FREQS[idx];
+      const now = audioCtx.currentTime;
+
+      if (currentInstrument === 0) {
+        // --- MODO 1: SINOS CELESTIAIS (Celeste / Chimes) ---
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, now);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2.002, now); // Leve detune cintilante
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.28, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.4 * durationMultiplier);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 1.5 * durationMultiplier);
+        osc2.stop(now + 1.5 * durationMultiplier);
+
+      } else if (currentInstrument === 1) {
+        // --- MODO 2: CAIXINHA DE MÚSICA DE NINAR (Music Box) ---
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.32, now + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.9 * durationMultiplier);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 1.0 * durationMultiplier);
+
+      } else {
+        // --- MODO 3: XILOFONE MÁGICO DO ARCO-ÍRIS ---
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5 * durationMultiplier);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.55 * durationMultiplier);
+      }
+    }
+
+    // Risadinha / Piu-piu amigável da Corujinha
+    function playOwlCheerSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      // Trinado de flauta ascendente
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(659.25, now); // E5
+      osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
+      osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.28); // E6
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.42);
+    }
+
+    // Estouro de bolha com nota cristalina
+    function playBubblePopSound(freqIdx) {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const baseFreq = PENTATONIC_FREQS[freqIdx % PENTATONIC_FREQS.length];
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq * 0.7, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.08);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.32, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.26);
+    }
+
+    // ==========================================
+    // 2. SISTEMA DE CANÇÃO DE NINAR AUTOMÁTICA
+    // ==========================================
+    let isLullabyPlaying = false;
+    let lullabyTimer = null;
+    const LULLABY_NOTES = [
+      0, 0, 4, 4, 5, 5, 4, // Twinkle, twinkle, little star
+      3, 3, 2, 2, 1, 1, 0, // How I wonder what you are
+      4, 4, 3, 3, 2, 2, 1, // Up above the world so high
+      4, 4, 3, 3, 2, 2, 1, // Like a diamond in the sky
+      0, 0, 4, 4, 5, 5, 4, // Twinkle, twinkle, little star
+      3, 3, 2, 2, 1, 1, 0  // How I wonder what you are
+    ];
+    let lullabyStep = 0;
+
+    function toggleLullaby() {
+      initAudio();
+      isLullabyPlaying = !isLullabyPlaying;
+      const btn = document.getElementById('btnLullaby');
+      const lbl = document.getElementById('lullabyLabel');
+
+      if (isLullabyPlaying) {
+        btn.classList.add('active');
+        lbl.textContent = tG.lullabyOff;
+        showToast('✨ ' + tG.lullabyOn);
+        playLullabyStep();
+      } else {
+        btn.classList.remove('active');
+        lbl.textContent = tG.lullaby;
+        if (lullabyTimer) clearTimeout(lullabyTimer);
+      }
+    }
+
+    function playLullabyStep() {
+      if (!isLullabyPlaying) return;
+      const noteIdx = LULLABY_NOTES[lullabyStep % LULLABY_NOTES.length];
+      playNote(noteIdx, 1.4);
+
+      // Anima a corujinha no ritmo da canção
+      owl.bounce();
+
+      // Cria pulso visual de estrela no céu
+      createStarBurst(
+        canvas.width * 0.5 + (Math.sin(lullabyStep) * canvas.width * 0.3),
+        canvas.height * 0.35 + (Math.cos(lullabyStep) * canvas.height * 0.15),
+        '#ffd043'
+      );
+
+      lullabyStep++;
+      lullabyTimer = setTimeout(playLullabyStep, 680);
+    }
+
+    function toggleInstrument() {
+      initAudio();
+      currentInstrument = (currentInstrument + 1) % INSTRUMENTS.length;
+      const inst = INSTRUMENTS[currentInstrument];
+      document.getElementById('soundIcon').textContent = inst.icon;
+      document.getElementById('soundLabel').textContent = tG[inst.labelKey];
+      playNote(4, 1.0);
+      showToast(inst.icon + ' ' + tG[inst.labelKey]);
+    }
+
+    // ==========================================
+    // 3. CENÁRIO VISUAL E ENTIDADES (CANVAS)
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let starScore = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Feedback de Toast amigável
+    let toastTimeout = null;
+    function showToast(text) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = text;
+      toast.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function addScore(n = 1) {
+      starScore += n;
+      document.getElementById('starCount').textContent = starScore;
+    }
+
+    // Partículas e Efeitos Visuais
+    let particles = [];
+    let touchRipples = [];
+    let touchTrail = [];
+
+    class Particle {
+      constructor(x, y, color, speed = 4, size = 6) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const spd = Math.random() * speed + 1;
+        this.vx = Math.cos(angle) * spd;
+        this.vy = Math.sin(angle) * spd - 1;
+        this.size = Math.random() * size + 3;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.02 + 0.015;
+        this.shape = Math.random() > 0.4 ? 'star' : 'circle';
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.04; // Leve gravidade
+        this.life -= this.decay;
+        this.size *= 0.98;
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        if (this.shape === 'star') {
+          drawStar(ctx, this.x, this.y, 5, this.size, this.size * 0.45);
+        } else {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      let x = cx;
+      let y = cy;
+      const step = Math.PI / spikes;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - outerRadius);
+      for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+      }
+      ctx.lineTo(cx, cy - outerRadius);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function createStarBurst(x, y, color = '#ffd043', count = 12) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color, 5, 8));
+      }
+    }
+
+    // Ondulações de toque
+    class Ripple {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = 5;
+        this.maxRadius = 75;
+        this.life = 1.0;
+      }
+      update() {
+        this.radius += 2.5;
+        this.life = 1.0 - (this.radius / this.maxRadius);
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.life * 0.7;
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // Nuvens Dorminhocas Flutuantes
+    class MusicalCloud {
+      constructor(xRel, yRel, noteIdx, color, label) {
+        this.xRel = xRel;
+        this.yRel = yRel;
+        this.noteIdx = noteIdx;
+        this.color = color;
+        this.label = label;
+        this.scale = 1.0;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = 0.02 + Math.random() * 0.01;
+        this.targetScale = 1.0;
+      }
+      getPos() {
+        return {
+          x: width * this.xRel + Math.sin(this.wobble) * 12,
+          y: height * this.yRel + Math.cos(this.wobble * 0.8) * 8
+        };
+      }
+      hitTest(px, py) {
+        const pos = this.getPos();
+        const dist = Math.hypot(px - pos.x, py - pos.y);
+        return dist < 65 * this.scale;
+      }
+      touch() {
+        this.scale = 1.35;
+        playNote(this.noteIdx, 1.2);
+        const pos = this.getPos();
+        createStarBurst(pos.x, pos.y, this.color, 14);
+        addScore(1);
+      }
+      update() {
+        this.wobble += this.wobbleSpeed;
+        this.scale += (this.targetScale - this.scale) * 0.1;
+      }
+      draw(ctx) {
+        const pos = this.getPos();
+        ctx.save();
+        ctx.translate(pos.x, pos.y);
+        ctx.scale(this.scale, this.scale);
+
+        // Brilho exterior suave
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 20;
+
+        // Desenho da Nuvem Fofa
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 36, 0, Math.PI * 2);
+        ctx.arc(-26, 6, 26, 0, Math.PI * 2);
+        ctx.arc(26, 6, 26, 0, Math.PI * 2);
+        ctx.arc(-14, 16, 24, 0, Math.PI * 2);
+        ctx.arc(14, 16, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Olhinhos dorminhocos fofos
+        ctx.strokeStyle = '#1e1b4b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        // Olho esquerdo piscando (arco)
+        ctx.arc(-14, 2, 7, 0.2 * Math.PI, 0.8 * Math.PI);
+        // Olho direito piscando (arco)
+        ctx.arc(14, 2, 7, 0.2 * Math.PI, 0.8 * Math.PI);
+        ctx.stroke();
+
+        // Bochechas rosadas
+        ctx.fillStyle = '#ff8cb0';
+        ctx.beginPath();
+        ctx.arc(-22, 10, 5, 0, Math.PI * 2);
+        ctx.arc(22, 10, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Boquinha sorrindo
+        ctx.beginPath();
+        ctx.arc(0, 8, 4, 0, Math.PI);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // A Grande Lua Sorridente
+    const moon = {
+      xRel: 0.85,
+      yRel: 0.18,
+      radius: 46,
+      scale: 1.0,
+      wobble: 0,
+      getPos() {
+        return {
+          x: Math.min(width - 60, width * this.xRel),
+          y: Math.max(70, height * this.yRel + Math.sin(this.wobble) * 6)
+        };
+      },
+      hitTest(px, py) {
+        const pos = this.getPos();
+        return Math.hypot(px - pos.x, py - pos.y) < this.radius * 1.3;
+      },
+      touch() {
+        this.scale = 1.35;
+        playNote(7, 1.5);
+        setTimeout(() => playNote(9, 1.5), 140);
+        setTimeout(() => playNote(10, 1.8), 280);
+        const pos = this.getPos();
+        createStarBurst(pos.x, pos.y, '#ffd043', 20);
+        addScore(3);
+        showToast('🌙 ' + tG.owlCheer[1]);
+      },
+      update() {
+        this.wobble += 0.015;
+        this.scale += (1.0 - this.scale) * 0.1;
+      },
+      draw(ctx) {
+        const pos = this.getPos();
+        ctx.save();
+        ctx.translate(pos.x, pos.y);
+        ctx.scale(this.scale, this.scale);
+
+        // Halo de luz dourada
+        ctx.shadowColor = '#ffd043';
+        ctx.shadowBlur = 30;
+
+        // Corpo da Lua
+        ctx.fillStyle = '#ffeb79';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Olhos kawaii com brilho
+        ctx.fillStyle = '#2d1b06';
+        ctx.beginPath();
+        ctx.arc(-14, -6, 6, 0, Math.PI * 2);
+        ctx.arc(14, -6, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Brilho nos olhos
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-16, -8, 2.5, 0, Math.PI * 2);
+        ctx.arc(12, -8, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bochechas
+        ctx.fillStyle = '#ff9f9f';
+        ctx.beginPath();
+        ctx.arc(-22, 6, 7, 0, Math.PI * 2);
+        ctx.arc(22, 6, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sorriso largo doce
+        ctx.strokeStyle = '#2d1b06';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 2, 12, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    };
+
+    // A Corujinha Bebê KRUUJ (Mascote Oficial)
+    const owl = {
+      x: 0,
+      y: 0,
+      scale: 1.0,
+      targetScale: 1.0,
+      bounceOffset: 0,
+      bounceSpeed: 0.04,
+      wingAngle: 0,
+      blinking: false,
+      lastBlink: 0,
+      sleepy: false,
+      idleTime: 0,
+      update() {
+        this.x = width * 0.5;
+        this.y = Math.min(height - 110, height * 0.76);
+        this.bounceOffset = Math.sin(Date.now() * 0.003) * 8;
+        this.scale += (this.targetScale - this.scale) * 0.1;
+
+        // Piscar aleatório
+        if (Date.now() - this.lastBlink > 3000 + Math.random() * 2000) {
+          this.blinking = true;
+          this.lastBlink = Date.now();
+          setTimeout(() => { this.blinking = false; }, 220);
+        }
+
+        // Bater de asinhas suave
+        this.wingAngle = Math.sin(Date.now() * 0.006) * 0.25;
+
+        // Verifica ociosidade para entrar em modo soneca fofo
+        this.idleTime += 0.016;
+        this.sleepy = (this.idleTime > 8.0);
+      },
+      bounce() {
+        this.targetScale = 1.25;
+        setTimeout(() => { this.targetScale = 1.0; }, 180);
+      },
+      touch() {
+        this.idleTime = 0;
+        this.sleepy = false;
+        this.targetScale = 1.45;
+        setTimeout(() => { this.targetScale = 1.0; }, 240);
+
+        playOwlCheerSound();
+        createStarBurst(this.x, this.y - 20, '#ff65a6', 22);
+        addScore(2);
+
+        const cheers = tG.owlCheer;
+        const msg = cheers[Math.floor(Math.random() * cheers.length)];
+        showToast('🦉 ' + msg);
+      },
+      hitTest(px, py) {
+        return Math.hypot(px - this.x, py - (this.y + this.bounceOffset)) < 75 * this.scale;
+      },
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y + this.bounceOffset);
+        ctx.scale(this.scale, this.scale);
+
+        // Ninho de Nuvem Mágica fofinha embaixo da coruja
+        ctx.fillStyle = '#ffffffbb';
+        ctx.shadowColor = '#8338fc';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.ellipse(0, 52, 70, 24, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Corpo da Corujinha Bebê (Lilás suave e acolhedor)
+        ctx.fillStyle = '#8338fc';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 48, 54, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Peninhas do topo da cabeça (orelhinhas de coruja fofas)
+        ctx.beginPath();
+        ctx.moveTo(-32, -40);
+        ctx.lineTo(-44, -62);
+        ctx.lineTo(-18, -48);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(18, -48);
+        ctx.lineTo(44, -62);
+        ctx.lineTo(32, -40);
+        ctx.fill();
+
+        // Barriguinha branca macia com corações
+        ctx.fillStyle = '#f5f3ff';
+        ctx.beginPath();
+        ctx.ellipse(0, 14, 34, 38, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Peninhas estilizadas na barriguinha
+        ctx.strokeStyle = '#c4b5fd';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(-12, 12, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.arc(12, 12, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.arc(0, 26, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+        ctx.stroke();
+
+        // Asinhas batendo com charme
+        ctx.fillStyle = '#6d28d9';
+        // Asa esquerda
+        ctx.save();
+        ctx.translate(-42, 6);
+        ctx.rotate(-this.wingAngle - 0.2);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 16, 30, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Asa direita
+        ctx.save();
+        ctx.translate(42, 6);
+        ctx.rotate(this.wingAngle + 0.2);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 16, 30, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Olhos da Coruja:
+        if (this.sleepy || this.blinking) {
+          // Olhinhos fechados dormindo ("^_^")
+          ctx.strokeStyle = '#2e1065';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(-20, -10, 14, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(20, -10, 14, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+
+          if (this.sleepy) {
+            // Zzz flutuando
+            ctx.fillStyle = '#ffd043';
+            ctx.font = 'bold 18px "Baloo 2", sans-serif';
+            ctx.fillText('Zzz...', 32, -38);
+          }
+        } else {
+          // Olhos Grandes Kawaii KRUUJ
+          // Fundo branco dos olhos
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-20, -10, 18, 0, Math.PI * 2);
+          ctx.arc(20, -10, 18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Íris Azul Céu Cintilante
+          ctx.fillStyle = '#289afd';
+          ctx.beginPath();
+          ctx.arc(-20, -10, 11, 0, Math.PI * 2);
+          ctx.arc(20, -10, 11, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pupila preta
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(-20, -10, 7, 0, Math.PI * 2);
+          ctx.arc(20, -10, 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Brilho duplo estelar nos olhos
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-23, -13, 4, 0, Math.PI * 2);
+          ctx.arc(-17, -7, 2, 0, Math.PI * 2);
+          ctx.arc(17, -13, 4, 0, Math.PI * 2);
+          ctx.arc(23, -7, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Bochechinhas vermelhas fofas
+        ctx.fillStyle = '#ff8cb0';
+        ctx.beginPath();
+        ctx.arc(-30, 8, 7, 0, Math.PI * 2);
+        ctx.arc(30, 8, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Biquinho fofo de bebê (dourado/laranja)
+        ctx.fillStyle = '#fda41d';
+        ctx.beginPath();
+        ctx.moveTo(-7, -4);
+        ctx.lineTo(7, -4);
+        ctx.lineTo(0, 9);
+        ctx.closePath();
+        ctx.fill();
+
+        // Patinhas laranjas fofas
+        ctx.fillStyle = '#fda41d';
+        ctx.beginPath();
+        ctx.ellipse(-14, 48, 8, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(14, 48, 8, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    };
+
+    // Inicialização das 4 Nuvens Mágicas Musicais
+    const clouds = [
+      new MusicalCloud(0.18, 0.22, 1, '#fbcfe8', 'D4'),
+      new MusicalCloud(0.42, 0.16, 2, '#bae6fd', 'E4'),
+      new MusicalCloud(0.64, 0.24, 3, '#fef08a', 'G4'),
+      new MusicalCloud(0.30, 0.38, 5, '#e9d5ff', 'C5')
+    ];
+
+    // Bolhas Musicais Flutuantes que surgem da parte inferior
+    class MusicalBubble {
+      constructor() {
+        this.radius = Math.random() * 22 + 28;
+        this.x = Math.random() * (width - 80) + 40;
+        this.y = height + this.radius + Math.random() * 50;
+        this.speed = Math.random() * 1.2 + 0.6;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.color = ['#ff8cb0', '#38bdf8', '#a78bfa', '#fde047', '#4ade80'][Math.floor(Math.random() * 5)];
+        this.noteIdx = Math.floor(Math.random() * PENTATONIC_FREQS.length);
+      }
+      update() {
+        this.y -= this.speed;
+        this.x += Math.sin(this.wobble) * 1.2;
+        this.wobble += 0.03;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color + '55';
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.color;
+        ctx.stroke();
+
+        // Brilho da bolha
+        ctx.beginPath();
+        ctx.arc(this.x - this.radius * 0.35, this.y - this.radius * 0.35, this.radius * 0.22, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffffaa';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    let bubbles = [];
+    setInterval(() => {
+      if (bubbles.length < 8) {
+        bubbles.push(new MusicalBubble());
+      }
+    }, 1400);
+
+    // Estrelas Cintilantes no Fundo Cósmico
+    const bgStars = [];
+    for (let i = 0; i < 45; i++) {
+      bgStars.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: Math.random() * 3 + 1.5,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: Math.random() * 0.03 + 0.01
+      });
+    }
+
+    // ==========================================
+    // 4. INTERAÇÃO TÁTIL MULTITOUCH E GESTOS
+    // ==========================================
+    function handlePointerHit(x, y) {
+      initAudio();
+      owl.idleTime = 0;
+      owl.sleepy = false;
+
+      // Adiciona ondulação visual imediata de alta resposta sensorial
+      touchRipples.push(new Ripple(x, y, '#ff8cb0'));
+
+      // 1. Testa toque na Corujinha
+      if (owl.hitTest(x, y)) {
+        owl.touch();
+        return;
+      }
+
+      // 2. Testa toque na Lua
+      if (moon.hitTest(x, y)) {
+        moon.touch();
+        return;
+      }
+
+      // 3. Testa toque nas Nuvens
+      for (const cloud of clouds) {
+        if (cloud.hitTest(x, y)) {
+          cloud.touch();
+          return;
+        }
+      }
+
+      // 4. Testa toque nas Bolhas
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i];
+        if (Math.hypot(b.x - x, b.y - y) < b.radius + 25) {
+          bubbles.splice(i, 1);
+          playBubblePopSound(b.noteIdx);
+          createStarBurst(b.x, b.y, b.color, 12);
+          addScore(1);
+          return;
+        }
+      }
+
+      // 5. Toque livre no céu estrelado: toca nota proporcional à altura da tela!
+      // Quanto mais alto, mais agudo; quanto mais baixo, mais grave.
+      const normalizedY = 1.0 - Math.max(0, Math.min(1, y / height));
+      const noteIdx = Math.floor(normalizedY * PENTATONIC_FREQS.length);
+      playNote(noteIdx, 1.2);
+
+      // Partículas coloridas onde tocou
+      const colors = ['#f472b6', '#38bdf8', '#a78bfa', '#fbbf24', '#4ade80'];
+      const pickColor = colors[Math.floor(Math.random() * colors.length)];
+      createStarBurst(x, y, pickColor, 8);
+      addScore(1);
+    }
+
+    // Arrastar dedinho (Rastro Luminoso Musical)
+    let lastDragNoteTime = 0;
+    function handlePointerDrag(x, y) {
+      touchTrail.push({ x, y, life: 1.0, color: '#fde047' });
+
+      const now = performance.now();
+      if (now - lastDragNoteTime > 120) {
+        lastDragNoteTime = now;
+        const normalizedY = 1.0 - Math.max(0, Math.min(1, y / height));
+        const noteIdx = Math.floor(normalizedY * PENTATONIC_FREQS.length);
+        playNote(noteIdx, 0.4);
+      }
+    }
+
+    // Eventos de Pointer / Toque / Mouse
+    let isPointerDown = false;
+
+    window.addEventListener('pointerdown', (e) => {
+      isPointerDown = true;
+      handlePointerHit(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (isPointerDown) {
+        handlePointerDrag(e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener('pointerup', () => { isPointerDown = false; });
+    window.addEventListener('pointercancel', () => { isPointerDown = false; });
+
+    // Suporte multitouch simultâneo para dedinhos e mãozinhas de bebês
+    window.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        handlePointerHit(t.clientX, t.clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        handlePointerDrag(t.clientX, t.clientY);
+      }
+    }, { passive: false });
+
+    // ==========================================
+    // 5. LOOP DE RENDERIZAÇÃO (60FPS FLUIDO)
+    // ==========================================
+    function gameLoop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Fundo Cósmico Suave
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, '#0a0e2a');
+      grad.addColorStop(0.5, '#14143a');
+      grad.addColorStop(1, '#23184a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Estrelas cintilantes de fundo
+      ctx.fillStyle = '#ffffff';
+      for (const s of bgStars) {
+        s.twinkle += s.twinkleSpeed;
+        const alpha = 0.3 + Math.sin(s.twinkle) * 0.35;
+        ctx.globalAlpha = Math.max(0.1, alpha);
+        ctx.beginPath();
+        ctx.arc(s.x * width, s.y * height, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      // Lua
+      moon.update();
+      moon.draw(ctx);
+
+      // Nuvens
+      for (const c of clouds) {
+        c.update();
+        c.draw(ctx);
+      }
+
+      // Bolhas
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i];
+        b.update();
+        b.draw(ctx);
+        if (b.y + b.radius < -20) {
+          bubbles.splice(i, 1);
+        }
+      }
+
+      // Rastro Luminoso do Dedinho
+      for (let i = touchTrail.length - 1; i >= 0; i--) {
+        const tr = touchTrail[i];
+        tr.life -= 0.035;
+        if (tr.life <= 0) {
+          touchTrail.splice(i, 1);
+        } else {
+          ctx.save();
+          ctx.globalAlpha = tr.life * 0.8;
+          ctx.fillStyle = tr.color;
+          drawStar(ctx, tr.x, tr.y, 5, 10 * tr.life, 5 * tr.life);
+          ctx.restore();
+        }
+      }
+
+      // Ondulações de Toque
+      for (let i = touchRipples.length - 1; i >= 0; i--) {
+        const rp = touchRipples[i];
+        rp.update();
+        if (rp.life <= 0) {
+          touchRipples.splice(i, 1);
+        } else {
+          rp.draw(ctx);
+        }
+      }
+
+      // Corujinha KRUUJ Bebê
+      owl.update();
+      owl.draw(ctx);
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
+          p.draw(ctx);
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    // ==========================================
+    // 6. INTEGRAÇÃO KRUUJ SDK & LOADER
+    // ==========================================
+    const KruujLoader = (() => {
+      const $ = id => document.getElementById(id);
+      let target = 0, shown = 0, cfg = {}, t0 = 0, raf = null, tipTimer = null, finished = false, closing = false;
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      function frame() {
+        if (!cfg.manual && !finished) target = Math.min(0.9, target + 0.004 * (1 - target) + 0.0015);
+        shown += (target - shown) * 0.08;
+        if (finished && target - shown < 0.002) shown = target;
+        const pc = Math.round(shown * 100);
+        if ($('kl-fill')) $('kl-fill').style.width = pc + '%';
+        if ($('kl-rider')) $('kl-rider').style.left = pc + '%';
+        if ($('kl-pct')) $('kl-pct').textContent = pc + '%';
+        if (shown >= 1 && performance.now() - t0 >= cfg.minTime) return close();
+        raf = requestAnimationFrame(frame);
+      }
+      async function close() {
+        if (closing) return; closing = true; clearInterval(tipTimer);
+        const kl = $('kl');
+        if (kl) {
+          kl.classList.add('out');
+          await wait(650);
+          kl.style.display = 'none';
+        }
+        if (cfg.onComplete) cfg.onComplete();
+      }
+      async function start(c) {
+        cfg = { gameName: 'KRUUJ Baby Sinfonia', tagline: '', tips: [], splash: 2000, minTime: 2800, manual: false, onComplete() {}, ...c };
+        target = shown = 0; finished = closing = false;
+        const kl = $('kl');
+        if (!kl) return;
+        kl.style.display = ''; kl.classList.remove('out');
+        const [sp, ld] = kl.querySelectorAll('.ph');
+        if (sp) sp.classList.remove('off');
+        if (ld) ld.classList.add('off');
+        $('kl-name').textContent = cfg.gameName;
+        $('kl-tag').textContent = cfg.tagline;
+        document.title = cfg.gameName + ' – Kruuj Studio';
+        await wait(cfg.splash);
+        if (sp) sp.classList.add('off');
+        await wait(400);
+        if (ld) ld.classList.remove('off');
+        t0 = performance.now();
+        let i = 0;
+        const tip = $('kl-tip');
+        const nextTip = () => {
+          if (!tip) return;
+          tip.style.opacity = '0';
+          setTimeout(() => {
+            tip.textContent = cfg.tips[i++ % cfg.tips.length] || '';
+            tip.style.opacity = '0.85';
+          }, 350);
+        };
+        if (cfg.tips.length) { nextTip(); tipTimer = setInterval(nextTip, 3000); }
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(frame);
+      }
+      return {
+        start,
+        finish() { finished = true; target = 1; }
+      };
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Inicia KruujSDK
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      // Aplica textos i18n
+      document.getElementById('soundLabel').textContent = tG.modeChimes;
+      document.getElementById('lullabyLabel').textContent = tG.lullaby;
+
+      // Executa loader apenas standalone
+      if (window.self === window.top) {
+        KruujLoader.start({
+          gameName: tG.title,
+          tagline: tG.tagline,
+          tips: tG.tips,
+          splash: 1800,
+          minTime: 2600
+        });
+        setTimeout(() => KruujLoader.finish(), 2400);
+      }
+    });
+  </script>
+</body>
+</html>

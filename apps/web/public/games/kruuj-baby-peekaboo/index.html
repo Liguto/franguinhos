@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Cadê a Corujinha? – Peekaboo!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    // Suprime KruujLoader interno se carregado dentro do Portal
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    // Suporte a i18n em PT, EN, ES
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const I18N = {
+      pt: {
+        title: 'Cadê a Corujinha?',
+        tagline: 'Onde a corujinha está escondida? Toque para descobrir!',
+        found: 'Achou!',
+        peekaboo: 'ACHOU! 🦉',
+        cheerWords: ['Achou!', 'Que fofa!', 'Achei você!', 'Viva!', 'Muito bem!'],
+        cloudSurprise: 'Pluft! Gota mágica! 💧',
+        giftSurprise: 'Boing! Presente surpresa! 🎁',
+        bushSurprise: 'Flores mágicas! 🌸',
+        planetSurprise: 'Planeta veloz! 🪐',
+        tips: [
+          'Toque nas nuvens, presentes e arbustos.',
+          'Olhe com atenção para ver as orelhinhas espiando!',
+          'A corujinha adora brincar de esconde-esconde!'
+        ]
+      },
+      en: {
+        title: 'Where is the Owl?',
+        tagline: 'Where is the baby owl hiding? Tap to find out!',
+        found: 'Found!',
+        peekaboo: 'PEEKABOO! 🦉',
+        cheerWords: ['Found you!', 'So cute!', 'Peekaboo!', 'Yay!', 'Well done!'],
+        cloudSurprise: 'Plop! Magic drops! 💧',
+        giftSurprise: 'Boing! Surprise gift! 🎁',
+        bushSurprise: 'Magic flowers! 🌸',
+        planetSurprise: 'Spinning planet! 🪐',
+        tips: [
+          'Tap clouds, gifts, and bushes.',
+          'Look closely to see tiny ears peeking!',
+          'The baby owl loves playing peekaboo!'
+        ]
+      },
+      es: {
+        title: '¿Dónde está el Búho?',
+        tagline: '¿Dónde se esconde el búho? ¡Toca para descubrir!',
+        found: '¡Encontrado!',
+        peekaboo: '¡ACÁ ESTÁ! 🦉',
+        cheerWords: ['¡Te encontré!', '¡Qué lindo!', '¡Aquí está!', '¡Viva!', '¡Muy bien!'],
+        cloudSurprise: '¡Gotitas mágicas! 💧',
+        giftSurprise: '¡Sorpresa mágica! 🎁',
+        bushSurprise: '¡Flores brillantes! 🌸',
+        planetSurprise: '¡Planeta giratorio! 🪐',
+        tips: [
+          'Toca las nubes, regalos y arbustos.',
+          '¡Mira bien para ver sus orejitas asomando!',
+          '¡Al pequeño búho le encanta jugar al escondite!'
+        ]
+      }
+    };
+    const tG = I18N[URL_LANG] || I18N.pt;
+  </script>
+
+  <style>
+    :root {
+      --bg-top: #151b4d;
+      --bg-bottom: #2e1a5a;
+      --purple: #8338fc;
+      --blue: #289afd;
+      --orange: #fda41d;
+      --pink: #ff65a6;
+      --yellow: #ffd043;
+      --green: #48e59b;
+      --lav: #d8d4fd;
+      --white: #ffffff;
+      --navy: #151c4a;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, var(--bg-top), var(--bg-bottom));
+      color: var(--white);
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+
+    /* HUD Superior — Recuo de 68px no mobile para não sobrepor o botão Poki */
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .hud {
+        padding-left: 68px !important;
+      }
+    }
+
+    .hud-badge {
+      background: rgba(21, 28, 74, 0.88);
+      border: 2px solid rgba(255, 208, 67, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 7px 18px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffd043;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
+    }
+
+    /* Banner Gigante de Celebração "ACHOU!" */
+    .peekaboo-banner {
+      position: fixed;
+      top: 18%;
+      left: 50%;
+      transform: translateX(-50%) scale(0.4);
+      background: linear-gradient(135deg, #ffd043, #ff65a6);
+      color: #2e0854;
+      font-size: clamp(2.2rem, 9vw, 3.8rem);
+      font-weight: 800;
+      padding: 12px 36px;
+      border-radius: 9999px;
+      box-shadow: 0 12px 32px rgba(255, 101, 166, 0.55), 0 0 0 6px #fff;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 25;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.4);
+      white-space: nowrap;
+    }
+
+    .peekaboo-banner.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.0);
+    }
+
+    /* Toast de carinho */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255, 255, 255, 0.95);
+      color: #3b1464;
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 20;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== KRUUJ LOADER OFICIAL ===== */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #101a52 0%, var(--bg-top) 65%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity 0.5s ease; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl { width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; animation: pop 0.9s cubic-bezier(.2,1.3,.4,1) both, glow 2.4s ease-in-out 0.9s infinite; }
+    .splash .logo { width: min(54vw, 240px); height: auto; margin-top: 20px; animation: rise 0.8s ease 0.7s both; }
+    .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; padding-left: 0.38em; color: var(--lav); animation: rise 0.8s ease 1.1s both; }
+    .load { text-align: center; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
+    .load .tag { margin: 12px 0 0; color: var(--lav); font-size: 1.05rem; }
+    .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--purple), var(--blue)); }
+    .rider { position: absolute; top: 50%; left: 0; width: 48px; aspect-ratio: 1; margin: -24px 0 0 -24px; border-radius: 50%; box-shadow: 0 0 0 3px var(--bg-top), 0 0 0 5px var(--orange); }
+    .pct { margin-top: 26px; font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+    .tip { min-height: 1.5em; margin: 10px 0 0; color: var(--lav); opacity: 0.85; font-size: 0.95rem; transition: opacity 0.4s; }
+    .brand { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); font-size: 0.8rem; color: var(--lav); opacity: 0.6; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes rise { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 30px 2px #8338fc55; } 50% { box-shadow: 0 0 64px 10px #8338fc99; } }
+  </style>
+</head>
+
+<body>
+  <!-- KruujLoader Oficial -->
+  <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
+    <div class="ph splash">
+      <img class="owl" alt="KRUUJ" src="/kruuj-avatar.png" onerror="this.src='/kruuj-mascote.png'">
+      <img class="logo" alt="Kruuj" src="/kruuj-logo.png" onerror="this.style.display='none'">
+      <p class="sub">STUDIO</p>
+    </div>
+    <div class="ph load off">
+      <h1 id="kl-name">KRUUJ Cadê a Corujinha?</h1>
+      <p class="tag" id="kl-tag">Onde a corujinha está escondida?</p>
+      <div class="track">
+        <div class="fill" id="kl-fill"></div>
+        <img class="rider" id="kl-rider" alt="" src="/kruuj-avatar.png">
+      </div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip"></p>
+    </div>
+    <div class="brand" id="kl-brand">Kruuj Studio</div>
+  </div>
+
+  <!-- HUD do Jogo -->
+  <header class="hud">
+    <div class="hud-badge">
+      <span>🦉</span>
+      <span>ACHOU: <strong id="scoreCount">0</strong></span>
+    </div>
+    <div class="hud-badge" style="border-color: rgba(72, 229, 155, 0.4); color: #48e59b;">
+      <span>⭐</span>
+      <span id="starCount">0</span>
+    </div>
+  </header>
+
+  <!-- Banner comemorativo "ACHOU!" -->
+  <div class="peekaboo-banner" id="peekabooBanner">ACHOU! 🦉</div>
+  <div class="toast-msg" id="toastMsg">Toque para procurar! ❤️</div>
+
+  <!-- Canvas Principal -->
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // ==========================================
+    // 1. ÁUDIO SINTÉTICO (WEBAUDIO)
+    // ==========================================
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Acorde triunfal alegre de "Achou!" (C5 - E5 - G5 - C6)
+    function playAchouSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      const now = audioCtx.currentTime;
+
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime(0.35, now + idx * 0.08 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.7);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.75);
+      });
+
+      // Risadinha sintetizada da corujinha ("hi-hi-hi")
+      setTimeout(() => {
+        if (!audioCtx) return;
+        const cTime = audioCtx.currentTime;
+        for (let r = 0; r < 3; r++) {
+          const oscR = audioCtx.createOscillator();
+          const gainR = audioCtx.createGain();
+          oscR.type = 'sine';
+          oscR.frequency.setValueAtTime(880 + r * 60, cTime + r * 0.09);
+          oscR.frequency.exponentialRampToValueAtTime(1150 + r * 60, cTime + r * 0.09 + 0.07);
+
+          gainR.gain.setValueAtTime(0.001, cTime + r * 0.09);
+          gainR.gain.linearRampToValueAtTime(0.28, cTime + r * 0.09 + 0.02);
+          gainR.gain.exponentialRampToValueAtTime(0.0001, cTime + r * 0.09 + 0.08);
+
+          oscR.connect(gainR);
+          gainR.connect(audioCtx.destination);
+          oscR.start(cTime + r * 0.09);
+          oscR.stop(cTime + r * 0.09 + 0.09);
+        }
+      }, 340);
+    }
+
+    // Som de Espiadinha ("Psiu / Peek")
+    function playPeekSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    }
+
+    // Som de Mola Boing (Surpresa do presente/objeto)
+    function playBoingSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(580, now + 0.22);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.38);
+    }
+
+    // Som de toque livre suave
+    function playTapSound(freq = 440) {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    }
+
+    // ==========================================
+    // 2. CONFIGURAÇÃO DE CENÁRIO E ESCONDERIJOS
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let foundCount = 0;
+    let starCount = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      updateHidingPositions();
+    }
+    window.addEventListener('resize', resize);
+
+    // Feedback Toast e Banner
+    let bannerTimeout = null;
+    function showPeekabooBanner(text) {
+      const banner = document.getElementById('peekabooBanner');
+      banner.textContent = text;
+      banner.classList.add('show');
+      if (bannerTimeout) clearTimeout(bannerTimeout);
+      bannerTimeout = setTimeout(() => {
+        banner.classList.remove('show');
+      }, 2200);
+    }
+
+    let toastTimeout = null;
+    function showToast(text) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = text;
+      toast.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // Partículas e Efeitos
+    let particles = [];
+    let touchRipples = [];
+
+    class Particle {
+      constructor(x, y, color, speed = 5, size = 8, shape = 'star') {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const spd = Math.random() * speed + 2;
+        this.vx = Math.cos(angle) * spd;
+        this.vy = Math.sin(angle) * spd - 2;
+        this.size = Math.random() * size + 4;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.02 + 0.012;
+        this.shape = shape;
+        this.rot = Math.random() * Math.PI;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.08; // Gravidade suave
+        this.life -= this.decay;
+        this.rot += 0.04;
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+
+        if (this.shape === 'heart') {
+          drawHeart(ctx, 0, 0, this.size);
+        } else if (this.shape === 'star') {
+          drawStar(ctx, 0, 0, 5, this.size, this.size * 0.45);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      let x = cx;
+      let y = cy;
+      const step = Math.PI / spikes;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - outerRadius);
+      for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+      }
+      ctx.lineTo(cx, cy - outerRadius);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawHeart(ctx, x, y, size) {
+      ctx.beginPath();
+      const topCurveHeight = size * 0.3;
+      ctx.moveTo(x, y + topCurveHeight);
+      ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+      ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + (size + topCurveHeight) / 2, x, y + size);
+      ctx.bezierCurveTo(x, y + (size + topCurveHeight) / 2, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+      ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+      ctx.fill();
+    }
+
+    function createCelebration(x, y, count = 28) {
+      const colors = ['#ffd043', '#ff65a6', '#289afd', '#48e59b', '#8338fc', '#ffffff'];
+      for (let i = 0; i < count; i++) {
+        const c = colors[Math.floor(Math.random() * colors.length)];
+        const shape = Math.random() > 0.6 ? 'heart' : (Math.random() > 0.3 ? 'star' : 'circle');
+        particles.push(new Particle(x, y, c, 7, 10, shape));
+      }
+    }
+
+    // ==========================================
+    // 3. OS 4 ESCONDERIJOS FOFOS
+    // ==========================================
+    class HidingSpot {
+      constructor(type, name, color, surpriseKey) {
+        this.type = type; // 'cloud', 'gift', 'bush', 'planet'
+        this.name = name;
+        this.color = color;
+        this.surpriseKey = surpriseKey;
+        this.x = 0;
+        this.y = 0;
+        this.width = 130;
+        this.height = 110;
+        this.scale = 1.0;
+        this.targetScale = 1.0;
+        this.wobble = 0;
+      }
+      hitTest(px, py) {
+        return Math.hypot(px - this.x, py - this.y) < 70 * this.scale;
+      }
+      animateSurprise() {
+        this.scale = 1.4;
+        setTimeout(() => { this.scale = 1.0; }, 240);
+        playBoingSound();
+        createCelebration(this.x, this.y, 14);
+        showToast(tG[this.surpriseKey]);
+        starCount += 1;
+        document.getElementById('starCount').textContent = starCount;
+      }
+      update() {
+        this.scale += (this.targetScale - this.scale) * 0.12;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.scale, this.scale);
+
+        if (this.type === 'cloud') {
+          // Nuvem fofa de algodão doce
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#8338fc';
+          ctx.shadowBlur = 18;
+          ctx.beginPath();
+          ctx.arc(0, 0, 42, 0, Math.PI * 2);
+          ctx.arc(-32, 8, 30, 0, Math.PI * 2);
+          ctx.arc(32, 8, 30, 0, Math.PI * 2);
+          ctx.arc(-16, 20, 28, 0, Math.PI * 2);
+          ctx.arc(16, 20, 28, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Rostinho sorrindo na nuvem
+          ctx.strokeStyle = '#6366f1';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(-14, 6, 6, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.arc(14, 6, 6, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+
+          // Bochechas
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.arc(-22, 12, 5, 0, Math.PI * 2);
+          ctx.arc(22, 12, 5, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else if (this.type === 'gift') {
+          // Caixa de Presente Lilás com Fita Dourada
+          ctx.fillStyle = '#a855f7';
+          ctx.shadowColor = '#ffd043';
+          ctx.shadowBlur = 16;
+          ctx.beginPath();
+          ctx.roundRect(-42, -28, 84, 76, 14);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Tampa da caixa
+          ctx.fillStyle = '#9333ea';
+          ctx.beginPath();
+          ctx.roundRect(-48, -42, 96, 22, 10);
+          ctx.fill();
+
+          // Fita Dourada
+          ctx.fillStyle = '#ffd043';
+          ctx.fillRect(-10, -42, 20, 90);
+          ctx.fillRect(-42, 4, 84, 18);
+
+          // Laço de fita no topo
+          ctx.beginPath();
+          ctx.ellipse(-14, -48, 14, 9, -0.4, 0, Math.PI * 2);
+          ctx.ellipse(14, -48, 14, 9, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else if (this.type === 'bush') {
+          // Arbusto Cósmico / Árvore Encantada
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#34d399';
+          ctx.shadowBlur = 18;
+          ctx.beginPath();
+          ctx.arc(0, -6, 44, 0, Math.PI * 2);
+          ctx.arc(-30, 10, 32, 0, Math.PI * 2);
+          ctx.arc(30, 10, 32, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Floreszinhas brilhantes sorridentes
+          ctx.fillStyle = '#ffd043';
+          ctx.beginPath();
+          ctx.arc(-16, -14, 8, 0, Math.PI * 2);
+          ctx.arc(18, -10, 8, 0, Math.PI * 2);
+          ctx.arc(0, 16, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath();
+          ctx.arc(-16, -14, 4, 0, Math.PI * 2);
+          ctx.arc(18, -10, 4, 0, Math.PI * 2);
+          ctx.arc(0, 16, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else {
+          // Planeta de Anéis Coloridos Fofo
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 20;
+
+          // Corpo do planeta
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(0, 0, 40, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Anéis estilo Saturno
+          ctx.strokeStyle = '#ffd043';
+          ctx.lineWidth = 10;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 68, 20, -0.3, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Olhinhos felizes no planeta
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(-12, -4, 5, 0, Math.PI * 2);
+          ctx.arc(12, -4, 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Bochechas
+          ctx.fillStyle = '#ff8cb0';
+          ctx.beginPath();
+          ctx.arc(-18, 4, 5, 0, Math.PI * 2);
+          ctx.arc(18, 4, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    const spots = [
+      new HidingSpot('cloud', 'Nuvem', '#bae6fd', 'cloudSurprise'),
+      new HidingSpot('gift', 'Presente', '#c084fc', 'giftSurprise'),
+      new HidingSpot('bush', 'Arbusto', '#86efac', 'bushSurprise'),
+      new HidingSpot('planet', 'Planeta', '#7dd3fc', 'planetSurprise')
+    ];
+
+    function updateHidingPositions() {
+      // Disposição responsiva quadrante em 2x2 ou cruz fluida
+      const isPortrait = height > width;
+      const marginX = width * 0.24;
+      const marginY = height * 0.28;
+
+      if (isPortrait) {
+        spots[0].x = width * 0.28; spots[0].y = height * 0.35;
+        spots[1].x = width * 0.72; spots[1].y = height * 0.35;
+        spots[2].x = width * 0.28; spots[2].y = height * 0.68;
+        spots[3].x = width * 0.72; spots[3].y = height * 0.68;
+      } else {
+        spots[0].x = width * 0.18; spots[0].y = height * 0.52;
+        spots[1].x = width * 0.39; spots[1].y = height * 0.52;
+        spots[2].x = width * 0.61; spots[2].y = height * 0.52;
+        spots[3].x = width * 0.82; spots[3].y = height * 0.52;
+      }
+    }
+    resize();
+
+    // ==========================================
+    // 4. A CORUJINHA KRUUJ BEBÊ (PEEKABOO)
+    // ==========================================
+    let currentSpotIndex = 0;
+    let isRevealed = false;
+    let revealTimer = null;
+    let peekOffset = 0;
+    let peekDirection = 1;
+    let isPeeking = false;
+    let owlDanceTime = 0;
+
+    // Escolhe esconderijo inicial
+    function chooseNewSpot() {
+      isRevealed = false;
+      const prev = currentSpotIndex;
+      let next = Math.floor(Math.random() * spots.length);
+      while (next === prev && spots.length > 1) {
+        next = Math.floor(Math.random() * spots.length);
+      }
+      currentSpotIndex = next;
+    }
+    chooseNewSpot();
+
+    // Temporizador de Espiadinha (Peek) a cada 2.5s
+    setInterval(() => {
+      if (!isRevealed && !isPeeking) {
+        isPeeking = true;
+        playPeekSound();
+        peekOffset = 0;
+        let step = 0;
+        const peekAnim = setInterval(() => {
+          step++;
+          if (step <= 12) {
+            peekOffset = (step / 12) * 38; // Sobe até mostrar as orelhinhas e olhinhos
+          } else if (step <= 24) {
+            // Fica olhando
+          } else if (step <= 36) {
+            peekOffset = (1 - (step - 24) / 12) * 38; // Desce
+          } else {
+            clearInterval(peekAnim);
+            isPeeking = false;
+            peekOffset = 0;
+          }
+        }, 30);
+      }
+    }, 2800);
+
+    function onFoundOwl(spot) {
+      if (isRevealed) return;
+      isRevealed = true;
+      foundCount += 1;
+      starCount += 3;
+      document.getElementById('scoreCount').textContent = foundCount;
+      document.getElementById('starCount').textContent = starCount;
+
+      playAchouSound();
+      spot.scale = 1.35;
+      createCelebration(spot.x, spot.y - 70, 36);
+
+      // Frase alegre comemorativa
+      const cheers = tG.cheerWords;
+      const pickWord = cheers[Math.floor(Math.random() * cheers.length)];
+      showPeekabooBanner(pickWord + ' 🦉');
+
+      // Telemetria via KruujSDK
+      if (window.KruujSDK && window.KruujSDK.measure) {
+        window.KruujSDK.measure('gameplay', 'owl_found', 'round_' + foundCount);
+      }
+
+      // Anima por 2.6s e se esconde novamente em outro ponto
+      setTimeout(() => {
+        chooseNewSpot();
+      }, 2600);
+    }
+
+    function drawBabyOwl(ctx, x, y, isJumping = false, jumpY = 0) {
+      ctx.save();
+      ctx.translate(x, y - jumpY);
+
+      const danceWobble = isJumping ? Math.sin(Date.now() * 0.012) * 0.15 : 0;
+      ctx.rotate(danceWobble);
+
+      // Corpo da Corujinha Bebê
+      ctx.fillStyle = '#8338fc';
+      ctx.shadowColor = '#ffd043';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 42, 46, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Orelhinhas pontudas
+      ctx.beginPath();
+      ctx.moveTo(-28, -34);
+      ctx.lineTo(-38, -54);
+      ctx.lineTo(-14, -42);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(14, -42);
+      ctx.lineTo(38, -54);
+      ctx.lineTo(28, -34);
+      ctx.fill();
+
+      // Barriguinha fofa branca
+      ctx.fillStyle = '#f5f3ff';
+      ctx.beginPath();
+      ctx.ellipse(0, 10, 28, 30, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Asinhas abertas em festa se achou!
+      ctx.fillStyle = '#6d28d9';
+      if (isJumping) {
+        const wingFlap = Math.sin(Date.now() * 0.015) * 0.4;
+        // Asas para cima comemorando
+        ctx.save();
+        ctx.translate(-36, -4);
+        ctx.rotate(-0.8 + wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 14, 28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(36, -4);
+        ctx.rotate(0.8 - wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 14, 28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // Asinhas fechadas
+        ctx.beginPath();
+        ctx.ellipse(-36, 4, 12, 22, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(36, 4, 12, 22, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Olhos Grandes Kawaii
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-16, -10, 15, 0, Math.PI * 2);
+      ctx.arc(16, -10, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Íris Azul
+      ctx.fillStyle = '#289afd';
+      ctx.beginPath();
+      ctx.arc(-16, -10, 9, 0, Math.PI * 2);
+      ctx.arc(16, -10, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pupila
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-16, -10, 6, 0, Math.PI * 2);
+      ctx.arc(16, -10, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Brilhos nos olhos
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-18, -12, 3.5, 0, Math.PI * 2);
+      ctx.arc(14, -12, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bochechas rosadas
+      ctx.fillStyle = '#ff8cb0';
+      ctx.beginPath();
+      ctx.arc(-26, 4, 6, 0, Math.PI * 2);
+      ctx.arc(26, 4, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Biquinho fofo dourado
+      ctx.fillStyle = '#fda41d';
+      ctx.beginPath();
+      ctx.moveTo(-6, -4);
+      ctx.lineTo(6, -4);
+      ctx.lineTo(0, 6);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // ==========================================
+    // 5. INTERAÇÃO TÁTIL
+    // ==========================================
+    function handlePointer(px, py) {
+      initAudio();
+
+      // Verifica toque nos esconderijos
+      for (let i = 0; i < spots.length; i++) {
+        const spot = spots[i];
+        if (spot.hitTest(px, py)) {
+          if (i === currentSpotIndex && !isRevealed) {
+            onFoundOwl(spot);
+          } else {
+            spot.animateSurprise();
+          }
+          return;
+        }
+      }
+
+      // Toque livre no céu: sininhos pentatônicos + partículas
+      const freqs = [329.63, 392.00, 440.00, 523.25, 659.25, 783.99];
+      const pickFreq = freqs[Math.floor(Math.random() * freqs.length)];
+      playTapSound(pickFreq);
+
+      createCelebration(px, py, 10);
+      starCount += 1;
+      document.getElementById('starCount').textContent = starCount;
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      handlePointer(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      for (let i = 0; i < e.touches.length; i++) {
+        handlePointer(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    }, { passive: false });
+
+    // ==========================================
+    // 6. LOOP DE ANIMAÇÃO (60FPS)
+    // ==========================================
+    const bgStars = [];
+    for (let i = 0; i < 40; i++) {
+      bgStars.push({
+        x: Math.random(),
+        y: Math.random(),
+        size: Math.random() * 3 + 1,
+        twinkle: Math.random() * Math.PI * 2
+      });
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Fundo
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
+      grad.addColorStop(0, '#151b4d');
+      grad.addColorStop(0.5, '#201b54');
+      grad.addColorStop(1, '#341a66');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Estrelas
+      ctx.fillStyle = '#ffffff';
+      for (const s of bgStars) {
+        s.twinkle += 0.02;
+        ctx.globalAlpha = 0.25 + Math.sin(s.twinkle) * 0.25;
+        ctx.beginPath();
+        ctx.arc(s.x * width, s.y * height, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      // 1. Desenha a Corujinha (atrás do esconderijo se estiver escondida/espiando)
+      const currentSpot = spots[currentSpotIndex];
+      if (!isRevealed) {
+        if (peekOffset > 0) {
+          // Espiando por cima do esconderijo
+          drawBabyOwl(ctx, currentSpot.x, currentSpot.y - peekOffset, false, 0);
+        }
+      }
+
+      // 2. Desenha todos os esconderijos
+      for (const spot of spots) {
+        spot.update();
+        spot.draw(ctx);
+      }
+
+      // 3. Se Achou! Desenha a Corujinha saltando radiante na frente com dancinha
+      if (isRevealed) {
+        const jumpY = Math.abs(Math.sin(Date.now() * 0.006)) * 65 + 35;
+        drawBabyOwl(ctx, currentSpot.x, currentSpot.y, true, jumpY);
+      }
+
+      // 4. Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
+          p.draw(ctx);
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    // ==========================================
+    // 7. KRUUJ SDK & LOADER
+    // ==========================================
+    const KruujLoader = (() => {
+      const $ = id => document.getElementById(id);
+      let target = 0, shown = 0, cfg = {}, t0 = 0, raf = null, tipTimer = null, finished = false, closing = false;
+      const wait = ms => new Promise(r => setTimeout(r, ms));
+      function frame() {
+        if (!cfg.manual && !finished) target = Math.min(0.9, target + 0.004 * (1 - target) + 0.0015);
+        shown += (target - shown) * 0.08;
+        if (finished && target - shown < 0.002) shown = target;
+        const pc = Math.round(shown * 100);
+        if ($('kl-fill')) $('kl-fill').style.width = pc + '%';
+        if ($('kl-rider')) $('kl-rider').style.left = pc + '%';
+        if ($('kl-pct')) $('kl-pct').textContent = pc + '%';
+        if (shown >= 1 && performance.now() - t0 >= cfg.minTime) return close();
+        raf = requestAnimationFrame(frame);
+      }
+      async function close() {
+        if (closing) return; closing = true; clearInterval(tipTimer);
+        const kl = $('kl');
+        if (kl) {
+          kl.classList.add('out');
+          await wait(650);
+          kl.style.display = 'none';
+        }
+        if (cfg.onComplete) cfg.onComplete();
+      }
+      async function start(c) {
+        cfg = { gameName: 'Cadê a Corujinha?', tagline: '', tips: [], splash: 2000, minTime: 2800, manual: false, onComplete() {}, ...c };
+        target = shown = 0; finished = closing = false;
+        const kl = $('kl');
+        if (!kl) return;
+        kl.style.display = ''; kl.classList.remove('out');
+        const [sp, ld] = kl.querySelectorAll('.ph');
+        if (sp) sp.classList.remove('off');
+        if (ld) ld.classList.add('off');
+        $('kl-name').textContent = cfg.gameName;
+        $('kl-tag').textContent = cfg.tagline;
+        document.title = cfg.gameName + ' – Kruuj Studio';
+        await wait(cfg.splash);
+        if (sp) sp.classList.add('off');
+        await wait(400);
+        if (ld) ld.classList.remove('off');
+        t0 = performance.now();
+        let i = 0;
+        const tip = $('kl-tip');
+        const nextTip = () => {
+          if (!tip) return;
+          tip.style.opacity = '0';
+          setTimeout(() => {
+            tip.textContent = cfg.tips[i++ % cfg.tips.length] || '';
+            tip.style.opacity = '0.85';
+          }, 350);
+        };
+        if (cfg.tips.length) { nextTip(); tipTimer = setInterval(nextTip, 3000); }
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(frame);
+      }
+      return {
+        start,
+        finish() { finished = true; target = 1; }
+      };
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // KruujSDK
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      // Standalone KruujLoader
+      if (window.self === window.top) {
+        KruujLoader.start({
+          gameName: tG.title,
+          tagline: tG.tagline,
+          tips: tG.tips,
+          splash: 1800,
+          minTime: 2600
+        });
+        setTimeout(() => KruujLoader.finish(), 2400);
+      }
+    });
+  </script>
+</body>
+</html>

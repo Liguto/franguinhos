@@ -1152,6 +1152,69 @@ export default function App() {
       licenseName: 'Proprietário'
     },
     {
+      id: '20',
+      slug: 'kruuj-baby-music',
+      title: 'KRUUJ Baby Sinfonia',
+      description: 'Parque sensorial sonoro cósmico para bebês. Toque nas estrelas, ouça harpas pentatônicas e veja a corujinha dançar!',
+      category: 'Bebês',
+      subcategories: ['Música', 'Sensorial', 'Relaxante', 'Lúdico'],
+      tags: ['bebes', 'musica', 'pentatonica', 'sons', 'coruja', 'sensorial', 'relaxante'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'music',
+      prefixUrl: '/games/kruuj-baby-music/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '21',
+      slug: 'kruuj-baby-peekaboo',
+      title: 'KRUUJ Cadê a Corujinha?',
+      description: 'O clássico esconde-esconde (Achou!) que os bebês amam. Encontre a corujinha atrás das nuvens, caixas e planetas mágicos!',
+      category: 'Bebês',
+      subcategories: ['Esconde-Esconde', 'Lúdico', 'Sensorial', 'Causa e Efeito'],
+      tags: ['bebes', 'peekaboo', 'achou', 'coruja', 'esconde-esconde', 'infantil'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'eye',
+      prefixUrl: '/games/kruuj-baby-peekaboo/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '22',
+      slug: 'kruuj-baby-shapes',
+      title: 'KRUUJ Formas & Cores Mágicas',
+      description: 'Estimulação visual e motora com formas geométricas grandes e carinhas expressivas que dançam e estouram com brilhos.',
+      category: 'Bebês',
+      subcategories: ['Formas', 'Cores', 'Sensorial', 'Coordenação'],
+      tags: ['bebes', 'formas', 'cores', 'geometria', 'sensorial', 'infantil'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'shapes',
+      prefixUrl: '/games/kruuj-baby-shapes/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
       id: '5',
       slug: 'sudoku-zen',
       title: 'Sudoku Zen Master',
@@ -2594,8 +2657,8 @@ export default function App() {
   
   // Helper para Mosaico Bento Poki: atribui tiles 2x2, 2x1 e 1x1
   const getTileClass = (slug: string): string => {
-    if (slug === 'kruuj-overdrive' || slug === 'kruuj-orbit') return 'tile-2x2';
-    if (slug === 'kruuj-match' || slug === 'kruuj-penalty' || slug === 'kruuj-defense') return 'tile-2x1';
+    if (slug === 'kruuj-overdrive' || slug === 'kruuj-orbit' || slug === 'kruuj-baby-music') return 'tile-2x2';
+    if (slug === 'kruuj-match' || slug === 'kruuj-penalty' || slug === 'kruuj-defense' || slug === 'kruuj-baby-peekaboo') return 'tile-2x1';
     return 'tile-1x1';
   };
 
