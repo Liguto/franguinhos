@@ -1916,9 +1916,10 @@ export default function App() {
     logEvent('game_exit', { gameId: selectedGame?.id, gameSlug: selectedGame?.slug });
   };
 
-  // Gatilho de saída interceptado pelo Parent Gate no modo Bebês
+  // Gatilho de saída: SÓ exige conta matemática se o bloqueio de tela estiver ATIVO!
   const triggerExitGame = () => {
-    if (isScreenLocked || agePreference === 'bebes' || selectedGame?.category === 'Bebês') {
+    if (isScreenLocked) {
+      // Bloqueio ATIVO: Exige desafio matemático para desbloquear
       const isMult = Math.random() > 0.4;
       const n1 = Math.floor(Math.random() * 5) + 2; // 2 a 6
       const n2 = Math.floor(Math.random() * 5) + 2;
@@ -1926,6 +1927,7 @@ export default function App() {
       setParentInput('');
       setShowParentGate(true);
     } else {
+      // Bloqueio DESATIVADO: Sai direto para a Home sem pedir conta matemática!
       executeExitGame();
     }
   };
