@@ -195,9 +195,7 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
     const handlePointerUp = (e: PointerEvent) => {
       setIsDragging(false);
       if (dragRef.current.moved) {
-        const newSide = e.clientX > window.innerWidth / 2 ? 'right' : 'left';
-        setSide(newSide);
-        localStorage.setItem('kruuj_back_btn_side', newSide);
+        // Permanece fixo na lateral esquerda
         const finalY = Math.max(8, Math.min(window.innerHeight - 52, dragRef.current.initialY + (e.clientY - dragRef.current.startY)));
         setTopY(finalY);
         localStorage.setItem('kruuj_back_btn_top', String(finalY));
@@ -232,9 +230,7 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
       className={`kruuj-poki-top-cluster side-${side} ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
         top: `calc(${topY}px + env(safe-area-inset-top, 0px))`,
-        ...(side === 'left' 
-          ? { left: 'env(safe-area-inset-left, 0px)', right: 'auto' } 
-          : { right: 'env(safe-area-inset-right, 0px)', left: 'auto' })
+        left: 'env(safe-area-inset-left, 0px)', right: 'auto'
       }}
       onPointerDown={handlePointerDown}
       onMouseEnter={resetIdleTimer}
@@ -313,6 +309,7 @@ export default function App() {
 
 
   // Detecção Inteligente e Reativa de Mobile vs Web (Retrato e Paisagem/Landscape)
+  const [isMobileFullscreen, setIsMobileFullscreen] = useState<boolean>(false);
   const [isMobileMode, setIsMobileMode] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     const isCoarse = window.matchMedia('(pointer: coarse)').matches;
@@ -1906,6 +1903,7 @@ export default function App() {
     setView('home');
     setSelectedGame(null);
     setIsPlayingGame(false);
+    setIsMobileFullscreen(false);
     setShowParentGate(false);
 
     // Liberar trava de tela se houver
@@ -1990,6 +1988,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setSelectedGame(game);
     setIsPlayingGame(true);
+    setIsMobileFullscreen(false);
     setView('playing');
     cloudSaveDataRef.current = null;
     logEvent('game_start', { gameId: game.id, gameSlug: game.slug });
@@ -2578,6 +2577,7 @@ export default function App() {
   const handleOpenPreview = (game: Game) => {
     setSelectedGame(game);
     setIsPlayingGame(false);
+    setIsMobileFullscreen(false);
     setView('playing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -3610,14 +3610,26 @@ export default function App() {
 
                   {/* CENTRO: O PALCO DO JOGO + BARRA BRANCA POKI */}
                   <div className="poki-stage-center">
-                    <div className="poki-stage-player-wrapper" id="game-fullscreen-target">
+                    <div 
+                      className={`poki-stage-player-wrapper ${isMobileMode && isMobileFullscreen ? 'mobile-fullscreen-active' : ''}`} 
+                      id="game-fullscreen-target"
+                    >
                       {/* Loader oficial rodando nativamente dentro do iframe do próprio jogo */}
 
-                      {(isMobileMode || isScreenLocked) && (
+                      {((isMobileMode && isMobileFullscreen) || isScreenLocked) && (
                         <AdaptivePokiCluster
                           isScreenLocked={isScreenLocked}
                         isBabyMode={agePreference === 'bebes' || selectedGame.category === 'Bebês'}
-                        onExit={triggerExitGame}
+                        onExit={() => {
+                          if (isMobileMode && isMobileFullscreen) {
+                            if (document.fullscreenElement) {
+                              document.exitFullscreen().catch(() => {});
+                            }
+                            setIsMobileFullscreen(false);
+                          } else {
+                            triggerExitGame();
+                          }
+                        }}
                         onLock={() => {
                           setIsScreenLocked(true);
                           try {
@@ -3690,7 +3702,8 @@ export default function App() {
                             <h3 className="text-lg font-bold text-white">{selectedGame.title}</h3>
                             <button 
                               className="btn-secondary py-1.5 px-4 text-xs font-bold"
-                              onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false); }}
+                              onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false);
+    setIsMobileFullscreen(false); }}
                             >
                               Voltar ao Catálogo
                             </button>
@@ -3759,7 +3772,12 @@ export default function App() {
 
                         <button 
                           className="poki-bar-action-item poki-action-fullscreen"
-                          onClick={handleManualFullscreen}
+                          onClick={() => {
+                            if (isMobileMode) {
+                              setIsMobileFullscreen(true);
+                            }
+                            handleManualFullscreen();
+                          }}
                           title="Tela Cheia"
                         >
                           <Maximize className="w-4 h-4 text-gray-600" />
