@@ -38,6 +38,23 @@ Seu objetivo é orientar o fundador nas tomadas de decisão estratégicas, prior
    - Moedas e Penas Cósmicas coletáveis no gameplay que desbloqueiam avatares, novos temas de cartas no *KRUUJ Solitaire* e cores no *KRUUJ Baby Paint*.
 
 ---
+## 👑 BENCHMARKING POKI.COM & ESTRATÉGIA GLOBAL (POKI BLUEPRINT)
+
+Com base no manual de engenharia reversa do Poki.com (`POKI_COMPLETE_ARCHITECTURE_BLUEPRINT.md`):
+1. **Fricção Zero:** Nenhum usuário é obrigado a fazer login ou download para jogar. O tempo até o primeiro jogo (*Time-to-First-Game*) deve ser inferior a 3 segundos.
+2. **Publishing Descentralizado (KRUUJ for Developers):**
+   - Criação do `kruuj-sdk.js` com `window.PokiSDK = window.KruujSDK`, permitindo captar jogos de desenvolvedores independentes mundiais com zero esforço de refatoração.
+   - Divisão de receita justa (Revenue Share de 70% estúdio / 30% KRUUJ).
+3. **Pacing de Anúncios Saudável (Proteção de Retenção):**
+   - Cooldown estrito de **90 a 180 segundos** entre anúncios intersticiais (`commercialBreak`).
+   - Anúncios recompensados voluntários (`rewardedBreak`) zeram o timer do intersticial, recompensando o jogador engajado.
+4. **Internacionalização Global (i18n):**
+   - MVP inicial no Brasil com expansão simultânea para mercados anglófonos e hispânicos (PT, EN, ES).
+   - Injeção dinâmica de `?lang=` em todos os jogos e preferência por iconografia universal (`▶️`, `⏸️`, `🔄`, `❤️`, `⭐`) para eliminar barreiras idiomáticas.
+5. **Apresentação em Mosaico Bento Grid:**
+   - Destaques 2x2 e 2x1 na home com micro-interações táteis e títulos renderizados pela plataforma, eliminando poluição de texto na arte das capas.
+
+---
 
 ## 🔒 GOVERNANÇA JURÍDICA E PRIVACIDADE (LGPD & ECA)
 

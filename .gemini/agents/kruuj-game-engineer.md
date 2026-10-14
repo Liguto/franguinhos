@@ -51,37 +51,31 @@ Todos os jogos ficam localizados em pastas dedicadas: `apps/web/public/games/<sl
   }
   ```
 
-### 3. Protocolo de Comunicação por Iframe (`window.parent.postMessage`)
-Os jogos são embutidos via iframe com sandbox estrita. Sempre implemente os eventos:
-- **`game_loaded`**: Disparado quando o jogo termina de inicializar seus assets/canvas (remove o spinner de loading do portal):
-  ```javascript
-  window.parent.postMessage({ type: 'game_loaded', gameSlug: 'SLUG' }, '*');
-  ```
-- **`game_start`**: Disparado ao iniciar uma partida (dispara telemetria de sessão).
-- **`game_over`**: Disparado ao perder, com a pontuação alcançada:
-  ```javascript
-  window.parent.postMessage({ type: 'game_over', gameSlug: 'SLUG', score: finalScore }, '*');
-  ```
-- **`game_save`**: Disparado para persistir progresso na nuvem (fase, checkpoint, recorde, moedas):
-  ```javascript
-  window.parent.postMessage({ type: 'game_save', gameSlug: 'SLUG', saveData: { level, score }, score }, '*');
-  ```
-
-### 4. Tela de Carregamento Oficial da KRUUJ Studio (`KruujLoader`)
-Em todos os jogos originais da KRUUJ Studio, inclua a vinheta da coruja com olhos luminosos e barra de progresso elegante utilizando o script do `KruujLoader`:
-```javascript
-KruujLoader.start({
-  gameName: 'NOME OFICIAL DO JOGO',
-  tagline: 'Prepare os fones, a coruja já está chegando.',
-  splash: 2000,
-  minTime: 1200,
-  onComplete: () => {
-    // Inicia o jogo ou remove tela preta
-    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'SLUG' }, '*'); } catch(e){}
-  }
-});
-setTimeout(() => KruujLoader.finish(), 700);
+### 3. Integração Obrigatória do KruujSDK (Compatível com PokiSDK)
+Todo jogo HTML5 deve incluir o SDK oficial da KRUUJ no `<head>`:
+```html
+<script src="/sdk/v1/kruuj-sdk.js"></script>
 ```
+O SDK injeta tanto `window.KruujSDK` quanto `window.PokiSDK` (compatibilidade 100% com jogos desenvolvidos para Poki.com). Utilize os métodos:
+- `KruujSDK.init()`: Inicialização resiliente baseada em Promise.
+- `KruujSDK.gameLoadingFinished()`: Dispara ao concluir carregamento de assets.
+- `KruujSDK.gameplayStart()` e `KruujSDK.gameplayStop()`: Notifica início/fim de partida para telemetria.
+- `KruujSDK.commercialBreak()`: Dispara anúncio intersticial (com pacing de 90s gerido pelo portal).
+- `KruujSDK.rewardedBreak()`: Anúncio voluntário para dar vidas ou power-ups ao jogador.
+- `KruujSDK.getLanguage()`: Retorna o idioma ativo no portal (`pt`, `en`, `es`).
+
+### 4. Tela de Carregamento Oficial (KruujLoader) & Supressão de Duplicidade
+- Quando o jogo roda dentro do portal via `iframe` (`window.self !== window.top`), o portal KRUUJ já exibe nativamente o `KruujPortalLoader` de 3 segundos garantidos.
+- Portanto, dentro do `index.html` do jogo, adicione a verificação para suprimir o loader interno:
+```javascript
+if (window.self !== window.top) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const kl = document.getElementById('kl');
+    if (kl) kl.style.display = 'none';
+  });
+}
+```
+- Se o jogo for aberto fora do iframe (standalone), o `KruujLoader` interno funciona como fallback seguro.
 
 ### 5. Áudio Sintético WebAudio API
 - Evite dependência de arquivos MP3/WAV externos que possam falhar no carregamento.
