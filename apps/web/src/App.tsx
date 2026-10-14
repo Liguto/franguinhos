@@ -1722,9 +1722,9 @@ export default function App() {
 
   // Gatilho de saída interceptado pelo Parent Gate no modo Bebês
   const triggerExitGame = () => {
-    if (agePreference === 'bebes' && isScreenLocked) {
+    if (isScreenLocked || agePreference === 'bebes' || selectedGame?.category === 'Bebês') {
       // Gerar cálculo aleatório para o cadeado (Parent Gate)
-      const isMult = Math.random() > 0.5;
+      const isMult = Math.random() > 0.4;
       const n1 = Math.floor(Math.random() * 5) + 2; // 2 a 6
       const n2 = Math.floor(Math.random() * 5) + 2;
       setParentMath({ n1, n2, op: isMult ? 'x' : '+' });
@@ -3350,6 +3350,27 @@ export default function App() {
                       style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
                       className="shadow-sm"
                     />
+                  </button>
+                )}
+
+                {/* BOTÃO FLUTUANTE BLOQUEAR TELA (MODO BEBÊS / PARENT GATE NO MOBILE & TABLET) */}
+                {!isScreenLocked && (agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
+                  <button
+                    className="kruuj-mobile-lock-btn"
+                    onClick={() => {
+                      setIsScreenLocked(true);
+                      try {
+                        if (navigator.wakeLock && navigator.wakeLock.request) {
+                          navigator.wakeLock.request('screen').then(lock => {
+                            wakeLockRef.current = lock;
+                          }).catch(() => {});
+                        }
+                      } catch (e) {}
+                    }}
+                    title="Bloquear Tela (Modo Bebês / Parent Gate)"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-pink-300" />
+                    <span>Bloquear Tela</span>
                   </button>
                 )}
 

@@ -39,36 +39,46 @@ Sua função é manter, evoluir e implementar todas as melhorias de layout, comp
 
 ---
 
-## 📱 REGRAS DE OURO DE RESPONSIVIDADE E MOBILE-FIRST
+## 📱 REGRAS DE OURO DE RESPONSIVIDADE E MOBILE-FIRST (PADRÃO POKI.COM)
 
 O KRUUJ segue o padrão internacional de excelência em UX de plataformas mobile como **Poki** e **CrazyGames**:
 
-### 1. Tela Cheia Sem Barra de URL & Sem Faixas Pretas
-- Ao clicar em "Jogar Agora", a função `handlePlayGame` executa sincronamente `document.documentElement.requestFullscreen()` para ocultar a barra de navegação dos celulares.
-- No container do iframe do jogo (`.iframe-container` em `index.css`), o layout mobile (`@media (max-width: 768px)`) DEVE ter:
-  ```css
-  .iframe-container {
-    aspect-ratio: auto !important;
-    height: 100% !important;
-    max-height: 100dvh !important;
-    inset: 0 !important;
-    background: #070914 !important;
-  }
-  ```
-  Isso elimina faixas pretas em celulares com telas compridas (proporção 20:9 e 19.5:9).
+### 1. Detecção Robusta de Mobile vs Web (Retrato & Paisagem/Landscape)
+- **Regra Fundamental:** NUNCA dependa apenas de `max-width: 768px` para detectar celular!
+  - Em smartphones horizontais (Landscape), a largura ultrapassa 850px, mas a altura útil é inferior a 500px (`max-height: 550px`).
+  - No CSS, sempre utilize a query unificada:
+    ```css
+    @media (max-width: 768px), 
+           (orientation: landscape) and (max-height: 550px),
+           ((hover: none) and (pointer: coarse) and (max-height: 600px))
+    ```
+- **Eliminação de Faixas Pretas no Player:**
+  - Em mobile (portrait ou landscape), `.iframe-container` deve ter `position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100dvh !important; aspect-ratio: auto !important;`.
+- **Eliminação de Notificações do Navegador:**
+  - Não chame `document.documentElement.requestFullscreen()` automaticamente ao abrir jogos (evita a notificação intrusiva do Chrome *"To exit full screen drag from the top"*). O fullscreen imersivo por CSS `100vw x 100dvh` é limpo e invisível.
 
-### 2. Botão Flutuante Poki [ ‹ 🦉 ] (`.kruuj-poki-back-btn`)
-- **Mobile-Only:** Deve possuir `display: none !important;` em desktop (`@media (min-width: 769px)`) e ser ativado com `display: flex !important;` apenas em telas `<= 768px`.
-- **Dimensões Travadas:**
-  - Cápsula branca compacta de 34px de altura, posicionada em `top: 12px; left: 0;`.
-  - Ícone de seta com 16px.
-  - Avatar circular da coruja KRUUJ cravado em `width: 22px; height: 22px; border-radius: 50%;` para evitar estouro da imagem de alta resolução.
-- **Comportamento de Saída:** Ao clicar para sair do jogo (`executeExitGame`), a navegação redireciona para `view: 'details'` mantendo o jogo selecionado, permitindo que o usuário veja a ficha técnica, notas e jogos recomendados, em vez de jogá-lo de volta para a home.
+### 2. Catálogo Adaptável em 4 Níveis (Prompt Mestre de Responsividade)
+- **Celular (< 600px):** 2 ou 3 colunas uniformes (cards arredondados `border-radius: 18px`, aspect-ratio `16/11` na thumbnail).
+- **Tablet (600px a 899px):** 3 a 4 colunas fluidas.
+- **Notebook / Desktop Compacto (900px a 1199px):** 4 a 5 colunas.
+- **Desktop Amplo (>= 1200px):** 5 a 6 colunas (`minmax(180px, 1fr)`).
 
-### 3. Acessibilidade e Modos Especiais de UX
-- **Modo Bebês (Toddler):** Desativa anúncios físicos em nível de React, aciona tela cheia com *Screen Wake Lock API* (tela não desliga) e bloqueia saída não autorizada via **Parent Gate** (equação aritmética aleatória).
-- **Modo Neurodivergente (Chave TEA):** Ativa `.theme-tea`, eliminando gradientes brilhantes, flashes, luzes piscantes e desfoques (zero sobrecarga sensorial).
-- **Modo Terceira Idade (60+):** Ativa `.theme-senior` com tipografia ampliada, alto contraste e foco em jogos de raciocínio e memória.
+### 3. Botão Flutuante Poki [ ‹ 🦉 ] (`.kruuj-poki-back-btn`)
+- **Comportamento:** Retorna **direto para a Home limpa** (`setView('home')` e `setSelectedGame(null)`), sem telas intermediárias.
+- **Safe Area Insets:** Sempre calibrado com `top: calc(12px + env(safe-area-inset-top, 0px)) !important; left: env(safe-area-inset-left, 0px) !important;`.
+- **Visibilidade:** Oculto no desktop com mouse (`@media (min-width: 769px) and (min-height: 551px) and (hover: hover)`), sempre visível no mobile (portrait e landscape).
+
+### 4. Proteção Infantil: Modo Bebês & Parent Gate
+- **Botão Flutuante de Bloqueio Mobile (`.kruuj-mobile-lock-btn`):** Posicionado em `top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right));`. Permite aos pais travar a tela com um toque.
+- **Cadeado Parent Gate:** Qualquer tentativa de saída em jogos de bebês ou com tela bloqueada aciona um diálogo matemático aleatório (`3 × 4 = ?` ou `5 + 3 = ?`). O jogo só fecha após a resolução correta por um adulto.
+- **Trava de Tela:** Aciona *Screen Wake Lock API* para que a tela nunca apague durante o uso pelo bebê.
+
+### 5. KruujPortalLoader (Dual-Layer Branding)
+- Componente nativo do Portal React que sobrepõe o player imediatamente ao clicar em qualquer jogo.
+- **Trava de Tempo Mínimo:** Garante rigorosamente **3.0 segundos (3000ms)** de exibição da vinheta oficial da Coruja KRUUJ STUDIO, progress bar e dicas em 3 idiomas (PT, EN, ES), evitando qualquer tela branca ou piscada rápida.
+
+### 6. Identificação Limpa de Favoritos
+- Jogos favoritos são destacados com o ícone do coração em **rosa/vermelho vivo preenchido (`fill-rose-500`)** e contorno sutil brilhante no card (`.is-favorited`), sem necessidade de tags textuais pesadas.
 
 ---
 

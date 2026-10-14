@@ -4189,6 +4189,11 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
 /* ======================================================================
    KRUUJ POKI-STYLE CLEAN MOSAIC GRID (Página Inicial & Recomendações)
+   - Breakpoints de Catálogo Adaptável (Prompt Mestre de Responsividade):
+     * Celular (< 600px): 2 ou 3 colunas uniformes sem corte
+     * Tablet (600px - 899px): 3 a 4 colunas fluidas
+     * Notebook / Desktop Compacto (900px - 1199px): 4 a 5 colunas
+     * Desktop Amplo (>= 1200px): 5 a 6 colunas (minmax(180px, 1fr))
    ====================================================================== */
 .kruuj-poki-section {
   display: flex;
@@ -4204,24 +4209,82 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   width: 100%;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1200px) {
   .kruuj-poki-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
     gap: 12px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 599px) {
+  .kruuj-poki-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (min-width: 440px) and (max-width: 599px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 340px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 6px;
+  }
+}
+
+/* Botão Flutuante Bloquear Tela para Modo Bebês (Mobile & Tablet) */
+.kruuj-mobile-lock-btn {
+  display: inline-flex !important;
+  position: fixed !important;
+  top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+  right: calc(12px + env(safe-area-inset-right, 0px)) !important;
+  z-index: 10000000 !important;
+  background: rgba(244, 114, 182, 0.25) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1.5px solid rgba(244, 114, 182, 0.6) !important;
+  color: #ffffff !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 16px rgba(244, 114, 182, 0.4) !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: transform 0.15s ease, background 0.15s ease !important;
+}
+
+.kruuj-mobile-lock-btn:active {
+  transform: scale(0.92) !important;
+  background: rgba(244, 114, 182, 0.45) !important;
+}
+
+@media (min-width: 769px) and (min-height: 551px) and (hover: hover) {
+  .kruuj-mobile-lock-btn {
+    display: none !important; /* No desktop já existe o botão na barra de cabeçalho */
   }
 }
 
