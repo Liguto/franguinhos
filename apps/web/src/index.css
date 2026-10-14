@@ -564,15 +564,35 @@ body.playing-game-mode, html.playing-game-mode {
     overscroll-behavior: none !important;
   }
 
-  /* Cluster Flutuante Superior Poki (Voltar + Bloqueio Infantil) */
+  /* Cluster Flutuante Superior Poki Adaptativo com Drag Magnético e Ghost Mode */
   .kruuj-poki-top-cluster {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     position: fixed !important;
-    top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-    left: env(safe-area-inset-left, 0px) !important;
     z-index: 10000000 !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    touch-action: none !important;
+    transition: opacity 0.45s ease, filter 0.45s ease;
+  }
+
+  /* Modo Fantasma Inteligente: Translúcido quando o jogador estiver em ação */
+  .kruuj-poki-top-cluster.idle-ghost {
+    opacity: 0.35 !important;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)) !important;
+  }
+
+  .kruuj-poki-top-cluster.idle-ghost:hover,
+  .kruuj-poki-top-cluster.idle-ghost:active,
+  .kruuj-poki-top-cluster.dragging {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .kruuj-poki-top-cluster.dragging {
+    transform: scale(1.08) !important;
+    cursor: grabbing !important;
   }
 
   /* Botão Flutuante 'Voltar ao Portal' Estilo Poki com Coruja do KRUUJ e Seta */
@@ -581,8 +601,6 @@ body.playing-game-mode, html.playing-game-mode {
     z-index: 10000000 !important;
     background: #ffffff !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    border-left: none !important;
-    border-radius: 0 9999px 9999px 0 !important;
     height: 34px !important;
     max-height: 34px !important;
     padding: 0 10px 0 5px !important;
@@ -594,6 +612,24 @@ body.playing-game-mode, html.playing-game-mode {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
     transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  /* Lado Esquerdo */
+  .kruuj-poki-top-cluster.side-left .kruuj-poki-back-btn {
+    border-radius: 0 9999px 9999px 0 !important;
+    border-left: none !important;
+  }
+
+  /* Lado Direito */
+  .kruuj-poki-top-cluster.side-right {
+    flex-direction: row-reverse !important;
+  }
+
+  .kruuj-poki-top-cluster.side-right .kruuj-poki-back-btn {
+    border-radius: 9999px 0 0 9999px !important;
+    border-right: none !important;
+    flex-direction: row-reverse !important;
+    padding: 0 5px 0 10px !important;
   }
 
   .kruuj-poki-back-btn svg {

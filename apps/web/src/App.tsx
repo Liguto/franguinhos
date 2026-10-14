@@ -127,6 +127,147 @@ const KruujPortalLoader: React.FC<KruujPortalLoaderProps> = ({ game, lang, onFin
   );
 };
 
+
+interface AdaptivePokiClusterProps {
+  isScreenLocked: boolean;
+  isBabyMode: boolean;
+  onExit: () => void;
+  onLock: () => void;
+}
+
+const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
+  isScreenLocked,
+  isBabyMode,
+  onExit,
+  onLock
+}) => {
+  const [side, setSide] = useState<'left' | 'right'>(() => {
+    return (localStorage.getItem('kruuj_back_btn_side') as 'left' | 'right') || 'left';
+  });
+  const [topY, setTopY] = useState<number>(14);
+  const [isGhost, setIsGhost] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const dragRef = useRef<{ startX: number; startY: number; initialY: number; moved: boolean }>({
+    startX: 0,
+    startY: 0,
+    initialY: 14,
+    moved: false
+  });
+  const idleTimerRef = useRef<any>(null);
+
+  const resetIdleTimer = () => {
+    setIsGhost(false);
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      setIsGhost(true);
+    }, 3200);
+  };
+
+  useEffect(() => {
+    resetIdleTimer();
+    return () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialY: topY,
+      moved: false
+    };
+    resetIdleTimer();
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.hypot(dx, dy) > 6) {
+      dragRef.current.moved = true;
+      const newY = Math.max(10, Math.min(window.innerHeight - 50, dragRef.current.initialY + dy));
+      setTopY(newY);
+      resetIdleTimer();
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    if (dragRef.current.moved) {
+      const newSide = e.clientX > window.innerWidth / 2 ? 'right' : 'left';
+      setSide(newSide);
+      localStorage.setItem('kruuj_back_btn_side', newSide);
+      resetIdleTimer();
+    }
+  };
+
+  return (
+    <div 
+      className={`kruuj-poki-top-cluster side-${side} ${isGhost ? 'idle-ghost' : ''} ${isDragging ? 'dragging' : ''}`}
+      style={{
+        top: `calc(${topY}px + env(safe-area-inset-top, 0px))`,
+        ...(side === 'left' 
+          ? { left: 'env(safe-area-inset-left, 0px)', right: 'auto' } 
+          : { right: 'env(safe-area-inset-right, 0px)', left: 'auto' })
+      }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onMouseEnter={resetIdleTimer}
+      onTouchStart={resetIdleTimer}
+    >
+      {!isScreenLocked && (
+        <button 
+          className="kruuj-poki-back-btn" 
+          onClick={() => {
+            if (dragRef.current.moved) return;
+            onExit();
+          }}
+          title="Arraste para mover ou toque para voltar ao portal"
+        >
+          {side === 'left' ? (
+            <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
+          ) : (
+            <ChevronRight style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
+          )}
+          <img 
+            src="/kruuj-avatar.png" 
+            alt="KRUUJ" 
+            style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
+            className="shadow-sm"
+          />
+        </button>
+      )}
+
+      {/* Botão de Bloqueio/Desbloqueio Discreto (Modo Bebês) — Próximo ao de Voltar */}
+      {isBabyMode && (
+        <button
+          className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
+          onClick={() => {
+            if (dragRef.current.moved) return;
+            if (isScreenLocked) {
+              onExit(); // Abre o Parent Gate matemático
+            } else {
+              onLock();
+            }
+          }}
+          title={isScreenLocked ? "Desbloquear com Desafio Matemático" : "Bloquear Tela para Bebê"}
+        >
+          <Lock style={{ width: 14, height: 14 }} className={isScreenLocked ? "text-rose-600 stroke-[2.8]" : "text-gray-700 stroke-[2.2]"} />
+          <span className="kruuj-poki-lock-label">{isScreenLocked ? "Desbloquear" : "Bloquear"}</span>
+        </button>
+      )}
+    </div>
+  );
+};
+
 export default function App() {
   // --- Estados do Portal ---
   const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
@@ -3376,48 +3517,22 @@ export default function App() {
                   />
                 )}
                 
-                {/* CLUSTER FLUTUANTE ESTILO POKI (APENAS MOBILE) — VOLTAR & BLOQUEIO DISCRETO */}
-                <div className="kruuj-poki-top-cluster">
-                  {!isScreenLocked && (
-                    <button className="kruuj-poki-back-btn" 
-                      onClick={triggerExitGame}
-                      title="Voltar ao Portal"
-                    >
-                      <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
-                      <img 
-                        src="/kruuj-avatar.png" 
-                        alt="KRUUJ" 
-                        style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
-                        className="shadow-sm"
-                      />
-                    </button>
-                  )}
-
-                  {/* Botão de Bloqueio/Desbloqueio Discreto (Modo Bebês) — Próximo ao de Voltar */}
-                  {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
-                    <button
-                      className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
-                      onClick={() => {
-                        if (isScreenLocked) {
-                          triggerExitGame(); // Abre imediatamente a equação matemática do Parent Gate!
-                        } else {
-                          setIsScreenLocked(true);
-                          try {
-                            if (navigator.wakeLock && navigator.wakeLock.request) {
-                              navigator.wakeLock.request('screen').then(lock => {
-                                wakeLockRef.current = lock;
-                              }).catch(() => {});
-                            }
-                          } catch (e) {}
-                        }
-                      }}
-                      title={isScreenLocked ? "Desbloquear com Desafio Matemático" : "Bloquear Tela para Bebê"}
-                    >
-                      <Lock style={{ width: 14, height: 14 }} className={isScreenLocked ? "text-rose-600 stroke-[2.8]" : "text-gray-700 stroke-[2.2]"} />
-                      <span className="kruuj-poki-lock-label">{isScreenLocked ? "Desbloquear" : "Bloquear"}</span>
-                    </button>
-                  )}
-                </div>
+                {/* CLUSTER FLUTUANTE ESTILO POKI ADAPTATIVO — ARRASTÁVEL E COM GHOST MODE */}
+                <AdaptivePokiCluster
+                  isScreenLocked={isScreenLocked}
+                  isBabyMode={agePreference === 'bebes' || selectedGame.category === 'Bebês'}
+                  onExit={triggerExitGame}
+                  onLock={() => {
+                    setIsScreenLocked(true);
+                    try {
+                      if (navigator.wakeLock && navigator.wakeLock.request) {
+                        navigator.wakeLock.request('screen').then(lock => {
+                          wakeLockRef.current = lock;
+                        }).catch(() => {});
+                      }
+                    } catch (e) {}
+                  }}
+                />
 
                 {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
                 {!isScreenLocked && (
