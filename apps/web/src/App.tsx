@@ -535,6 +535,7 @@ export default function App() {
   const [isScreenLocked, setIsScreenLocked] = useState<boolean>(false);
   const [accountSubView, setAccountSubView] = useState<'menu' | 'history'>('menu');
   const wakeLockRef = useRef<any>(null);
+  const lastCommercialTimeRef = useRef<number>(0);
 
   // Autenticação
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -2049,6 +2050,92 @@ export default function App() {
       const data = event.data;
       if (!data || typeof data !== 'object') return;
 
+      // =========================================================================
+      // TRATAMENTO OFICIAL DO KRUUJ SDK / POKI SDK (Poki Architecture Blueprint)
+      // =========================================================================
+      if (data.source === 'KRUUJ_SDK' || data.source === 'POKI_SDK') {
+        const respond = (success: boolean, responseData?: any, error?: string) => {
+          if (event.source && typeof (event.source as any).postMessage === 'function') {
+            (event.source as any).postMessage({
+              source: 'KRUUJ_PORTAL',
+              id: data.id,
+              success,
+              data: responseData,
+              error
+            }, '*');
+          }
+        };
+
+        const slug = selectedGame?.slug || '';
+
+        switch (data.action) {
+          case 'init':
+            respond(true, { version: '1.0.0', platform: 'KRUUJ' });
+            break;
+
+          case 'gameLoadingFinished':
+            logEvent('game_loading_finished', { gameSlug: slug });
+            respond(true);
+            break;
+
+          case 'gameplayStart':
+            logEvent('gameplay_start', { gameSlug: slug });
+            respond(true);
+            break;
+
+          case 'gameplayStop':
+            logEvent('gameplay_stop', { gameSlug: slug });
+            respond(true);
+            break;
+
+          case 'commercialBreak': {
+            // Pacing inteligente Poki: mínimo 90s entre interstitials para não frustrar o jogador
+            const now = Date.now();
+            const lastAd = lastCommercialTimeRef.current || 0;
+            if (now - lastAd > 90000) {
+              lastCommercialTimeRef.current = now;
+              setTimeout(() => {
+                respond(true);
+              }, 1800);
+            } else {
+              respond(true);
+            }
+            break;
+          }
+
+          case 'rewardedBreak': {
+            // Anúncio voluntário recompensado zera o timer do commercialBreak
+            lastCommercialTimeRef.current = Date.now();
+            setTimeout(() => {
+              respond(true, { success: true });
+            }, 1500);
+            break;
+          }
+
+          case 'measure':
+            logEvent('game_measure', { gameSlug: slug, ...data.payload });
+            respond(true);
+            break;
+
+          case 'getLanguage':
+            respond(true, currentLang);
+            break;
+
+          case 'getUser':
+            respond(true, user ? { id: user.id, username: user.username } : null);
+            break;
+
+          case 'getToken':
+            respond(true, token || null);
+            break;
+
+          default:
+            respond(true);
+            break;
+        }
+        return;
+      }
+
       const authToken = token || localStorage.getItem('arcade_token');
       const authUser = user || (localStorage.getItem('arcade_user') ? JSON.parse(localStorage.getItem('arcade_user')!) : null);
       const isRealAuth = authToken && authToken !== 'fake-jwt-token';
@@ -2363,6 +2450,14 @@ export default function App() {
   };
 
   // Helper para garantir URL física index.html e injetar parâmetro de idioma (i18n)
+  
+  // Helper para Mosaico Bento Poki: atribui tiles 2x2, 2x1 e 1x1
+  const getTileClass = (slug: string): string => {
+    if (slug === 'kruuj-overdrive' || slug === 'kruuj-orbit') return 'tile-2x2';
+    if (slug === 'kruuj-match' || slug === 'kruuj-penalty' || slug === 'kruuj-defense') return 'tile-2x1';
+    return 'tile-1x1';
+  };
+
   const getGameUrl = (game: Game) => {
     let url = game.prefixUrl;
     if (!url) return '';
@@ -2956,7 +3051,7 @@ export default function App() {
                             {getFilteredGames().map(game => (
                               <div 
                                 key={game.id} 
-                                className={`kruuj-poki-card ${isGameFavorited(game) ? 'is-favorited' : ''}`}
+                                className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
                                 onClick={() => handlePlayGame(game)}
                                 title={`Jogar ${game.title}`}
                               >
@@ -2989,7 +3084,7 @@ export default function App() {
                             {getFilteredGames().map((game) => (
                               <div 
                                 key={game.id} 
-                                className={`kruuj-poki-card ${isGameFavorited(game) ? 'is-favorited' : ''}`}
+                                className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
                                 onClick={() => handlePlayGame(game)}
                                 title={`Jogar ${game.title}`}
                               >

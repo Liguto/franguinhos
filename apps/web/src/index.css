@@ -4412,13 +4412,32 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 .kruuj-poki-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-auto-rows: 200px;
+  grid-auto-flow: dense;
   gap: 16px;
   width: 100%;
+}
+
+/* Moduladores de Destaque Bento (Poki Aspect Ratio Tiles) */
+.kruuj-poki-card.tile-2x2 {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.kruuj-poki-card.tile-2x1 {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.kruuj-poki-card.tile-1x1 {
+  grid-column: span 1;
+  grid-row: span 1;
 }
 
 @media (min-width: 1200px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-auto-rows: 210px;
     gap: 18px;
   }
 }
@@ -4426,6 +4445,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 @media (min-width: 900px) and (max-width: 1199px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    grid-auto-rows: 190px;
     gap: 14px;
   }
 }
@@ -4433,6 +4453,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 @media (min-width: 600px) and (max-width: 899px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    grid-auto-rows: 180px;
     gap: 12px;
   }
 }
@@ -4440,13 +4461,25 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 @media (max-width: 599px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 160px;
     gap: 10px;
+  }
+
+  .kruuj-poki-card.tile-2x2 {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .kruuj-poki-card.tile-2x1 {
+    grid-column: span 2;
+    grid-row: span 1;
   }
 }
 
 @media (min-width: 440px) and (max-width: 599px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 160px;
     gap: 10px;
   }
 }
@@ -4454,6 +4487,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 @media (max-width: 340px) {
   .kruuj-poki-grid {
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 145px;
     gap: 6px;
   }
 }
@@ -4499,7 +4533,8 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
+  height: 100%;
+  border-radius: 20px;
   overflow: hidden;
   background: #11172b;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -4511,16 +4546,17 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 .kruuj-poki-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  border-color: rgba(56, 232, 255, 0.5);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 232, 255, 0.25);
-  z-index: 2;
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(56, 232, 255, 0.55);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 232, 255, 0.25);
+  z-index: 5;
 }
 
 .kruuj-poki-thumb {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 11;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   background: #090d1a;
 }
