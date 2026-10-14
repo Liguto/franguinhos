@@ -63,9 +63,12 @@ O KRUUJ segue o padrão internacional de excelência em UX de plataformas mobile
 - **Notebook / Desktop Compacto (900px a 1199px):** 4 a 5 colunas.
 - **Desktop Amplo (>= 1200px):** 5 a 6 colunas (`minmax(180px, 1fr)`).
 
-### 3. Botão Flutuante Poki [ ‹ 🦉 ] (`.kruuj-poki-back-btn`)
-- **Comportamento:** Retorna **direto para a Home limpa** (`setView('home')` e `setSelectedGame(null)`), sem telas intermediárias.
-- **Safe Area Insets:** Sempre calibrado com `top: calc(12px + env(safe-area-inset-top, 0px)) !important; left: env(safe-area-inset-left, 0px) !important;`.
+### 3. Botão Flutuante Poki Adaptativo [ ‹ 🦉 ] (`AdaptivePokiCluster`)
+- **Snap Magnético Arrastável:** O jogador pode tocar e arrastar o botão livremente para cima ou para baixo, e para a esquerda ou direita. Ao soltar, o botão se ancora suavemente na borda mais próxima (`left: 0` ou `right: 0`), nunca cobrindo placares ou botões de pause do jogo.
+- **Modo Fantasma Inteligente (Ghost Mode):** Após 3.2 segundos de inatividade durante a partida, o botão reduz sua opacidade para 0.35 translúcido, permitindo enxergar qualquer elemento gráfico por trás dele. Ao passar o dedo ou aproximar o mouse, ele acende instantaneamente em 100% de brilho.
+- **Comportamento de Saída:** Toque rápido (< 6px de deslocamento) retorna **direto para a Home limpa** (`setView('home')` e `setSelectedGame(null)`), sem telas intermediárias.
+- **Cluster Infantil:** Em jogos de bebês, exibe a pílula discreta `[ 🔒 Bloquear ]` coladinha ao botão de voltar. Ao bloquear, protege contra toques e exige equação matemática (*Parent Gate*) com `z-index: 999999999` para desbloquear.
+- **Safe Area Insets:** Sempre calibrado com `env(safe-area-inset-top)` e `env(safe-area-inset-left / right)`.
 - **Visibilidade:** Oculto no desktop com mouse (`@media (min-width: 769px) and (min-height: 551px) and (hover: hover)`), sempre visível no mobile (portrait e landscape).
 
 ### 4. Proteção Infantil: Modo Bebês & Parent Gate
