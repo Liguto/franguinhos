@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Baby Sinfonia – Sonhos da Corujinha</title>
+  <title>KRUUJ Baby Sinfonia & Formas – Baby Music & Shapes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
 
@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 
   <script>
-    // Suprime KruujLoader interno se carregado dentro do Portal
+    // Suprime KruujLoader interno se carregado dentro do Portal iframe
     if (window.self !== window.top) {
       window.addEventListener('DOMContentLoaded', () => {
         const kl = document.getElementById('kl');
@@ -23,54 +23,72 @@
     const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
     const I18N = {
       pt: {
-        title: 'KRUUJ Baby Sinfonia',
-        tagline: 'Toque nas estrelas, dance com a corujinha e ouça a magia.',
-        modeChimes: 'Sinos',
-        modeBox: 'Caixinha',
-        modeXylo: 'Xilofone',
-        lullaby: 'Canção de Ninar',
+        title: 'KRUUJ Baby Sinfonia & Formas',
+        tagline: 'Toque nas formas, dance com a corujinha e ouça a magia das notas.',
+        modeChimes: 'Sinos 🔔',
+        modeBox: 'Caixinha 🎵',
+        modeXylo: 'Xilofone 🌈',
+        lullaby: 'Ninar ✨',
         lullabyOn: 'Ninar: Ligado',
         lullabyOff: 'Ninar: Parar',
         stars: 'Estrelas',
-        owlCheer: ['Piu-piu!', 'Que lindo!', 'Amei!', 'Viva!'],
+        heart: 'Coração Rosa! 💕',
+        star: 'Estrela Dourada! ⭐',
+        circle: 'Círculo Amarelo! 🟡',
+        moon: 'Lua Lilás! 🌙',
+        cloud: 'Nuvem Azul! ☁️',
+        triangle: 'Triângulo Menta! 🔺',
+        owlCheer: ['Piu-piu!', 'Que lindo!', 'Amei!', 'Viva! 💕', 'Muito bem!'],
         tips: [
-          'Toque ou arraste o dedinho em qualquer lugar da tela.',
-          'Nenhum som desafina: a escala pentatônica é sempre doce e harmoniosa.',
-          'Toque na corujinha para vê-la dançar!'
+          'Toque ou arraste os dedinhos em qualquer lugar da tela.',
+          'Toque nas formas geométricas para ouvir acordes e ver sorrisinhos.',
+          'Nenhum som desafina: a escala pentatônica é sempre doce e relaxante.'
         ]
       },
       en: {
-        title: 'KRUUJ Baby Symphony',
-        tagline: 'Touch the stars, dance with the little owl and hear the magic.',
-        modeChimes: 'Chimes',
-        modeBox: 'Music Box',
-        modeXylo: 'Xylophone',
-        lullaby: 'Lullaby',
+        title: 'KRUUJ Baby Symphony & Shapes',
+        tagline: 'Touch the shapes, dance with the little owl and hear musical magic.',
+        modeChimes: 'Chimes 🔔',
+        modeBox: 'Music Box 🎵',
+        modeXylo: 'Xylophone 🌈',
+        lullaby: 'Lullaby ✨',
         lullabyOn: 'Lullaby: On',
         lullabyOff: 'Lullaby: Off',
         stars: 'Stars',
-        owlCheer: ['Piu-piu!', 'So sweet!', 'Loved it!', 'Yay!'],
+        heart: 'Pink Heart! 💕',
+        star: 'Golden Star! ⭐',
+        circle: 'Yellow Circle! 🟡',
+        moon: 'Purple Moon! 🌙',
+        cloud: 'Blue Cloud! ☁️',
+        triangle: 'Mint Triangle! 🔺',
+        owlCheer: ['Piu-piu!', 'So sweet!', 'Loved it!', 'Yay! 💕', 'Well done!'],
         tips: [
           'Tap or drag little fingers anywhere on the screen.',
-          'Zero discordant sounds: pure pentatonic harmony.',
-          'Tap the little owl to see her dance!'
+          'Tap floating shapes to hear harmonies and see happy faces.',
+          'Zero discordant sounds: pure pentatonic harmony.'
         ]
       },
       es: {
-        title: 'KRUUJ Baby Sinfonía',
-        tagline: 'Toca las estrellas, baila con el búho y siente la magia.',
-        modeChimes: 'Campanas',
-        modeBox: 'Cajita',
-        modeXylo: 'Xilófono',
-        lullaby: 'Canción de Cuna',
+        title: 'KRUUJ Baby Sinfonía & Formas',
+        tagline: 'Toca las formas, baila con el búho y siente la magia musical.',
+        modeChimes: 'Campanas 🔔',
+        modeBox: 'Cajita 🎵',
+        modeXylo: 'Xilófono 🌈',
+        lullaby: 'Cuna ✨',
         lullabyOn: 'Cuna: Activa',
         lullabyOff: 'Cuna: Parar',
         stars: 'Estrellas',
-        owlCheer: ['¡Piu-piu!', '¡Qué lindo!', '¡Me encanta!', '¡Viva!'],
+        heart: '¡Corazón Rosa! 💕',
+        star: '¡Estrella Dorada! ⭐',
+        circle: '¡Círculo Amarillo! 🟡',
+        moon: '¡Luna Violeta! 🌙',
+        cloud: '¡Nube Azul! ☁️',
+        triangle: '¡Triángulo Menta! 🔺',
+        owlCheer: ['¡Piu-piu!', '¡Qué lindo!', '¡Me encanta!', '¡Viva! 💕', '¡Bravo!'],
         tips: [
           'Toca o arrastra los deditos en cualquier parte de la pantalla.',
-          'Sonidos siempre dulces en escala pentatónica relajante.',
-          '¡Toca al pequeño búho para verlo bailar!'
+          'Toca las figuras flotantes para oír acordes y ver caritas felices.',
+          'Sonidos siempre dulces en escala pentatónica relajante.'
         ]
       }
     };
@@ -121,7 +139,7 @@
       z-index: 1;
     }
 
-    /* HUD Superior de Controles — Recuo Poki obrigatório de 68px no mobile */
+    /* HUD Superior de Controles — Recuo de segurança Poki 68px no mobile */
     .hud {
       position: fixed;
       top: 14px;
@@ -150,32 +168,36 @@
 
     .hud-btn {
       background: rgba(21, 28, 74, 0.85);
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(131, 56, 252, 0.4);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border-radius: 9999px;
-      padding: 8px 16px;
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 0.92rem;
+      color: var(--white);
+      font-family: 'Baloo 2', system-ui, sans-serif;
       font-weight: 700;
-      color: #fff;
+      font-size: 0.95rem;
+      padding: 8px 16px;
+      border-radius: 9999px;
       display: flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-      touch-action: manipulation;
+      transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .hud-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--yellow);
     }
 
     .hud-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.95);
     }
 
     .hud-btn.active {
-      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      background: linear-gradient(135deg, #8338fc, #289afd);
       border-color: #ffd043;
-      box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+      box-shadow: 0 0 16px rgba(131, 56, 252, 0.6);
     }
 
     .hud-badge {
@@ -194,26 +216,26 @@
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
 
-    /* Notificação flutuante de afeto */
-    .toast-msg {
+    /* Pílula de Nome da Forma / Notificação */
+    .shape-pill {
       position: fixed;
       top: 75px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.95);
       color: #3b1464;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      padding: 8px 22px;
+      padding: 8px 24px;
       border-radius: 9999px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
       pointer-events: none;
       opacity: 0;
       transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
       z-index: 20;
     }
 
-    .toast-msg.show {
+    .shape-pill.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
@@ -236,7 +258,7 @@
     .splash .logo { width: min(54vw, 240px); height: auto; margin-top: 20px; animation: rise 0.8s ease 0.7s both; }
     .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; padding-left: 0.38em; color: var(--lav); animation: rise 0.8s ease 1.1s both; }
     .load { text-align: center; }
-    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(1.8rem, 7vw, 2.8rem); line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
     .load .tag { margin: 12px 0 0; color: var(--lav); font-size: 1.05rem; }
     .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
     .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--purple), var(--blue)); }
@@ -259,8 +281,8 @@
       <p class="sub">STUDIO</p>
     </div>
     <div class="ph load off">
-      <h1 id="kl-name">KRUUJ Baby Sinfonia</h1>
-      <p class="tag" id="kl-tag">Toque nas estrelas e ouça a magia.</p>
+      <h1 id="kl-name">KRUUJ Baby Sinfonia & Formas</h1>
+      <p class="tag" id="kl-tag">Toque nas formas e ouça a magia musical.</p>
       <div class="track">
         <div class="fill" id="kl-fill"></div>
         <img class="rider" id="kl-rider" alt="" src="/kruuj-avatar.png">
@@ -275,12 +297,10 @@
   <header class="hud">
     <div class="hud-group">
       <button class="hud-btn active" id="btnSoundMode" onclick="toggleInstrument()" title="Trocar Instrumento">
-        <span id="soundIcon">🔔</span>
-        <span id="soundLabel">Sinos</span>
+        <span id="soundLabel">Sinos 🔔</span>
       </button>
       <button class="hud-btn" id="btnLullaby" onclick="toggleLullaby()" title="Canção de Ninar Automática">
-        <span>✨</span>
-        <span id="lullabyLabel">Ninar</span>
+        <span id="lullabyLabel">Ninar ✨</span>
       </button>
     </div>
     <div class="hud-group">
@@ -291,7 +311,8 @@
     </div>
   </header>
 
-  <div class="toast-msg" id="toastMsg">Que fofo! ❤️</div>
+  <!-- Pílula Flutuante -->
+  <div class="shape-pill" id="shapePill">Coração Rosa! 💕</div>
 
   <!-- Canvas Principal -->
   <canvas id="gameCanvas"></canvas>
@@ -300,7 +321,6 @@
     // ==========================================
     // 1. ÁUDIO SINTÉTICO (WEBAUDIO PENTATÔNICO)
     // ==========================================
-    // Escala Pentatônica Maior de Dó (C4 até C6) — 100% harmoniosa e doce para bebês
     const PENTATONIC_FREQS = [
       261.63, // C4
       293.66, // D4
@@ -316,11 +336,11 @@
     ];
 
     let audioCtx = null;
-    let currentInstrument = 0; // 0: Sinos (Celeste), 1: Caixinha de Música, 2: Xilofone Mágico
+    let currentInstrument = 0; // 0: Sinos (Celeste), 1: Caixinha, 2: Xilofone
     const INSTRUMENTS = [
-      { id: 'chimes', icon: '🔔', labelKey: 'modeChimes' },
-      { id: 'box', icon: '🎵', labelKey: 'modeBox' },
-      { id: 'xylo', icon: '🌈', labelKey: 'modeXylo' }
+      { id: 'chimes', labelKey: 'modeChimes' },
+      { id: 'box', labelKey: 'modeBox' },
+      { id: 'xylo', labelKey: 'modeXylo' }
     ];
 
     function initAudio() {
@@ -351,7 +371,7 @@
         osc1.frequency.setValueAtTime(freq, now);
 
         osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(freq * 2.002, now); // Leve detune cintilante
+        osc2.frequency.setValueAtTime(freq * 2.002, now); // Cintilante
 
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.exponentialRampToValueAtTime(0.28, now + 0.02);
@@ -367,7 +387,7 @@
         osc2.stop(now + 1.5 * durationMultiplier);
 
       } else if (currentInstrument === 1) {
-        // --- MODO 2: CAIXINHA DE MÚSICA DE NINAR (Music Box) ---
+        // --- MODO 2: CAIXINHA DE MÚSICA (Music Box) ---
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
@@ -385,7 +405,7 @@
         osc.stop(now + 1.0 * durationMultiplier);
 
       } else {
-        // --- MODO 3: XILOFONE MÁGICO DO ARCO-ÍRIS ---
+        // --- MODO 3: XILOFONE MÁGICO (Rainbow Xylophone) ---
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
@@ -404,69 +424,96 @@
       }
     }
 
+    // Harmonia própria para as Formas Geométricas
+    const SHAPE_SOUNDS = {
+      heart: [329.63, 440.00, 659.25],   // E4, A4, E5 (Doce e afetuoso)
+      star: [392.00, 523.25, 783.99],    // G4, C5, G5 (Brilhante e cintilante)
+      circle: [261.63, 392.00, 523.25],  // C4, G4, C5 (Acolhedor)
+      moon: [440.00, 587.33, 880.00],    // A4, D5, A5 (Místico suave)
+      cloud: [293.66, 440.00, 587.33],   // D4, A4, D5 (Macio)
+      triangle: [349.23, 440.00, 698.46] // F4, A4, F5 (Alegre saltitante)
+    };
+
+    function playShapeSound(shapeType) {
+      initAudio();
+      if (!audioCtx) return;
+
+      const freqs = SHAPE_SOUNDS[shapeType] || [440, 554, 659];
+      const now = audioCtx.currentTime;
+
+      freqs.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = currentInstrument === 2 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+
+        gain.gain.setValueAtTime(0.001, now + idx * 0.04);
+        gain.gain.linearRampToValueAtTime(0.3, now + idx * 0.04 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + 0.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now + idx * 0.04);
+        osc.stop(now + idx * 0.04 + 0.85);
+      });
+    }
+
     // Risadinha / Piu-piu amigável da Corujinha
     function playOwlCheerSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
-      // Trinado de flauta ascendente
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(659.25, now); // E5
-      osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
-      osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.28); // E6
+      osc.frequency.setValueAtTime(659.25, now);
+      osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.14);
+      osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.26);
 
       gain.gain.setValueAtTime(0.001, now);
       gain.gain.linearRampToValueAtTime(0.3, now + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.42);
+      osc.stop(now + 0.4);
     }
 
-    // Estouro de bolha com nota cristalina
-    function playBubblePopSound(freqIdx) {
+    // Estouro de forma (pop estelar cristalino)
+    function playPopExplosionSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      const baseFreq = PENTATONIC_FREQS[freqIdx % PENTATONIC_FREQS.length];
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq * 0.7, now);
-      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.08);
+      osc.frequency.setValueAtTime(450, now);
+      osc.frequency.exponentialRampToValueAtTime(1250, now + 0.1);
 
       gain.gain.setValueAtTime(0.001, now);
       gain.gain.linearRampToValueAtTime(0.32, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.26);
+      osc.stop(now + 0.3);
     }
 
     // ==========================================
-    // 2. SISTEMA DE CANÇÃO DE NINAR AUTOMÁTICA
+    // 2. SISTEMA DE CANÇÃO DE NINAR
     // ==========================================
     let isLullabyPlaying = false;
     let lullabyTimer = null;
-    const LULLABY_NOTES = [
-      0, 0, 4, 4, 5, 5, 4, // Twinkle, twinkle, little star
-      3, 3, 2, 2, 1, 1, 0, // How I wonder what you are
-      4, 4, 3, 3, 2, 2, 1, // Up above the world so high
-      4, 4, 3, 3, 2, 2, 1, // Like a diamond in the sky
-      0, 0, 4, 4, 5, 5, 4, // Twinkle, twinkle, little star
-      3, 3, 2, 2, 1, 1, 0  // How I wonder what you are
-    ];
+    const LULLABY_SEQUENCE = [4, 5, 7, 5, 4, 2, 4, 5, 7, 8, 7, 5, 4, 2, 0, 2, 4];
     let lullabyStep = 0;
 
     function toggleLullaby() {
@@ -477,9 +524,8 @@
 
       if (isLullabyPlaying) {
         btn.classList.add('active');
-        lbl.textContent = tG.lullabyOff;
-        showToast('✨ ' + tG.lullabyOn);
-        playLullabyStep();
+        lbl.textContent = tG.lullabyOn;
+        scheduleNextLullabyNote();
       } else {
         btn.classList.remove('active');
         lbl.textContent = tG.lullaby;
@@ -487,37 +533,34 @@
       }
     }
 
-    function playLullabyStep() {
+    function scheduleNextLullabyNote() {
       if (!isLullabyPlaying) return;
-      const noteIdx = LULLABY_NOTES[lullabyStep % LULLABY_NOTES.length];
+      const noteIdx = LULLABY_SEQUENCE[lullabyStep % LULLABY_SEQUENCE.length];
+      lullabyStep++;
       playNote(noteIdx, 1.4);
 
-      // Anima a corujinha no ritmo da canção
-      owl.bounce();
-
-      // Cria pulso visual de estrela no céu
+      // Gera pequenas estrelas mágicas no topo da tela
       createStarBurst(
-        canvas.width * 0.5 + (Math.sin(lullabyStep) * canvas.width * 0.3),
-        canvas.height * 0.35 + (Math.cos(lullabyStep) * canvas.height * 0.15),
-        '#ffd043'
+        Math.random() * (width * 0.8) + width * 0.1,
+        Math.random() * (height * 0.3) + 70,
+        '#fef08a',
+        6
       );
 
-      lullabyStep++;
-      lullabyTimer = setTimeout(playLullabyStep, 680);
+      const delay = 650 + Math.random() * 250;
+      lullabyTimer = setTimeout(scheduleNextLullabyNote, delay);
     }
 
     function toggleInstrument() {
       initAudio();
       currentInstrument = (currentInstrument + 1) % INSTRUMENTS.length;
       const inst = INSTRUMENTS[currentInstrument];
-      document.getElementById('soundIcon').textContent = inst.icon;
       document.getElementById('soundLabel').textContent = tG[inst.labelKey];
-      playNote(4, 1.0);
-      showToast(inst.icon + ' ' + tG[inst.labelKey]);
+      playNote(5, 1.2);
     }
 
     // ==========================================
-    // 3. CENÁRIO VISUAL E ENTIDADES (CANVAS)
+    // 3. CENÁRIO, DESENHO E ENTIDADES
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -534,30 +577,30 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Feedback de Toast amigável
-    let toastTimeout = null;
-    function showToast(text) {
-      const toast = document.getElementById('toastMsg');
-      toast.textContent = text;
-      toast.classList.add('show');
-      if (toastTimeout) clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-      }, 1800);
+    // Pílula com o nome da forma
+    let pillTimer = null;
+    function showShapePill(text) {
+      const pill = document.getElementById('shapePill');
+      pill.textContent = text;
+      pill.classList.add('show');
+      if (pillTimer) clearTimeout(pillTimer);
+      pillTimer = setTimeout(() => {
+        pill.classList.remove('show');
+      }, 1600);
     }
 
-    function addScore(n = 1) {
-      starScore += n;
+    function addScore(pts = 1) {
+      starScore += pts;
       document.getElementById('starCount').textContent = starScore;
     }
 
-    // Partículas e Efeitos Visuais
+    // Partículas
     let particles = [];
-    let touchRipples = [];
     let touchTrail = [];
+    let touchRipples = [];
 
     class Particle {
-      constructor(x, y, color, speed = 4, size = 6) {
+      constructor(x, y, color, speed = 4, size = 7, shape = 'star') {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -565,28 +608,33 @@
         const spd = Math.random() * speed + 1;
         this.vx = Math.cos(angle) * spd;
         this.vy = Math.sin(angle) * spd - 1;
-        this.size = Math.random() * size + 3;
+        this.size = Math.random() * size + 4;
         this.life = 1.0;
-        this.decay = Math.random() * 0.02 + 0.015;
-        this.shape = Math.random() > 0.4 ? 'star' : 'circle';
+        this.decay = Math.random() * 0.025 + 0.015;
+        this.shape = shape;
+        this.rot = Math.random() * Math.PI;
       }
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy += 0.04; // Leve gravidade
         this.life -= this.decay;
-        this.size *= 0.98;
+        this.rot += 0.04;
       }
       draw(ctx) {
         if (this.life <= 0) return;
         ctx.save();
         ctx.globalAlpha = Math.max(0, this.life);
         ctx.fillStyle = this.color;
-        if (this.shape === 'star') {
-          drawStar(ctx, this.x, this.y, 5, this.size, this.size * 0.45);
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+
+        if (this.shape === 'heart') {
+          drawHeart(ctx, 0, 0, this.size);
+        } else if (this.shape === 'star') {
+          drawStar(ctx, 0, 0, 5, this.size, this.size * 0.45);
         } else {
           ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.restore();
@@ -615,475 +663,418 @@
       ctx.fill();
     }
 
-    function createStarBurst(x, y, color = '#ffd043', count = 12) {
+    function drawHeart(ctx, x, y, size) {
+      ctx.beginPath();
+      const topCurveHeight = size * 0.3;
+      ctx.moveTo(x, y + topCurveHeight);
+      ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+      ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + (size + topCurveHeight) / 2, x, y + size);
+      ctx.bezierCurveTo(x, y + (size + topCurveHeight) / 2, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+      ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+      ctx.fill();
+    }
+
+    function createStarBurst(x, y, color, count = 14, shape = 'star') {
       for (let i = 0; i < count; i++) {
-        particles.push(new Particle(x, y, color, 5, 8));
+        particles.push(new Particle(x, y, color, 5, 8, shape));
       }
     }
 
-    // Ondulações de toque
-    class Ripple {
+    // Ondulação luminosa quando o bebê toca
+    class TouchRipple {
       constructor(x, y, color) {
         this.x = x;
         this.y = y;
+        this.radius = 10;
+        this.maxRadius = Math.random() * 40 + 70;
         this.color = color;
-        this.radius = 5;
-        this.maxRadius = 75;
         this.life = 1.0;
       }
       update() {
-        this.radius += 2.5;
-        this.life = 1.0 - (this.radius / this.maxRadius);
+        this.radius += (this.maxRadius - this.radius) * 0.12;
+        this.life -= 0.035;
       }
       draw(ctx) {
         if (this.life <= 0) return;
         ctx.save();
-        ctx.globalAlpha = this.life * 0.7;
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 3.5;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = this.color;
+        ctx.globalAlpha = Math.max(0, this.life * 0.6);
+        ctx.lineWidth = 4 * this.life;
         ctx.stroke();
         ctx.restore();
       }
     }
 
-    // Nuvens Dorminhocas Flutuantes
-    class MusicalCloud {
-      constructor(xRel, yRel, noteIdx, color, label) {
-        this.xRel = xRel;
-        this.yRel = yRel;
-        this.noteIdx = noteIdx;
-        this.color = color;
-        this.label = label;
-        this.scale = 1.0;
+    // ==========================================
+    // 4. FORMAS GEOMÉTRICAS MÁGICAS FLUTUANTES
+    // ==========================================
+    const SHAPE_DEFS = [
+      { type: 'heart', color: '#ff65a6', glow: '#fda4af', i18nKey: 'heart' },
+      { type: 'star', color: '#ffd043', glow: '#fef08a', i18nKey: 'star' },
+      { type: 'circle', color: '#f59e0b', glow: '#fde68a', i18nKey: 'circle' },
+      { type: 'moon', color: '#a78bfa', glow: '#ddd6fe', i18nKey: 'moon' },
+      { type: 'cloud', color: '#38bdf8', glow: '#bae6fd', i18nKey: 'cloud' },
+      { type: 'triangle', color: '#48e59b', glow: '#a7f3d0', i18nKey: 'triangle' }
+    ];
+
+    class MagicShape {
+      constructor(def = null) {
+        this.def = def || SHAPE_DEFS[Math.floor(Math.random() * SHAPE_DEFS.length)];
+        this.radius = Math.random() * 15 + 50; // Tamanho generoso para toque de bebês
+        this.x = Math.random() * (width - this.radius * 2) + this.radius;
+        this.y = Math.random() * (height - this.radius * 3) + this.radius + 60;
+        this.vx = (Math.random() - 0.5) * 1.1;
+        this.vy = (Math.random() - 0.5) * 1.1;
+        this.scaleX = 1.0;
+        this.scaleY = 1.0;
+        this.rot = (Math.random() - 0.5) * 0.2;
+        this.rotSpeed = (Math.random() - 0.5) * 0.012;
+        this.taps = 0;
         this.wobble = Math.random() * Math.PI * 2;
-        this.wobbleSpeed = 0.02 + Math.random() * 0.01;
-        this.targetScale = 1.0;
-      }
-      getPos() {
-        return {
-          x: width * this.xRel + Math.sin(this.wobble) * 12,
-          y: height * this.yRel + Math.cos(this.wobble * 0.8) * 8
-        };
       }
       hitTest(px, py) {
-        const pos = this.getPos();
-        const dist = Math.hypot(px - pos.x, py - pos.y);
-        return dist < 65 * this.scale;
+        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.3;
       }
       touch() {
-        this.scale = 1.35;
-        playNote(this.noteIdx, 1.2);
-        const pos = this.getPos();
-        createStarBurst(pos.x, pos.y, this.color, 14);
-        addScore(1);
+        this.taps++;
+        playShapeSound(this.def.type);
+        showShapePill(tG[this.def.i18nKey]);
+
+        // Squash & stretch elástico
+        this.scaleX = 1.45;
+        this.scaleY = 0.65;
+        setTimeout(() => {
+          this.scaleX = 0.8;
+          this.scaleY = 1.3;
+          setTimeout(() => {
+            this.scaleX = 1.0;
+            this.scaleY = 1.0;
+          }, 140);
+        }, 120);
+
+        createStarBurst(this.x, this.y, this.def.color, 12, this.def.type);
+        addScore(2);
+
+        // Dança da Corujinha
+        owl.celebrate();
+
+        // Se tocar 2 vezes, a forma explode com som mágico e renasce!
+        if (this.taps >= 2) {
+          playPopExplosionSound();
+          createStarBurst(this.x, this.y, this.def.color, 24, this.def.type);
+          this.respawn();
+        }
+      }
+      respawn() {
+        this.def = SHAPE_DEFS[Math.floor(Math.random() * SHAPE_DEFS.length)];
+        this.x = Math.random() * (width - this.radius * 2) + this.radius;
+        this.y = height + this.radius + 20;
+        this.vy = -Math.random() * 1.4 - 0.6;
+        this.vx = (Math.random() - 0.5) * 1.1;
+        this.taps = 0;
       }
       update() {
-        this.wobble += this.wobbleSpeed;
-        this.scale += (this.targetScale - this.scale) * 0.1;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rot += this.rotSpeed;
+        this.wobble += 0.025;
+
+        // Bate suavemente nas bordas
+        if (this.x < this.radius) { this.x = this.radius; this.vx = Math.abs(this.vx); }
+        if (this.x > width - this.radius) { this.x = width - this.radius; this.vx = -Math.abs(this.vx); }
+        if (this.y < this.radius + 65) { this.y = this.radius + 65; this.vy = Math.abs(this.vy); }
+        if (this.y > height - this.radius - 20) { this.y = height - this.radius - 20; this.vy = -Math.abs(this.vy); }
       }
       draw(ctx) {
-        const pos = this.getPos();
         ctx.save();
-        ctx.translate(pos.x, pos.y);
-        ctx.scale(this.scale, this.scale);
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.scale(this.scaleX, this.scaleY);
 
-        // Brilho exterior suave
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 20;
+        ctx.shadowColor = this.def.glow;
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = this.def.color;
 
-        // Desenho da Nuvem Fofa
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(0, 0, 36, 0, Math.PI * 2);
-        ctx.arc(-26, 6, 26, 0, Math.PI * 2);
-        ctx.arc(26, 6, 26, 0, Math.PI * 2);
-        ctx.arc(-14, 16, 24, 0, Math.PI * 2);
-        ctx.arc(14, 16, 24, 0, Math.PI * 2);
-        ctx.fill();
+        const r = this.radius;
+
+        if (this.def.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.def.type === 'heart') {
+          drawHeart(ctx, 0, -r * 0.4, r * 1.8);
+        } else if (this.def.type === 'star') {
+          drawStar(ctx, 0, 0, 5, r * 1.2, r * 0.55);
+        } else if (this.def.type === 'moon') {
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0.4 * Math.PI, 1.6 * Math.PI);
+          ctx.bezierCurveTo(r * 0.4, -r * 0.4, r * 0.4, r * 0.4, 0, r * 0.98);
+          ctx.fill();
+        } else if (this.def.type === 'cloud') {
+          ctx.beginPath();
+          ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+          ctx.arc(-r * 0.5, r * 0.1, r * 0.5, 0, Math.PI * 2);
+          ctx.arc(r * 0.5, r * 0.1, r * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.def.type === 'triangle') {
+          ctx.beginPath();
+          ctx.moveTo(0, -r);
+          ctx.lineTo(r, r * 0.85);
+          ctx.lineTo(-r, r * 0.85);
+          ctx.closePath();
+          ctx.fill();
+        }
 
         ctx.shadowBlur = 0;
 
-        // Olhinhos dorminhocos fofos
-        ctx.strokeStyle = '#1e1b4b';
-        ctx.lineWidth = 3;
+        // Rostinho Kawaii com olhinhos felizes
+        ctx.fillStyle = '#0f172a';
         ctx.beginPath();
-        // Olho esquerdo piscando (arco)
-        ctx.arc(-14, 2, 7, 0.2 * Math.PI, 0.8 * Math.PI);
-        // Olho direito piscando (arco)
-        ctx.arc(14, 2, 7, 0.2 * Math.PI, 0.8 * Math.PI);
-        ctx.stroke();
+        ctx.arc(-14, -4, 5, 0, Math.PI * 2);
+        ctx.arc(14, -4, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Brilho nos olhinhos
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-16, -6, 2, 0, Math.PI * 2);
+        ctx.arc(12, -6, 2, 0, Math.PI * 2);
+        ctx.fill();
 
         // Bochechas rosadas
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
-        ctx.arc(-22, 10, 5, 0, Math.PI * 2);
-        ctx.arc(22, 10, 5, 0, Math.PI * 2);
+        ctx.arc(-22, 4, 6, 0, Math.PI * 2);
+        ctx.arc(22, 4, 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Boquinha sorrindo
+        // Boquinha sorridente
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.arc(0, 8, 4, 0, Math.PI);
+        ctx.arc(0, 2, 8, 0.15 * Math.PI, 0.85 * Math.PI);
         ctx.stroke();
 
         ctx.restore();
       }
     }
 
-    // A Grande Lua Sorridente
-    const moon = {
-      xRel: 0.85,
-      yRel: 0.18,
-      radius: 46,
-      scale: 1.0,
-      wobble: 0,
+    const shapes = [];
+    for (let i = 0; i < 6; i++) {
+      shapes.push(new MagicShape(SHAPE_DEFS[i % SHAPE_DEFS.length]));
+    }
+
+    // ==========================================
+    // 5. CORUJINHA KRUUJ BEBÊ (Dançante e Fofa)
+    // ==========================================
+    class KruujOwlBaby {
+      constructor() {
+        this.wobble = 0;
+        this.scale = 1.0;
+        this.targetScale = 1.0;
+        this.wingFlap = 0;
+        this.isDancing = false;
+        this.cheerTimer = 0;
+        this.cheerWord = '';
+      }
       getPos() {
+        // Posicionada na parte inferior central/lateral com nuvem-berço
         return {
-          x: Math.min(width - 60, width * this.xRel),
-          y: Math.max(70, height * this.yRel + Math.sin(this.wobble) * 6)
+          x: width > 600 ? width * 0.18 : width * 0.5,
+          y: height - 100
         };
-      },
+      }
       hitTest(px, py) {
         const pos = this.getPos();
-        return Math.hypot(px - pos.x, py - pos.y) < this.radius * 1.3;
-      },
+        return Math.hypot(px - pos.x, py - pos.y) < 65;
+      }
+      celebrate() {
+        this.targetScale = 1.3;
+        setTimeout(() => { this.targetScale = 1.0; }, 240);
+        this.isDancing = true;
+        this.wingFlap = 1.0;
+        this.cheerTimer = 45;
+        const cheers = tG.owlCheer || ['Piu-piu!', 'Viva!'];
+        this.cheerWord = cheers[Math.floor(Math.random() * cheers.length)];
+      }
       touch() {
-        this.scale = 1.35;
-        playNote(7, 1.5);
-        setTimeout(() => playNote(9, 1.5), 140);
-        setTimeout(() => playNote(10, 1.8), 280);
+        playOwlCheerSound();
+        this.celebrate();
         const pos = this.getPos();
-        createStarBurst(pos.x, pos.y, '#ffd043', 20);
+        createStarBurst(pos.x, pos.y - 40, '#ffd043', 16, 'star');
+        createStarBurst(pos.x, pos.y - 40, '#ff65a6', 8, 'heart');
         addScore(3);
-        showToast('🌙 ' + tG.owlCheer[1]);
-      },
+      }
       update() {
-        this.wobble += 0.015;
-        this.scale += (1.0 - this.scale) * 0.1;
-      },
+        this.wobble += 0.04;
+        this.scale += (this.targetScale - this.scale) * 0.15;
+        if (this.isDancing) {
+          this.wingFlap = Math.sin(this.wobble * 4) * 0.4;
+          if (this.cheerTimer > 0) {
+            this.cheerTimer--;
+          } else {
+            this.isDancing = false;
+            this.wingFlap = 0;
+          }
+        }
+      }
       draw(ctx) {
         const pos = this.getPos();
         ctx.save();
         ctx.translate(pos.x, pos.y);
         ctx.scale(this.scale, this.scale);
 
-        // Halo de luz dourada
-        ctx.shadowColor = '#ffd043';
-        ctx.shadowBlur = 30;
-
-        // Corpo da Lua
-        ctx.fillStyle = '#ffeb79';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.shadowBlur = 0;
-
-        // Olhos kawaii com brilho
-        ctx.fillStyle = '#2d1b06';
-        ctx.beginPath();
-        ctx.arc(-14, -6, 6, 0, Math.PI * 2);
-        ctx.arc(14, -6, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Brilho nos olhos
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(-16, -8, 2.5, 0, Math.PI * 2);
-        ctx.arc(12, -8, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bochechas
-        ctx.fillStyle = '#ff9f9f';
-        ctx.beginPath();
-        ctx.arc(-22, 6, 7, 0, Math.PI * 2);
-        ctx.arc(22, 6, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sorriso largo doce
-        ctx.strokeStyle = '#2d1b06';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(0, 2, 12, 0.15 * Math.PI, 0.85 * Math.PI);
-        ctx.stroke();
-
-        ctx.restore();
-      }
-    };
-
-    // A Corujinha Bebê KRUUJ (Mascote Oficial)
-    const owl = {
-      x: 0,
-      y: 0,
-      scale: 1.0,
-      targetScale: 1.0,
-      bounceOffset: 0,
-      bounceSpeed: 0.04,
-      wingAngle: 0,
-      blinking: false,
-      lastBlink: 0,
-      sleepy: false,
-      idleTime: 0,
-      update() {
-        this.x = width * 0.5;
-        this.y = Math.min(height - 110, height * 0.76);
-        this.bounceOffset = Math.sin(Date.now() * 0.003) * 8;
-        this.scale += (this.targetScale - this.scale) * 0.1;
-
-        // Piscar aleatório
-        if (Date.now() - this.lastBlink > 3000 + Math.random() * 2000) {
-          this.blinking = true;
-          this.lastBlink = Date.now();
-          setTimeout(() => { this.blinking = false; }, 220);
-        }
-
-        // Bater de asinhas suave
-        this.wingAngle = Math.sin(Date.now() * 0.006) * 0.25;
-
-        // Verifica ociosidade para entrar em modo soneca fofo
-        this.idleTime += 0.016;
-        this.sleepy = (this.idleTime > 8.0);
-      },
-      bounce() {
-        this.targetScale = 1.25;
-        setTimeout(() => { this.targetScale = 1.0; }, 180);
-      },
-      touch() {
-        this.idleTime = 0;
-        this.sleepy = false;
-        this.targetScale = 1.45;
-        setTimeout(() => { this.targetScale = 1.0; }, 240);
-
-        playOwlCheerSound();
-        createStarBurst(this.x, this.y - 20, '#ff65a6', 22);
-        addScore(2);
-
-        const cheers = tG.owlCheer;
-        const msg = cheers[Math.floor(Math.random() * cheers.length)];
-        showToast('🦉 ' + msg);
-      },
-      hitTest(px, py) {
-        return Math.hypot(px - this.x, py - (this.y + this.bounceOffset)) < 75 * this.scale;
-      },
-      draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y + this.bounceOffset);
-        ctx.scale(this.scale, this.scale);
-
-        // Ninho de Nuvem Mágica fofinha embaixo da coruja
-        ctx.fillStyle = '#ffffffbb';
+        // Nuvens-berço sob a corujinha
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.shadowColor = '#8338fc';
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 16;
         ctx.beginPath();
-        ctx.ellipse(0, 52, 70, 24, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 32, 54, 18, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Corpo da Corujinha Bebê (Lilás suave e acolhedor)
+        // Balanço suave
+        const bob = Math.sin(this.wobble) * 4;
+        ctx.translate(0, bob);
+
+        // Corpinho da Corujinha (Roxo KRUUJ)
         ctx.fillStyle = '#8338fc';
         ctx.beginPath();
-        ctx.ellipse(0, 0, 48, 54, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 36, 42, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Peninhas do topo da cabeça (orelhinhas de coruja fofas)
+        // Orelhinhas / Peninhas
+        ctx.fillStyle = '#6a28d6';
         ctx.beginPath();
-        ctx.moveTo(-32, -40);
-        ctx.lineTo(-44, -62);
-        ctx.lineTo(-18, -48);
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(18, -48);
-        ctx.lineTo(44, -62);
-        ctx.lineTo(32, -40);
-        ctx.fill();
-
-        // Barriguinha branca macia com corações
-        ctx.fillStyle = '#f5f3ff';
-        ctx.beginPath();
-        ctx.ellipse(0, 14, 34, 38, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Peninhas estilizadas na barriguinha
-        ctx.strokeStyle = '#c4b5fd';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(-12, 12, 6, 0.1 * Math.PI, 0.9 * Math.PI);
-        ctx.arc(12, 12, 6, 0.1 * Math.PI, 0.9 * Math.PI);
-        ctx.arc(0, 26, 6, 0.1 * Math.PI, 0.9 * Math.PI);
-        ctx.stroke();
-
-        // Asinhas batendo com charme
-        ctx.fillStyle = '#6d28d9';
-        // Asa esquerda
-        ctx.save();
-        ctx.translate(-42, 6);
-        ctx.rotate(-this.wingAngle - 0.2);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 16, 30, -0.3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Asa direita
-        ctx.save();
-        ctx.translate(42, 6);
-        ctx.rotate(this.wingAngle + 0.2);
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 16, 30, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Olhos da Coruja:
-        if (this.sleepy || this.blinking) {
-          // Olhinhos fechados dormindo ("^_^")
-          ctx.strokeStyle = '#2e1065';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(-20, -10, 14, 0.2 * Math.PI, 0.8 * Math.PI);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(20, -10, 14, 0.2 * Math.PI, 0.8 * Math.PI);
-          ctx.stroke();
-
-          if (this.sleepy) {
-            // Zzz flutuando
-            ctx.fillStyle = '#ffd043';
-            ctx.font = 'bold 18px "Baloo 2", sans-serif';
-            ctx.fillText('Zzz...', 32, -38);
-          }
-        } else {
-          // Olhos Grandes Kawaii KRUUJ
-          // Fundo branco dos olhos
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-20, -10, 18, 0, Math.PI * 2);
-          ctx.arc(20, -10, 18, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Íris Azul Céu Cintilante
-          ctx.fillStyle = '#289afd';
-          ctx.beginPath();
-          ctx.arc(-20, -10, 11, 0, Math.PI * 2);
-          ctx.arc(20, -10, 11, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Pupila preta
-          ctx.fillStyle = '#0f172a';
-          ctx.beginPath();
-          ctx.arc(-20, -10, 7, 0, Math.PI * 2);
-          ctx.arc(20, -10, 7, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Brilho duplo estelar nos olhos
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-23, -13, 4, 0, Math.PI * 2);
-          ctx.arc(-17, -7, 2, 0, Math.PI * 2);
-          ctx.arc(17, -13, 4, 0, Math.PI * 2);
-          ctx.arc(23, -7, 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Bochechinhas vermelhas fofas
-        ctx.fillStyle = '#ff8cb0';
-        ctx.beginPath();
-        ctx.arc(-30, 8, 7, 0, Math.PI * 2);
-        ctx.arc(30, 8, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Biquinho fofo de bebê (dourado/laranja)
-        ctx.fillStyle = '#fda41d';
-        ctx.beginPath();
-        ctx.moveTo(-7, -4);
-        ctx.lineTo(7, -4);
-        ctx.lineTo(0, 9);
+        ctx.moveTo(-24, -26);
+        ctx.lineTo(-32, -50);
+        ctx.lineTo(-12, -36);
         ctx.closePath();
         ctx.fill();
 
-        // Patinhas laranjas fofas
+        ctx.beginPath();
+        ctx.moveTo(24, -26);
+        ctx.lineTo(32, -50);
+        ctx.lineTo(12, -36);
+        ctx.closePath();
+        ctx.fill();
+
+        // Asinhas
+        ctx.fillStyle = '#6a28d6';
+        ctx.save();
+        ctx.translate(-30, 2);
+        ctx.rotate(-0.2 + this.wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 10, 20, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(30, 2);
+        ctx.rotate(0.2 - this.wingFlap);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 10, 20, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Peito Macio (Lilás claro)
+        ctx.fillStyle = '#d8d4fd';
+        ctx.beginPath();
+        ctx.ellipse(0, 10, 22, 26, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Coraçõezinhos nas penas do peito
+        ctx.fillStyle = '#ff65a6';
+        drawHeart(ctx, -6, 2, 8);
+        drawHeart(ctx, 6, 2, 8);
+        drawHeart(ctx, 0, 14, 8);
+
+        // Olhões Grandes e Brilhantes
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-14, -10, 15, 0, Math.PI * 2);
+        ctx.arc(14, -10, 15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Íris Dourada KRUUJ
         ctx.fillStyle = '#fda41d';
         ctx.beginPath();
-        ctx.ellipse(-14, 48, 8, 5, 0, 0, Math.PI * 2);
-        ctx.ellipse(14, 48, 8, 5, 0, 0, Math.PI * 2);
+        ctx.arc(-14, -10, 9, 0, Math.PI * 2);
+        ctx.arc(14, -10, 9, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.restore();
-      }
-    };
-
-    // Inicialização das 4 Nuvens Mágicas Musicais
-    const clouds = [
-      new MusicalCloud(0.18, 0.22, 1, '#fbcfe8', 'D4'),
-      new MusicalCloud(0.42, 0.16, 2, '#bae6fd', 'E4'),
-      new MusicalCloud(0.64, 0.24, 3, '#fef08a', 'G4'),
-      new MusicalCloud(0.30, 0.38, 5, '#e9d5ff', 'C5')
-    ];
-
-    // Bolhas Musicais Flutuantes que surgem da parte inferior
-    class MusicalBubble {
-      constructor() {
-        this.radius = Math.random() * 22 + 28;
-        this.x = Math.random() * (width - 80) + 40;
-        this.y = height + this.radius + Math.random() * 50;
-        this.speed = Math.random() * 1.2 + 0.6;
-        this.wobble = Math.random() * Math.PI * 2;
-        this.color = ['#ff8cb0', '#38bdf8', '#a78bfa', '#fde047', '#4ade80'][Math.floor(Math.random() * 5)];
-        this.noteIdx = Math.floor(Math.random() * PENTATONIC_FREQS.length);
-      }
-      update() {
-        this.y -= this.speed;
-        this.x += Math.sin(this.wobble) * 1.2;
-        this.wobble += 0.03;
-      }
-      draw(ctx) {
-        ctx.save();
+        // Pupila
+        ctx.fillStyle = '#151c4a';
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color + '55';
+        ctx.arc(-14, -10, 5, 0, Math.PI * 2);
+        ctx.arc(14, -10, 5, 0, Math.PI * 2);
         ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = this.color;
-        ctx.stroke();
 
-        // Brilho da bolha
+        // Brilho dos Olhos
+        ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(this.x - this.radius * 0.35, this.y - this.radius * 0.35, this.radius * 0.22, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffffaa';
+        ctx.arc(-16, -13, 3, 0, Math.PI * 2);
+        ctx.arc(12, -13, 3, 0, Math.PI * 2);
         ctx.fill();
+
+        // Bochechas rosadas
+        ctx.fillStyle = 'rgba(255, 101, 166, 0.65)';
+        ctx.beginPath();
+        ctx.arc(-24, 4, 7, 0, Math.PI * 2);
+        ctx.arc(24, 4, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Biquinho fofo de bebê
+        ctx.fillStyle = '#ffd043';
+        ctx.beginPath();
+        ctx.moveTo(-5, -4);
+        ctx.lineTo(5, -4);
+        ctx.lineTo(0, 5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Balão de comemoração
+        if (this.cheerTimer > 0) {
+          ctx.save();
+          ctx.translate(0, -64);
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.roundRect(-45, -20, 90, 30, 15);
+          ctx.fill();
+          ctx.fillStyle = '#8338fc';
+          ctx.font = 'bold 16px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(this.cheerWord, 0, 1);
+          ctx.restore();
+        }
+
         ctx.restore();
       }
     }
+    const owl = new KruujOwlBaby();
 
-    let bubbles = [];
-    setInterval(() => {
-      if (bubbles.length < 8) {
-        bubbles.push(new MusicalBubble());
-      }
-    }, 1400);
-
-    // Estrelas Cintilantes no Fundo Cósmico
+    // ==========================================
+    // 6. ESTRELAS DE FUNDO E NUVENS SUAVES
+    // ==========================================
     const bgStars = [];
     for (let i = 0; i < 45; i++) {
       bgStars.push({
         x: Math.random(),
         y: Math.random(),
-        size: Math.random() * 3 + 1.5,
+        size: Math.random() * 2.2 + 1,
         twinkle: Math.random() * Math.PI * 2,
-        twinkleSpeed: Math.random() * 0.03 + 0.01
+        twinkleSpeed: Math.random() * 0.04 + 0.01
       });
     }
 
     // ==========================================
-    // 4. INTERAÇÃO TÁTIL MULTITOUCH E GESTOS
+    // 7. TOQUE, ARRASTE E INTERAÇÃO
     // ==========================================
     function handlePointerHit(x, y) {
       initAudio();
-      owl.idleTime = 0;
-      owl.sleepy = false;
-
-      // Adiciona ondulação visual imediata de alta resposta sensorial
-      touchRipples.push(new Ripple(x, y, '#ff8cb0'));
+      touchRipples.push(new TouchRipple(x, y, '#ffd043'));
 
       // 1. Testa toque na Corujinha
       if (owl.hitTest(x, y)) {
@@ -1091,52 +1082,32 @@
         return;
       }
 
-      // 2. Testa toque na Lua
-      if (moon.hitTest(x, y)) {
-        moon.touch();
-        return;
-      }
-
-      // 3. Testa toque nas Nuvens
-      for (const cloud of clouds) {
-        if (cloud.hitTest(x, y)) {
-          cloud.touch();
+      // 2. Testa toque nas Formas Geométricas
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        const sh = shapes[i];
+        if (sh.hitTest(x, y)) {
+          sh.touch();
           return;
         }
       }
 
-      // 4. Testa toque nas Bolhas
-      for (let i = bubbles.length - 1; i >= 0; i--) {
-        const b = bubbles[i];
-        if (Math.hypot(b.x - x, b.y - y) < b.radius + 25) {
-          bubbles.splice(i, 1);
-          playBubblePopSound(b.noteIdx);
-          createStarBurst(b.x, b.y, b.color, 12);
-          addScore(1);
-          return;
-        }
-      }
-
-      // 5. Toque livre no céu estrelado: toca nota proporcional à altura da tela!
-      // Quanto mais alto, mais agudo; quanto mais baixo, mais grave.
+      // 3. Toque livre no céu: toca nota pentatônica pela altura
       const normalizedY = 1.0 - Math.max(0, Math.min(1, y / height));
       const noteIdx = Math.floor(normalizedY * PENTATONIC_FREQS.length);
       playNote(noteIdx, 1.2);
 
-      // Partículas coloridas onde tocou
       const colors = ['#f472b6', '#38bdf8', '#a78bfa', '#fbbf24', '#4ade80'];
       const pickColor = colors[Math.floor(Math.random() * colors.length)];
-      createStarBurst(x, y, pickColor, 8);
+      createStarBurst(x, y, pickColor, 8, 'star');
       addScore(1);
     }
 
-    // Arrastar dedinho (Rastro Luminoso Musical)
     let lastDragNoteTime = 0;
     function handlePointerDrag(x, y) {
       touchTrail.push({ x, y, life: 1.0, color: '#fde047' });
 
       const now = performance.now();
-      if (now - lastDragNoteTime > 120) {
+      if (now - lastDragNoteTime > 130) {
         lastDragNoteTime = now;
         const normalizedY = 1.0 - Math.max(0, Math.min(1, y / height));
         const noteIdx = Math.floor(normalizedY * PENTATONIC_FREQS.length);
@@ -1144,9 +1115,7 @@
       }
     }
 
-    // Eventos de Pointer / Toque / Mouse
     let isPointerDown = false;
-
     window.addEventListener('pointerdown', (e) => {
       isPointerDown = true;
       handlePointerHit(e.clientX, e.clientY);
@@ -1161,7 +1130,7 @@
     window.addEventListener('pointerup', () => { isPointerDown = false; });
     window.addEventListener('pointercancel', () => { isPointerDown = false; });
 
-    // Suporte multitouch simultâneo para dedinhos e mãozinhas de bebês
+    // Suporte multitouch simultâneo
     window.addEventListener('touchstart', (e) => {
       e.preventDefault();
       for (let i = 0; i < e.touches.length; i++) {
@@ -1179,7 +1148,7 @@
     }, { passive: false });
 
     // ==========================================
-    // 5. LOOP DE RENDERIZAÇÃO (60FPS FLUIDO)
+    // 8. LOOP DE ANIMAÇÃO
     // ==========================================
     function gameLoop() {
       ctx.clearRect(0, 0, width, height);
@@ -1204,27 +1173,18 @@
       }
       ctx.globalAlpha = 1.0;
 
-      // Lua
-      moon.update();
-      moon.draw(ctx);
-
-      // Nuvens
-      for (const c of clouds) {
-        c.update();
-        c.draw(ctx);
-      }
-
-      // Bolhas
-      for (let i = bubbles.length - 1; i >= 0; i--) {
-        const b = bubbles[i];
-        b.update();
-        b.draw(ctx);
-        if (b.y + b.radius < -20) {
-          bubbles.splice(i, 1);
+      // Ondulações de Toque
+      for (let i = touchRipples.length - 1; i >= 0; i--) {
+        const rp = touchRipples[i];
+        rp.update();
+        if (rp.life <= 0) {
+          touchRipples.splice(i, 1);
+        } else {
+          rp.draw(ctx);
         }
       }
 
-      // Rastro Luminoso do Dedinho
+      // Rastro do dedinho
       for (let i = touchTrail.length - 1; i >= 0; i--) {
         const tr = touchTrail[i];
         tr.life -= 0.035;
@@ -1239,18 +1199,13 @@
         }
       }
 
-      // Ondulações de Toque
-      for (let i = touchRipples.length - 1; i >= 0; i--) {
-        const rp = touchRipples[i];
-        rp.update();
-        if (rp.life <= 0) {
-          touchRipples.splice(i, 1);
-        } else {
-          rp.draw(ctx);
-        }
+      // Formas Geométricas Flutuantes
+      for (const sh of shapes) {
+        sh.update();
+        sh.draw(ctx);
       }
 
-      // Corujinha KRUUJ Bebê
+      // Corujinha KRUUJ
       owl.update();
       owl.draw(ctx);
 
@@ -1270,7 +1225,7 @@
     requestAnimationFrame(gameLoop);
 
     // ==========================================
-    // 6. INTEGRAÇÃO KRUUJ SDK & LOADER
+    // 9. INTEGRAÇÃO KRUUJ SDK & LOADER
     // ==========================================
     const KruujLoader = (() => {
       const $ = id => document.getElementById(id);
@@ -1298,7 +1253,7 @@
         if (cfg.onComplete) cfg.onComplete();
       }
       async function start(c) {
-        cfg = { gameName: 'KRUUJ Baby Sinfonia', tagline: '', tips: [], splash: 2000, minTime: 2800, manual: false, onComplete() {}, ...c };
+        cfg = { gameName: 'KRUUJ Baby Sinfonia & Formas', tagline: '', tips: [], splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
         target = shown = 0; finished = closing = false;
         const kl = $('kl');
         if (!kl) return;
