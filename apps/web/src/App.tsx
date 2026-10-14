@@ -133,18 +133,23 @@ interface AdaptivePokiClusterProps {
   isBabyMode: boolean;
   onExit: () => void;
   onLock: () => void;
+  onUnlockRequest: () => void;
 }
 
 const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
   isScreenLocked,
   isBabyMode,
   onExit,
-  onLock
+  onLock,
+  onUnlockRequest
 }) => {
   const [side, setSide] = useState<'left' | 'right'>(() => {
     return (localStorage.getItem('kruuj_back_btn_side') as 'left' | 'right') || 'left';
   });
-  const [topY, setTopY] = useState<number>(14);
+  const [topY, setTopY] = useState<number>(() => {
+    const saved = localStorage.getItem('kruuj_back_btn_top');
+    return saved ? Math.max(10, Math.min(window.innerHeight - 60, parseInt(saved, 10))) : 14;
+  });
   const [isGhost, setIsGhost] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -171,6 +176,45 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
     };
   }, []);
 
+  // Rastreamento global por Window durante arraste para resposta tátil 100% fluida
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.hypot(dx, dy) > 5) {
+        dragRef.current.moved = true;
+        const newY = Math.max(8, Math.min(window.innerHeight - 52, dragRef.current.initialY + dy));
+        setTopY(newY);
+        resetIdleTimer();
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      setIsDragging(false);
+      if (dragRef.current.moved) {
+        const newSide = e.clientX > window.innerWidth / 2 ? 'right' : 'left';
+        setSide(newSide);
+        localStorage.setItem('kruuj_back_btn_side', newSide);
+        const finalY = Math.max(8, Math.min(window.innerHeight - 52, dragRef.current.initialY + (e.clientY - dragRef.current.startY)));
+        setTopY(finalY);
+        localStorage.setItem('kruuj_back_btn_top', String(finalY));
+        resetIdleTimer();
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [isDragging]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true);
     dragRef.current = {
@@ -180,31 +224,6 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
       moved: false
     };
     resetIdleTimer();
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    if (Math.hypot(dx, dy) > 6) {
-      dragRef.current.moved = true;
-      const newY = Math.max(10, Math.min(window.innerHeight - 50, dragRef.current.initialY + dy));
-      setTopY(newY);
-      resetIdleTimer();
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-
-    if (dragRef.current.moved) {
-      const newSide = e.clientX > window.innerWidth / 2 ? 'right' : 'left';
-      setSide(newSide);
-      localStorage.setItem('kruuj_back_btn_side', newSide);
-      resetIdleTimer();
-    }
   };
 
   return (
@@ -217,20 +236,18 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
           : { right: 'env(safe-area-inset-right, 0px)', left: 'auto' })
       }}
       onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
       onMouseEnter={resetIdleTimer}
       onTouchStart={resetIdleTimer}
     >
       {!isScreenLocked && (
         <button 
           className="kruuj-poki-back-btn" 
-          onClick={() => {
+          style={{ touchAction: 'none' }}
+          onClick={(e) => {
             if (dragRef.current.moved) return;
             onExit();
           }}
-          title="Arraste para mover ou toque para voltar ao portal"
+          title="Toque para sair ou arraste para mover"
         >
           {side === 'left' ? (
             <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
@@ -246,19 +263,20 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
         </button>
       )}
 
-      {/* Botão de Bloqueio/Desbloqueio Discreto (Modo Bebês) — Próximo ao de Voltar */}
+      {/* Botão de Bloqueio/Desbloqueio Discreto (Modo Bebês) — Reajustável e Arrastável */}
       {isBabyMode && (
         <button
           className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
-          onClick={() => {
+          style={{ touchAction: 'none' }}
+          onClick={(e) => {
             if (dragRef.current.moved) return;
             if (isScreenLocked) {
-              onExit(); // Abre o Parent Gate matemático
+              onUnlockRequest(); // Abre o Parent Gate matemático para desbloquear e continuar jogando!
             } else {
               onLock();
             }
           }}
-          title={isScreenLocked ? "Desbloquear com Desafio Matemático" : "Bloquear Tela para Bebê"}
+          title={isScreenLocked ? "Desbloquear com Desafio Matemático (Arraste para mover)" : "Bloquear Tela para Bebê (Arraste para mover)"}
         >
           <Lock style={{ width: 14, height: 14 }} className={isScreenLocked ? "text-rose-600 stroke-[2.8]" : "text-gray-700 stroke-[2.2]"} />
           <span className="kruuj-poki-lock-label">{isScreenLocked ? "Desbloquear" : "Bloquear"}</span>
@@ -1901,7 +1919,6 @@ export default function App() {
   // Gatilho de saída interceptado pelo Parent Gate no modo Bebês
   const triggerExitGame = () => {
     if (isScreenLocked || agePreference === 'bebes' || selectedGame?.category === 'Bebês') {
-      // Gerar cálculo aleatório para o cadeado (Parent Gate)
       const isMult = Math.random() > 0.4;
       const n1 = Math.floor(Math.random() * 5) + 2; // 2 a 6
       const n2 = Math.floor(Math.random() * 5) + 2;
@@ -1913,15 +1930,37 @@ export default function App() {
     }
   };
 
-  const handleParentGateSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Desbloqueia o jogo e CONTINUA JOGANDO (Permanece na partida sem sair para a Home)
+  const handleUnlockAndStay = () => {
     const expected = parentMath.op === 'x' ? parentMath.n1 * parentMath.n2 : parentMath.n1 + parentMath.n2;
-    if (parseInt(parentInput) === expected) {
+    if (parseInt(parentInput.trim(), 10) === expected) {
+      setIsScreenLocked(false);
+      setShowParentGate(false);
+      setParentInput('');
+    } else {
+      setParentInput('');
+      alert("Resposta incorreta. Tente novamente.");
+    }
+  };
+
+  // Desbloqueia e SAI PARA A HOME
+  const handleUnlockAndExit = () => {
+    const expected = parentMath.op === 'x' ? parentMath.n1 * parentMath.n2 : parentMath.n1 + parentMath.n2;
+    if (parseInt(parentInput.trim(), 10) === expected) {
+      setIsScreenLocked(false);
+      setShowParentGate(false);
+      setParentInput('');
       executeExitGame();
     } else {
       setParentInput('');
       alert("Resposta incorreta. Tente novamente.");
     }
+  };
+
+  const handleParentGateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Padrão: Desbloqueia e permanece no jogo!
+    handleUnlockAndStay();
   };
 
   // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
@@ -3532,6 +3571,15 @@ export default function App() {
                       }
                     } catch (e) {}
                   }}
+                  onUnlockRequest={() => {
+                    // Gera o desafio matemático para desbloqueio
+                    const isMult = Math.random() > 0.4;
+                    const n1 = Math.floor(Math.random() * 5) + 2;
+                    const n2 = Math.floor(Math.random() * 5) + 2;
+                    setParentMath({ n1, n2, op: isMult ? 'x' : '+' });
+                    setParentInput('');
+                    setShowParentGate(true);
+                  }}
                 />
 
                 {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
@@ -4928,7 +4976,9 @@ export default function App() {
               <Lock className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-extrabold text-pink-500">🔐 Área Exclusiva para Adultos</h3>
-            <p className="text-xs text-gray-400">Para garantir que o bebê continue brincando em total segurança dentro do portal, resolva a equação para sair da tela cheia:</p>
+            <p className="text-xs text-gray-400">
+              Para desbloquear os controles e continuar jogando normalmente, resolva o desafio matemático:
+            </p>
             <form onSubmit={handleParentGateSubmit} className="space-y-4">
               <div className="text-3xl font-extrabold text-white mb-4 font-mono">
                 {parentMath.n1} {parentMath.op} {parentMath.n2} = ?
@@ -4945,18 +4995,43 @@ export default function App() {
                   if (/^\d*$/.test(val)) {
                     setParentInput(val);
                     const expected = parentMath.op === 'x' ? parentMath.n1 * parentMath.n2 : parentMath.n1 + parentMath.n2;
-                    if (parseInt(val) === expected) {
-                      executeExitGame();
+                    if (parseInt(val, 10) === expected) {
+                      // Ao acertar, desbloqueia e CONTINUA NO JOGO!
+                      setTimeout(() => {
+                        setIsScreenLocked(false);
+                        setShowParentGate(false);
+                        setParentInput('');
+                      }, 150);
                     }
                   }
                 }}
                 autoFocus
                 required
+                placeholder="?"
               />
-              <div className="flex gap-4 mt-4">
-                <button type="button" className="btn-secondary flex-1 justify-center py-2.5 rounded-xl font-bold" onClick={() => setShowParentGate(false)}>Continuar Jogando</button>
-                <button type="submit" className="btn-primary flex-1 justify-center py-2.5 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-extrabold">Sair do Jogo</button>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <button 
+                  type="submit" 
+                  className="btn-primary flex-1 justify-center py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold shadow-lg shadow-teal-500/20"
+                >
+                  🔓 Desbloquear Jogo
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-secondary flex-1 justify-center py-2.5 rounded-xl font-bold border-pink-500/30 hover:border-pink-500 text-pink-300"
+                  onClick={() => handleUnlockAndExit()}
+                >
+                  🚪 Desbloquear e Sair
+                </button>
               </div>
+
+              <button
+                type="button"
+                className="text-xs text-gray-400 hover:text-white underline pt-1 block mx-auto"
+                onClick={() => { setShowParentGate(false); setParentInput(''); }}
+              >
+                Cancelar (Manter Bloqueado)
+              </button>
             </form>
           </div>
         </div>
