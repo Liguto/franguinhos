@@ -294,6 +294,22 @@ export default function App() {
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
   const [activeCategory, setActiveCategory] = useState<string>('Tudo');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dismissRotateNotice, setDismissRotateNotice] = useState<boolean>(false);
+
+  // Prevenção de rolagem indesejada por teclado (Padrão Poki / HTML5 Games)
+  useEffect(() => {
+    if (view !== 'playing') return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown'].includes(e.code)) {
+        if ((e.target as HTMLElement).tagName !== 'INPUT' && (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [view]);
+
 
   // Detecção Inteligente e Reativa de Mobile vs Web (Retrato e Paisagem/Landscape)
   const [isMobileMode, setIsMobileMode] = useState<boolean>(() => {
@@ -1967,6 +1983,7 @@ export default function App() {
 
   // Iniciar Jogo de forma instantânea com sincronização de save da nuvem
   const handlePlayGame = async (game: Game) => {
+    setDismissRotateNotice(false);
     setPortalLoaderActive(true);
     setSelectedGame(game);
     setIsPlayingGame(true);
@@ -3645,6 +3662,21 @@ export default function App() {
                   </div>
                 )}
 
+                {/* AVISO ANIMADO DE ROTAÇÃO RECOMENDADA (ESTILO POKI.COM) */}
+                {isMobileMode && !dismissRotateNotice && selectedGame.orientation === 'landscape' && window.innerHeight > window.innerWidth && (
+                  <div className="kruuj-rotate-hint-banner">
+                    <span>📱↷</span>
+                    <span>
+                      {currentLang === 'en' 
+                        ? 'Rotate phone to landscape for best experience' 
+                        : currentLang === 'es' 
+                        ? 'Gira tu celular para una mejor experiencia' 
+                        : 'Gire o celular na horizontal para a melhor experiência'}
+                    </span>
+                    <button onClick={() => setDismissRotateNotice(true)} className="kruuj-rotate-hint-close">✕</button>
+                  </div>
+                )}
+
                 {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
                 <div 
                   id="game-fullscreen-target"
@@ -3672,8 +3704,8 @@ export default function App() {
                        ref={gameIframeRef}
                        key={selectedGame.id}
                        src={getGameUrl(selectedGame)}
-                       sandbox="allow-scripts allow-same-origin allow-forms"
-                       allow="fullscreen; autoplay; screen-wake-lock; orientation-lock"
+                       sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
+                       allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; screen-wake-lock; orientation-lock"
                        allowFullScreen
                        scrolling="no"
                        title={selectedGame.title}
@@ -3709,6 +3741,74 @@ export default function App() {
                       <p className="text-cyan-400 font-bold mb-4 neon-glow-cyan">Injetando chips estelares...</p>
                     </div>
                   )}
+                </div>
+
+                {/* GAMEBAR MOBILE NO MODO RETRATO (POKI.COM STANDARD) */}
+                <div className="kruuj-mobile-gamebar">
+                  <button className="kruuj-gamebar-btn" onClick={triggerExitGame} title="Voltar ao Portal">
+                    <ChevronLeft className="w-4 h-4 text-gray-200 stroke-[2.5]" />
+                    <img src="/kruuj-avatar.png" alt="KRUUJ" className="w-4 h-4 rounded-full" />
+                  </button>
+
+                  <button 
+                    className={`kruuj-gamebar-btn ${isGameFavorited(selectedGame) ? 'active' : ''}`}
+                    onClick={() => handleToggleFavorite(selectedGame.id)}
+                    title="Favoritar"
+                  >
+                    <Heart className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-rose-500 text-rose-500' : 'text-gray-300'}`} />
+                    <span className="text-xs font-bold text-gray-200">{likesCount[selectedGame.id] || 0}</span>
+                  </button>
+
+                  <button 
+                    className="kruuj-gamebar-btn"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: `${selectedGame.title} — KRUUJ`,
+                          text: `Jogue ${selectedGame.title} agora no portal KRUUJ!`,
+                          url: window.location.href
+                        }).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert("Link copiado para a área de transferência!");
+                      }
+                    }}
+                    title="Compartilhar"
+                  >
+                    <Share2 className="w-3.5 h-3.5 text-gray-300" />
+                  </button>
+
+                  {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
+                    <button 
+                      className={`kruuj-gamebar-btn ${isScreenLocked ? 'locked' : ''}`}
+                      onClick={() => {
+                        if (isScreenLocked) {
+                          triggerExitGame();
+                        } else {
+                          setIsScreenLocked(true);
+                          try {
+                            if (navigator.wakeLock && navigator.wakeLock.request) {
+                              navigator.wakeLock.request('screen').then(lock => {
+                                wakeLockRef.current = lock;
+                              }).catch(() => {});
+                            }
+                          } catch (e) {}
+                        }
+                      }}
+                      title={isScreenLocked ? "Desbloquear" : "Bloquear"}
+                    >
+                      <Lock className={`w-3.5 h-3.5 ${isScreenLocked ? 'text-rose-500 animate-pulse' : 'text-gray-300'}`} />
+                      <span className="text-[11px] font-extrabold">{isScreenLocked ? "Trava ON" : "Travar"}</span>
+                    </button>
+                  )}
+
+                  <button 
+                    className="kruuj-gamebar-btn"
+                    onClick={handleManualFullscreen}
+                    title="Tela Cheia"
+                  >
+                    <Maximize className="w-3.5 h-3.5 text-cyan-400" />
+                  </button>
                 </div>
               </div>
             )}
