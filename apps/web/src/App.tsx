@@ -3666,21 +3666,6 @@ export default function App() {
                     }
                   }}
                 >
-                  {/* Botão de Desbloqueio Seguro (Aparece SOMENTE quando a tela ESTIVER bloqueada no modo bebês) */}
-                  {isScreenLocked && (
-                    <button 
-                      className="kruuj-locked-exit-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerExitGame();
-                      }}
-                      title="Sair do Jogo / Desbloquear"
-                    >
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Desbloquear</span>
-                    </button>
-                  )}
-
                   {isPlayingGame ? (
                    isPhysicalGame(selectedGame.slug) ? (
                      <iframe
