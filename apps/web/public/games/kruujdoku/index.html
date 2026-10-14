@@ -345,7 +345,7 @@ const KruujLoader=(()=>{
     $('kl').style.display='none';cfg.onComplete();
   }
   async function start(c){
-    cfg={gameName:'Seu jogo',tagline:'',tips:['Use fones para a melhor experiência.','Dica: respire fundo e boa sorte!'],splash:2800,minTime:1800,manual:false,onComplete(){},...c};
+    cfg={gameName:'Seu jogo',tagline:'',tips:['Use fones para a melhor experiência.','Dica: respire fundo e boa sorte!'],splash: 2200,minTime: 3000,manual:false,onComplete(){},...c};
     target=shown=0;finished=closing=false;
     const kl=$('kl');kl.style.display='';kl.classList.remove('out');
     const [sp,ld]=kl.querySelectorAll('.ph');
@@ -372,13 +372,13 @@ window.addEventListener('DOMContentLoaded', () => {
     KruujLoader.start({
       gameName: 'KRUUJDOKU',
       tagline: tG.tagline, tips: tG.tips,
-      splash: 2000,
-      minTime: 1200,
+      splash: 2200,
+      minTime: 3000,
       onComplete: () => {
         try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruujdoku' }, '*'); } catch(e){}
       }
     });
-    setTimeout(() => KruujLoader.finish(), 700);
+    setTimeout(() => KruujLoader.finish(), 2800);
   } catch(e) {
     const kl = document.getElementById('kl');
     if (kl) kl.style.display = 'none';

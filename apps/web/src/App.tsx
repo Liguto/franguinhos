@@ -100,7 +100,7 @@ export default function App() {
     localStorage.setItem('kruuj_lang', lang);
   };
 
-  const I18N_TEXTS = {
+  const I18N_TEXTS: Record<'pt' | 'en' | 'es', Record<string, string>> = {
     pt: {
       searchPlaceholder: "Buscar jogos, categorias...",
       calmMode: "Calmo",
@@ -117,7 +117,29 @@ export default function App() {
       exit: "Sair do Jogo",
       all: "Tudo",
       login: "Entrar",
-      profile: "Perfil"
+      profile: "Perfil",
+      navHome: "Início",
+      navExplore: "Explorar",
+      navFavorites: "Favoritos",
+      navProfile: "Perfil",
+      navSettings: "Ajustes",
+      audAll: "Todos os Jogos",
+      audBaby: "Bebês (0-4 anos)",
+      audKids: "Crianças (5-10 anos)",
+      audPlay: "Geral (Casual)",
+      audFamily: "Família (Jogue Junto)",
+      audSenior: "60+ (Mente Ativa & Zen)",
+      audEdu: "Educacional & Aprendizado",
+      favBadge: "FAVORITO",
+      favTitle: "Seus Jogos Favoritos",
+      favEmpty: "Você ainda não favoritou nenhum jogo. Clique no coração ❤️ em qualquer jogo do catálogo para salvar aqui!",
+      noGamesFound: "Nenhum jogo encontrado com os filtros selecionados.",
+      footerAbout: "Sobre a KRUUJ",
+      footerTerms: "Termos de Uso",
+      footerPrivacy: "Privacidade",
+      footerDevs: "Desenvolvedores",
+      footerRights: "Todos os direitos reservados.",
+      tagNew: "NOVO"
     },
     en: {
       searchPlaceholder: "Search games, categories...",
@@ -135,7 +157,29 @@ export default function App() {
       exit: "Exit Game",
       all: "All",
       login: "Sign In",
-      profile: "Profile"
+      profile: "Profile",
+      navHome: "Home",
+      navExplore: "Explore",
+      navFavorites: "Favorites",
+      navProfile: "Profile",
+      navSettings: "Settings",
+      audAll: "All Games",
+      audBaby: "Babies (0-4 yrs)",
+      audKids: "Kids (5-10 yrs)",
+      audPlay: "General (Casual)",
+      audFamily: "Family (Play Together)",
+      audSenior: "60+ (Active Mind & Zen)",
+      audEdu: "Educational & Learning",
+      favBadge: "FAVORITE",
+      favTitle: "Your Favorite Games",
+      favEmpty: "You haven't favorited any games yet. Click the heart ❤️ on any game to save it here!",
+      noGamesFound: "No games found matching your selected filters.",
+      footerAbout: "About KRUUJ",
+      footerTerms: "Terms of Service",
+      footerPrivacy: "Privacy Policy",
+      footerDevs: "For Developers",
+      footerRights: "All rights reserved.",
+      tagNew: "NEW"
     },
     es: {
       searchPlaceholder: "Buscar juegos, categorías...",
@@ -153,7 +197,29 @@ export default function App() {
       exit: "Salir del Juego",
       all: "Todos",
       login: "Iniciar sesión",
-      profile: "Perfil"
+      profile: "Perfil",
+      navHome: "Inicio",
+      navExplore: "Explorar",
+      navFavorites: "Favoritos",
+      navProfile: "Perfil",
+      navSettings: "Ajustes",
+      audAll: "Todos los Juegos",
+      audBaby: "Bebés (0-4 años)",
+      audKids: "Niños (5-10 años)",
+      audPlay: "General (Casual)",
+      audFamily: "Familia (Jugar Juntos)",
+      audSenior: "60+ (Mente Activa & Zen)",
+      audEdu: "Educativo y Aprendizaje",
+      favBadge: "FAVORITO",
+      favTitle: "Tus Juegos Favoritos",
+      favEmpty: "Aún no has agregado juegos a favoritos. ¡Haz clic en el corazón ❤️ para guardarlo aquí!",
+      noGamesFound: "No se encontraron juegos con los filtros seleccionados.",
+      footerAbout: "Sobre KRUUJ",
+      footerTerms: "Términos de Uso",
+      footerPrivacy: "Privacidad",
+      footerDevs: "Desarrolladores",
+      footerRights: "Todos los derechos reservados.",
+      tagNew: "NUEVO"
     }
   };
   const t = I18N_TEXTS[currentLang];
@@ -1538,12 +1604,9 @@ export default function App() {
 
   // Função para executar a saída do jogo (liberar trava)
   const executeExitGame = () => {
-    // Retorna para a página de detalhes (onde mostra as informações do jogo), e não para o menu inicial
-    if (selectedGame) {
-      setView('details');
-    } else {
-      setView('home');
-    }
+    // Retorna direto para a Home limpa!
+    setView('home');
+    setSelectedGame(null);
     setIsPlayingGame(false);
     setShowParentGate(false);
 
@@ -1684,9 +1747,7 @@ export default function App() {
       // 0. Solicitação de orientação paisagem (Landscape) vinda do jogo
       if (data.type === 'request_landscape') {
         try {
-          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          }
+          /* Fullscreen handled via CSS 100vw x 100dvh without OS popup */
         } catch(e) {}
         try {
           if (screen.orientation && (screen.orientation as any).lock) {
@@ -2105,11 +2166,7 @@ export default function App() {
   const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
   const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
 
-  const handleOpenDetails = (game: Game) => {
-    setSelectedGame(game);
-    setView('details');
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
+  const handleOpenDetails = (game: Game) => { handlePlayGame(game); };
 
   // 4 Prateleiras Oficiais — Atualizadas com os novos 5 jogos
   const shelfTrending = [
@@ -2323,7 +2380,7 @@ export default function App() {
                 onClick={() => { setView('home'); setSelectedGame(null); }}
               >
                 <Gamepad2 className="w-4 h-4" />
-                <span>Início</span>
+                <span>{t.navHome}</span>
               </button>
 
               <button 
@@ -2331,7 +2388,7 @@ export default function App() {
                 onClick={() => { setView('explore'); setSelectedGame(null); }}
               >
                 <Compass className="w-4 h-4" />
-                <span>Explorar</span>
+                <span>{t.navExplore}</span>
               </button>
 
               <button 
@@ -2339,7 +2396,7 @@ export default function App() {
                 onClick={() => { setView('favorites'); setSelectedGame(null); }}
               >
                 <Heart className={`w-4 h-4 ${userFavoritesList.length > 0 ? 'fill-current' : ''}`} />
-                <span>Favoritos</span>
+                <span>{t.navFavorites}</span>
                 {userFavoritesList.length > 0 && (
                   <span className="ml-auto text-[10px] font-black bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">
                     {userFavoritesList.length}
@@ -2352,7 +2409,7 @@ export default function App() {
                 onClick={() => { setView('profile'); setSelectedGame(null); }}
               >
                 <User className="w-4 h-4" />
-                <span>Perfil</span>
+                <span>{t.navProfile}</span>
               </button>
 
               <div className="kruuj-sidebar-extra">
@@ -2566,8 +2623,8 @@ export default function App() {
                                 {agePreference === 'bebes' && '🐱 Jogos para Bebês (0 a 3 anos)'}
                                 {agePreference === 'educacional' && '👦 Jogos Kids & Infantis (4 a 12 anos)'}
                                 {agePreference === 'family' && '👨‍👩‍👧 Jogos em Família (Jogue Junto)'}
-                                {agePreference === 'terceira_idade' && '👵 Jogos 60+ (Mente Ativa & Zen)'}
-                                {agePreference === 'edu' && '🎓 Jogos Educativos & Aprendizado'}
+                                {agePreference === 'terceira_idade' && `👵 ${t.audSenior}`}
+                                {agePreference === 'edu' && `🎓 ${t.audEdu}`}
                               </h3>
                               <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8' }}>
                                 {getFilteredGames().length} jogos selecionados para este público
@@ -2611,23 +2668,28 @@ export default function App() {
                             {getFilteredGames().map((game) => (
                               <div 
                                 key={game.id} 
-                                className="kruuj-poki-card"
+                                className={`kruuj-poki-card ${isGameFavorited(game) ? 'is-favorited' : ''}`}
                                 onClick={() => handlePlayGame(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
                                   {renderGameCover(game)}
+                                  {isGameFavorited(game) && (
+                                    <span className="kruuj-fav-tag">
+                                      ❤️ {t.favBadge}
+                                    </span>
+                                  )}
                                   <div className="kruuj-poki-overlay">
                                     <div className="kruuj-poki-play-icon">
                                       <Play className="w-5 h-5 fill-white text-white ml-0.5" />
                                     </div>
                                   </div>
                                   <button
-                                    className="kruuj-poki-like-btn"
+                                    className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
                                     onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                    title="Favoritar"
+                                    title={isGameFavorited(game) ? 'Remover dos favoritos' : 'Favoritar'}
                                   >
-                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
                                   </button>
                                 </div>
                                 <div className="kruuj-poki-meta">
@@ -2904,7 +2966,7 @@ export default function App() {
                       onClick={() => setProfileTab('favoritos')}
                     >
                       <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
-                      <span>Favoritos</span>
+                      <span>{t.navFavorites}</span>
                       {userFavoritesList.length > 0 && (
                         <span className="kruuj-tab-count-badge">{userFavoritesList.length}</span>
                       )}
@@ -4155,7 +4217,7 @@ export default function App() {
             onClick={() => { setView('home'); setSelectedGame(null); }}
           >
             <Gamepad2 className="w-5 h-5" />
-            <span>Início</span>
+            <span>{t.navHome}</span>
           </button>
 
           <button 
@@ -4163,7 +4225,7 @@ export default function App() {
             onClick={() => { setView('explore'); setSelectedGame(null); }}
           >
             <Compass className="w-5 h-5" />
-            <span>Explorar</span>
+            <span>{t.navExplore}</span>
           </button>
 
           <button 
@@ -4171,7 +4233,7 @@ export default function App() {
             onClick={() => { setView('favorites'); setSelectedGame(null); }}
           >
             <Heart className={`w-5 h-5 ${userFavoritesList.length > 0 ? 'fill-pink-500 text-pink-500' : ''}`} />
-            <span>Favoritos</span>
+            <span>{t.navFavorites}</span>
           </button>
 
           <button 
@@ -4179,7 +4241,7 @@ export default function App() {
             onClick={() => { setView('profile'); setSelectedGame(null); }}
           >
             <User className="w-5 h-5" />
-            <span>Perfil</span>
+            <span>{t.navProfile}</span>
           </button>
         </nav>
       )}

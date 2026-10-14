@@ -4191,6 +4191,41 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   background: rgba(13, 18, 36, 0.95);
 }
 
+/* Badge e Destaque Visual Imediato de Jogo Favorito no Catálogo */
+.kruuj-poki-card.is-favorited {
+  border-color: rgba(244, 63, 94, 0.45);
+  box-shadow: 0 4px 20px rgba(244, 63, 94, 0.25);
+}
+
+.kruuj-poki-like-btn.favorited {
+  background: rgba(225, 29, 72, 0.45) !important;
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.7) !important;
+}
+
+.kruuj-fav-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(225, 29, 72, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 10px rgba(225, 29, 72, 0.5);
+  letter-spacing: 0.04em;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
 .kruuj-poki-meta {
   padding: 10px 12px;
   display: flex;
