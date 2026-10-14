@@ -1902,9 +1902,11 @@ export default function App() {
 
   // Função para executar a saída do jogo (liberar trava)
   const executeExitGame = () => {
-    // Retorna direto para a Home limpa!
-    setView('home');
-    setSelectedGame(null);
+    if (selectedGame) {
+      setView('details');
+    } else {
+      setView('home');
+    }
     setIsPlayingGame(false);
     setShowParentGate(false);
 
@@ -2571,7 +2573,11 @@ export default function App() {
   const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
   const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
 
-  const handleOpenDetails = (game: Game) => { handlePlayGame(game); };
+  const handleOpenDetails = (game: Game) => {
+    setSelectedGame(game);
+    setView('details');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // 4 Prateleiras Oficiais — Atualizadas com os novos 5 jogos
   const shelfTrending = [
@@ -3052,7 +3058,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
+                                onClick={() => handleOpenDetails(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3085,7 +3091,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
+                                onClick={() => handleOpenDetails(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3151,13 +3157,35 @@ export default function App() {
 
                   <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
                     {/* Capa de Apresentação Estilo Cinema */}
-                    <div className="kruuj-details-cover-box" style={{ maxHeight: '380px' }}>
-                      <img src={selectedGame.bannerUrl} alt={selectedGame.title} />
+                    <div 
+                      className="kruuj-details-cover-box cursor-pointer group relative overflow-hidden" 
+                      style={{ maxHeight: '440px' }}
+                      onClick={() => handlePlayGame(selectedGame)}
+                      title="Clique para Jogar em Tela Cheia"
+                    >
+                      <img 
+                        src={selectedGame.bannerUrl} 
+                        alt={selectedGame.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                      />
+                      
+                      {/* Botão Central Pulsante de Play no Palco Cinema */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-cyan-500/50 group-hover:scale-110 transition-transform">
+                          <Play className="w-8 h-8 fill-white text-white ml-1" />
+                        </div>
+                      </div>
+
                       <div className="kruuj-details-cover-overlay">
-                        <h2 className="text-3xl font-black text-white">{selectedGame.title}</h2>
-                        <p className="text-xs text-gray-300 mt-1 font-bold">
-                          {selectedGame.category} • Class: {selectedGame.ageRating}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-400 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
+                            {selectedGame.category}
+                          </span>
+                          <span className="text-[11px] font-bold text-gray-400">
+                            Classificação: {selectedGame.ageRating}
+                          </span>
+                        </div>
+                        <h2 className="text-2xl md:text-4xl font-black text-white">{selectedGame.title}</h2>
                       </div>
                     </div>
 
@@ -3186,8 +3214,8 @@ export default function App() {
                         {getRelatedGames(selectedGame).map(rel => (
                           <div 
                             key={rel.id} 
-                            className="kruuj-poki-card"
-                            onClick={() => handlePlayGame(rel)}
+                            className={`kruuj-poki-card ${getTileClass(rel.slug)} ${isGameFavorited(rel) ? 'is-favorited' : ''}`}
+                            onClick={() => handleOpenDetails(rel)}
                             title={`Jogar ${rel.title}`}
                           >
                             <div className="kruuj-poki-thumb">
