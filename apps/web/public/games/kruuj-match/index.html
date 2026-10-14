@@ -1070,12 +1070,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
     const I18N_MATCH = {
       pt: {
-        tagline: tM.tagline, tips: tM.tips,
+        tagline: 'Coloque os fones, a coruja está chegando.',
         tips: ['Combine 3 ou mais relíquias iguais para marcar pontos.', 'Faça quadrados 2x2 ou 4 em linha para criar a Coruja Relâmpago ⚡!'],
         level: 'FASE', score: 'PONTOS', moves: 'MOVIMENTOS',
         hint: '👆 Arraste as peças com o dedo para trocar! Quadrados 2x2 e linhas de 4 geram Coruja Relâmpago ⚡',
-        winTitle: tM.winTitle, nextLevel: tM.nextLevel,
-        loseTitle: tM.loseTitle, tryAgain: tM.tryAgain,
+        winTitle: 'FASE CONCLUÍDA!', nextLevel: 'PRÓXIMA FASE ⏩',
+        loseTitle: 'SEM MOVIMENTOS', tryAgain: 'TENTAR NOVAMENTE 🔄',
         finalScore: 'Pontos Finais', remMoves: 'Movimentos Restantes'
       },
       en: {
