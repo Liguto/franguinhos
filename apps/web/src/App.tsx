@@ -3714,7 +3714,7 @@ export default function App() {
                       <div className="poki-bar-actions">
                         {/* Curtir / Like 👍 */}
                         <button 
-                          className={`poki-bar-action-item ${isGameFavorited(selectedGame) ? 'liked' : ''}`}
+                          className={`poki-bar-action-item poki-action-like ${isGameFavorited(selectedGame) ? 'liked' : ''}`}
                           onClick={() => handleToggleFavorite(selectedGame.id)}
                           title="Gostei"
                         >
@@ -3722,9 +3722,9 @@ export default function App() {
                           <span className="poki-bar-action-count">{likesCount[selectedGame.id] || 124}</span>
                         </button>
 
-                        {/* Não Gostei 👎 */}
+                        {/* Não Gostei 👎 (Oculto no mobile para despoluir) */}
                         <button 
-                          className="poki-bar-action-item"
+                          className="poki-bar-action-item poki-action-dislike"
                           onClick={() => alert("Obrigado pelo feedback!")}
                           title="Não gostei"
                         >
@@ -3734,7 +3734,7 @@ export default function App() {
 
                         {/* Compartilhar */}
                         <button 
-                          className="poki-bar-action-item"
+                          className="poki-bar-action-item poki-action-share"
                           onClick={() => {
                             if (navigator.share) {
                               navigator.share({ title: selectedGame.title, url: window.location.href }).catch(() => {});
@@ -3748,9 +3748,9 @@ export default function App() {
                           <Share2 className="w-4 h-4 text-gray-500" />
                         </button>
 
-                        {/* Denúncia / Report ⚑ */}
+                        {/* Denúncia / Report ⚑ (Oculto no mobile para despoluir) */}
                         <button 
-                          className="poki-bar-action-item"
+                          className="poki-bar-action-item poki-action-report"
                           onClick={() => setView('report')}
                           title="Reportar"
                         >
@@ -3758,12 +3758,12 @@ export default function App() {
                         </button>
 
                         <button 
-                            className="poki-bar-action-item"
-                            onClick={handleManualFullscreen}
-                            title="Tela Cheia"
-                          >
-                            <Maximize className="w-4 h-4 text-gray-600" />
-                          </button>
+                          className="poki-bar-action-item poki-action-fullscreen"
+                          onClick={handleManualFullscreen}
+                          title="Tela Cheia"
+                        >
+                          <Maximize className="w-4 h-4 text-gray-600" />
+                        </button>
                       </div>
                     </div>
                   </div>
