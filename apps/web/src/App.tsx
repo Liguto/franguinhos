@@ -135,6 +135,43 @@ export default function App() {
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
   const [activeCategory, setActiveCategory] = useState<string>('Tudo');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Detecção Inteligente e Reativa de Mobile vs Web (Retrato e Paisagem/Landscape)
+  const [isMobileMode, setIsMobileMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+    const isMobileLandscape = window.matchMedia('(orientation: landscape) and (max-height: 550px)').matches;
+    const isSmallWidth = window.innerWidth <= 768;
+    const isUA = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    return isUA || isCoarse || isSmallWidth || isMobileLandscape;
+  });
+
+  useEffect(() => {
+    const checkDevice = () => {
+      const isCoarse = window.matchMedia('(pointer: coarse)').matches;
+      const isMobileLandscape = window.matchMedia('(orientation: landscape) and (max-height: 550px)').matches;
+      const isSmallWidth = window.innerWidth <= 768;
+      const isUA = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+      const mobile = isUA || isCoarse || isSmallWidth || isMobileLandscape;
+      setIsMobileMode(mobile);
+      if (mobile) {
+        document.documentElement.classList.add('device-mobile');
+        document.documentElement.classList.remove('device-desktop');
+      } else {
+        document.documentElement.classList.add('device-desktop');
+        document.documentElement.classList.remove('device-mobile');
+      }
+    };
+
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    window.addEventListener('orientationchange', checkDevice);
+    return () => {
+      window.removeEventListener('resize', checkDevice);
+      window.removeEventListener('orientationchange', checkDevice);
+    };
+  }, []);
+
   
   // Preferências - 7 Verticais de Públicos Oficiais do KRUUJ (Whitepaper Item 6)
   const [agePreference, setAgePreference] = useState<'geral' | 'educacional' | 'terceira_idade' | 'bebes' | 'family' | 'edu' | 'premium'>('geral');
@@ -2448,6 +2485,7 @@ export default function App() {
           <div className="kruuj-layout-framework">
             
             {/* SIDEBAR COMPACTA DA ESQUERDA (DESKTOP) */}
+            {!isMobileMode && (
             <aside className="kruuj-compact-sidebar">
               <button 
                 className={`kruuj-sidebar-btn ${view === 'home' ? 'active' : ''}`}
@@ -2525,6 +2563,7 @@ export default function App() {
                 </button>
               </div>
             </aside>
+            )}
 
                         {/* ÁREA DE CONTEÚDO PRINCIPAL KRUUJ */}
             <div className="kruuj-content-body">
@@ -3337,42 +3376,48 @@ export default function App() {
                   />
                 )}
                 
-                {/* BOTÃO FLUTUANTE ESTILO POKI (APENAS MOBILE) COM CORUJA MASCOTE DO KRUUJ E SETA */}
-                {!isScreenLocked && (
-                  <button className="kruuj-poki-back-btn" 
-                    onClick={triggerExitGame}
-                    title="Voltar ao Portal"
-                  >
-                    <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
-                    <img 
-                      src="/kruuj-avatar.png" 
-                      alt="KRUUJ" 
-                      style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
-                      className="shadow-sm"
-                    />
-                  </button>
-                )}
+                {/* CLUSTER FLUTUANTE ESTILO POKI (APENAS MOBILE) — VOLTAR & BLOQUEIO DISCRETO */}
+                <div className="kruuj-poki-top-cluster">
+                  {!isScreenLocked && (
+                    <button className="kruuj-poki-back-btn" 
+                      onClick={triggerExitGame}
+                      title="Voltar ao Portal"
+                    >
+                      <ChevronLeft style={{ width: 16, height: 16, minWidth: 16, minHeight: 16 }} className="text-gray-900 stroke-[2.8]" />
+                      <img 
+                        src="/kruuj-avatar.png" 
+                        alt="KRUUJ" 
+                        style={{ width: 22, height: 22, minWidth: 22, minHeight: 22, maxWidth: 22, maxHeight: 22, borderRadius: '50%', objectFit: 'cover' }}
+                        className="shadow-sm"
+                      />
+                    </button>
+                  )}
 
-                {/* BOTÃO FLUTUANTE BLOQUEAR TELA (MODO BEBÊS / PARENT GATE NO MOBILE & TABLET) */}
-                {!isScreenLocked && (agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
-                  <button
-                    className="kruuj-mobile-lock-btn"
-                    onClick={() => {
-                      setIsScreenLocked(true);
-                      try {
-                        if (navigator.wakeLock && navigator.wakeLock.request) {
-                          navigator.wakeLock.request('screen').then(lock => {
-                            wakeLockRef.current = lock;
-                          }).catch(() => {});
+                  {/* Botão de Bloqueio/Desbloqueio Discreto (Modo Bebês) — Próximo ao de Voltar */}
+                  {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
+                    <button
+                      className={`kruuj-poki-lock-btn ${isScreenLocked ? 'locked' : ''}`}
+                      onClick={() => {
+                        if (isScreenLocked) {
+                          triggerExitGame(); // Abre imediatamente a equação matemática do Parent Gate!
+                        } else {
+                          setIsScreenLocked(true);
+                          try {
+                            if (navigator.wakeLock && navigator.wakeLock.request) {
+                              navigator.wakeLock.request('screen').then(lock => {
+                                wakeLockRef.current = lock;
+                              }).catch(() => {});
+                            }
+                          } catch (e) {}
                         }
-                      } catch (e) {}
-                    }}
-                    title="Bloquear Tela (Modo Bebês / Parent Gate)"
-                  >
-                    <Lock className="w-3.5 h-3.5 text-pink-300" />
-                    <span>Bloquear Tela</span>
-                  </button>
-                )}
+                      }}
+                      title={isScreenLocked ? "Desbloquear com Desafio Matemático" : "Bloquear Tela para Bebê"}
+                    >
+                      <Lock style={{ width: 14, height: 14 }} className={isScreenLocked ? "text-rose-600 stroke-[2.8]" : "text-gray-700 stroke-[2.2]"} />
+                      <span className="kruuj-poki-lock-label">{isScreenLocked ? "Desbloquear" : "Bloquear"}</span>
+                    </button>
+                  )}
+                </div>
 
                 {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
                 {!isScreenLocked && (
@@ -4762,8 +4807,8 @@ export default function App() {
 
       {/* --- PARENT GATE MODAL (Lockscreen para Bebês) --- */}
       {showParentGate && (
-        <div className="modal-backdrop" style={{ zIndex: 200000 }}>
-          <div className="glass-panel modal-content parent-gate-card text-center space-y-6" style={{ zIndex: 200001 }}>
+        <div className="modal-backdrop parent-gate-backdrop" style={{ zIndex: 999999999, position: 'fixed', inset: 0 }}>
+          <div className="glass-panel modal-content parent-gate-card text-center space-y-6" style={{ zIndex: 1000000000, position: 'relative' }}>
             <div className="w-14 h-14 bg-pink-950/40 border border-pink-500/30 rounded-full flex items-center justify-center mx-auto text-pink-500 animate-bounce">
               <Lock className="w-6 h-6" />
             </div>

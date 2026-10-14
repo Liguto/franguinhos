@@ -564,11 +564,20 @@ body.playing-game-mode, html.playing-game-mode {
     overscroll-behavior: none !important;
   }
 
-  /* Botão Flutuante 'Voltar ao Portal' Estilo Poki com Coruja do KRUUJ e Seta */
-  .kruuj-poki-back-btn {
+  /* Cluster Flutuante Superior Poki (Voltar + Bloqueio Infantil) */
+  .kruuj-poki-top-cluster {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
     position: fixed !important;
     top: calc(12px + env(safe-area-inset-top, 0px)) !important;
     left: env(safe-area-inset-left, 0px) !important;
+    z-index: 10000000 !important;
+  }
+
+  /* Botão Flutuante 'Voltar ao Portal' Estilo Poki com Coruja do KRUUJ e Seta */
+  .kruuj-poki-back-btn {
+    position: relative !important;
     z-index: 10000000 !important;
     background: #ffffff !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -609,6 +618,46 @@ body.playing-game-mode, html.playing-game-mode {
 
   .kruuj-poki-back-btn:active {
     transform: scale(0.92) !important;
+  }
+
+  /* Botão Flutuante Discreto de Bloqueio/Desbloqueio Estilo Poki (Ao lado do voltar) */
+  .kruuj-poki-lock-btn {
+    height: 34px !important;
+    max-height: 34px !important;
+    padding: 0 12px 0 10px !important;
+    border-radius: 9999px !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35) !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+  }
+
+  .kruuj-poki-lock-btn:active {
+    transform: scale(0.92) !important;
+  }
+
+  .kruuj-poki-lock-btn.locked {
+    background: #fff1f2 !important;
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 16px rgba(244, 63, 94, 0.45) !important;
+  }
+
+  .kruuj-poki-lock-label {
+    font-family: var(--font-family) !important;
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  .kruuj-poki-lock-btn.locked .kruuj-poki-lock-label {
+    color: #e11d48 !important;
   }
 
   .kruuj-playing-header-bar {
@@ -5231,12 +5280,37 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   box-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
 }
 
-/* 9. Mobile Bottom Navigation Bar */
+/* 9. Mobile Bottom Navigation Bar & Device Classes */
 .kruuj-bottom-bar {
   display: none;
 }
 
-@media (max-width: 768px) {
+/* Regras com prioridade de classe JS para qualquer celular (portrait ou landscape) */
+.device-mobile .kruuj-compact-sidebar {
+  display: none !important;
+}
+
+.device-mobile .kruuj-bottom-bar {
+  display: flex !important;
+}
+
+.device-mobile .kruuj-topbar-search {
+  display: none !important;
+}
+
+.device-mobile .kruuj-mobile-search-btn {
+  display: flex !important;
+}
+
+.device-mobile .kruuj-layout-framework {
+  padding: 6px 12px calc(80px + env(safe-area-inset-bottom, 0px)) 12px !important;
+  gap: 16px !important;
+}
+
+/* Query Unificada de Dispositivos Móveis (Retrato, Paisagem em Celulares e Telas Touch) */
+@media (max-width: 768px), 
+       (orientation: landscape) and (max-height: 550px),
+       ((hover: none) and (pointer: coarse) and (max-height: 600px)) {
   /* Topbar Mobile Responsivo e Fluido */
   .kruuj-topbar {
     height: 56px !important;
