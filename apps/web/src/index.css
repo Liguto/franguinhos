@@ -564,8 +564,8 @@ body.playing-game-mode, html.playing-game-mode {
   /* Botão Flutuante 'Voltar ao Portal' Estilo Poki com Coruja do KRUUJ e Seta */
   .kruuj-poki-back-btn {
     position: fixed !important;
-    top: 14px !important;
-    left: 0 !important;
+    top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+    left: env(safe-area-inset-left, 0px) !important;
     z-index: 10000000 !important;
     background: #ffffff !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -580,6 +580,7 @@ body.playing-game-mode, html.playing-game-mode {
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35) !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
     transition: transform 0.15s ease, box-shadow 0.15s ease !important;
   }
 
@@ -5472,8 +5473,9 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 64px;
-    background: rgba(8, 14, 26, 0.95);
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(8, 14, 26, 0.96);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -5493,11 +5495,24 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     font-size: 0.65rem;
     font-weight: 700;
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     transition: all 0.2s;
   }
 
   .kruuj-bottom-btn.active {
     color: #38bdf8;
+  }
+
+  /* Compensação inferior para não cobrir o rodapé com a barra mobile */
+  .kruuj-main-content,
+  .kruuj-footer {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  button, a, .kruuj-poki-card, .kruuj-poki-back-btn, .kruuj-chip, .kruuj-bottom-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 

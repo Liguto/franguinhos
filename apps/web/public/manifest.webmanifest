@@ -1,0 +1,25 @@
+{
+  "name": "KRUUJ — Jogue. Descubra. Conecte.",
+  "short_name": "KRUUJ",
+  "description": "Portal global de jogos web acessíveis, leves e instantâneos diretamente no navegador.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070914",
+  "theme_color": "#070914",
+  "icons": [
+    {
+      "src": "/kruuj-avatar.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/kruuj-mascote.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"]
+}
