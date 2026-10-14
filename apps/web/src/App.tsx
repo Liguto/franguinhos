@@ -2571,7 +2571,16 @@ export default function App() {
   const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
   const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
 
-  const handleOpenDetails = (game: Game) => { handlePlayGame(game); };
+  
+  // Abre o Palco Poki em modo de PRÉ-VISUALIZAÇÃO (com o vídeo/banner e botão Play Now)
+  const handleOpenPreview = (game: Game) => {
+    setSelectedGame(game);
+    setIsPlayingGame(false);
+    setView('playing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenDetails = (game: Game) => { handleOpenPreview(game); };
 
   // 4 Prateleiras Oficiais — Atualizadas com os novos 5 jogos
   const shelfTrending = [
@@ -3052,7 +3061,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
+                                onClick={() => handleOpenPreview(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3085,7 +3094,7 @@ export default function App() {
                               <div 
                                 key={game.id} 
                                 className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
+                                onClick={() => handleOpenPreview(game)}
                                 title={`Jogar ${game.title}`}
                               >
                                 <div className="kruuj-poki-thumb">
@@ -3568,181 +3577,302 @@ export default function App() {
           /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
           <>
             {view === 'playing' && selectedGame && (
-              <div className="kruuj-playing-container">
-                {portalLoaderActive && (
-                  <KruujPortalLoader
-                    game={selectedGame}
-                    lang={currentLang}
-                    onFinish={() => setPortalLoaderActive(false)}
-                  />
-                )}
-                
-                {/* CLUSTER FLUTUANTE ESTILO POKI ADAPTATIVO — ARRASTÁVEL E COM GHOST MODE */}
-                <AdaptivePokiCluster
-                  isScreenLocked={isScreenLocked}
-                  isBabyMode={agePreference === 'bebes' || selectedGame.category === 'Bebês'}
-                  onExit={triggerExitGame}
-                  onLock={() => {
-                    setIsScreenLocked(true);
-                    try {
-                      if (navigator.wakeLock && navigator.wakeLock.request) {
-                        navigator.wakeLock.request('screen').then(lock => {
-                          wakeLockRef.current = lock;
-                        }).catch(() => {});
-                      }
-                    } catch (e) {}
-                  }}
-                  onUnlockRequest={() => {
-                    // Gera o desafio matemático para desbloqueio
-                    const isMult = Math.random() > 0.4;
-                    const n1 = Math.floor(Math.random() * 5) + 2;
-                    const n2 = Math.floor(Math.random() * 5) + 2;
-                    setParentMath({ n1, n2, op: isMult ? 'x' : '+' });
-                    setParentInput('');
-                    setShowParentGate(true);
-                  }}
-                />
-
-                {/* BARRA SUPERIOR DEDICADA DE NAVEGAÇÃO DO JOGO (DESKTOP APENAS) */}
-                {!isScreenLocked && (
-                  <div className="kruuj-playing-header-bar">
-                    {/* Botão de Voltar ao Portal no Desktop */}
-                    <button 
-                      className="kruuj-playing-back-btn" 
-                      onClick={triggerExitGame}
-                      title="Voltar ao Portal"
-                    >
-                      <ArrowLeft className="w-4 h-4 text-cyan-400" />
-                      <span>Voltar ao Portal</span>
-                    </button>
-
-                    {/* Título do Jogo (Badge Central no Desktop) */}
-                    <div className="kruuj-playing-title-wrap">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                      <h2 className="kruuj-playing-title-text">{selectedGame.title}</h2>
-                    </div>
-
-                    {/* Ações: Curtir, Bloquear Tela e Fullscreen no Desktop */}
-                    <div className="kruuj-playing-actions-wrap">
-                      {/* Botão Bloquear Tela integrado de forma limpa na barra de ações para jogos de Bebê */}
-                      {(agePreference === 'bebes' || selectedGame.category === 'Bebês') && (
-                        <button 
-                          className="kruuj-playing-action-circle"
-                          style={{ 
-                            borderColor: 'rgba(244, 114, 182, 0.45)', 
-                            background: 'rgba(244, 114, 182, 0.15)', 
-                            color: '#f472b6' 
-                          }}
-                          onClick={() => {
-                            setIsScreenLocked(true);
-                            if (!document.fullscreenElement) {
-                              document.documentElement.requestFullscreen().catch(() => {});
-                            }
-                          }}
-                          title="Bloquear Tela (Modo Bebês)"
-                        >
-                          <Lock className="w-4 h-4" />
+              <div className="poki-stage-container">
+                {/* 1. LINHA SUPERIOR DO PALCO (ESQUERDA - CENTRO - DIREITA) */}
+                <div className="poki-stage-top-row">
+                  {/* LATERAL ESQUERDA: Pílula KRUUJ Logo + Busca + Início + Skyscraper */}
+                  <div className="poki-stage-left-rail">
+                    <div className="poki-stage-brand-pill">
+                      <div className="poki-stage-logo" onClick={() => { setView('home'); setSelectedGame(null); }} title="Ir para o Início">
+                        <img src="/kruuj-avatar.png" alt="KRUUJ" className="w-8 h-8 rounded-full" />
+                        <span className="font-black tracking-tight text-slate-900 text-lg ml-1">KRUUJ</span>
+                      </div>
+                      <div className="poki-stage-pill-actions">
+                        <button className="poki-stage-pill-btn" onClick={() => setIsMobileSearchOpen(true)} title="Buscar">
+                          <Search className="w-4 h-4 text-gray-500" />
                         </button>
-                      )}
-
-                      <button 
-                        className={`kruuj-playing-action-circle ${favorites.includes(selectedGame.id) ? 'active' : ''}`}
-                        onClick={() => handleToggleFavorite(selectedGame.id)}
-                        title={favorites.includes(selectedGame.id) ? 'Remover dos Favoritos' : 'Favoritar este Jogo'}
-                      >
-                        <Heart className={`w-4 h-4 ${favorites.includes(selectedGame.id) ? 'fill-pink-500 text-pink-500' : ''}`} />
-                      </button>
-
-                      <button 
-                        className="kruuj-playing-action-circle"
-                        onClick={handleManualFullscreen}
-                        title="Tela Cheia"
-                      >
-                        <Maximize className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* AVISO ANIMADO DE ROTAÇÃO RECOMENDADA (ESTILO POKI.COM) */}
-                {isMobileMode && !dismissRotateNotice && selectedGame.orientation === 'landscape' && window.innerHeight > window.innerWidth && (
-                  <div className="kruuj-rotate-hint-banner">
-                    <span>📱↷</span>
-                    <span>
-                      {currentLang === 'en' 
-                        ? 'Rotate phone to landscape for best experience' 
-                        : currentLang === 'es' 
-                        ? 'Gira tu celular para una mejor experiencia' 
-                        : 'Gire o celular na horizontal para a melhor experiência'}
-                    </span>
-                    <button onClick={() => setDismissRotateNotice(true)} className="kruuj-rotate-hint-close">✕</button>
-                  </div>
-                )}
-
-                {/* Jogo em Destaque Cinema (100% largura e Centrado!) */}
-                <div 
-                  id="game-fullscreen-target"
-                  className="iframe-container relative"
-                  style={isScreenLocked ? {
-                    position: 'fixed',
-                    inset: 0,
-                    width: '100vw',
-                    height: '100vh',
-                    zIndex: 99999,
-                    backgroundColor: '#05060a',
-                    display: 'block',
-                    cursor: !document.fullscreenElement ? 'pointer' : 'default',
-                    touchAction: 'none'
-                  } : {}}
-                  onClick={() => {
-                    if (isScreenLocked && !document.fullscreenElement) {
-                      document.documentElement.requestFullscreen().catch(() => {});
-                    }
-                  }}
-                >
-                  {isPlayingGame ? (
-                   isPhysicalGame(selectedGame.slug) ? (
-                     <iframe
-                       ref={gameIframeRef}
-                       key={selectedGame.id}
-                       src={getGameUrl(selectedGame)}
-                       sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
-                       allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; screen-wake-lock; orientation-lock"
-                       allowFullScreen
-                       scrolling="no"
-                       title={selectedGame.title}
-                       style={{
-                         position: 'absolute',
-                         inset: 0,
-                         width: '100%',
-                         height: '100%',
-                         border: 'none',
-                         margin: 0,
-                         padding: 0
-                       }}
-                      ></iframe>
-                    ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">
-                        <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-950/80 px-3 py-1 rounded-full border border-yellow-500/20">
-                          🛡️ CIRCUITO EM MANUTENÇÃO EDITORIAL
-                        </span>
-                        <h3 className="text-lg font-bold text-white">Próximo Lançamento</h3>
-                        <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-                          Este circuito está em fase de auditoria jurídica de direitos autorais e testes de controle de toque. Estará online em breve!
-                        </p>
-                        <button 
-                          className="btn-secondary py-1.5 px-4 text-xs font-bold"
-                          onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false); }}
-                        >
-                          Voltar ao Catálogo
+                        <button className="poki-stage-pill-btn" onClick={() => { setView('home'); setSelectedGame(null); }} title="Início">
+                          <ArrowLeft className="w-4 h-4 text-gray-500" />
                         </button>
                       </div>
-                    )
-                  ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95">
-                      <p className="text-cyan-400 font-bold mb-4 neon-glow-cyan">Injetando chips estelares...</p>
                     </div>
-                  )}
+
+                    <div className="poki-stage-skyscraper hidden xl:flex">
+                      <span>KRUUJ STUDIO</span>
+                    </div>
+                  </div>
+
+                  {/* CENTRO: O PALCO DO JOGO + BARRA BRANCA POKI */}
+                  <div className="poki-stage-center">
+                    <div className="poki-stage-player-wrapper" id="game-fullscreen-target">
+                      {portalLoaderActive && (
+                        <KruujPortalLoader
+                          game={selectedGame}
+                          lang={currentLang}
+                          onFinish={() => setPortalLoaderActive(false)}
+                        />
+                      )}
+
+                      <AdaptivePokiCluster
+                        isScreenLocked={isScreenLocked}
+                        isBabyMode={agePreference === 'bebes' || selectedGame.category === 'Bebês'}
+                        onExit={triggerExitGame}
+                        onLock={() => {
+                          setIsScreenLocked(true);
+                          try {
+                            if (navigator.wakeLock && navigator.wakeLock.request) {
+                              navigator.wakeLock.request('screen').then(lock => {
+                                wakeLockRef.current = lock;
+                              }).catch(() => {});
+                            }
+                          } catch (e) {}
+                        }}
+                        onUnlockRequest={() => {
+                          const isMult = Math.random() > 0.4;
+                          const n1 = Math.floor(Math.random() * 5) + 2;
+                          const n2 = Math.floor(Math.random() * 5) + 2;
+                          setParentMath({ n1, n2, op: isMult ? 'x' : '+' });
+                          setParentInput('');
+                          setShowParentGate(true);
+                        }}
+                      />
+
+                      {/* AVISO ANIMADO DE ROTAÇÃO RECOMENDADA (ESTILO POKI.COM) */}
+                      {isMobileMode && !dismissRotateNotice && selectedGame.orientation === 'landscape' && window.innerHeight > window.innerWidth && (
+                        <div className="kruuj-rotate-hint-banner">
+                          <span>📱↷</span>
+                          <span>
+                            {currentLang === 'en' 
+                              ? 'Rotate phone to landscape for best experience' 
+                              : currentLang === 'es' 
+                              ? 'Gira tu celular para una mejor experiencia' 
+                              : 'Gire o celular na horizontal para a melhor experiência'}
+                          </span>
+                          <button onClick={() => setDismissRotateNotice(true)} className="kruuj-rotate-hint-close">✕</button>
+                        </div>
+                      )}
+
+                      {!isPlayingGame ? (
+                        /* ESTÁGIO DE PRÉ-VISUALIZAÇÃO CINEMA (VÍDEO / GIF / BANNER COM BOTÃO JOGAR AGORA) */
+                        <div 
+                          className="poki-preview-stage cursor-pointer group relative w-full h-full overflow-hidden flex items-center justify-center bg-black"
+                          onClick={() => handlePlayGame(selectedGame)}
+                          title="Clique para Jogar"
+                        >
+                          <img 
+                            src={selectedGame.bannerUrl} 
+                            alt={selectedGame.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                          />
+
+                          {/* Overlay Gradiente */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/30 group-hover:from-black/60 transition-colors" />
+
+                          {/* Botão Gigante Central Pulsante de Play */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10">
+                            <button 
+                              className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-r from-cyan-500 via-sky-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-cyan-500/60 group-hover:scale-110 transition-transform animate-pulse"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePlayGame(selectedGame);
+                              }}
+                              title={t.playNow}
+                            >
+                              <Play className="w-10 h-10 fill-white text-white ml-1.5" />
+                            </button>
+                            <span className="text-sm md:text-base font-black text-white uppercase tracking-widest bg-black/60 px-5 py-2 rounded-full border border-white/20 backdrop-blur-md shadow-lg group-hover:border-cyan-400 group-hover:text-cyan-300 transition-colors">
+                              {t.playNow}
+                            </span>
+                          </div>
+
+                          {/* Tag de Categoria no Canto */}
+                          <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                            <span className="text-xs font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-3 py-1 rounded-full backdrop-blur-md shadow-md">
+                              {selectedGame.category}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        /* JOGO EM EXECUÇÃO REAL (IFRAME ATIVO + KRUUJPORTALLOADER DE 3S) */
+                        <div className="poki-stage-iframe-container">
+                          {isPhysicalGame(selectedGame.slug) ? (
+                            <iframe
+                              ref={gameIframeRef}
+                              key={selectedGame.id}
+                              src={getGameUrl(selectedGame)}
+                              sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
+                              allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; screen-wake-lock; orientation-lock"
+                              allowFullScreen
+                              scrolling="no"
+                              title={selectedGame.title}
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                border: 'none',
+                                margin: 0,
+                                padding: 0
+                              }}
+                            ></iframe>
+                          ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/95 p-6 text-center space-y-4">
+                              <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest bg-yellow-950/80 px-3 py-1 rounded-full border border-yellow-500/20">
+                                🛡️ CIRCUITO EM AUDITORIA
+                              </span>
+                              <h3 className="text-lg font-bold text-white">{selectedGame.title}</h3>
+                              <button 
+                                className="btn-secondary py-1.5 px-4 text-xs font-bold"
+                                onClick={() => { setView('home'); setSelectedGame(null); setIsPlayingGame(false); }}
+                              >
+                                Voltar ao Catálogo
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* BARRA BRANCA POKI DE AÇÕES (IDÊNTICA À tela-poki-jogo.png) */}
+                    <div className="poki-stage-action-bar">
+                      <div className="poki-bar-game-info">
+                        <div className="poki-bar-thumb">
+                          {renderGameCover(selectedGame)}
+                        </div>
+                        <div className="poki-bar-text">
+                          <h2 className="poki-bar-title">{selectedGame.title}</h2>
+                          <span className="poki-bar-author">by {selectedGame.author || 'KRUUJ Studio'}</span>
+                        </div>
+                      </div>
+
+                      <div className="poki-bar-actions">
+                        {/* Curtir / Like 👍 */}
+                        <button 
+                          className={`poki-bar-action-item ${isGameFavorited(selectedGame) ? 'liked' : ''}`}
+                          onClick={() => handleToggleFavorite(selectedGame.id)}
+                          title="Gostei"
+                        >
+                          <ThumbsUp className={`w-4 h-4 ${isGameFavorited(selectedGame) ? 'fill-blue-600 text-blue-600' : 'text-gray-500'}`} />
+                          <span className="poki-bar-action-count">{likesCount[selectedGame.id] || 124}</span>
+                        </button>
+
+                        {/* Não Gostei 👎 */}
+                        <button 
+                          className="poki-bar-action-item"
+                          onClick={() => alert("Obrigado pelo feedback!")}
+                          title="Não gostei"
+                        >
+                          <ThumbsDown className="w-4 h-4 text-gray-400" />
+                          <span className="poki-bar-action-count">3</span>
+                        </button>
+
+                        {/* Compartilhar */}
+                        <button 
+                          className="poki-bar-action-item"
+                          onClick={() => {
+                            if (navigator.share) {
+                              navigator.share({ title: selectedGame.title, url: window.location.href }).catch(() => {});
+                            } else {
+                              navigator.clipboard?.writeText(window.location.href);
+                              alert("Link copiado com sucesso!");
+                            }
+                          }}
+                          title="Compartilhar"
+                        >
+                          <Share2 className="w-4 h-4 text-gray-500" />
+                        </button>
+
+                        {/* Denúncia / Report ⚑ */}
+                        <button 
+                          className="poki-bar-action-item"
+                          onClick={() => setView('report')}
+                          title="Reportar"
+                        >
+                          <Flag className="w-4 h-4 text-gray-400" />
+                        </button>
+
+                        {/* Botão Jogar / Tela Cheia */}
+                        {!isPlayingGame ? (
+                          <button 
+                            className="btn-primary py-1.5 px-4 text-xs font-black shadow-md bg-gradient-to-r from-sky-500 to-purple-600"
+                            onClick={() => handlePlayGame(selectedGame)}
+                            title={t.playNow}
+                          >
+                            <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                          </button>
+                        ) : (
+                          <button 
+                            className="poki-bar-action-item"
+                            onClick={handleManualFullscreen}
+                            title="Tela Cheia"
+                          >
+                            <Maximize className="w-4 h-4 text-gray-600" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LATERAL DIREITA: MOSAICO POKI DE JOGOS RECOMENDADOS (2 COLUNAS) */}
+                  <div className="poki-stage-right-mosaic hidden lg:grid">
+                    {getRelatedGames(selectedGame).slice(0, 8).map((rel, i) => (
+                      <div 
+                        key={rel.id} 
+                        className={`kruuj-poki-card ${i === 1 ? 'tile-2x2' : 'tile-1x1'} ${isGameFavorited(rel) ? 'is-favorited' : ''}`}
+                        onClick={() => handleOpenPreview(rel)}
+                        title={`Ver ${rel.title}`}
+                      >
+                        <div className="kruuj-poki-thumb">
+                          {renderGameCover(rel)}
+                          <div className="kruuj-poki-overlay">
+                            <div className="kruuj-poki-play-icon">
+                              <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="kruuj-poki-meta">
+                          <span className="kruuj-poki-title">{rel.title}</span>
+                          <span className="kruuj-poki-cat">{rel.category}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* MOSAICO INFERIOR CONTÍNUO DE TODOS OS JOGOS (ABAIXO DO PALCO) */}
+                <div className="poki-stage-bottom-mosaic">
+                  <div className="kruuj-poki-section">
+                    <div className="kruuj-poki-grid">
+                      {getFilteredGames().map((game) => (
+                        <div 
+                          key={game.id} 
+                          className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
+                          onClick={() => handleOpenPreview(game)}
+                          title={`Ver ${game.title}`}
+                        >
+                          <div className="kruuj-poki-thumb">
+                            {renderGameCover(game)}
+                            <div className="kruuj-poki-overlay">
+                              <div className="kruuj-poki-play-icon">
+                                <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+                              </div>
+                            </div>
+                            <button
+                              className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
+                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
+                              title="Favoritar"
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+                            </button>
+                          </div>
+                          <div className="kruuj-poki-meta">
+                            <span className="kruuj-poki-title">{game.title}</span>
+                            <span className="kruuj-poki-cat">{game.category}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
