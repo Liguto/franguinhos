@@ -419,6 +419,15 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 .demo :focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 
 </style>
+
+<script>
+if (window.self !== window.top) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const kl = document.getElementById('kl');
+    if (kl) kl.style.display = 'none';
+  });
+}
+</script>
 </head>
 <body>
 <div id="kl" role="status" aria-live="polite" aria-label="Carregando">

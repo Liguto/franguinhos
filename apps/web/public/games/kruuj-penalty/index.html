@@ -5,9 +5,9 @@
 <script>
 const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
 const I18N_GEN = {
-  pt: { tagline: tG.tagline, tips: tG.tips, tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
-  en: { tagline: tG.tagline, tips: tG.tips, tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
-  es: { tagline: tG.tagline, tips: tG.tips, tips: ['¡Diviértete con los juegos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
+  pt: { tagline: 'Prepare os fones, a coruja já está chegando.', tips: ['Divirta-se com os jogos oficiais da KRUUJ Studio!', 'Use fones de ouvido para melhor imersão.'] },
+  en: { tagline: 'Put on your headphones, the owl is coming.', tips: ['Enjoy official games from KRUUJ Studio!', 'Use headphones for the best experience.'] },
+  es: { tagline: 'Prepara los auriculares, el búho está llegando.', tips: ['¡Diviértete con los jogos oficiales de KRUUJ Studio!', 'Usa auriculares para la mejor experiencia.'] }
 };
 const tG = I18N_GEN[LANG_GENERIC] || I18N_GEN.en;
 </script>
@@ -110,6 +110,17 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 .demo :focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 
 </style>
+
+<script>
+// Se estiver rodando dentro do portal KRUUJ, o portal já exibe o KruujPortalLoader de 3s
+if (window.self !== window.top) {
+  window.addEventListener('DOMContentLoaded', () => {
+    const kl = document.getElementById('kl');
+    if (kl) kl.style.display = 'none';
+  });
+}
+</script>
+
 </head>
 <body>
 <div id="kl" role="status" aria-live="polite" aria-label="Carregando">
