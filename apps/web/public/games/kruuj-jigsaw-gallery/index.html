@@ -1023,8 +1023,8 @@
         pieceEl.onclick = () => {
           audio.pick();
           selectedPieceId = selectedPieceId === piece.id ? null : piece.id;
+          document.querySelectorAll('.puzzle-slot').forEach(s => s.classList.remove('highlight'));
           renderTray();
-          highlightMatchingSlot();
         };
 
         container.appendChild(pieceEl);

@@ -869,9 +869,16 @@
     }
 
     /* =========================================================
-       SELEÇÃO DE PALAVRAS (ARRASTO OU 2 CLIQUES)
+       SELEÇÃO DE PALAVRAS (ARRASTO CONTÍNUO OU 2 CLIQUES)
        ========================================================= */
     function onPointerDown(r, c, e) {
+      if (e) {
+        try {
+          if (e.target && e.target.releasePointerCapture && e.pointerId !== undefined) {
+            e.target.releasePointerCapture(e.pointerId);
+          }
+        } catch(err) {}
+      }
       audio.letterTap();
       // Modo de 2 cliques: Se já havia um startCell selecionado e clica em outra célula válida
       if (startCell && !isSelecting && (startCell.r !== r || startCell.c !== c)) {
@@ -896,6 +903,34 @@
       highlightSelectingCells();
     }
 
+    function handlePointerMoveSelection(clientX, clientY) {
+      if (!isSelecting || !startCell) return;
+      const el = document.elementFromPoint(clientX, clientY);
+      if (el) {
+        const cell = el.closest('.letter-cell');
+        if (cell && cell.dataset.r !== undefined && cell.dataset.c !== undefined) {
+          const r = parseInt(cell.dataset.r, 10);
+          const c = parseInt(cell.dataset.c, 10);
+          if (!endCell || endCell.r !== r || endCell.c !== c) {
+            endCell = { r, c };
+            highlightSelectingCells();
+          }
+        }
+      }
+    }
+
+    window.addEventListener('pointermove', (e) => {
+      if (isSelecting) {
+        handlePointerMoveSelection(e.clientX, e.clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isSelecting && e.touches && e.touches[0]) {
+        handlePointerMoveSelection(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
     function onPointerUp() {
       if (!isSelecting) return;
       isSelecting = false;
@@ -905,8 +940,11 @@
           highlightSelectingCells();
           return;
         }
+        // Arrastou entre células: valida a palavra instantaneamente!
         checkSelectedWord();
       }
+      startCell = null;
+      endCell = null;
       clearSelectingStyles();
       drawFoundHighlights();
     }
