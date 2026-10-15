@@ -1666,7 +1666,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         ctx.shadowColor = this.track.nestColor;
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(endPt.x > this.width ? this.width - 20 : endPt.x, endPt.y > this.height - 80 ? this.height - 100 : endPt.y, 18, 0, Math.PI * 2);
+        ctx.arc(Math.min(940, endPt.x), Math.min(460, endPt.y), 18, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -2564,7 +2564,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
               const dropY = coords.y;
 
               // Soltou dentro da área jogável do Canvas (acima do dock de 80px)
-              const isOverCanvas = dropX >= 0 && dropX <= this.canvas.width && dropY >= 0 && dropY <= (this.canvas.height - 80);
+              const isOverCanvas = dropX >= 0 && dropX <= this.virtualWidth && dropY >= 0 && dropY <= this.virtualHeight;
               
               if (isOverCanvas) {
                 const cfg = this.towerConfigs[this.draggingShopIndex];
@@ -3265,7 +3265,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
         // Preview Holográfico Bloons TD
         const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
-        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.y >= 0 && this.mousePos.y < this.canvas.height - 80) {
+        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.x <= this.virtualWidth && this.mousePos.y >= 0 && this.mousePos.y <= this.virtualHeight) {
           const cfg = this.towerConfigs[activePreviewIndex];
           const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
 
