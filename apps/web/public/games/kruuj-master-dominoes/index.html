@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Dominó dos Mestres / Master Dominoes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const IS_PT = !URL_LANG.startsWith('en') && !URL_LANG.startsWith('es');
+    const IS_ES = URL_LANG.startsWith('es');
+    const CURRENT_LANG = IS_PT ? 'pt' : (IS_ES ? 'es' : 'en');
+  </script>
+
+  <style>
+    :root {
+      --bg: #0b1a14;
+      --felt: #133924;
+      --felt-border: #23593b;
+      --card-bg: #142a1f;
+      --card-border: #28543d;
+      --gold: #f4c462;
+      --gold-hover: #ffd987;
+      --gold-dark: #b8861e;
+      --bone: #fdfbf7;
+      --bone-pip: #1a1e24;
+      --text-white: #f5f7fc;
+      --text-muted: #a3c4b0;
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-title: 'Playfair Display', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: radial-gradient(circle at 50% 20%, #17422b 0%, var(--bg) 90%);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+    }
+
+    /* KruujLoader nativo */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #153e28 0%, var(--bg) 75%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity .6s ease, visibility .6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity .5s ease; text-align: center; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl-icon { width: 120px; height: 120px; border-radius: 50%; filter: drop-shadow(0 0 20px rgba(244,196,98,0.6)); animation: floatOwl 2.8s ease-in-out infinite; }
+    @keyframes floatOwl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .splash .logo-title { font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 16px 0 4px; letter-spacing: 0.05em; }
+    .splash .sub { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
+    .track { position: relative; width: 100%; height: 10px; margin: 32px 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); transition: width 0.2s ease; }
+    .pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .tip { margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; }
+
+    /* LAYOUT PRINCIPAL */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 8px 12px 18px;
+    }
+
+    /* TOP HEADER & POKI RECUO */
+    .top-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .top-header {
+        padding-left: 68px !important;
+      }
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .game-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1c4b32, #0d2618);
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .game-titles h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      color: var(--text-white);
+      letter-spacing: 0.02em;
+    }
+    .game-titles span {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-top {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-top:hover {
+      background: #1b3d2c;
+      border-color: var(--gold);
+    }
+
+    /* PLACAR E MÃO DO ADVERSÁRIO (IA) */
+    .opponent-area {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: rgba(14, 38, 26, 0.75);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin: 8px 0;
+    }
+    .player-tag {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .player-avatar {
+      font-size: 28px;
+    }
+    .player-info h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--text-white);
+    }
+    .player-info span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .opponent-dominoes {
+      display: flex;
+      gap: 4px;
+    }
+    .opponent-tile-back {
+      width: 22px;
+      height: 38px;
+      background: linear-gradient(135deg, #2b1f13, #150f09);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    /* MESA DE FELTRO VERDE (TABULEIRO CENTRAL) */
+    .table-felt {
+      width: 100%;
+      height: clamp(260px, 46dvh, 420px);
+      background: radial-gradient(circle at 50% 50%, #1b4b30 0%, var(--felt) 80%);
+      border: 3px solid var(--felt-border);
+      border-radius: 20px;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0,0,0,0.4);
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      scrollbar-width: thin;
+    }
+
+    .domino-chain {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: auto;
+      min-width: min-content;
+      padding: 0 40px;
+      transition: all 0.3s;
+    }
+
+    /* PONTAS DE ENCAIXE COM BRILHO MAGNÉTICO */
+    .drop-endpoint {
+      min-width: 50px;
+      height: 76px;
+      border: 2px dashed var(--gold);
+      border-radius: 8px;
+      background: rgba(244, 196, 98, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0 8px;
+      animation: pulseEndpoint 1.4s infinite ease-in-out;
+    }
+    @keyframes pulseEndpoint {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(244,196,98,0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(244,196,98,0.7); }
+    }
+
+    /* PEDRA DE DOMINÓ TRADICIONAL */
+    .domino-tile {
+      width: 44px;
+      height: 84px;
+      background: linear-gradient(145deg, #ffffff, #eae6dc);
+      border: 2px solid #ccc5b5;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .domino-tile.horizontal {
+      width: 84px;
+      height: 44px;
+      flex-direction: row;
+    }
+    .domino-tile.in-hand:hover {
+      transform: translateY(-8px);
+      border-color: var(--gold);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 14px var(--gold);
+    }
+    .domino-tile.playable {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(244, 196, 98, 0.6);
+      animation: gentleBob 2s infinite ease-in-out;
+    }
+    @keyframes gentleBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .domino-tile.selected {
+      transform: translateY(-12px) scale(1.05) !important;
+      border-color: #ffd987 !important;
+      box-shadow: 0 0 22px rgba(244, 196, 98, 0.9) !important;
+    }
+
+    .domino-half {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 4px;
+      place-items: center;
+    }
+    .domino-divider {
+      background: #b5ad9a;
+      width: 100%;
+      height: 2px;
+      position: relative;
+    }
+    .domino-divider::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      top: -2px;
+      left: calc(50% - 3px);
+      box-shadow: 0 0 3px rgba(0,0,0,0.5);
+    }
+    .domino-tile.horizontal .domino-divider {
+      width: 2px;
+      height: 100%;
+    }
+    .domino-tile.horizontal .domino-divider::after {
+      top: calc(50% - 3px);
+      left: -2px;
+    }
+
+    .pip {
+      width: 7px;
+      height: 7px;
+      background: var(--bone-pip);
+      border-radius: 50%;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* MÃO DO JOGADOR SÊNIOR */
+    .player-hand-section {
+      width: 100%;
+      background: rgba(14, 38, 26, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .player-hand-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .player-turn-status {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .deck-counter {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .player-tiles-container {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-height: 94px;
+      padding: 4px 0;
+    }
+
+    /* AÇÕES DA RODADA */
+    .gameplay-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 4px;
+    }
+    .btn-game {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-game:hover:not(:disabled) {
+      background: #1d4531;
+      border-color: var(--gold);
+    }
+    .btn-game:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-game.gold {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* MODAL DE VITÓRIA */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 22, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .win-card {
+      background: linear-gradient(145deg, #1d3a29, #0f241a);
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .win-owl {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .win-title {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin: 0 0 10px;
+    }
+    .win-desc {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--text-white);
+      margin-bottom: 24px;
+    }
+    .btn-win-next {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0b1a14;
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244, 196, 98, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-win-next:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- KruujLoader Fallback Standalone -->
+  <div id="kl" role="status" aria-label="Carregando">
+    <div class="ph splash">
+      <div class="owl-icon">🦉</div>
+      <h1 class="logo-title">DOMINÓ DOS MESTRES</h1>
+      <p class="sub">KRUUJ Tradição</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip">Organizando a mesa e as pedras de marfim para uma boa partida...</p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="game-logo">🀫</div>
+        <div class="game-titles">
+          <h1 id="ui-title">Dominó dos Mestres</h1>
+          <span id="ui-subtitle">KRUUJ Studio 60+</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-top" id="btn-sound" title="Som">🔊</button>
+        <button class="btn-top" id="btn-lang" title="Idioma">🌐 <span id="txt-lang">PT</span></button>
+      </div>
+    </header>
+
+    <!-- ÁREA DO ADVERSÁRIO (MESTRE ARTUR - IA CORDIAL) -->
+    <section class="opponent-area">
+      <div class="player-tag">
+        <div class="player-avatar">👴🏼</div>
+        <div class="player-info">
+          <h3 id="txt-ai-name">Mestre Artur</h3>
+          <span id="txt-ai-status">Pensando tranquilamente...</span>
+        </div>
+      </div>
+      <div class="opponent-dominoes" id="ai-dominoes"></div>
+    </section>
+
+    <!-- MESA CENTRAL (FELTRO VERDE) -->
+    <main class="table-felt" id="table-scroll">
+      <div class="domino-chain" id="board-chain"></div>
+    </main>
+
+    <!-- MÃO DO JOGADOR -->
+    <section class="player-hand-section">
+      <div class="player-hand-header">
+        <span class="player-turn-status" id="txt-turn-status">Sua Vez de Jogar</span>
+        <span class="deck-counter" id="txt-boneyard">Monte: 14 pedras</span>
+      </div>
+      <div class="player-tiles-container" id="player-hand"></div>
+      
+      <div class="gameplay-actions">
+        <button class="btn-game gold" id="btn-draw">
+          🎲 <span id="txt-btn-draw">Comprar do Monte</span>
+        </button>
+        <button class="btn-game" id="btn-pass" disabled>
+          ↷ <span id="txt-btn-pass">Passar a Vez</span>
+        </button>
+        <button class="btn-game" id="btn-hint">
+          💡 <span id="txt-btn-hint">Dica de Jogada</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL DE FIM DE PARTIDA -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="win-card">
+      <div class="win-owl">🦉</div>
+      <h2 class="win-title" id="win-title">Bela Jogada, Mestre!</h2>
+      <p class="win-desc" id="win-desc">Você bateu com maestria e estratégia digna dos grandes salões de dominó!</p>
+      <button class="btn-win-next" id="btn-win-next">Nova Partida ➔</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       ÁUDIO SINTETIZADO (WebAudio API)
+       ========================================================= */
+    class DominoAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      tileClack() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        // Som tátil de marfim/pedra batendo
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(680, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.07);
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.07);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.07);
+      }
+      drawTile() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(480, this.ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.06);
+      }
+      winFanfare() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.12);
+          gain.gain.setValueAtTime(0.1, this.ctx.currentTime + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.12 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.12);
+          osc.stop(this.ctx.currentTime + i * 0.12 + 0.6);
+        });
+      }
+    }
+    const audio = new DominoAudio();
+
+    /* =========================================================
+       TEXTOS E LOCALIZAÇÃO (PT / EN / ES)
+       ========================================================= */
+    const I18N_DATA = {
+      pt: {
+        title: "Dominó dos Mestres",
+        subtitle: "KRUUJ Studio 60+",
+        aiName: "Mestre Artur",
+        aiThinking: "Pensando na próxima jogada...",
+        aiPass: "Mestre Artur passou a vez.",
+        aiPlayed: "Mestre Artur colocou uma pedra na mesa.",
+        yourTurn: "Sua Vez de Jogar!",
+        boneyard: "Monte",
+        btnDraw: "Comprar do Monte",
+        btnPass: "Passar a Vez",
+        btnHint: "Dica de Jogada",
+        noMoves: "Nenhuma pedra encaixa. Compre uma pedra do monte!",
+        noMovesEmptyDeck: "Monte vazio! Você pode passar a vez.",
+        winTitle: "Bela Vitória, Mestre!",
+        winDesc: "Você bateu com maestria e honrou a tradição do dominó. Parabéns!",
+        tieWinTitle: "Vitória nos Pontos!",
+        tieWinDesc: "O jogo fechou e você ficou com menos pontos na mão. Bela estratégia!",
+        lossTitle: "Partida Bem Disputada!",
+        lossDesc: "Mestre Artur venceu desta vez. Que tal uma revanche amistosa?",
+        btnNext: "Nova Partida ➔"
+      },
+      en: {
+        title: "Master Dominoes",
+        subtitle: "KRUUJ Studio 60+",
+        aiName: "Master Arthur",
+        aiThinking: "Thinking calmly...",
+        aiPass: "Master Arthur passed.",
+        aiPlayed: "Master Arthur played a domino.",
+        yourTurn: "Your Turn to Play!",
+        boneyard: "Boneyard",
+        btnDraw: "Draw from Boneyard",
+        btnPass: "Pass Turn",
+        btnHint: "Strategy Hint",
+        noMoves: "No matching tile. Draw a tile from the boneyard!",
+        noMovesEmptyDeck: "Boneyard is empty! You may pass.",
+        winTitle: "Superb Victory!",
+        winDesc: "You played your last domino with magnificent skill. Well played!",
+        tieWinTitle: "Victory on Points!",
+        tieWinDesc: "The game was blocked and you had fewer points remaining. Great mind!",
+        lossTitle: "A Gentle Match!",
+        lossDesc: "Master Arthur took this one. Shall we play another friendly round?",
+        btnNext: "New Match ➔"
+      },
+      es: {
+        title: "Dominó de los Maestros",
+        subtitle: "KRUUJ Studio 60+",
+        aiName: "Maestro Arturo",
+        aiThinking: "Pensando con calma...",
+        aiPass: "El Maestro Arturo pasó.",
+        aiPlayed: "El Maestro Arturo jugó una ficha.",
+        yourTurn: "¡Tu Turno de Jugar!",
+        boneyard: "Pozo",
+        btnDraw: "Tomar del Pozo",
+        btnPass: "Pasar Turno",
+        btnHint: "Pista Estratégica",
+        noMoves: "No tienes ficha jugable. ¡Toma una del pozo!",
+        noMovesEmptyDeck: "¡El pozo está vacío! Puedes pasar tu turno.",
+        winTitle: "¡Excelente Victoria!",
+        winDesc: "¡Has dominado la mesa con elegancia y maestría tradicional!",
+        tieWinTitle: "¡Victoria por Puntos!",
+        tieWinDesc: "La mesa se trancó y tenías menos puntos en mano. ¡Gran cálculo!",
+        lossTitle: "¡Partida Disputada!",
+        lossDesc: "El Maestro Arturo ganó esta ronda. ¿Jugamos la revancha?",
+        btnNext: "Nueva Partida ➔"
+      }
+    };
+
+    let currentLang = CURRENT_LANG;
+    let boneyard = [];
+    let playerHand = [];
+    let aiHand = [];
+    let boardChain = []; // [{ left, right, isDouble }]
+    let isPlayerTurn = true;
+    let selectedTileIndex = -1;
+
+    function getTexts() {
+      return I18N_DATA[currentLang] || I18N_DATA.pt;
+    }
+
+    function initUI() {
+      const texts = getTexts();
+      document.getElementById('ui-title').textContent = texts.title;
+      document.getElementById('ui-subtitle').textContent = texts.subtitle;
+      document.getElementById('txt-lang').textContent = currentLang.toUpperCase();
+      document.getElementById('txt-ai-name').textContent = texts.aiName;
+      document.getElementById('txt-turn-status').textContent = texts.yourTurn;
+      document.getElementById('txt-btn-draw').textContent = texts.btnDraw;
+      document.getElementById('txt-btn-pass').textContent = texts.btnPass;
+      document.getElementById('txt-btn-hint').textContent = texts.btnHint;
+      document.getElementById('btn-win-next').textContent = texts.btnNext;
+    }
+
+    /* =========================================================
+       LÓGICA OFICIAL DE DOMINÓ DUPLO-6 (28 PEDRAS)
+       ========================================================= */
+    function newMatch() {
+      // 1. Gera as 28 pedras
+      const allTiles = [];
+      for (let i = 0; i <= 6; i++) {
+        for (let j = i; j <= 6; j++) {
+          allTiles.push({ left: i, right: j, isDouble: i === j });
+        }
+      }
+      allTiles.sort(() => Math.random() - 0.5);
+
+      // 2. Distribui 7 para cada um
+      playerHand = allTiles.splice(0, 7);
+      aiHand = allTiles.splice(0, 7);
+      boneyard = allTiles; // Restam 14
+      boardChain = [];
+      selectedTileIndex = -1;
+
+      // 3. Quem começa? Maior carroça (duplo)
+      let highestPlayerDouble = getHighestDouble(playerHand);
+      let highestAiDouble = getHighestDouble(aiHand);
+
+      if (highestPlayerDouble >= highestAiDouble) {
+        isPlayerTurn = true;
+        updateTurnDisplay();
+      } else {
+        isPlayerTurn = false;
+        updateTurnDisplay();
+        setTimeout(aiTurn, 1000);
+      }
+
+      renderAll();
+    }
+
+    function getHighestDouble(hand) {
+      let max = -1;
+      hand.forEach(t => {
+        if (t.isDouble && t.left > max) max = t.left;
+      });
+      return max;
+    }
+
+    function renderAll() {
+      renderAIHand();
+      renderBoard();
+      renderPlayerHand();
+      updateBoneyardCounter();
+      checkPassAndDrawState();
+    }
+
+    function renderAIHand() {
+      const container = document.getElementById('ai-dominoes');
+      container.innerHTML = '';
+      aiHand.forEach(() => {
+        const back = document.createElement('div');
+        back.className = 'opponent-tile-back';
+        container.appendChild(back);
+      });
+    }
+
+    function updateBoneyardCounter() {
+      const texts = getTexts();
+      document.getElementById('txt-boneyard').textContent = `${texts.boneyard}: ${boneyard.length}`;
+    }
+
+    function updateTurnDisplay() {
+      const texts = getTexts();
+      const statusEl = document.getElementById('txt-turn-status');
+      const aiStatusEl = document.getElementById('txt-ai-status');
+
+      if (isPlayerTurn) {
+        statusEl.textContent = texts.yourTurn;
+        aiStatusEl.textContent = texts.aiThinking;
+      } else {
+        statusEl.textContent = `${texts.aiName}...`;
+        aiStatusEl.textContent = texts.aiThinking;
+      }
+    }
+
+    /* =========================================================
+       RENDERIZAÇÃO DA MESA (CADEIA DE PEDRAS)
+       ========================================================= */
+    function renderBoard() {
+      const chainEl = document.getElementById('board-chain');
+      chainEl.innerHTML = '';
+
+      if (boardChain.length === 0) {
+        const tip = document.createElement('div');
+        tip.style.color = 'var(--text-muted)';
+        tip.style.fontSize = '1.1rem';
+        tip.textContent = isPlayerTurn ? 'Toque na sua primeira pedra para abrir a mesa!' : 'Aguardando abertura da mesa...';
+        chainEl.appendChild(tip);
+        return;
+      }
+
+      // Ponta esquerda para encaixe
+      if (isPlayerTurn && selectedTileIndex !== -1) {
+        const selected = playerHand[selectedTileIndex];
+        const leftEnd = getChainLeftEnd();
+        if (selected.left === leftEnd || selected.right === leftEnd) {
+          const epLeft = createDropEndpoint('left');
+          chainEl.appendChild(epLeft);
+        }
+      }
+
+      // Pedras na mesa
+      boardChain.forEach((tile) => {
+        const domEl = createDominoElement(tile.left, tile.right, !tile.isDouble);
+        chainEl.appendChild(domEl);
+      });
+
+      // Ponta direita para encaixe
+      if (isPlayerTurn && selectedTileIndex !== -1) {
+        const selected = playerHand[selectedTileIndex];
+        const rightEnd = getChainRightEnd();
+        if (selected.left === rightEnd || selected.right === rightEnd) {
+          const epRight = createDropEndpoint('right');
+          chainEl.appendChild(epRight);
+        }
+      }
+
+      // Rola a mesa para a última pedra colocada
+      const scrollEl = document.getElementById('table-scroll');
+      setTimeout(() => {
+        scrollEl.scrollLeft = (scrollEl.scrollWidth - scrollEl.clientWidth) / 2;
+      }, 50);
+    }
+
+    function createDropEndpoint(side) {
+      const ep = document.createElement('div');
+      ep.className = 'drop-endpoint';
+      ep.textContent = side === 'left' ? '◀ Encaixar' : 'Encaixar ▶';
+      ep.onclick = () => {
+        if (selectedTileIndex !== -1) {
+          playTile(selectedTileIndex, side);
+        }
+      };
+      return ep;
+    }
+
+    function getChainLeftEnd() {
+      return boardChain.length ? boardChain[0].left : null;
+    }
+    function getChainRightEnd() {
+      return boardChain.length ? boardChain[boardChain.length - 1].right : null;
+    }
+
+    /* =========================================================
+       CRIAÇÃO DO ELEMENTO VISUAL DA PEDRA DE DOMINÓ COM PIPS
+       ========================================================= */
+    function createDominoElement(topVal, bottomVal, isHorizontal = false) {
+      const tile = document.createElement('div');
+      tile.className = `domino-tile ${isHorizontal ? 'horizontal' : ''}`;
+
+      const half1 = document.createElement('div');
+      half1.className = 'domino-half';
+      renderPips(half1, topVal);
+
+      const divider = document.createElement('div');
+      divider.className = 'domino-divider';
+
+      const half2 = document.createElement('div');
+      half2.className = 'domino-half';
+      renderPips(half2, bottomVal);
+
+      tile.appendChild(half1);
+      tile.appendChild(divider);
+      tile.appendChild(half2);
+
+      return tile;
+    }
+
+    function renderPips(container, value) {
+      container.innerHTML = '';
+      // Posições em grade 3x3: [r, c] (1 a 3)
+      const pipPositions = {
+        0: [],
+        1: [[2, 2]],
+        2: [[1, 3], [3, 1]],
+        3: [[1, 3], [2, 2], [3, 1]],
+        4: [[1, 1], [1, 3], [3, 1], [3, 3]],
+        5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]],
+        6: [[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3]]
+      };
+
+      const positions = pipPositions[value] || [];
+      for (let r = 1; r <= 3; r++) {
+        for (let c = 1; c <= 3; c++) {
+          const hasPip = positions.some(p => p[0] === r && p[1] === c);
+          if (hasPip) {
+            const pip = document.createElement('div');
+            pip.className = 'pip';
+            pip.style.gridRow = r;
+            pip.style.gridColumn = c;
+            container.appendChild(pip);
+          }
+        }
+      }
+    }
+
+    /* =========================================================
+       RENDERIZAÇÃO DA MÃO DO JOGADOR
+       ========================================================= */
+    function renderPlayerHand() {
+      const container = document.getElementById('player-hand');
+      container.innerHTML = '';
+
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+
+      playerHand.forEach((tile, index) => {
+        const isPlayable = boardChain.length === 0 || 
+          tile.left === leftEnd || tile.right === leftEnd ||
+          tile.left === rightEnd || tile.right === rightEnd;
+
+        const tileEl = createDominoElement(tile.left, tile.right);
+        tileEl.classList.add('in-hand');
+        if (isPlayerTurn && isPlayable) tileEl.classList.add('playable');
+        if (selectedTileIndex === index) tileEl.classList.add('selected');
+
+        tileEl.onclick = () => onPlayerTileClick(index, isPlayable);
+        container.appendChild(tileEl);
+      });
+    }
+
+    function onPlayerTileClick(index, isPlayable) {
+      if (!isPlayerTurn) return;
+      audio.drawTile();
+
+      if (boardChain.length === 0) {
+        // Primeira pedra: joga diretamente
+        playTile(index, 'right');
+        return;
+      }
+
+      if (!isPlayable) return;
+
+      const tile = playerHand[index];
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+
+      const fitsLeft = tile.left === leftEnd || tile.right === leftEnd;
+      const fitsRight = tile.left === rightEnd || tile.right === rightEnd;
+
+      if (fitsLeft && !fitsRight) {
+        // Encaixa direto na esquerda
+        playTile(index, 'left');
+      } else if (!fitsLeft && fitsRight) {
+        // Encaixa direto na direita
+        playTile(index, 'right');
+      } else if (fitsLeft && fitsRight) {
+        // Encaixa em ambos: seleciona para o jogador tocar na ponta desejada!
+        selectedTileIndex = selectedTileIndex === index ? -1 : index;
+        renderAll();
+      }
+    }
+
+    function playTile(index, side) {
+      const tile = playerHand.splice(index, 1)[0];
+      selectedTileIndex = -1;
+      audio.tileClack();
+
+      if (boardChain.length === 0) {
+        boardChain.push(tile);
+      } else if (side === 'left') {
+        const leftEnd = getChainLeftEnd();
+        if (tile.right === leftEnd) {
+          boardChain.unshift(tile);
+        } else {
+          // Inverte
+          boardChain.unshift({ left: tile.right, right: tile.left, isDouble: tile.isDouble });
+        }
+      } else {
+        const rightEnd = getChainRightEnd();
+        if (tile.left === rightEnd) {
+          boardChain.push(tile);
+        } else {
+          // Inverte
+          boardChain.push({ left: tile.right, right: tile.left, isDouble: tile.isDouble });
+        }
+      }
+
+      renderAll();
+
+      if (checkWinCondition()) return;
+
+      isPlayerTurn = false;
+      updateTurnDisplay();
+      setTimeout(aiTurn, 1200);
+    }
+
+    /* =========================================================
+       TURNO DA INTELIGÊNCIA ARTIFICIAL (MESTRE ARTUR)
+       ========================================================= */
+    function aiTurn() {
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+      const texts = getTexts();
+
+      // Encontra peças válidas
+      const validMoves = [];
+      aiHand.forEach((tile, index) => {
+        if (boardChain.length === 0) {
+          validMoves.push({ index, side: 'right' });
+        } else {
+          if (tile.left === leftEnd || tile.right === leftEnd) validMoves.push({ index, side: 'left' });
+          if (tile.left === rightEnd || tile.right === rightEnd) validMoves.push({ index, side: 'right' });
+        }
+      });
+
+      if (validMoves.length > 0) {
+        // Joga a pedra mais pesada primeiro (estratégia clássica)
+        validMoves.sort((a, b) => {
+          const tA = aiHand[a.index];
+          const tB = aiHand[b.index];
+          return (tB.left + tB.right) - (tA.left + tA.right);
+        });
+
+        const choice = validMoves[0];
+        const tile = aiHand.splice(choice.index, 1)[0];
+        audio.tileClack();
+
+        if (boardChain.length === 0) {
+          boardChain.push(tile);
+        } else if (choice.side === 'left') {
+          const curLeft = getChainLeftEnd();
+          if (tile.right === curLeft) {
+            boardChain.unshift(tile);
+          } else {
+            boardChain.unshift({ left: tile.right, right: tile.left, isDouble: tile.isDouble });
+          }
+        } else {
+          const curRight = getChainRightEnd();
+          if (tile.left === curRight) {
+            boardChain.push(tile);
+          } else {
+            boardChain.push({ left: tile.right, right: tile.left, isDouble: tile.isDouble });
+          }
+        }
+
+        renderAll();
+        if (checkWinCondition()) return;
+
+        isPlayerTurn = true;
+        updateTurnDisplay();
+      } else {
+        // Não tem pedra: compra se houver no monte
+        if (boneyard.length > 0) {
+          const drawn = boneyard.pop();
+          aiHand.push(drawn);
+          audio.drawTile();
+          renderAll();
+          setTimeout(aiTurn, 800);
+        } else {
+          // Passa
+          document.getElementById('txt-ai-status').textContent = texts.aiPass;
+          setTimeout(() => {
+            isPlayerTurn = true;
+            updateTurnDisplay();
+            checkPassAndDrawState();
+            checkBlockWin();
+          }, 900);
+        }
+      }
+    }
+
+    /* =========================================================
+       COMPRAR DO MONTE E PASSAR A VEZ
+       ========================================================= */
+    function checkPassAndDrawState() {
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+      const hasMoves = boardChain.length === 0 || playerHand.some(t =>
+        t.left === leftEnd || t.right === leftEnd || t.left === rightEnd || t.right === rightEnd
+      );
+
+      const btnDraw = document.getElementById('btn-draw');
+      const btnPass = document.getElementById('btn-pass');
+
+      if (!isPlayerTurn) {
+        btnDraw.disabled = true;
+        btnPass.disabled = true;
+        return;
+      }
+
+      if (hasMoves) {
+        btnDraw.disabled = true;
+        btnPass.disabled = true;
+      } else {
+        if (boneyard.length > 0) {
+          btnDraw.disabled = false;
+          btnPass.disabled = true;
+        } else {
+          btnDraw.disabled = true;
+          btnPass.disabled = false;
+        }
+      }
+    }
+
+    document.getElementById('btn-draw').onclick = () => {
+      if (!isPlayerTurn || boneyard.length === 0) return;
+      audio.drawTile();
+      const tile = boneyard.pop();
+      playerHand.push(tile);
+      renderAll();
+    };
+
+    document.getElementById('btn-pass').onclick = () => {
+      if (!isPlayerTurn) return;
+      audio.drawTile();
+      isPlayerTurn = false;
+      updateTurnDisplay();
+      checkBlockWin();
+      setTimeout(aiTurn, 1000);
+    };
+
+    // BOTÃO DICA DE JOGADA
+    document.getElementById('btn-hint').onclick = () => {
+      audio.drawTile();
+      if (!isPlayerTurn) return;
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+
+      const playableIdx = playerHand.findIndex(t =>
+        boardChain.length === 0 || t.left === leftEnd || t.right === leftEnd || t.left === rightEnd || t.right === rightEnd
+      );
+
+      if (playableIdx !== -1) {
+        selectedTileIndex = playableIdx;
+        renderAll();
+      } else {
+        const texts = getTexts();
+        alert(boneyard.length > 0 ? texts.noMoves : texts.noMovesEmptyDeck);
+      }
+    };
+
+    /* =========================================================
+       CONDIÇÕES DE VITÓRIA E FECHAMENTO
+       ========================================================= */
+    function checkWinCondition() {
+      const texts = getTexts();
+      if (playerHand.length === 0) {
+        audio.winFanfare();
+        showWinModal(texts.winTitle, texts.winDesc);
+        return true;
+      }
+      if (aiHand.length === 0) {
+        showWinModal(texts.lossTitle, texts.lossDesc);
+        return true;
+      }
+      return false;
+    }
+
+    function checkBlockWin() {
+      const leftEnd = getChainLeftEnd();
+      const rightEnd = getChainRightEnd();
+
+      const playerCanPlay = playerHand.some(t => t.left === leftEnd || t.right === leftEnd || t.left === rightEnd || t.right === rightEnd);
+      const aiCanPlay = aiHand.some(t => t.left === leftEnd || t.right === leftEnd || t.left === rightEnd || t.right === rightEnd);
+
+      if (!playerCanPlay && !aiCanPlay && boneyard.length === 0) {
+        // Jogo fechou! Soma os pontos
+        const playerPoints = playerHand.reduce((acc, t) => acc + t.left + t.right, 0);
+        const aiPoints = aiHand.reduce((acc, t) => acc + t.left + t.right, 0);
+        const texts = getTexts();
+
+        if (playerPoints <= aiPoints) {
+          audio.winFanfare();
+          showWinModal(texts.tieWinTitle, `${texts.tieWinDesc} (${playerPoints} pts vs ${aiPoints} pts)`);
+        } else {
+          showWinModal(texts.lossTitle, `${texts.lossDesc} (${playerPoints} pts vs ${aiPoints} pts)`);
+        }
+      }
+    }
+
+    function showWinModal(title, desc) {
+      document.getElementById('win-title').textContent = title;
+      document.getElementById('win-desc').textContent = desc;
+      document.getElementById('win-modal').classList.add('active');
+    }
+
+    document.getElementById('btn-win-next').onclick = () => {
+      audio.drawTile();
+      document.getElementById('win-modal').classList.remove('active');
+      newMatch();
+    };
+
+    // SOM
+    document.getElementById('btn-sound').onclick = () => {
+      audio.muted = !audio.muted;
+      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
+    };
+
+    // IDIOMA
+    document.getElementById('btn-lang').onclick = () => {
+      audio.drawTile();
+      if (currentLang === 'pt') currentLang = 'en';
+      else if (currentLang === 'en') currentLang = 'es';
+      else currentLang = 'pt';
+      initUI();
+      newMatch();
+    };
+
+    /* =========================================================
+       KRUUJ LOADER E SDK INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initUI();
+      newMatch();
+
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      if (window.self === window.top) {
+        let p = 0;
+        const fill = document.getElementById('kl-fill');
+        const pct = document.getElementById('kl-pct');
+        const interval = setInterval(() => {
+          p += 20;
+          if (fill) fill.style.width = p + '%';
+          if (pct) pct.textContent = p + '%';
+          if (p >= 100) {
+            clearInterval(interval);
+            const kl = document.getElementById('kl');
+            if (kl) {
+              kl.classList.add('out');
+              setTimeout(() => kl.style.display = 'none', 600);
+            }
+          }
+        }, 150);
+      }
+    });
+  </script>
+</body>
+</html>

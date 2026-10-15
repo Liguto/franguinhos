@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Palavras Cruzadas Zen / Zen Crosswords</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const IS_PT = !URL_LANG.startsWith('en') && !URL_LANG.startsWith('es');
+    const IS_ES = URL_LANG.startsWith('es');
+    const CURRENT_LANG = IS_PT ? 'pt' : (IS_ES ? 'es' : 'en');
+  </script>
+
+  <style>
+    :root {
+      --bg: #0f1424;
+      --card-bg: #182038;
+      --card-border: #2e3b66;
+      --gold: #f4c462;
+      --gold-hover: #ffd987;
+      --gold-dark: #b8861e;
+      --navy-light: #253358;
+      --text-white: #f5f7fc;
+      --text-muted: #abb5cf;
+      --cell-bg: #222d4f;
+      --cell-active: #f4c462;
+      --cell-highlight: rgba(244, 196, 98, 0.25);
+      --cell-correct: #2e7d32;
+      --cell-black: #090d18;
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-title: 'Playfair Display', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: radial-gradient(circle at 50% 15%, #1d2847 0%, var(--bg) 85%);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+    }
+
+    /* KruujLoader nativo */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #172244 0%, var(--bg) 75%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity .6s ease, visibility .6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity .5s ease; text-align: center; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl-icon { width: 120px; height: 120px; border-radius: 50%; filter: drop-shadow(0 0 20px rgba(244,196,98,0.6)); animation: floatOwl 2.8s ease-in-out infinite; }
+    @keyframes floatOwl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .splash .logo-title { font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 16px 0 4px; letter-spacing: 0.05em; }
+    .splash .sub { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
+    .track { position: relative; width: 100%; height: 10px; margin: 32px 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); transition: width 0.2s ease; }
+    .pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .tip { margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; }
+
+    /* LAYOUT PRINCIPAL */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 12px 16px 24px;
+    }
+
+    /* HEADER & POKI RECUO */
+    .top-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    /* REGRA POKI: 68px de recuo no mobile para não cobrir o botão voltar */
+    @media (max-width: 768px) {
+      .top-header {
+        padding-left: 68px !important;
+      }
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .game-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2a375e, #141c33);
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .game-titles h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      color: var(--text-white);
+      letter-spacing: 0.02em;
+    }
+    .game-titles span {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-top {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-top:hover {
+      background: var(--navy-light);
+      border-color: var(--gold);
+    }
+    .btn-top:active {
+      transform: scale(0.96);
+    }
+
+    /* SELETOR DE TEMAS */
+    .themes-bar {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 2px 8px;
+      scrollbar-width: none;
+    }
+    .themes-bar::-webkit-scrollbar { display: none; }
+    .theme-chip {
+      flex: 1 0 auto;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 22px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .theme-chip.active {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #121829;
+      border-color: var(--gold-hover);
+      box-shadow: 0 4px 14px rgba(244, 196, 98, 0.35);
+      font-weight: 700;
+    }
+
+    /* PISTA ATIVA (BANNER DESTACADO PARA 60+) */
+    .clue-banner {
+      width: 100%;
+      background: linear-gradient(135deg, #1c2644, #141c33);
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin: 8px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .clue-banner:hover {
+      border-color: var(--gold-hover);
+    }
+    .clue-num-badge {
+      background: var(--gold);
+      color: #0f1424;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      min-width: 44px;
+      text-align: center;
+    }
+    .clue-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .clue-direction {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      font-weight: 700;
+    }
+    .clue-text {
+      font-size: 1.1rem;
+      line-height: 1.35;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ÁREA DO TABULEIRO */
+    .board-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .crossword-grid {
+      display: grid;
+      gap: 3px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px;
+      border-radius: 12px;
+      border: 2px solid var(--card-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .cell {
+      position: relative;
+      width: clamp(38px, 9vw, 56px);
+      height: clamp(38px, 9vw, 56px);
+      background: var(--cell-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.2rem, 3.8vw, 1.7rem);
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .cell.black {
+      background: var(--cell-black);
+      border-color: rgba(255, 255, 255, 0.03);
+      cursor: default;
+    }
+    .cell.highlight {
+      background: var(--cell-highlight);
+      border-color: rgba(244, 196, 98, 0.5);
+    }
+    .cell.active {
+      background: var(--cell-active);
+      color: #0f1424;
+      border-color: #fff;
+      box-shadow: 0 0 16px rgba(244, 196, 98, 0.8);
+      transform: scale(1.05);
+      z-index: 2;
+    }
+    .cell.correct {
+      color: #bbf7d0;
+    }
+    .cell-number {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .cell.active .cell-number {
+      color: rgba(15, 20, 36, 0.8);
+    }
+
+    /* TECLADO VIRTUAL DE ALTA ACESSIBILIDADE */
+    .keyboard-container {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      width: 100%;
+    }
+    .key-btn {
+      flex: 1;
+      height: 48px;
+      min-width: 32px;
+      max-width: 54px;
+      background: #202b4a;
+      border: 1px solid #374775;
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 #131b31;
+      transition: all 0.1s;
+    }
+    .key-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #131b31;
+      background: var(--gold);
+      color: #0f1424;
+    }
+    .key-btn.action-key {
+      flex: 1.4;
+      max-width: 74px;
+      background: #2b3963;
+      font-size: 0.95rem;
+    }
+
+    /* BARRA DE AUXÍLIO / DICAS (SEM PENALIDADE) */
+    .assist-bar {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-assist {
+      flex: 1;
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-assist:hover {
+      background: var(--navy-light);
+      border-color: var(--gold);
+    }
+    .btn-assist.hint-gold {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* MODAL DE VITÓRIA ZEN */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 22, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .win-card {
+      background: linear-gradient(145deg, #1d2747, #131a30);
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .win-owl {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .win-title {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin: 0 0 10px;
+    }
+    .win-desc {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--text-white);
+      margin-bottom: 24px;
+    }
+    .btn-win-next {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0f1424;
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244, 196, 98, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-win-next:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- KruujLoader Fallback Standalone -->
+  <div id="kl" role="status" aria-label="Carregando">
+    <div class="ph splash">
+      <div class="owl-icon">🦉</div>
+      <h1 class="logo-title">KRUUJ ZEN</h1>
+      <p class="sub">Palavras Cruzadas</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip">Estimulando a memória e o vocabulário com serenidade...</p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="game-logo">✨</div>
+        <div class="game-titles">
+          <h1 id="ui-title">Palavras Cruzadas Zen</h1>
+          <span id="ui-subtitle">KRUUJ Studio 60+</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-top" id="btn-sound" title="Alternar som">🔊</button>
+        <button class="btn-top" id="btn-lang" title="Idioma">🌐 <span id="txt-lang">PT</span></button>
+      </div>
+    </header>
+
+    <!-- SELETOR DE TEMAS -->
+    <nav class="themes-bar" id="themes-list" aria-label="Temas"></nav>
+
+    <!-- PISTA ATIVA DESTACADA -->
+    <section class="clue-banner" id="clue-banner" title="Toque para alternar Horizontal / Vertical">
+      <div class="clue-num-badge" id="clue-badge">1H</div>
+      <div class="clue-content">
+        <div class="clue-direction" id="clue-dir">HORIZONTAL</div>
+        <div class="clue-text" id="clue-label">Selecione uma célula para ler a pista...</div>
+      </div>
+    </section>
+
+    <!-- TABULEIRO DE PALAVRAS CRUZADAS -->
+    <main class="board-wrapper">
+      <div class="crossword-grid" id="grid"></div>
+    </main>
+
+    <!-- TECLADO VIRTUAL DE ALTA ACESSIBILIDADE -->
+    <section class="keyboard-container" id="virtual-keyboard"></section>
+
+    <!-- BARRA DE AUXÍLIO / DICAS SEM PENALIDADE -->
+    <footer class="assist-bar">
+      <button class="btn-assist hint-gold" id="btn-hint-letter">
+        💡 <span id="txt-hint-letter">Revelar Letra</span>
+      </button>
+      <button class="btn-assist" id="btn-hint-word">
+        🔍 <span id="txt-hint-word">Revelar Palavra</span>
+      </button>
+      <button class="btn-assist" id="btn-restart">
+        ↻ <span id="txt-restart">Limpar</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- MODAL DE VITÓRIA ZEN -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="win-card">
+      <div class="win-owl">🦉</div>
+      <h2 class="win-title" id="win-title">Parabéns, Mestre!</h2>
+      <p class="win-desc" id="win-desc">Você completou esta linda cruzada com paciência e sabedoria. Seu cérebro agradece esse estímulo!</p>
+      <button class="btn-win-next" id="btn-win-next">Próximo Tema ➔</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       SISTEMA DE ÁUDIO SINTETIZADO (WebAudio API)
+       ========================================================= */
+    class ZenAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      tap() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(420, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, this.ctx.currentTime + 0.06);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.06);
+      }
+      successWord() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const chords = [523.25, 659.25, 783.99]; // C5, E5, G5
+        chords.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.35);
+        });
+      }
+      fanfare() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.12);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.12 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.12);
+          osc.stop(this.ctx.currentTime + i * 0.12 + 0.6);
+        });
+      }
+    }
+    const audio = new ZenAudio();
+
+    /* =========================================================
+       BANCO DE DADOS TEMÁTICOS & LOCALIZAÇÃO (PT / EN / ES)
+       ========================================================= */
+    const I18N_DATA = {
+      pt: {
+        title: "Palavras Cruzadas Zen",
+        subtitle: "KRUUJ Studio 60+",
+        horizontal: "Horizontal",
+        vertical: "Vertical",
+        selectClue: "Toque em uma casinha para ler a pista...",
+        hintLetter: "Revelar Letra",
+        hintWord: "Revelar Palavra",
+        restart: "Limpar",
+        winTitle: "Parabéns, Mestre!",
+        winDesc: "Você completou esta linda cruzada com tranquilidade e sabedoria. Seu cérebro agradece!",
+        winNext: "Próximo Tema ➔",
+        themes: [
+          {
+            id: 'viagens',
+            name: '🌍 Viagens & Cidades',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'Capital francesa famosa pela icônica Torre Eiffel (5 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SUIÇA', clue: 'País europeu famoso por relógios e montanhas alpinas (5 letras)' },
+              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROMA', clue: 'A Cidade Eterna e berço do Coliseu (4 letras)' },
+              { num: 4, dir: 'V', r: 2, c: 2, answer: 'RIO', clue: 'Cidade maravilhosa do Cristo Redentor (3 letras)' },
+              { num: 5, dir: 'H', r: 4, c: 0, answer: 'NAVIO', clue: 'Meio de transporte marítimo usado em grandes cruzeiros (5 letras)' },
+              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PRAIA', clue: 'Lugar de areia, brisa fresca e mar calmo (5 letras)' }
+            ]
+          },
+          {
+            id: 'musica',
+            name: '🎵 Música & Poesia',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Instrumento clássico de teclas brancas e pretas (5 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEMA', clue: 'Texto de rimas e profunda sensibilidade (5 letras)' },
+              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Gênero teatral cantado de grande solenidade (5 letras)' },
+              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTAS', clue: 'Símbolos musicais como Dó, Ré e Mi (5 letras)' },
+              { num: 5, dir: 'H', r: 4, c: 2, answer: 'VALSA', clue: 'Dança clássica e elegante ao compasso de três tempos (5 letras)' }
+            ]
+          },
+          {
+            id: 'natureza',
+            name: '🌿 Natureza & Jardim',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLORES', clue: 'Desabrocham na primavera e perfumam a casa (6 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 2, answer: 'ORVALHO', clue: 'Gotas frescas que repousam nas folhas ao amanhecer (7 letras)' },
+              { num: 3, dir: 'H', r: 3, c: 1, answer: 'VENTO', clue: 'Brisa suave que balança os galhos das árvores (5 letras)' },
+              { num: 4, dir: 'V', r: 1, c: 5, answer: 'SOLAR', clue: 'Energia acolhedora que vem da luz do astro-rei (5 letras)' },
+              { num: 5, dir: 'H', r: 5, c: 2, answer: 'LAGO', clue: 'Espelho de água sereno e tranquilo no parque (4 letras)' }
+            ]
+          }
+        ]
+      },
+      en: {
+        title: "Zen Crosswords",
+        subtitle: "KRUUJ Studio 60+",
+        horizontal: "Across",
+        vertical: "Down",
+        selectClue: "Tap any tile to read the clue...",
+        hintLetter: "Reveal Letter",
+        hintWord: "Reveal Word",
+        restart: "Clear",
+        winTitle: "Bravo, Master!",
+        winDesc: "You completed this peaceful crossword puzzle. Your mind stays vibrant and sharp!",
+        winNext: "Next Theme ➔",
+        themes: [
+          {
+            id: 'viagens',
+            name: '🌍 Travel & Places',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'French capital celebrated for the Eiffel Tower (5 letters)' },
+              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SPAIN', clue: 'Sunny European country known for flamenco and tapas (5 letters)' },
+              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROME', clue: 'The Eternal City where the Colosseum stands (4 letters)' },
+              { num: 4, dir: 'V', r: 2, c: 2, answer: 'ROAD', clue: 'A scenic path or journey ahead (4 letters)' },
+              { num: 5, dir: 'H', r: 4, c: 0, answer: 'TRAIN', clue: 'Comfortable rail transport for scenic travels (5 letters)' },
+              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PEACE', clue: 'Quiet and serene feeling in a lovely holiday (5 letters)' }
+            ]
+          },
+          {
+            id: 'musica',
+            name: '🎵 Music & Arts',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Classic acoustic instrument with 88 black and white keys (5 letters)' },
+              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEM', clue: 'Written verse expressing soulful feelings (4 letters)' },
+              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Dramatic musical art form performed on grand stages (5 letters)' },
+              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTES', clue: 'Musical pitch marks like Do, Re, Mi (5 letters)' },
+              { num: 5, dir: 'H', r: 4, c: 2, answer: 'WALTZ', clue: 'Graceful ballroom dance in triple time (5 letters)' }
+            ]
+          },
+          {
+            id: 'natureza',
+            name: '🌿 Nature & Garden',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLOWER', clue: 'Blooms gently in the garden during springtime (6 letters)' },
+              { num: 2, dir: 'V', r: 0, c: 2, answer: 'FOREST', clue: 'Vast wooded sanctuary of tall trees and wildlife (6 letters)' },
+              { num: 3, dir: 'H', r: 3, c: 1, answer: 'WATER', clue: 'Pure crystal liquid nourishing every living plant (5 letters)' },
+              { num: 4, dir: 'V', r: 1, c: 5, answer: 'RIVER', clue: 'Natural stream of peaceful water flowing to sea (5 letters)' },
+              { num: 5, dir: 'H', r: 5, c: 2, answer: 'TREE', clue: 'Majestic trunk and leafy canopy giving gentle shade (4 letters)' }
+            ]
+          }
+        ]
+      },
+      es: {
+        title: "Crucigrama Zen",
+        subtitle: "KRUUJ Studio 60+",
+        horizontal: "Horizontal",
+        vertical: "Vertical",
+        selectClue: "Toca una casilla para ver la pista...",
+        hintLetter: "Revelar Letra",
+        hintWord: "Revelar Palabra",
+        restart: "Limpiar",
+        winTitle: "¡Bravo, Maestro!",
+        winDesc: "Completaste este hermoso crucigrama con calma y sabiduría. ¡Tu mente se mantiene lúcida y ágil!",
+        winNext: "Siguiente Tema ➔",
+        themes: [
+          {
+            id: 'viagens',
+            name: '🌍 Viajes & Ciudades',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'Capital francesa célebre por la Torre Eiffel (5 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SUIZA', clue: 'Bello país alpino famoso por sus relojes y nieve (5 letras)' },
+              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROMA', clue: 'La Ciudad Eterna donde se erige el Coliseo (4 letras)' },
+              { num: 4, dir: 'V', r: 2, c: 2, answer: 'RIO', clue: 'Ciudad alegre del Cristo Redentor y el carnaval (3 letras)' },
+              { num: 5, dir: 'H', r: 4, c: 0, answer: 'BARCO', clue: 'Embarcación serena para cruzar mares tranquilos (5 letras)' },
+              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PLAYA', clue: 'Lugar de arena dorada, brisa y olas calmas (5 letras)' }
+            ]
+          },
+          {
+            id: 'musica',
+            name: '🎵 Música & Poesía',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Noble instrumento con teclas blancas y negras (5 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEMA', clue: 'Versos con rima y cálida sensibilidad (5 letras)' },
+              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Arte dramático y lírico de gran esplendor (5 letras)' },
+              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTAS', clue: 'Sonidos musicales como Do, Re, Mi (5 letras)' },
+              { num: 5, dir: 'H', r: 4, c: 2, answer: 'VALS', clue: 'Danza clásica y majestuosa en compás de tres tiempos (4 letras)' }
+            ]
+          },
+          {
+            id: 'natureza',
+            name: '🌿 Naturaleza & Flores',
+            size: 7,
+            words: [
+              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLORES', clue: 'Crecen en primavera y perfuman con dulzura el hogar (6 letras)' },
+              { num: 2, dir: 'V', r: 0, c: 2, answer: 'ROCIOS', clue: 'Gotitas de agua que embellecen el alba (6 letras)' },
+              { num: 3, dir: 'H', r: 3, c: 1, answer: 'VIENTO', clue: 'Brisa fresca que acaricia las hojas de los árboles (6 letras)' },
+              { num: 4, dir: 'V', r: 1, c: 5, answer: 'SOLAR', clue: 'Luz y tibieza que proviene de nuestro astro-rey (5 letras)' },
+              { num: 5, dir: 'H', r: 5, c: 2, answer: 'LAGO', clue: 'Espejo de agua cristalino donde nadan los cisnes (4 letras)' }
+            ]
+          }
+        ]
+      }
+    };
+
+    let currentLang = CURRENT_LANG;
+    let currentThemeIndex = 0;
+    let selectedRow = -1;
+    let selectedCol = -1;
+    let selectedDirection = 'H'; // 'H' ou 'V'
+    let currentBoard = null;
+
+    /* =========================================================
+       INICIALIZAÇÃO E MONTAGEM DO JOGO
+       ========================================================= */
+    function getTexts() {
+      return I18N_DATA[currentLang] || I18N_DATA.pt;
+    }
+
+    function initUI() {
+      const texts = getTexts();
+      document.getElementById('ui-title').textContent = texts.title;
+      document.getElementById('ui-subtitle').textContent = texts.subtitle;
+      document.getElementById('txt-lang').textContent = currentLang.toUpperCase();
+      document.getElementById('txt-hint-letter').textContent = texts.hintLetter;
+      document.getElementById('txt-hint-word').textContent = texts.hintWord;
+      document.getElementById('txt-restart').textContent = texts.restart;
+      document.getElementById('win-title').textContent = texts.winTitle;
+      document.getElementById('win-desc').textContent = texts.winDesc;
+      document.getElementById('btn-win-next').textContent = texts.winNext;
+
+      // Renderiza os chips de tema
+      const themesNav = document.getElementById('themes-list');
+      themesNav.innerHTML = '';
+      texts.themes.forEach((th, idx) => {
+        const chip = document.createElement('button');
+        chip.className = `theme-chip ${idx === currentThemeIndex ? 'active' : ''}`;
+        chip.textContent = th.name;
+        chip.onclick = () => {
+          audio.tap();
+          currentThemeIndex = idx;
+          initUI();
+          loadTheme(idx);
+        };
+        themesNav.appendChild(chip);
+      });
+
+      buildVirtualKeyboard();
+    }
+
+    function buildVirtualKeyboard() {
+      const kbContainer = document.getElementById('virtual-keyboard');
+      kbContainer.innerHTML = '';
+      const rows = [
+        ['Q','W','E','R','T','Y','U','I','O','P'],
+        ['A','S','D','F','G','H','J','K','L'],
+        ['DEL', 'Z','X','C','V','B','N','M', '➔']
+      ];
+
+      rows.forEach(r => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row';
+        r.forEach(k => {
+          const btn = document.createElement('button');
+          btn.className = `key-btn ${k.length > 1 ? 'action-key' : ''}`;
+          btn.textContent = k === 'DEL' ? '⌫' : (k === '➔' ? '↵' : k);
+          btn.onclick = () => handleKeyPress(k);
+          rowDiv.appendChild(btn);
+        });
+        kbContainer.appendChild(rowDiv);
+      });
+    }
+
+    function loadTheme(idx) {
+      const texts = getTexts();
+      const theme = texts.themes[idx];
+      const size = theme.size;
+      
+      // Cria a matriz de dados
+      const gridData = Array(size).fill(null).map(() => Array(size).fill(null));
+
+      // Popula as palavras
+      theme.words.forEach(w => {
+        const letters = w.answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        for (let i = 0; i < letters.length; i++) {
+          const r = w.dir === 'H' ? w.r : w.r + i;
+          const c = w.dir === 'H' ? w.c + i : w.c;
+          if (r < size && c < size) {
+            if (!gridData[r][c]) {
+              gridData[r][c] = {
+                solution: letters[i],
+                userLetter: '',
+                number: i === 0 ? w.num : null,
+                words: [w]
+              };
+            } else {
+              if (i === 0) gridData[r][c].number = w.num;
+              gridData[r][c].words.push(w);
+            }
+          }
+        }
+      });
+
+      currentBoard = { theme, size, gridData };
+      renderGrid();
+
+      // Seleciona a primeira palavra
+      if (theme.words.length > 0) {
+        const first = theme.words[0];
+        selectedRow = first.r;
+        selectedCol = first.c;
+        selectedDirection = first.dir;
+        updateSelection();
+      }
+    }
+
+    function renderGrid() {
+      const gridEl = document.getElementById('grid');
+      const { size, gridData } = currentBoard;
+      gridEl.innerHTML = '';
+      gridEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cellData = gridData[r][c];
+          const cellEl = document.createElement('div');
+          cellEl.className = 'cell';
+          cellEl.dataset.row = r;
+          cellEl.dataset.col = c;
+
+          if (!cellData) {
+            cellEl.classList.add('black');
+          } else {
+            if (cellData.number) {
+              const numEl = document.createElement('span');
+              numEl.className = 'cell-number';
+              numEl.textContent = cellData.number;
+              cellEl.appendChild(numEl);
+            }
+            const textNode = document.createTextNode(cellData.userLetter || '');
+            cellEl.appendChild(textNode);
+
+            cellEl.onclick = () => onCellClick(r, c);
+          }
+          gridEl.appendChild(cellEl);
+        }
+      }
+    }
+
+    function onCellClick(r, c) {
+      audio.tap();
+      const cellData = currentBoard.gridData[r][c];
+      if (!cellData) return;
+
+      if (selectedRow === r && selectedCol === c) {
+        // Alterna direção se houver palavras em ambas direções
+        const hasH = cellData.words.some(w => w.dir === 'H');
+        const hasV = cellData.words.some(w => w.dir === 'V');
+        if (hasH && hasV) {
+          selectedDirection = selectedDirection === 'H' ? 'V' : 'H';
+        }
+      } else {
+        selectedRow = r;
+        selectedCol = c;
+        // Se a célula atual só pertence a uma direção, alinha a direção
+        const matchWord = cellData.words.find(w => w.dir === selectedDirection) || cellData.words[0];
+        if (matchWord) {
+          selectedDirection = matchWord.dir;
+        }
+      }
+      updateSelection();
+    }
+
+    function updateSelection() {
+      const { size, gridData, theme } = currentBoard;
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach(el => {
+        el.classList.remove('active', 'highlight');
+      });
+
+      if (selectedRow === -1 || selectedCol === -1) return;
+
+      const activeWord = getActiveWord();
+      const texts = getTexts();
+
+      // Destaca a palavra ativa e a célula atual
+      if (activeWord) {
+        document.getElementById('clue-badge').textContent = `${activeWord.num}${activeWord.dir}`;
+        document.getElementById('clue-dir').textContent = activeWord.dir === 'H' ? texts.horizontal : texts.vertical;
+        document.getElementById('clue-label').textContent = activeWord.clue;
+
+        const lettersLen = activeWord.answer.length;
+        for (let i = 0; i < lettersLen; i++) {
+          const wr = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
+          const wc = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
+          const targetEl = document.querySelector(`.cell[data-row="${wr}"][data-col="${wc}"]`);
+          if (targetEl) targetEl.classList.add('highlight');
+        }
+      }
+
+      const currentEl = document.querySelector(`.cell[data-row="${selectedRow}"][data-col="${selectedCol}"]`);
+      if (currentEl) currentEl.classList.add('active');
+    }
+
+    function getActiveWord() {
+      const cell = currentBoard.gridData[selectedRow]?.[selectedCol];
+      if (!cell) return null;
+      return cell.words.find(w => w.dir === selectedDirection) || cell.words[0];
+    }
+
+    function handleKeyPress(key) {
+      audio.tap();
+      if (selectedRow === -1 || selectedCol === -1) return;
+      const cellData = currentBoard.gridData[selectedRow][selectedCol];
+      if (!cellData) return;
+
+      if (key === 'DEL' || key === 'Backspace') {
+        cellData.userLetter = '';
+        renderCellText(selectedRow, selectedCol, '');
+        moveToPrevCell();
+      } else if (key === '➔' || key === 'Enter') {
+        moveToNextCell();
+      } else if (/^[A-ZÑÁÉÍÓÚ]$/i.test(key)) {
+        const cleanChar = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        cellData.userLetter = cleanChar;
+        renderCellText(selectedRow, selectedCol, cleanChar);
+        checkWordCompletion();
+        moveToNextCell();
+        checkVictory();
+      }
+    }
+
+    function renderCellText(r, c, text) {
+      const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+      if (el) {
+        // Mantém o número se houver
+        const num = el.querySelector('.cell-number');
+        el.innerHTML = '';
+        if (num) el.appendChild(num);
+        el.appendChild(document.createTextNode(text));
+      }
+    }
+
+    function moveToNextCell() {
+      const activeWord = getActiveWord();
+      if (!activeWord) return;
+
+      let nextR = selectedRow + (selectedDirection === 'V' ? 1 : 0);
+      let nextC = selectedCol + (selectedDirection === 'H' ? 1 : 0);
+
+      // Checa se ainda está na mesma palavra
+      const isInside = selectedDirection === 'H'
+        ? (nextR === activeWord.r && nextC < activeWord.c + activeWord.answer.length)
+        : (nextC === activeWord.c && nextR < activeWord.r + activeWord.answer.length);
+
+      if (isInside && currentBoard.gridData[nextR]?.[nextC]) {
+        selectedRow = nextR;
+        selectedCol = nextC;
+        updateSelection();
+      }
+    }
+
+    function moveToPrevCell() {
+      const activeWord = getActiveWord();
+      if (!activeWord) return;
+
+      let prevR = selectedRow - (selectedDirection === 'V' ? 1 : 0);
+      let prevC = selectedCol - (selectedDirection === 'H' ? 1 : 0);
+
+      const isInside = selectedDirection === 'H'
+        ? (prevR === activeWord.r && prevC >= activeWord.c)
+        : (prevC === activeWord.c && prevR >= activeWord.r);
+
+      if (isInside && currentBoard.gridData[prevR]?.[prevC]) {
+        selectedRow = prevR;
+        selectedCol = prevC;
+        updateSelection();
+      }
+    }
+
+    function checkWordCompletion() {
+      const activeWord = getActiveWord();
+      if (!activeWord) return;
+
+      const letters = activeWord.answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+      let complete = true;
+      for (let i = 0; i < letters.length; i++) {
+        const r = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
+        const c = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
+        if (currentBoard.gridData[r][c].userLetter !== letters[i]) {
+          complete = false;
+          break;
+        }
+      }
+      if (complete && !activeWord.solved) {
+        activeWord.solved = true;
+        audio.successWord();
+      }
+    }
+
+    function checkVictory() {
+      const { size, gridData } = currentBoard;
+      let allCorrect = true;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cd = gridData[r][c];
+          if (cd && cd.userLetter !== cd.solution) {
+            allCorrect = false;
+            break;
+          }
+        }
+        if (!allCorrect) break;
+      }
+
+      if (allCorrect) {
+        audio.fanfare();
+        document.getElementById('win-modal').classList.add('active');
+      }
+    }
+
+    // DICA: Revelar Letra
+    document.getElementById('btn-hint-letter').onclick = () => {
+      audio.tap();
+      if (selectedRow === -1 || selectedCol === -1) return;
+      const cellData = currentBoard.gridData[selectedRow][selectedCol];
+      if (!cellData) return;
+      cellData.userLetter = cellData.solution;
+      renderCellText(selectedRow, selectedCol, cellData.solution);
+      checkWordCompletion();
+      moveToNextCell();
+      checkVictory();
+    };
+
+    // DICA: Revelar Palavra
+    document.getElementById('btn-hint-word').onclick = () => {
+      audio.tap();
+      const activeWord = getActiveWord();
+      if (!activeWord) return;
+      const letters = activeWord.answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+      for (let i = 0; i < letters.length; i++) {
+        const r = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
+        const c = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
+        currentBoard.gridData[r][c].userLetter = letters[i];
+        renderCellText(r, c, letters[i]);
+      }
+      checkWordCompletion();
+      checkVictory();
+    };
+
+    // Reiniciar / Limpar
+    document.getElementById('btn-restart').onclick = () => {
+      audio.tap();
+      loadTheme(currentThemeIndex);
+    };
+
+    // Alternar som
+    document.getElementById('btn-sound').onclick = () => {
+      audio.muted = !audio.muted;
+      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
+    };
+
+    // Alternar idioma
+    document.getElementById('btn-lang').onclick = () => {
+      audio.tap();
+      if (currentLang === 'pt') currentLang = 'en';
+      else if (currentLang === 'en') currentLang = 'es';
+      else currentLang = 'pt';
+      initUI();
+      loadTheme(0);
+    };
+
+    // Próximo tema da vitória
+    document.getElementById('btn-win-next').onclick = () => {
+      audio.tap();
+      document.getElementById('win-modal').classList.remove('active');
+      const texts = getTexts();
+      currentThemeIndex = (currentThemeIndex + 1) % texts.themes.length;
+      initUI();
+      loadTheme(currentThemeIndex);
+    };
+
+    // Banner da pista alternando direção ao clicar
+    document.getElementById('clue-banner').onclick = () => {
+      audio.tap();
+      const cell = currentBoard.gridData[selectedRow]?.[selectedCol];
+      if (cell && cell.words.length > 1) {
+        selectedDirection = selectedDirection === 'H' ? 'V' : 'H';
+        updateSelection();
+      }
+    };
+
+    // Suporte ao teclado físico do computador
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        handleKeyPress('DEL');
+      } else if (e.key === 'Enter') {
+        handleKeyPress('➔');
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (e.key === 'ArrowRight' && selectedCol < currentBoard.size - 1) { selectedCol++; updateSelection(); }
+        if (e.key === 'ArrowLeft' && selectedCol > 0) { selectedCol--; updateSelection(); }
+        if (e.key === 'ArrowDown' && selectedRow < currentBoard.size - 1) { selectedRow++; updateSelection(); }
+        if (e.key === 'ArrowUp' && selectedRow > 0) { selectedRow--; updateSelection(); }
+      } else if (e.key.length === 1 && /^[a-zA-ZñáéíóúÁÉÍÓÚÑ]$/i.test(e.key)) {
+        handleKeyPress(e.key.toUpperCase());
+      }
+    });
+
+    /* =========================================================
+       KRUUJ LOADER E SDK INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initUI();
+      loadTheme(0);
+
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      // Se rodando standalone fora do iframe, fecha o loader suavemente
+      if (window.self === window.top) {
+        let p = 0;
+        const fill = document.getElementById('kl-fill');
+        const pct = document.getElementById('kl-pct');
+        const interval = setInterval(() => {
+          p += 20;
+          if (fill) fill.style.width = p + '%';
+          if (pct) pct.textContent = p + '%';
+          if (p >= 100) {
+            clearInterval(interval);
+            const kl = document.getElementById('kl');
+            if (kl) {
+              kl.classList.add('out');
+              setTimeout(() => kl.style.display = 'none', 600);
+            }
+          }
+        }, 150);
+      }
+    });
+  </script>
+</body>
+</html>

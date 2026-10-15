@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Galeria de Quebra-Cabeças / Jigsaw Art Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const IS_PT = !URL_LANG.startsWith('en') && !URL_LANG.startsWith('es');
+    const IS_ES = URL_LANG.startsWith('es');
+    const CURRENT_LANG = IS_PT ? 'pt' : (IS_ES ? 'es' : 'en');
+  </script>
+
+  <style>
+    :root {
+      --bg: #0c1224;
+      --card-bg: #151e36;
+      --card-border: #28375e;
+      --gold: #f4c462;
+      --gold-hover: #ffd987;
+      --gold-dark: #b8861e;
+      --navy-light: #213054;
+      --text-white: #f5f7fc;
+      --text-muted: #abb5cf;
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-title: 'Playfair Display', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: radial-gradient(circle at 50% 15%, #1d2748 0%, var(--bg) 85%);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+    }
+
+    /* KruujLoader nativo */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #172244 0%, var(--bg) 75%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity .6s ease, visibility .6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity .5s ease; text-align: center; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl-icon { width: 120px; height: 120px; border-radius: 50%; filter: drop-shadow(0 0 20px rgba(244,196,98,0.6)); animation: floatOwl 2.8s ease-in-out infinite; }
+    @keyframes floatOwl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .splash .logo-title { font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 16px 0 4px; letter-spacing: 0.05em; }
+    .splash .sub { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
+    .track { position: relative; width: 100%; height: 10px; margin: 32px 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); transition: width 0.2s ease; }
+    .pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .tip { margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; }
+
+    /* LAYOUT PRINCIPAL */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px 12px 20px;
+    }
+
+    /* TOP HEADER & POKI RECUO */
+    .top-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .top-header {
+        padding-left: 68px !important;
+      }
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .game-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #26355d, #12192e);
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .game-titles h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      color: var(--text-white);
+      letter-spacing: 0.02em;
+    }
+    .game-titles span {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-top {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-top:hover {
+      background: var(--navy-light);
+      border-color: var(--gold);
+    }
+
+    /* SELETOR DE OBRAS DE ARTE */
+    .art-bar {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 2px;
+      scrollbar-width: none;
+    }
+    .art-bar::-webkit-scrollbar { display: none; }
+    .art-chip {
+      flex: 1 0 auto;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 22px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .art-chip.active {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0c1224;
+      border-color: var(--gold-hover);
+      box-shadow: 0 4px 14px rgba(244, 196, 98, 0.35);
+      font-weight: 700;
+    }
+
+    /* CONTROLES DE DIFICULDADE & FERRAMENTAS RELAXANTES */
+    .tools-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 4px 0 10px;
+    }
+    .diff-group {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-diff {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-diff.active {
+      background: var(--gold);
+      color: #0c1224;
+      border-color: var(--gold-hover);
+    }
+
+    .assist-group {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-tool {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-tool:hover {
+      border-color: var(--gold);
+    }
+    .btn-tool.active {
+      background: rgba(244, 196, 98, 0.25);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* TABULEIRO DO QUEBRA-CABEÇA */
+    .puzzle-board-container {
+      position: relative;
+      width: min(92vw, 420px);
+      aspect-ratio: 1;
+      margin: 4px auto 12px;
+      background: #11182c;
+      border: 3px solid var(--gold);
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    /* IMAGEM GUIA FANTASMA */
+    #ghost-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.25;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    #ghost-canvas.hidden {
+      opacity: 0;
+    }
+
+    /* GRADE DE SLOTS DO TABULEIRO */
+    .board-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      width: 100%;
+      height: 100%;
+    }
+    .puzzle-slot {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .puzzle-slot.highlight {
+      background: rgba(244, 196, 98, 0.35);
+      border-color: var(--gold);
+    }
+
+    /* PEÇA ENCAIXADA */
+    .slot-piece {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+      animation: snapPop 0.25s ease;
+    }
+    @keyframes snapPop {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* BANDEJA DE PEÇAS SOLTAS */
+    .tray-section {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tray-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tray-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .tray-counter {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .tray-pieces-scroll {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 8px 4px 14px;
+      min-height: 96px;
+      align-items: center;
+      scrollbar-width: thin;
+      touch-action: pan-x;
+    }
+
+    .tray-piece {
+      width: 74px;
+      height: 74px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      position: relative;
+      background-size: cover;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .tray-piece:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+    }
+    .tray-piece.selected {
+      border-color: #ffd987;
+      box-shadow: 0 0 16px var(--gold);
+      transform: scale(1.1) translateY(-6px);
+      z-index: 10;
+    }
+
+    /* MODAL DE VITÓRIA */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 22, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .win-card {
+      background: linear-gradient(145deg, #1d2747, #131a30);
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .win-owl {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .win-title {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin: 0 0 10px;
+    }
+    .win-desc {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--text-white);
+      margin-bottom: 24px;
+    }
+    .btn-win-next {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0c1224;
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244, 196, 98, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-win-next:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- KruujLoader Fallback Standalone -->
+  <div id="kl" role="status" aria-label="Carregando">
+    <div class="ph splash">
+      <div class="owl-icon">🦉</div>
+      <h1 class="logo-title">GALERIA DE ARTE</h1>
+      <p class="sub">Quebra-Cabeças Zen</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip">Pintando belas paisagens relaxantes na sua tela...</p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="game-logo">🧩</div>
+        <div class="game-titles">
+          <h1 id="ui-title">Galeria de Quebra-Cabeças</h1>
+          <span id="ui-subtitle">KRUUJ Studio 60+</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-top" id="btn-sound" title="Som">🔊</button>
+        <button class="btn-top" id="btn-lang" title="Idioma">🌐 <span id="txt-lang">PT</span></button>
+      </div>
+    </header>
+
+    <!-- SELETOR DE OBRAS DE ARTE -->
+    <nav class="art-bar" id="art-list" aria-label="Obras"></nav>
+
+    <!-- FERRAMENTAS & DIFICULDADE (9, 16 OU 25 PEÇAS) -->
+    <section class="tools-bar">
+      <div class="diff-group">
+        <button class="btn-diff active" data-grid="3" id="btn-grid-3">9 Peças</button>
+        <button class="btn-diff" data-grid="4" id="btn-grid-4">16 Peças</button>
+        <button class="btn-diff" data-grid="5" id="btn-grid-5">25 Peças</button>
+      </div>
+
+      <div class="assist-group">
+        <button class="btn-tool active" id="btn-ghost" title="Mostrar/ocultar guia">
+          🖼️ <span id="txt-ghost">Guia Fantasma</span>
+        </button>
+        <button class="btn-tool" id="btn-edges" title="Exibir apenas peças das bordas">
+          🔲 <span id="txt-edges">Só Bordas</span>
+        </button>
+        <button class="btn-tool" id="btn-hint" title="Encaixar uma peça">
+          💡 <span id="txt-hint">Dica Mágica</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TABULEIRO DO QUEBRA-CABEÇA -->
+    <main class="puzzle-board-container" id="puzzle-board">
+      <canvas id="ghost-canvas"></canvas>
+      <div class="board-grid" id="grid"></div>
+    </main>
+
+    <!-- BANDEJA DE PEÇAS SOLTAS -->
+    <section class="tray-section">
+      <div class="tray-header">
+        <span class="tray-title" id="txt-tray-title">Bandeja de Peças Soltas</span>
+        <span class="tray-counter" id="txt-tray-counter">0 / 9 encaixadas</span>
+      </div>
+      <div class="tray-pieces-scroll" id="tray-container"></div>
+    </section>
+  </div>
+
+  <!-- MODAL DE VITÓRIA -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="win-card">
+      <div class="win-owl">🦉</div>
+      <h2 class="win-title" id="win-title">Obra Concluída com Sucesso!</h2>
+      <p class="win-desc" id="win-desc">Você completou esta magnífica pintura com muita harmonia e sensibilidade!</p>
+      <button class="btn-win-next" id="btn-win-next">Próxima Pintura ➔</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       ÁUDIO SINTETIZADO (WebAudio API)
+       ========================================================= */
+    class JigsawAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      snap() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        // Som satisfatório de encaixe magnético de madeira/papelão denso
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+      pick() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(460, this.ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      }
+      fanfare() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const harp = [523.25, 659.25, 783.99, 987.77, 1046.50];
+        harp.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.1);
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.1 + 0.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.1);
+          osc.stop(this.ctx.currentTime + i * 0.1 + 0.5);
+        });
+      }
+    }
+    const audio = new JigsawAudio();
+
+    /* =========================================================
+       CATÁLOGO DE OBRAS DE ARTE VETORIAIS GERADAS
+       ========================================================= */
+    const ART_PIECES = [
+      {
+        id: 'chalet',
+        pt: '🏔️ Chalé nas Montanhas',
+        en: '🏔️ Alpine Mountain Chalet',
+        es: '🏔️ Chalet en la Montaña',
+        draw(ctx, w, h) {
+          // Céu degradê entardecer dourado
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.65);
+          skyGrad.addColorStop(0, '#f59e0b');
+          skyGrad.addColorStop(0.4, '#fbbf24');
+          skyGrad.addColorStop(1, '#fde68a');
+          ctx.fillStyle = skyGrad;
+          ctx.fillRect(0, 0, w, h);
+
+          // Sol poente sereno
+          ctx.fillStyle = '#fff7ed';
+          ctx.beginPath();
+          ctx.arc(w * 0.68, h * 0.35, w * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Montanhas de fundo com neve
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.moveTo(0, h * 0.55);
+          ctx.lineTo(w * 0.35, h * 0.22);
+          ctx.lineTo(w * 0.7, h * 0.55);
+          ctx.closePath();
+          ctx.fill();
+          // Cume nevado
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.28, h * 0.29);
+          ctx.lineTo(w * 0.35, h * 0.22);
+          ctx.lineTo(w * 0.42, h * 0.29);
+          ctx.closePath();
+          ctx.fill();
+
+          // Segunda montanha
+          ctx.fillStyle = '#334155';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.45, h * 0.55);
+          ctx.lineTo(w * 0.8, h * 0.18);
+          ctx.lineTo(w, h * 0.48);
+          ctx.lineTo(w, h * 0.55);
+          ctx.closePath();
+          ctx.fill();
+
+          // Colina verdejante com pinheiros
+          ctx.fillStyle = '#166534';
+          ctx.beginPath();
+          ctx.ellipse(w * 0.5, h * 0.85, w * 0.7, h * 0.35, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Chalé clássico de madeira
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(w * 0.35, h * 0.52, w * 0.3, h * 0.22);
+          // Telhado alpino
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.3, h * 0.52);
+          ctx.lineTo(w * 0.5, h * 0.36);
+          ctx.lineTo(w * 0.7, h * 0.52);
+          ctx.closePath();
+          ctx.fill();
+          // Janelas aconchegantes com luz acesa
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(w * 0.39, h * 0.56, w * 0.08, h * 0.08);
+          ctx.fillRect(w * 0.53, h * 0.56, w * 0.08, h * 0.08);
+          // Porta
+          ctx.fillStyle = '#3f1a04';
+          ctx.fillRect(w * 0.46, h * 0.65, w * 0.08, h * 0.09);
+
+          // Flores do jardim
+          const flowerColors = ['#ec4899', '#f43f5e', '#a855f7', '#fbbf24'];
+          for (let i = 0; i < 40; i++) {
+            ctx.fillStyle = flowerColors[i % flowerColors.length];
+            const fx = (w * 0.05) + ((i * 37) % (w * 0.9));
+            const fy = (h * 0.75) + ((i * 19) % (h * 0.2));
+            ctx.beginPath();
+            ctx.arc(fx, fy, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      },
+      {
+        id: 'swan',
+        pt: '🦢 Lago dos Cisnes',
+        en: '🦢 Serene Swan Lake',
+        es: '🦢 Lago de los Cisnes',
+        draw(ctx, w, h) {
+          // Céu crepúsculo violeta
+          const sky = ctx.createLinearGradient(0, 0, 0, h * 0.5);
+          sky.addColorStop(0, '#312e81');
+          sky.addColorStop(0.5, '#4f46e5');
+          sky.addColorStop(1, '#c084fc');
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, w, h);
+
+          // Lua cheia e reflexo
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(w * 0.75, h * 0.22, w * 0.12, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Água serena do lago
+          const water = ctx.createLinearGradient(0, h * 0.5, 0, h);
+          water.addColorStop(0, '#1e1b4b');
+          water.addColorStop(1, '#0f172a');
+          ctx.fillStyle = water;
+          ctx.fillRect(0, h * 0.5, w, h * 0.5);
+
+          // Reflexo da lua na água
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+          ctx.fillRect(w * 0.68, h * 0.5, w * 0.14, h * 0.5);
+
+          // Vitória-régia
+          ctx.fillStyle = '#065f46';
+          ctx.beginPath();
+          ctx.ellipse(w * 0.25, h * 0.8, w * 0.18, h * 0.06, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Flor de lótus
+          ctx.fillStyle = '#f472b6';
+          ctx.beginPath();
+          ctx.arc(w * 0.28, h * 0.77, 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Cisne elegante
+          ctx.fillStyle = '#ffffff';
+          // Corpo
+          ctx.beginPath();
+          ctx.ellipse(w * 0.55, h * 0.68, w * 0.14, h * 0.08, -0.1, 0, Math.PI * 2);
+          ctx.fill();
+          // Pescoço gracioso
+          ctx.lineWidth = 14;
+          ctx.strokeStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.64, h * 0.68);
+          ctx.bezierCurveTo(w * 0.75, h * 0.62, w * 0.72, h * 0.46, w * 0.65, h * 0.48);
+          ctx.stroke();
+          // Bico alaranjado
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.arc(w * 0.62, h * 0.49, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      },
+      {
+        id: 'lighthouse',
+        pt: '🏮 Farol da Costa Dourada',
+        en: '🏮 Golden Coast Lighthouse',
+        es: '🏮 Faro de la Costa Dorada',
+        draw(ctx, w, h) {
+          // Céu azul crepúsculo
+          const sky = ctx.createLinearGradient(0, 0, 0, h * 0.6);
+          sky.addColorStop(0, '#0369a1');
+          sky.addColorStop(0.6, '#38bdf8');
+          sky.addColorStop(1, '#fed7aa');
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, w, h);
+
+          // Feixe de luz do farol
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.35)';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.65, h * 0.28);
+          ctx.lineTo(0, h * 0.15);
+          ctx.lineTo(0, h * 0.45);
+          ctx.closePath();
+          ctx.fill();
+
+          // Mar com ondas suaves
+          ctx.fillStyle = '#0f766e';
+          ctx.fillRect(0, h * 0.6, w, h * 0.4);
+
+          // Penhasco de pedras
+          ctx.fillStyle = '#292524';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.45, h);
+          ctx.lineTo(w * 0.52, h * 0.58);
+          ctx.lineTo(w, h * 0.58);
+          ctx.lineTo(w, h);
+          ctx.closePath();
+          ctx.fill();
+
+          // Torre do Farol branca e vermelha
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.6, h * 0.58);
+          ctx.lineTo(w * 0.63, h * 0.28);
+          ctx.lineTo(w * 0.69, h * 0.28);
+          ctx.lineTo(w * 0.72, h * 0.58);
+          ctx.closePath();
+          ctx.fill();
+
+          // Faixas vermelhas
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(w * 0.61, h * 0.46, w * 0.1, h * 0.06);
+          ctx.fillRect(w * 0.62, h * 0.34, w * 0.08, h * 0.05);
+
+          // Cúpula da lâmpada
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(w * 0.63, h * 0.25, w * 0.06, h * 0.04);
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(w * 0.66, h * 0.25, w * 0.04, Math.PI, 0);
+          ctx.fill();
+        }
+      }
+    ];
+
+    const I18N_DATA = {
+      pt: {
+        title: "Galeria de Quebra-Cabeças",
+        subtitle: "KRUUJ Studio 60+",
+        ghost: "Guia Fantasma",
+        edges: "Só Bordas",
+        hint: "Dica Mágica",
+        trayTitle: "Bandeja de Peças",
+        trayCounter: (f, t) => `${f} / ${t} encaixadas`,
+        winTitle: "Obra Concluída com Maestria!",
+        winDesc: "Você completou esta belíssima paisagem. Paciência, foco e sensibilidade artística!",
+        winNext: "Próxima Pintura ➔"
+      },
+      en: {
+        title: "Jigsaw Art Gallery",
+        subtitle: "KRUUJ Studio 60+",
+        ghost: "Ghost Guide",
+        edges: "Edges Only",
+        hint: "Magic Hint",
+        trayTitle: "Pieces Tray",
+        trayCounter: (f, t) => `${f} / ${t} placed`,
+        winTitle: "Masterpiece Completed!",
+        winDesc: "You assembled this magnificent art piece with tranquility and grace!",
+        winNext: "Next Artwork ➔"
+      },
+      es: {
+        title: "Galería de Rompecabezas",
+        subtitle: "KRUUJ Studio 60+",
+        ghost: "Guía Fantasma",
+        edges: "Solo Bordes",
+        hint: "Pista Mágica",
+        trayTitle: "Bandeja de Piezas",
+        trayCounter: (f, t) => `${f} / ${t} colocadas`,
+        winTitle: "¡Obra de Arte Completada!",
+        winDesc: "¡Has armado esta hermosa pintura con serenidad, paciencia y alegría!",
+        winNext: "Siguiente Pintura ➔"
+      }
+    };
+
+    let currentLang = CURRENT_LANG;
+    let currentArtIndex = 0;
+    let gridSize = 3; // 3x3 = 9 peças
+    let pieces = [];
+    let placedPieces = new Map();
+    let selectedPieceId = null;
+    let showGhost = true;
+    let filterEdgesOnly = false;
+    let artworkCanvas = null;
+
+    function getTexts() {
+      return I18N_DATA[currentLang] || I18N_DATA.pt;
+    }
+
+    function initUI() {
+      const texts = getTexts();
+      document.getElementById('ui-title').textContent = texts.title;
+      document.getElementById('ui-subtitle').textContent = texts.subtitle;
+      document.getElementById('txt-lang').textContent = currentLang.toUpperCase();
+      document.getElementById('txt-ghost').textContent = texts.ghost;
+      document.getElementById('txt-edges').textContent = texts.edges;
+      document.getElementById('txt-hint').textContent = texts.hint;
+      document.getElementById('txt-tray-title').textContent = texts.trayTitle;
+      document.getElementById('win-title').textContent = texts.winTitle;
+      document.getElementById('win-desc').textContent = texts.winDesc;
+      document.getElementById('btn-win-next').textContent = texts.winNext;
+
+      const artBar = document.getElementById('art-list');
+      artBar.innerHTML = '';
+      ART_PIECES.forEach((art, idx) => {
+        const chip = document.createElement('button');
+        chip.className = `art-chip ${idx === currentArtIndex ? 'active' : ''}`;
+        chip.textContent = art[currentLang] || art.pt;
+        chip.onclick = () => {
+          audio.pick();
+          currentArtIndex = idx;
+          initUI();
+          loadArtwork();
+        };
+        artBar.appendChild(chip);
+      });
+    }
+
+    function renderArtworkToCanvas() {
+      const size = 600;
+      artworkCanvas = document.createElement('canvas');
+      artworkCanvas.width = size;
+      artworkCanvas.height = size;
+      const ctx = artworkCanvas.getContext('2d');
+      ART_PIECES[currentArtIndex].draw(ctx, size, size);
+
+      // Atualiza o canvas fantasma
+      const ghost = document.getElementById('ghost-canvas');
+      ghost.width = size;
+      ghost.height = size;
+      const gctx = ghost.getContext('2d');
+      gctx.clearRect(0, 0, size, size);
+      gctx.drawImage(artworkCanvas, 0, 0);
+    }
+
+    function loadArtwork() {
+      renderArtworkToCanvas();
+      placedPieces.clear();
+      selectedPieceId = null;
+
+      // Cria a lista de peças cortadas
+      pieces = [];
+      const totalPieces = gridSize * gridSize;
+      const pieceSize = artworkCanvas.width / gridSize;
+
+      for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+          const id = `${r}-${c}`;
+          const isEdge = r === 0 || r === gridSize - 1 || c === 0 || c === gridSize - 1;
+
+          // Cria thumbnail em dataURL
+          const pieceCanvas = document.createElement('canvas');
+          pieceCanvas.width = pieceSize;
+          pieceCanvas.height = pieceSize;
+          const pctx = pieceCanvas.getContext('2d');
+          pctx.drawImage(
+            artworkCanvas,
+            c * pieceSize, r * pieceSize, pieceSize, pieceSize,
+            0, 0, pieceSize, pieceSize
+          );
+
+          pieces.push({
+            id,
+            r,
+            c,
+            isEdge,
+            imgDataUrl: pieceCanvas.toDataURL()
+          });
+        }
+      }
+
+      // Embaralha as peças soltas
+      pieces.sort(() => Math.random() - 0.5);
+
+      renderBoardSlots();
+      renderTray();
+    }
+
+    function renderBoardSlots() {
+      const gridEl = document.getElementById('grid');
+      gridEl.innerHTML = '';
+      gridEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+      gridEl.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+      for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+          const slot = document.createElement('div');
+          slot.className = 'puzzle-slot';
+          slot.dataset.r = r;
+          slot.dataset.c = c;
+          const slotId = `${r}-${c}`;
+
+          if (placedPieces.has(slotId)) {
+            const piece = placedPieces.get(slotId);
+            const pieceDiv = document.createElement('div');
+            pieceDiv.className = 'slot-piece';
+            pieceDiv.style.backgroundImage = `url(${piece.imgDataUrl})`;
+            slot.appendChild(pieceDiv);
+          }
+
+          slot.onclick = () => onSlotClick(r, c);
+          gridEl.appendChild(slot);
+        }
+      }
+
+      updateTrayCounter();
+    }
+
+    function renderTray() {
+      const container = document.getElementById('tray-container');
+      container.innerHTML = '';
+
+      pieces.forEach(piece => {
+        if (placedPieces.has(piece.id)) return;
+        if (filterEdgesOnly && !piece.isEdge) return;
+
+        const pieceEl = document.createElement('div');
+        pieceEl.className = 'tray-piece';
+        if (selectedPieceId === piece.id) pieceEl.classList.add('selected');
+        pieceEl.style.backgroundImage = `url(${piece.imgDataUrl})`;
+
+        pieceEl.onclick = () => {
+          audio.pick();
+          selectedPieceId = selectedPieceId === piece.id ? null : piece.id;
+          renderTray();
+          highlightMatchingSlot();
+        };
+
+        container.appendChild(pieceEl);
+      });
+
+      updateTrayCounter();
+    }
+
+    function highlightMatchingSlot() {
+      document.querySelectorAll('.puzzle-slot').forEach(s => s.classList.remove('highlight'));
+      if (!selectedPieceId) return;
+
+      const piece = pieces.find(p => p.id === selectedPieceId);
+      if (piece) {
+        const slotEl = document.querySelector(`.puzzle-slot[data-r="${piece.r}"][data-c="${piece.c}"]`);
+        if (slotEl && !placedPieces.has(piece.id)) {
+          slotEl.classList.add('highlight');
+        }
+      }
+    }
+
+    function onSlotClick(r, c) {
+      if (!selectedPieceId) return;
+      const targetId = `${r}-${c}`;
+
+      if (selectedPieceId === targetId) {
+        // Encaixe correto!
+        snapPiece(selectedPieceId);
+      } else {
+        // Peça não pertence a este slot: aviso suave sem punição
+        audio.pick();
+      }
+    }
+
+    function snapPiece(pieceId) {
+      const piece = pieces.find(p => p.id === pieceId);
+      if (!piece) return;
+
+      audio.snap();
+      placedPieces.set(pieceId, piece);
+      selectedPieceId = null;
+
+      renderBoardSlots();
+      renderTray();
+      checkVictory();
+    }
+
+    function updateTrayCounter() {
+      const texts = getTexts();
+      const total = gridSize * gridSize;
+      const placed = placedPieces.size;
+      document.getElementById('txt-tray-counter').textContent = texts.trayCounter(placed, total);
+    }
+
+    function checkVictory() {
+      const total = gridSize * gridSize;
+      if (placedPieces.size === total) {
+        audio.fanfare();
+        setTimeout(() => {
+          document.getElementById('win-modal').classList.add('active');
+        }, 500);
+      }
+    }
+
+    // BOTÃO GUIA FANTASMA
+    document.getElementById('btn-ghost').onclick = () => {
+      audio.pick();
+      showGhost = !showGhost;
+      const canvas = document.getElementById('ghost-canvas');
+      const btn = document.getElementById('btn-ghost');
+      if (showGhost) {
+        canvas.classList.remove('hidden');
+        btn.classList.add('active');
+      } else {
+        canvas.classList.add('hidden');
+        btn.classList.remove('active');
+      }
+    };
+
+    // BOTÃO SÓ BORDAS
+    document.getElementById('btn-edges').onclick = () => {
+      audio.pick();
+      filterEdgesOnly = !filterEdgesOnly;
+      document.getElementById('btn-edges').classList.toggle('active', filterEdgesOnly);
+      renderTray();
+    };
+
+    // BOTÃO DICA MÁGICA
+    document.getElementById('btn-hint').onclick = () => {
+      audio.pick();
+      const unplaced = pieces.find(p => !placedPieces.has(p.id));
+      if (unplaced) {
+        snapPiece(unplaced.id);
+      }
+    };
+
+    // SELETOR DE DIFICULDADE (GRADE 3, 4 OU 5)
+    document.querySelectorAll('.btn-diff').forEach(btn => {
+      btn.onclick = () => {
+        audio.pick();
+        document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gridSize = parseInt(btn.dataset.grid, 10);
+        loadArtwork();
+      };
+    });
+
+    // SOM
+    document.getElementById('btn-sound').onclick = () => {
+      audio.muted = !audio.muted;
+      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
+    };
+
+    // IDIOMA
+    document.getElementById('btn-lang').onclick = () => {
+      audio.pick();
+      if (currentLang === 'pt') currentLang = 'en';
+      else if (currentLang === 'en') currentLang = 'es';
+      else currentLang = 'pt';
+      initUI();
+      loadArtwork();
+    };
+
+    // PRÓXIMA PINTURA
+    document.getElementById('btn-win-next').onclick = () => {
+      audio.pick();
+      document.getElementById('win-modal').classList.remove('active');
+      currentArtIndex = (currentArtIndex + 1) % ART_PIECES.length;
+      initUI();
+      loadArtwork();
+    };
+
+    /* =========================================================
+       KRUUJ LOADER E SDK INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initUI();
+      loadArtwork();
+
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      if (window.self === window.top) {
+        let p = 0;
+        const fill = document.getElementById('kl-fill');
+        const pct = document.getElementById('kl-pct');
+        const interval = setInterval(() => {
+          p += 20;
+          if (fill) fill.style.width = p + '%';
+          if (pct) pct.textContent = p + '%';
+          if (p >= 100) {
+            clearInterval(interval);
+            const kl = document.getElementById('kl');
+            if (kl) {
+              kl.classList.add('out');
+              setTimeout(() => kl.style.display = 'none', 600);
+            }
+          }
+        }, 150);
+      }
+    });
+  </script>
+</body>
+</html>

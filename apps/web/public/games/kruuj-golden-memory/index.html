@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Memória Dourada / Golden Memory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    const IS_PT = !URL_LANG.startsWith('en') && !URL_LANG.startsWith('es');
+    const IS_ES = URL_LANG.startsWith('es');
+    const CURRENT_LANG = IS_PT ? 'pt' : (IS_ES ? 'es' : 'en');
+  </script>
+
+  <style>
+    :root {
+      --bg: #0d1326;
+      --card-bg: #16203c;
+      --card-border: #2a3a66;
+      --gold: #f4c462;
+      --gold-hover: #ffd987;
+      --gold-dark: #b8861e;
+      --navy-light: #24345d;
+      --text-white: #f5f7fc;
+      --text-muted: #abb5cf;
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-title: 'Playfair Display', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: radial-gradient(circle at 50% 15%, #1c2748 0%, var(--bg) 85%);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+    }
+
+    /* KruujLoader nativo */
+    #kl {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at 50% 40%, #172244 0%, var(--bg) 75%);
+      display: grid;
+      place-items: center;
+      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+      transition: opacity .6s ease, visibility .6s;
+    }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity .5s ease; text-align: center; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl-icon { width: 120px; height: 120px; border-radius: 50%; filter: drop-shadow(0 0 20px rgba(244,196,98,0.6)); animation: floatOwl 2.8s ease-in-out infinite; }
+    @keyframes floatOwl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .splash .logo-title { font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 16px 0 4px; letter-spacing: 0.05em; }
+    .splash .sub { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
+    .track { position: relative; width: 100%; height: 10px; margin: 32px 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); transition: width 0.2s ease; }
+    .pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .tip { margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; }
+
+    /* LAYOUT PRINCIPAL */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 10px 14px 24px;
+    }
+
+    /* TOP HEADER & POKI RECUO */
+    .top-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .top-header {
+        padding-left: 68px !important;
+      }
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .game-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2a375e, #141c33);
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .game-titles h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      color: var(--text-white);
+      letter-spacing: 0.02em;
+    }
+    .game-titles span {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-top {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-top:hover {
+      background: var(--navy-light);
+      border-color: var(--gold);
+    }
+
+    /* SELETOR DE MODO / DIFICULDADE */
+    .difficulty-bar {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+      padding: 12px 2px 8px;
+      justify-content: center;
+    }
+    .diff-btn {
+      flex: 1;
+      max-width: 220px;
+      min-height: 46px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .diff-btn.active {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0d1326;
+      border-color: var(--gold-hover);
+      box-shadow: 0 4px 14px rgba(244, 196, 98, 0.35);
+    }
+
+    /* BARRA DE ESTATÍSTICAS SERENAS */
+    .stats-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(22, 32, 60, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin: 6px 0 14px;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    /* GRADE DE CARTAS 3D */
+    .board-grid-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .memory-grid {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+      justify-content: center;
+    }
+
+    /* CARTA VINTAGE 3D */
+    .memory-card {
+      aspect-ratio: 3/4;
+      perspective: 1000px;
+      cursor: pointer;
+      min-width: 64px;
+      max-width: 130px;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-style: preserve-3d;
+      border-radius: 14px;
+    }
+    .memory-card.flipped .card-inner,
+    .memory-card.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* VERSO DA CARTA (DORSO DOURADO RETRÔ) */
+    .card-back {
+      background: radial-gradient(circle at 50% 50%, #202d52 0%, #12192e 100%);
+      border: 2px solid var(--gold);
+      color: var(--gold);
+    }
+    .card-back-ornament {
+      width: 80%;
+      height: 85%;
+      border: 1px dashed rgba(244, 196, 98, 0.5);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    /* FRENTE DA CARTA (OBJETO CLÁSSICO NOSTÁLGICO) */
+    .card-front {
+      background: linear-gradient(145deg, #1f2c4e, #131c33);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transform: rotateY(180deg);
+    }
+    .memory-card.matched .card-front {
+      border-color: #4ade80;
+      box-shadow: 0 0 16px rgba(74, 222, 128, 0.5);
+      background: linear-gradient(145deg, #17382c, #0f241d);
+    }
+
+    .item-icon {
+      font-size: clamp(2rem, 6.5vw, 3.2rem);
+      margin-bottom: 6px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    }
+    .item-title {
+      font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+      font-weight: 700;
+      color: var(--text-white);
+      line-height: 1.2;
+    }
+
+    /* BARRA INFERIOR DE AUXÍLIO */
+    .assist-bar {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .btn-assist {
+      flex: 1;
+      min-height: 50px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-assist:hover {
+      background: var(--navy-light);
+      border-color: var(--gold);
+    }
+    .btn-assist.gold {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* MODAL DE VITÓRIA */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 22, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .win-card {
+      background: linear-gradient(145deg, #1d2747, #131a30);
+      border: 2px solid var(--gold);
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+    .win-owl {
+      font-size: 64px;
+      margin-bottom: 8px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .win-title {
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin: 0 0 10px;
+    }
+    .win-desc {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--text-white);
+      margin-bottom: 24px;
+    }
+    .btn-win-next {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #0d1326;
+      font-family: var(--font-ui);
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(244, 196, 98, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-win-next:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- KruujLoader Fallback Standalone -->
+  <div id="kl" role="status" aria-label="Carregando">
+    <div class="ph splash">
+      <div class="owl-icon">🦉</div>
+      <h1 class="logo-title">MEMÓRIA DOURADA</h1>
+      <p class="sub">KRUUJ Clássico</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip">Despertando lembranças afetivas e fortalecendo a memória com carinho...</p>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="game-logo">✨</div>
+        <div class="game-titles">
+          <h1 id="ui-title">Memória Dourada</h1>
+          <span id="ui-subtitle">KRUUJ Studio 60+</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-top" id="btn-sound" title="Som">🔊</button>
+        <button class="btn-top" id="btn-lang" title="Idioma">🌐 <span id="txt-lang">PT</span></button>
+      </div>
+    </header>
+
+    <!-- SELETOR DE DIFICULDADE (6, 12 OU 16 CARTAS) -->
+    <nav class="difficulty-bar">
+      <button class="diff-btn active" data-cards="6" id="btn-diff-6">3 Pares (Fácil)</button>
+      <button class="diff-btn" data-cards="12" id="btn-diff-12">6 Pares (Médio)</button>
+      <button class="diff-btn" data-cards="16" id="btn-diff-16">8 Pares (Clássico)</button>
+    </nav>
+
+    <!-- ESTATÍSTICAS RELAXANTES -->
+    <section class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label" id="lbl-pairs">Pares Encontrados</span>
+        <span class="stat-value" id="val-pairs">0 / 3</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label" id="lbl-attempts">Tentativas</span>
+        <span class="stat-value" id="val-attempts">0</span>
+      </div>
+    </section>
+
+    <!-- TABULEIRO DE CARTAS VINTAGE -->
+    <main class="board-grid-wrapper">
+      <div class="memory-grid" id="grid"></div>
+    </main>
+
+    <!-- BOTÕES DE AUXÍLIO -->
+    <footer class="assist-bar">
+      <button class="btn-assist gold" id="btn-peek">
+        💡 <span id="txt-peek">Espiar Cartas</span>
+      </button>
+      <button class="btn-assist" id="btn-restart">
+        ↻ <span id="txt-restart">Embaralhar</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- MODAL DE VITÓRIA ZEN -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="win-card">
+      <div class="win-owl">🦉</div>
+      <h2 class="win-title" id="win-title">Memória Brilhante!</h2>
+      <p class="win-desc" id="win-desc">Você encontrou todos os pares clássicos com maestria. Cada rodada deixa sua mente mais jovem e lúcida!</p>
+      <button class="btn-win-next" id="btn-win-next">Jogar Novamente ➔</button>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       ÁUDIO SINTETIZADO (WebAudio API)
+       ========================================================= */
+    class MemoryAudio {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      flip() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+      match() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const freqs = [523.25, 659.25, 783.99, 1046.50];
+        freqs.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.08);
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.08);
+          osc.stop(this.ctx.currentTime + i * 0.08 + 0.35);
+        });
+      }
+      fanfare() {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [440, 554.37, 659.25, 880];
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.12);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.12 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.12);
+          osc.stop(this.ctx.currentTime + i * 0.12 + 0.6);
+        });
+      }
+    }
+    const audio = new MemoryAudio();
+
+    /* =========================================================
+       ITENS VINTAGE & LOCALIZAÇÃO (PT / EN / ES)
+       ========================================================= */
+    const VINTAGE_ITEMS = [
+      { id: 'gramophone', icon: '📻', pt: 'Gramofone', en: 'Gramophone', es: 'Gramófono' },
+      { id: 'pocketwatch', icon: '⏱️', pt: 'Relógio Suíço', en: 'Pocket Watch', es: 'Reloj Clásico' },
+      { id: 'typewriter', icon: '⌨️', pt: 'Máquina Escrever', en: 'Typewriter', es: 'Máquina Escribir' },
+      { id: 'train', icon: '🚂', pt: 'Trem a Vapor', en: 'Steam Train', es: 'Tren a Vapor' },
+      { id: 'camera', icon: '📷', pt: 'Câmera Antiga', en: 'Vintage Camera', es: 'Cámara Antigua' },
+      { id: 'porcelain', icon: '☕', pt: 'Chá da Tarde', en: 'Fine Tea Cup', es: 'Taza de Té' },
+      { id: 'leatherbook', icon: '📖', pt: 'Livro Raro', en: 'Classic Book', es: 'Libro Clásico' },
+      { id: 'lantern', icon: '🏮', pt: 'Lampião Vintage', en: 'Classic Lantern', es: 'Farol Clásico' },
+      { id: 'piano', icon: '🎹', pt: 'Piano de Cauda', en: 'Grand Piano', es: 'Piano de Cola' },
+      { id: 'compass', icon: '🧭', pt: 'Bússola Náutica', en: 'Brass Compass', es: 'Brújula Antigua' },
+      { id: 'quill', icon: '✒️', pt: 'Pena & Tinteiro', en: 'Quill & Ink', es: 'Pluma & Tinta' },
+      { id: 'telescope', icon: '🔭', pt: 'Luneta Clássica', en: 'Telescope', es: 'Telescopio' }
+    ];
+
+    const I18N_DATA = {
+      pt: {
+        title: "Memória Dourada",
+        subtitle: "KRUUJ Studio 60+",
+        diff6: "3 Pares (Fácil)",
+        diff12: "6 Pares (Médio)",
+        diff16: "8 Pares (Clássico)",
+        pairs: "Pares Encontrados",
+        attempts: "Tentativas",
+        peek: "Espiar Cartas",
+        restart: "Embaralhar",
+        winTitle: "Memória Brilhante!",
+        winDesc: "Você encontrou todos os pares com calma e sabedoria. Uma mente exercitada mantém-se radiante!",
+        winNext: "Jogar Novamente ➔"
+      },
+      en: {
+        title: "Golden Memory",
+        subtitle: "KRUUJ Studio 60+",
+        diff6: "3 Pairs (Easy)",
+        diff12: "6 Pairs (Medium)",
+        diff16: "8 Pairs (Classic)",
+        pairs: "Pairs Found",
+        attempts: "Attempts",
+        peek: "Peek Cards",
+        restart: "Shuffle",
+        winTitle: "Brilliant Memory!",
+        winDesc: "You matched all vintage treasures gracefully. Keeping your mind alert, active and young!",
+        winNext: "Play Again ➔"
+      },
+      es: {
+        title: "Memoria Dorada",
+        subtitle: "KRUUJ Studio 60+",
+        diff6: "3 Pares (Fácil)",
+        diff12: "6 Pares (Medio)",
+        diff16: "8 Pares (Clásico)",
+        pairs: "Pares Encontrados",
+        attempts: "Intentos",
+        peek: "Mirar Cartas",
+        restart: "Barajar",
+        winTitle: "¡Memoria Brillante!",
+        winDesc: "Encontraste todos los tesoros con serenidad y agilidad. ¡Tu mente se llena de vitalidad!",
+        winNext: "Jugar de Nuevo ➔"
+      }
+    };
+
+    let currentLang = CURRENT_LANG;
+    let totalCardsCount = 6;
+    let cardsData = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let attemptsCount = 0;
+    let isLocked = false;
+
+    function getTexts() {
+      return I18N_DATA[currentLang] || I18N_DATA.pt;
+    }
+
+    function initUI() {
+      const texts = getTexts();
+      document.getElementById('ui-title').textContent = texts.title;
+      document.getElementById('ui-subtitle').textContent = texts.subtitle;
+      document.getElementById('txt-lang').textContent = currentLang.toUpperCase();
+      document.getElementById('btn-diff-6').textContent = texts.diff6;
+      document.getElementById('btn-diff-12').textContent = texts.diff12;
+      document.getElementById('btn-diff-16').textContent = texts.diff16;
+      document.getElementById('lbl-pairs').textContent = texts.pairs;
+      document.getElementById('lbl-attempts').textContent = texts.attempts;
+      document.getElementById('txt-peek').textContent = texts.peek;
+      document.getElementById('txt-restart').textContent = texts.restart;
+      document.getElementById('win-title').textContent = texts.winTitle;
+      document.getElementById('win-desc').textContent = texts.winDesc;
+      document.getElementById('btn-win-next').textContent = texts.winNext;
+    }
+
+    function setupGame(numCards) {
+      totalCardsCount = numCards;
+      const numPairs = numCards / 2;
+      matchedPairs = 0;
+      attemptsCount = 0;
+      flippedCards = [];
+      isLocked = false;
+
+      document.getElementById('val-pairs').textContent = `0 / ${numPairs}`;
+      document.getElementById('val-attempts').textContent = '0';
+
+      // Embaralha itens
+      const shuffledItems = [...VINTAGE_ITEMS].sort(() => Math.random() - 0.5).slice(0, numPairs);
+      const deck = [];
+      shuffledItems.forEach(item => {
+        deck.push({ ...item, uid: Math.random() });
+        deck.push({ ...item, uid: Math.random() });
+      });
+      deck.sort(() => Math.random() - 0.5);
+
+      cardsData = deck;
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      if (totalCardsCount === 6) {
+        grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      } else if (totalCardsCount === 12) {
+        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      } else {
+        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      }
+
+      cardsData.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'memory-card';
+        cardEl.dataset.index = index;
+
+        const name = card[currentLang] || card.pt;
+
+        cardEl.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-back">
+              <div class="card-back-ornament">🦉</div>
+            </div>
+            <div class="card-face card-front">
+              <div class="item-icon">${card.icon}</div>
+              <div class="item-title">${name}</div>
+            </div>
+          </div>
+        `;
+
+        cardEl.onclick = () => onCardClick(index, cardEl);
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function onCardClick(index, el) {
+      if (isLocked) return;
+      if (el.classList.contains('flipped') || el.classList.contains('matched')) return;
+
+      audio.flip();
+      el.classList.add('flipped');
+      flippedCards.push({ index, el, card: cardsData[index] });
+
+      if (flippedCards.length === 2) {
+        attemptsCount++;
+        document.getElementById('val-attempts').textContent = attemptsCount;
+
+        const [c1, c2] = flippedCards;
+        if (c1.card.id === c2.card.id) {
+          // Par encontrado!
+          matchedPairs++;
+          const numPairs = totalCardsCount / 2;
+          document.getElementById('val-pairs').textContent = `${matchedPairs} / ${numPairs}`;
+          setTimeout(() => {
+            audio.match();
+            c1.el.classList.add('matched');
+            c2.el.classList.add('matched');
+            flippedCards = [];
+
+            if (matchedPairs === numPairs) {
+              audio.fanfare();
+              setTimeout(() => {
+                document.getElementById('win-modal').classList.add('active');
+              }, 500);
+            }
+          }, 400);
+        } else {
+          // Não foi par: vira de volta suavemente
+          isLocked = true;
+          setTimeout(() => {
+            c1.el.classList.remove('flipped');
+            c2.el.classList.remove('flipped');
+            flippedCards = [];
+            isLocked = false;
+          }, 1100);
+        }
+      }
+    }
+
+    // BOTÃO ESPIAR CARTAS (RELAXANTE SEM PUNIÇÃO)
+    document.getElementById('btn-peek').onclick = () => {
+      if (isLocked) return;
+      audio.flip();
+      isLocked = true;
+      const allCards = document.querySelectorAll('.memory-card:not(.matched)');
+      allCards.forEach(c => c.classList.add('flipped'));
+
+      setTimeout(() => {
+        allCards.forEach(c => {
+          if (!c.classList.contains('matched')) {
+            c.classList.remove('flipped');
+          }
+        });
+        isLocked = false;
+      }, 2200);
+    };
+
+    // BOTÃO EMBARALHAR
+    document.getElementById('btn-restart').onclick = () => {
+      audio.flip();
+      setupGame(totalCardsCount);
+    };
+
+    // DIFICULDADE
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.onclick = () => {
+        audio.flip();
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const num = parseInt(btn.dataset.cards, 10);
+        setupGame(num);
+      };
+    });
+
+    // SOM
+    document.getElementById('btn-sound').onclick = () => {
+      audio.muted = !audio.muted;
+      document.getElementById('btn-sound').textContent = audio.muted ? '🔇' : '🔊';
+    };
+
+    // IDIOMA
+    document.getElementById('btn-lang').onclick = () => {
+      audio.flip();
+      if (currentLang === 'pt') currentLang = 'en';
+      else if (currentLang === 'en') currentLang = 'es';
+      else currentLang = 'pt';
+      initUI();
+      setupGame(totalCardsCount);
+    };
+
+    // PRÓXIMO JOGO
+    document.getElementById('btn-win-next').onclick = () => {
+      audio.flip();
+      document.getElementById('win-modal').classList.remove('active');
+      setupGame(totalCardsCount);
+    };
+
+    /* =========================================================
+       KRUUJ LOADER E SDK INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      initUI();
+      setupGame(6);
+
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        }).catch(() => {});
+      }
+
+      if (window.self === window.top) {
+        let p = 0;
+        const fill = document.getElementById('kl-fill');
+        const pct = document.getElementById('kl-pct');
+        const interval = setInterval(() => {
+          p += 20;
+          if (fill) fill.style.width = p + '%';
+          if (pct) pct.textContent = p + '%';
+          if (p >= 100) {
+            clearInterval(interval);
+            const kl = document.getElementById('kl');
+            if (kl) {
+              kl.classList.add('out');
+              setTimeout(() => kl.style.display = 'none', 600);
+            }
+          }
+        }, 150);
+      }
+    });
+  </script>
+</body>
+</html>
