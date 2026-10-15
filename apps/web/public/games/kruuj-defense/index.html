@@ -361,9 +361,9 @@
     }
 
     /* Recuo ergonômico no mobile para não sobrepor o botão Poki no canto superior esquerdo */
-    @media (max-width: 768px) {
+    @media (max-width: 768px), (max-height: 540px), (pointer: coarse) {
       .top-bar-bloons {
-        left: 68px !important;
+        left: 72px !important;
         right: 8px !important;
       }
 
@@ -1541,7 +1541,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
       buildWaypoints() {
         // Resolução canônica virtual fixa de 960 x 540 (16:9).
-        // Waypoints 100% idênticos e proporcionais em qualquer tela, orientação ou dispositivo.
+        // Zona segura: Y entre 90 e 380 (livre da barra superior e do dock inferior), X >= 80 (livre do botão Poki)
         this.width = 960;
         this.height = 540;
 
@@ -1549,57 +1549,57 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           case 0:
             this.waypoints = [
               { x: -30, y: 130 },
-              { x: 280, y: 130 },
-              { x: 280, y: 380 },
-              { x: 620, y: 380 },
-              { x: 620, y: 180 },
-              { x: 840, y: 180 },
-              { x: 840, y: 430 },
-              { x: 990, y: 430 }
+              { x: 260, y: 130 },
+              { x: 260, y: 360 },
+              { x: 580, y: 360 },
+              { x: 580, y: 150 },
+              { x: 800, y: 150 },
+              { x: 800, y: 375 },
+              { x: 990, y: 375 }
             ];
             break;
           case 1:
             this.waypoints = [
-              { x: -30, y: 110 },
-              { x: 740, y: 110 },
-              { x: 740, y: 260 },
-              { x: 220, y: 260 },
-              { x: 220, y: 410 },
-              { x: 990, y: 410 }
+              { x: -30, y: 120 },
+              { x: 740, y: 120 },
+              { x: 740, y: 240 },
+              { x: 220, y: 240 },
+              { x: 220, y: 375 },
+              { x: 990, y: 375 }
             ];
             break;
           case 2:
             this.waypoints = [
-              { x: -30, y: 95 },
-              { x: 810, y: 95 },
-              { x: 810, y: 430 },
-              { x: 180, y: 430 },
-              { x: 180, y: 260 },
-              { x: 590, y: 260 },
-              { x: 590, y: 360 },
-              { x: 990, y: 360 }
+              { x: -30, y: 105 },
+              { x: 810, y: 105 },
+              { x: 810, y: 375 },
+              { x: 190, y: 375 },
+              { x: 190, y: 230 },
+              { x: 580, y: 230 },
+              { x: 580, y: 340 },
+              { x: 990, y: 340 }
             ];
             break;
           case 3:
             this.waypoints = [
-              { x: 160, y: -30 },
-              { x: 160, y: 350 },
+              { x: 180, y: -30 },
+              { x: 180, y: 350 },
               { x: 480, y: 350 },
               { x: 480, y: 130 },
-              { x: 790, y: 130 },
-              { x: 790, y: 570 }
+              { x: 780, y: 130 },
+              { x: 780, y: 570 }
             ];
             break;
           case 4:
             this.waypoints = [
-              { x: -30, y: 160 },
-              { x: 240, y: 160 },
+              { x: -30, y: 150 },
+              { x: 240, y: 150 },
               { x: 240, y: 100 },
               { x: 520, y: 100 },
-              { x: 520, y: 440 },
-              { x: 780, y: 440 },
-              { x: 780, y: 270 },
-              { x: 990, y: 270 }
+              { x: 520, y: 375 },
+              { x: 770, y: 375 },
+              { x: 770, y: 250 },
+              { x: 990, y: 250 }
             ];
             break;
         }
@@ -2652,7 +2652,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       canPlaceTower(x, y) {
-        if (x < 25 || x > this.virtualWidth - 25 || y < 45 || y > this.virtualHeight - 65) return false;
+        if (x < 75 || x > this.virtualWidth - 30 || y < 65 || y > 410) return false;
         if (this.map.isPointNearPath(x, y, 36)) return false;
         for (let t of this.towers) {
           if (Math.hypot(t.x - x, t.y - y) < 40) return false;

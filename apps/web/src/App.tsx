@@ -1835,7 +1835,12 @@ export default function App() {
         const filteredApiGames = apiGames.filter(g => validSlugs.has(g.slug));
         const apiSlugs = new Set(filteredApiGames.map(g => g.slug));
         const missingFromApi = defaultGamesCatalog.filter(m => !apiSlugs.has(m.slug));
-        setGames([...filteredApiGames, ...missingFromApi]);
+        const defaultMap = new Map(defaultGamesCatalog.map(d => [d.slug, d]));
+        const enrichedApiGames = filteredApiGames.map(g => ({
+          ...g,
+          orientation: defaultMap.get(g.slug)?.orientation || g.orientation
+        }));
+        setGames([...enrichedApiGames, ...missingFromApi]);
       } else {
         throw new Error('Falha ao obter jogos');
       }
