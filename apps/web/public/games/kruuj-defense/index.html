@@ -932,8 +932,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         <!-- Janela de Visualização do Carrossel -->
         <div class="dock-carousel-viewport" id="dock-carousel-viewport">
           <div class="dock-cards-track" id="dock-cards-track">
-            <!-- Coruja Aprendiz ($200) -->
-            <button class="bloons-tower-card" id="shop-btn-0" data-index="0" title="Coruja Aprendiz ($200)">
+            <!-- Coruja Aprendiz ($190) -->
+            <button class="bloons-tower-card" id="shop-btn-0" data-index="0" title="Coruja Aprendiz ($190)">
               <div class="card-avatar">
                 <svg viewBox="0 0 36 36" width="34" height="34">
                   <circle cx="18" cy="18" r="14" fill="#8b5cff"/>
@@ -949,11 +949,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
                   <circle cx="18" cy="11" r="1.8" fill="#fde047"/>
                 </svg>
               </div>
-              <span class="card-price">$200</span>
+              <span class="card-price" id="shop-price-0">$190</span>
             </button>
 
-            <!-- Coruja Cientista ($340) -->
-            <button class="bloons-tower-card" id="shop-btn-1" data-index="1" title="Coruja Cientista ($340)">
+            <!-- Coruja Cientista ($380) -->
+            <button class="bloons-tower-card" id="shop-btn-1" data-index="1" title="Coruja Cientista ($380)">
               <div class="card-avatar">
                 <svg viewBox="0 0 36 36" width="34" height="34">
                   <circle cx="18" cy="18" r="14" fill="#06b6d4"/>
@@ -968,11 +968,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
                   <path d="M18,3 L18,7 M16,4 L20,6" stroke="#fde047" stroke-width="1.8"/>
                 </svg>
               </div>
-              <span class="card-price">$340</span>
+              <span class="card-price" id="shop-price-1">$380</span>
             </button>
 
-            <!-- Coruja Sniper ($420) -->
-            <button class="bloons-tower-card" id="shop-btn-2" data-index="2" title="Coruja Sniper ($420)">
+            <!-- Coruja Sniper ($440) -->
+            <button class="bloons-tower-card" id="shop-btn-2" data-index="2" title="Coruja Sniper ($440)">
               <div class="card-avatar">
                 <svg viewBox="0 0 36 36" width="34" height="34">
                   <circle cx="18" cy="18" r="14" fill="#ca8a04"/>
@@ -987,11 +987,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
                   <polygon points="16,20 20,20 18,24" fill="#f59e0b"/>
                 </svg>
               </div>
-              <span class="card-price">$420</span>
+              <span class="card-price" id="shop-price-2">$440</span>
             </button>
 
-            <!-- Coruja Bombardeira ($520) -->
-            <button class="bloons-tower-card" id="shop-btn-3" data-index="3" title="Coruja Bombardeira ($520)">
+            <!-- Coruja Bombardeira ($530) -->
+            <button class="bloons-tower-card" id="shop-btn-3" data-index="3" title="Coruja Bombardeira ($530)">
               <div class="card-avatar">
                 <svg viewBox="0 0 36 36" width="34" height="34">
                   <circle cx="18" cy="18" r="14" fill="#dc2626"/>
@@ -1005,7 +1005,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
                   <polygon points="16,22 20,22 18,26" fill="#f59e0b"/>
                 </svg>
               </div>
-              <span class="card-price">$520</span>
+              <span class="card-price" id="shop-price-3">$530</span>
             </button>
 
             <!-- Coruja Mago Glacial ($260) -->
@@ -1023,7 +1023,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
                   <polygon points="16,21 20,21 18,25" fill="#f59e0b"/>
                 </svg>
               </div>
-              <span class="card-price">$260</span>
+              <span class="card-price" id="shop-price-4">$260</span>
             </button>
           </div>
         </div>
@@ -1191,32 +1191,32 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       <div class="encyclopedia-item">
         <span style="font-size: 2rem;">🦉</span>
         <div>
-          <div style="font-weight: 800;">Coruja Aprendiz ($200)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Veterana ($270)</b> ⭐ • Patente 3: <b>Arquimaga Cósmica ($620)</b> ⭐⭐. Orbes arcanos com perfuração progressiva (Pierce 1/2/3) e cadência acelerada. Guardiã mística balanceada para segurar as trilhas.</div>
+          <div style="font-weight: 800;">Coruja Aprendiz ($190)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Veterana ($240)</b> ⭐ • Patente 3: <b>Arquimaga Cósmica ($550)</b> ⭐⭐. Orbes arcanos místicos que perfuram múltiplos balões em linha e curvas (<b>Pierce 2/3/5</b>) com alcance amplo (140/175/220px). No Nível 3 sua magia estelar fura até balões de chumbo!</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
         <span style="font-size: 2rem;">⚡</span>
         <div>
-          <div style="font-weight: 800;">Coruja Cientista ($340)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Engenheira Elétrica ($440)</b> ⭐ • Patente 3: <b>Mestre do Eletromagnetismo ($980)</b> ⭐⭐. Disparos elétricos de altíssima frequência (até 7.5 t/s). Salta arcos elétricos entre balões próximos e canaliza feixe duplo!</div>
+          <div style="font-weight: 800;">Coruja Cientista ($380)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Engenheira Elétrica ($460)</b> ⭐ • Patente 3: <b>Mestre do Eletromagnetismo ($1050)</b> ⭐⭐. Descargas de alta frequência (até 7.5 t/s) com foco estrito em alvo único (<b>Pierce 1</b>) de altíssimo DPS. Derrete instantaneamente balões de chumbo ('lead'), mas sofre contra enxames espalhados sem apoio!</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
         <span style="font-size: 2rem;">🎯</span>
         <div>
-          <div style="font-weight: 800;">Coruja Sniper ($420)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Atiradora de Elite ($560)</b> ⭐ • Patente 3: <b>Olho de Falcão Supremo ($1250)</b> ⭐⭐. Alcance quase infinito (480px) e dano colossal (até 16) com bônus crítico contra Titãs e balões blindados de chumbo.</div>
+          <div style="font-weight: 800;">Coruja Sniper ($440)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Atiradora de Elite ($580)</b> ⭐ • Patente 3: <b>Olho de Falcão Supremo ($1300)</b> ⭐⭐. Alcance colossal (280/360/480px) com bônus crítico devastador contra balões Titãs Zepelins e de Chumbo (+4 a +10 de dano bônus).</div>
         </div>
       </div>
 
       <div class="encyclopedia-item">
         <span style="font-size: 2rem;">💥</span>
         <div>
-          <div style="font-weight: 800;">Coruja Bombardeira ($520)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Demolidora Pesada ($720)</b> ⭐ • Patente 3: <b>Comandante da Supernova ($1550)</b> ⭐⭐. Artilharia pesada com grande impacto e raio de explosão (AOE 60/85/115px) com radiação residual. Quebra defesas blindadas!</div>
+          <div style="font-weight: 800;">Coruja Bombardeira ($530)</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Demolidora Pesada ($740)</b> ⭐ • Patente 3: <b>Comandante da Supernova ($1600)</b> ⭐⭐. Artilharia pesada com grande raio de explosão (AOE 65/85/115px). Quebra balões de chumbo e pulveriza enxames colados!</div>
         </div>
       </div>
 
@@ -1224,7 +1224,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         <span style="font-size: 2rem;">❄️</span>
         <div>
           <div style="font-weight: 800;">Coruja Mago Glacial ($260)</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Senhor do Gelo ($360)</b> ⭐ • Patente 3: <b>Arquidruida do Zero Absoluto ($780)</b> ⭐⭐. Dispara esferas de geada em área (42/60/85px). Desacelera enxames em até 60%, causa dano por estilhaço e amortece o avanço de Titãs!</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">Patente 2: <b>Senhor do Gelo ($380)</b> ⭐ • Patente 3: <b>Arquidruida do Zero Absoluto ($820)</b> ⭐⭐. Esferas de geada em área (AOE 50/70/95px) que desaceleram inimigos em 50% a 65%, com dano residual de frio e amortecimento do avanço de Titãs!</div>
         </div>
       </div>
 
@@ -1465,8 +1465,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     const DIFFICULTIES = [
       { id: 'easy', name: 'Fácil', icon: '🟢', lives: 40, startMoney: 750, speedMult: 0.90, costMult: 0.90, rewardMult: 1.10, waveBonusMult: 1.15, bossHpMult: 0.85, spawnInterval: 26 },
       { id: 'medium', name: 'Médio', icon: '🟡', lives: 20, startMoney: 650, speedMult: 1.00, costMult: 1.00, rewardMult: 1.00, waveBonusMult: 1.00, bossHpMult: 1.00, spawnInterval: 22 },
-      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 8, startMoney: 500, speedMult: 1.22, costMult: 1.15, rewardMult: 0.75, waveBonusMult: 0.70, bossHpMult: 1.45, spawnInterval: 18 },
-      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 420, speedMult: 1.35, costMult: 1.25, rewardMult: 0.60, waveBonusMult: 0.50, bossHpMult: 1.85, spawnInterval: 14 }
+      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 6, startMoney: 460, speedMult: 1.25, costMult: 1.15, rewardMult: 0.70, waveBonusMult: 0.60, bossHpMult: 1.60, spawnInterval: 16 },
+      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 360, speedMult: 1.42, costMult: 1.25, rewardMult: 0.50, waveBonusMult: 0.35, bossHpMult: 2.40, spawnInterval: 11 }
     ];
 
     // ===== 2. DEFINIÇÃO DAS TRILHAS E FASES TEMÁTICAS =====
@@ -1998,6 +1998,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.cooldownMax = config.cooldown;
         this.cooldown = 0;
         this.damage = config.damage;
+        this.pierce = config.pierce || 1;
         this.isAOE = config.isAOE || false;
         this.aoeRadius = config.aoeRadius || 0;
         this.isSlow = config.isSlow || false;
