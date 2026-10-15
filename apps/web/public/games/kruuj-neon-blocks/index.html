@@ -8,8 +8,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 /* KRUUJ: Neon Blocks — todos os seletores são escopados em .kt (contêiner do jogo). */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #070B20;
+}
 .kt{--kt-bg:#070B20;--kt-panel:#0B1230;--kt-violet:#873CFF;--kt-cyan:#18C9FF;--kt-gold:#FFB21C;--kt-text:#F5F6FF;--kt-mute:#9EACD6;
-  box-sizing:border-box;container-type:inline-size;display:flex;height:100%;min-height:var(--kt-min-height,520px);
+  box-sizing:border-box;container-type:inline-size;display:flex;width:100%;height:100%;height:100dvh;min-height:0;max-height:100dvh;
   position:relative;overflow:hidden;color:var(--kt-text);font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
   background:radial-gradient(120% 80% at 15% 0%,rgba(135,60,255,.28),transparent 60%),radial-gradient(100% 70% at 100% 100%,rgba(24,201,255,.18),transparent 55%),var(--kt-bg);
   -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -38,6 +47,63 @@
 .kt-btn:active:not(:disabled),.kt-cbtn:active,.kt-cbtn.kt-on{transform:scale(.95);background:linear-gradient(180deg,#873CFF,#5b28b8)}
 .kt-btn:disabled{opacity:.4;cursor:default}
 .kt-stage{position:relative;min-width:0;min-height:0}
+@media (max-width: 768px) {
+  .kt-wrap {
+    padding-left: 68px !important;
+  }
+}
+@media (max-width: 640px) {
+  .kt-wrap {
+    gap: 4px !important;
+    padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(68px, env(safe-area-inset-left)) !important;
+    grid-template-columns: minmax(0, 1fr) 76px !important;
+  }
+  .kt-stat {
+    padding: 2px 4px !important;
+  }
+  .kt-stat span {
+    font-size: 8px !important;
+  }
+  .kt-stat b {
+    font-size: 12px !important;
+  }
+  .kt-panel {
+    padding: 3px !important;
+  }
+  .kt-ctrl {
+    gap: 4px !important;
+    max-width: 380px !important;
+  }
+  .kt-cbtn {
+    height: 42px !important;
+    font-size: 16px !important;
+  }
+}
+@media (max-height: 520px) {
+  .kt-wrap {
+    grid-template-columns: minmax(100px, 130px) minmax(0, 1fr) minmax(100px, 130px) !important;
+    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "hold stage next"
+      "act stage stats"
+      "ctrl ctrl ctrl" !important;
+    gap: 6px !important;
+    padding-left: 68px !important;
+  }
+  .kt-ctrl {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    max-width: 520px !important;
+  }
+  .kt-cbtn {
+    height: 36px !important;
+    font-size: 14px !important;
+  }
+  .kt-stats {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+  }
+}
 .kt-board{position:absolute;border-radius:6px;overflow:hidden;touch-action:none;box-shadow:0 0 0 2px rgba(24,201,255,.5),0 0 28px rgba(135,60,255,.4)}
 .kt-cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .kt-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:10px;background:rgba(7,11,32,.84)}

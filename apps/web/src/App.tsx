@@ -1816,7 +1816,7 @@ export default function App() {
       prefixUrl: '/games/kruuj-neon-blocks/',
       version: '1.0.0',
       controls: { mouse: true, teclado: false, toque: true, gamepad: false },
-      orientation: 'both',
+      orientation: 'portrait',
       statusTechnical: 'aprovado',
       statusEditorial: 'publicado',
       statusDoc: 'aprovado',

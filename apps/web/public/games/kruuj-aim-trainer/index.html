@@ -71,6 +71,7 @@
 .ka-cv{touch-action:none}
 @media(max-width:640px){.ka-modes{grid-template-columns:1fr 1fr}.ka-modes .ka-f{grid-column:1/-1}.ka-card{padding:12px}}
 @media(pointer:coarse){.ka-b{min-height:44px}}
+@media(max-width:768px){.ka-hud{padding-left:68px !important}.ka-nav{padding-left:68px !important}}
 </style>
 </head>
 <body style="margin:0;height:100vh;height:100dvh;background:#070B20">
@@ -204,7 +205,11 @@
     let editing = false, selBtn = 'fire';
     const KT = .0042; // rad por pixel de arrasto por ponto de sensibilidade de toque
     const tb = q('.ka-tb'), rotEl = q('.ka-rot');
-    const touchMode = () => st.input === 'touch' || (st.input === 'auto' && !!g.matchMedia && g.matchMedia('(pointer:coarse)').matches);
+    const touchMode = () => {
+      if (st.input === 'touch') return true;
+      if (st.input === 'mouse') return false;
+      return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (g.matchMedia && g.matchMedia('(pointer:coarse)').matches) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    };
     /* ---------- Cena 3D ---------- */
     const renderer = new T.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
     const scene = new T.Scene(); scene.background = new T.Color(0x070B20); scene.fog = new T.Fog(0x070B20, 30, 60);
@@ -316,13 +321,25 @@
       else if (!locked) pause();
     }
     function onLockErr() {
-      if (touchMode()) return; if (S.phase === 'countdown' || S.phase === 'paused') { S.phase = 'paused'; show('pause'); let emb = false; try { emb = g.self !== g.top; } catch (er) { emb = true; }
-      msgKey = emb ? 'pFrame' : 'pRef'; q('.ka-msg').textContent = tr(msgKey); } }
+      if (touchMode()) return;
+      if (('ontouchstart' in window) || navigator.maxTouchPoints > 0 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+        st.input = 'touch';
+        if (S.phase === 'countdown' || S.phase === 'paused') {
+          S.phase = 'countdown'; S.cd = 1.5; show(null); hud.hidden = false;
+        }
+        return;
+      }
+      if (S.phase === 'countdown' || S.phase === 'paused') {
+        S.phase = 'paused'; show('pause');
+        let emb = false; try { emb = g.self !== g.top; } catch (er) { emb = true; }
+        msgKey = emb ? 'pFrame' : 'pRef'; q('.ka-msg').textContent = tr(msgKey);
+      }
+    }
     const rw = () => rnd(S.M.wait[0], S.M.wait[1]);
     const clockNow = () => S.t + (performance.now() - S.fn) / 1000;
-    function shoot() {
+    function shoot(coords) {
       if (S.phase !== 'playing' || S.M.kind === 'track') return;
-      camera.updateMatrixWorld(); ray.setFromCamera(ctr, camera);
+      camera.updateMatrixWorld(); ray.setFromCamera(coords || ctr, camera);
       const s = S.st, M = S.M, hit = ray.intersectObjects(group.children, false)[0]; s.shots++;
       if (hit) {
         const m = hit.object, u = m.userData, now = clockNow(); s.hits++; s.kills++; s.streak++; s.best = Math.max(s.best, s.streak);
@@ -402,8 +419,18 @@
     on(cv, 'mousedown', e => { if (e.button !== 0 || document.pointerLockElement !== cv) return; e.preventDefault(); if (S.phase === 'playing') { if (S.M.kind === 'track') held = true; else shoot(); } });
     let look = null, drag = null;
     on(cv, 'pointerdown', e => {
-      if (!touchMode() || look || (S.phase !== 'playing' && S.phase !== 'countdown')) return;
-      look = { id: e.pointerId, x: e.clientX, y: e.clientY }; try { cv.setPointerCapture(e.pointerId); } catch (er) { /* ignora */ }
+      if (!touchMode() || (S.phase !== 'playing' && S.phase !== 'countdown')) return;
+      audio();
+      if (S.phase === 'playing') {
+        const r = cv.getBoundingClientRect();
+        const tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ty = -((e.clientY - r.top) / r.height) * 2 + 1;
+        shoot({ x: tx, y: ty });
+      }
+      if (!look) {
+        look = { id: e.pointerId, x: e.clientX, y: e.clientY };
+        try { cv.setPointerCapture(e.pointerId); } catch (er) { /* ignora */ }
+      }
     });
     on(cv, 'pointermove', e => {
       if (!look || e.pointerId !== look.id) return;
