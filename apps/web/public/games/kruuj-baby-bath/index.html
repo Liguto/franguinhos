@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Banho da Corujinha – Baby Bath</title>
+  <title>KRUUJ Baby Bath – Banho da Corujinha</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
 
@@ -19,12 +19,15 @@
       });
     }
 
-    // Suporte a i18n em PT, EN, ES
-    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    // Suporte a i18n em PT, EN, ES (Default em inglês, com adaptação completa para PT se lang=pt)
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
     const I18N = {
       pt: {
         title: 'KRUUJ Banho da Corujinha',
-        tagline: 'Hora do banho quentinho! Faça espuma, aperte o patinho e estoure bolhas.',
+        tagline: 'Hora do banho quentinho! Arraste o chuveirinho, faça espuma e brinque com o patinho.',
         btnShower: 'Chuveirinho 🚿',
         btnShowerOn: 'Chuvinha: Ligada 💧',
         btnSponge: 'Esponja 🧽',
@@ -32,17 +35,21 @@
         bubblePop: 'Plop! Bolha mágica! ✨',
         soapyOwl: 'Que espuminha gostosa! 🧼',
         cleanOwl: 'Corujinha limpinha e cheirosa! 🌸',
+        voiceClean: 'Corujinha limpinha e cheirosa! Que delícia!',
+        voiceSoap: 'Que espuminha gostosa!',
+        voiceWater: 'Chuvinha quentinha e boa!',
+        voiceDuck: 'Quack quack!',
         cheers: ['Gostoso!', 'Que fofo!', 'Plop!', 'Tão cheirosa!', 'Viva! 💕'],
         tips: [
-          'Esfregue o dedinho na corujinha para ensaboá-la.',
-          'Toque no patinho amarelo para ouvi-lo fazer quack!',
-          'Ligue o chuveirinho para enxaguar as espumas com água morna.',
+          'Arraste o chuveirinho para jogar água morna na corujinha!',
+          'Passe a esponjinha ou o dedinho para ensaboar a coruja.',
+          'Toque no patinho de borracha para ouvi-lo fazer quack!',
           'Toque nas bolhas de sabão para estourar!'
         ]
       },
       en: {
         title: 'KRUUJ Baby Bath',
-        tagline: 'Cozy bath time! Make foam, squeeze the rubber duck and pop bubbly wonders.',
+        tagline: 'Cozy bath time! Drag the shower head, make bubbly foam and play with ducky.',
         btnShower: 'Shower 🚿',
         btnShowerOn: 'Shower: On 💧',
         btnSponge: 'Sponge 🧽',
@@ -50,17 +57,21 @@
         bubblePop: 'Plop! Magic bubble! ✨',
         soapyOwl: 'So much bubbly foam! 🧼',
         cleanOwl: 'All clean and smelling sweet! 🌸',
+        voiceClean: 'All clean and smelling sweet! Yay!',
+        voiceSoap: 'Bubbly soft soap!',
+        voiceWater: 'Warm and gentle water!',
+        voiceDuck: 'Quack quack!',
         cheers: ['So sweet!', 'Splash!', 'Plop!', 'Nice and warm!', 'Yay! 💕'],
         tips: [
-          'Rub your finger on the owl to make bubbly foam.',
-          'Tap the yellow duck to hear it squeak!',
-          'Turn on the shower to wash away the foam with warm water.',
+          'Drag the shower head over the owl to pour warm water!',
+          'Rub the sponge or your finger to make bubbly foam.',
+          'Tap the yellow rubber duck to hear it squeak!',
           'Tap the floating bubbles to pop them!'
         ]
       },
       es: {
         title: 'KRUUJ El Baño del Búho',
-        tagline: '¡Hora del baño tibio! Haz espuma, aprieta el patito y explota burbujas.',
+        tagline: '¡Hora del baño tibio! Arrastra la duchita, haz espuma y juega con el patito.',
         btnShower: 'Duchita 🚿',
         btnShowerOn: 'Ducha: Activa 💧',
         btnSponge: 'Esponja 🧽',
@@ -68,16 +79,20 @@
         bubblePop: '¡Plop! ¡Burbuja mágica! ✨',
         soapyOwl: '¡Cuánta espuma suave! 🧼',
         cleanOwl: '¡Búho limpio y perfumado! 🌸',
+        voiceClean: '¡Búho limpio y perfumado! ¡Bravo!',
+        voiceSoap: '¡Espumita suave!',
+        voiceWater: '¡Agüita tibia y rica!',
+        voiceDuck: '¡Cuac cuac!',
         cheers: ['¡Qué rico!', '¡Qué tierno!', '¡Plop!', '¡Limpito!', '¡Bravo! 💕'],
         tips: [
-          'Frota el dedito en el búho para llenarlo de espuma.',
+          '¡Arrastra la duchita para bañar al búho con agua tibia!',
+          'Frota la esponja o el dedito para llenarlo de espuma.',
           '¡Toca el patito amarillo para escucharlo chillar cuac!',
-          'Abre la duchita para limpiar la espuma con agua tibia.',
           '¡Toca las burbujas para explotarlas!'
         ]
       }
     };
-    const tG = I18N[URL_LANG] || I18N.pt;
+    const tG = IS_PT ? I18N.pt : (IS_ES ? I18N.es : I18N.en);
   </script>
 
   <style>
@@ -126,7 +141,7 @@
       z-index: 1;
     }
 
-    /* HUD Superior de Controles — Recuo Poki de 68px no mobile */
+    /* HUD Superior de Controles — Recuo de 68px no mobile obrigatório */
     .hud {
       position: fixed;
       top: 14px;
@@ -154,8 +169,8 @@
     }
 
     .hud-btn {
-      background: rgba(14, 43, 79, 0.88);
-      border: 2px solid rgba(56, 189, 248, 0.45);
+      background: rgba(14, 43, 79, 0.9);
+      border: 2px solid rgba(56, 189, 248, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: var(--white);
@@ -188,8 +203,8 @@
     }
 
     .hud-badge {
-      background: rgba(14, 43, 79, 0.88);
-      border: 2px solid rgba(255, 208, 67, 0.4);
+      background: rgba(14, 43, 79, 0.9);
+      border: 2px solid rgba(255, 208, 67, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 9999px;
@@ -209,7 +224,7 @@
       top: 75px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       color: #0369a1;
       font-size: 1.2rem;
       font-weight: 800;
@@ -225,6 +240,29 @@
     .toast-pill.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    /* Dica Flutuante inicial para o bebê */
+    .drag-hint-pill {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(56, 189, 248, 0.6);
+      color: #e2e8f0;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      z-index: 10;
+      pointer-events: none;
+      animation: pulseHint 2.4s infinite ease-in-out;
+    }
+    @keyframes pulseHint {
+      0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.05); }
     }
 
     /* ===== KRUUJ LOADER OFICIAL ===== */
@@ -268,7 +306,7 @@
       <p class="sub">STUDIO</p>
     </div>
     <div class="ph load off">
-      <h1 id="kl-name">KRUUJ Banho da Corujinha</h1>
+      <h1 id="kl-name">KRUUJ Baby Bath</h1>
       <p class="tag" id="kl-tag">Hora do banho quentinho com espuma e bolhas.</p>
       <div class="track">
         <div class="fill" id="kl-fill"></div>
@@ -283,7 +321,7 @@
   <!-- HUD do Jogo -->
   <header class="hud">
     <div class="hud-group">
-      <button class="hud-btn" id="btnShower" onclick="toggleShower()">
+      <button class="hud-btn active" id="btnShower" onclick="toggleShower()">
         <span id="showerLabel">Chuveirinho 🚿</span>
       </button>
     </div>
@@ -297,13 +335,14 @@
 
   <!-- Pílula Flutuante -->
   <div class="toast-pill" id="toastPill">Quack! Patinho feliz! 🦆</div>
+  <div class="drag-hint-pill" id="hintPill">🚿 Arraste o chuveirinho para jogar água!</div>
 
   <!-- Canvas Principal -->
   <canvas id="gameCanvas"></canvas>
 
   <script>
     // ==========================================
-    // 1. ÁUDIO SINTÉTICO (WEBAUDIO)
+    // 1. ÁUDIO SINTÉTICO & WEBSPEECH API
     // ==========================================
     let audioCtx = null;
     function initAudio() {
@@ -316,7 +355,77 @@
       }
     }
 
-    // Estouro de Bolha de Sabão ("Plop!" crocante e musical)
+    // Voz Amigável via Web Speech API com fallback de sinos
+    let lastSpokenText = '';
+    let lastSpokenTime = 0;
+    function speakText(text) {
+      const now = Date.now();
+      if (now - lastSpokenTime < 1800 && text === lastSpokenText) return;
+      lastSpokenText = text;
+      lastSpokenTime = now;
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = IS_PT ? 'pt-BR' : (IS_ES ? 'es-ES' : 'en-US');
+          utter.rate = 0.95;
+          utter.pitch = 1.25; // Tom doce e carinhoso para bebês
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+    }
+
+    // Som de Água Corrente / Chuveiro (Relaxante e Cristalina)
+    let waterSoundNode = null;
+    let waterGainNode = null;
+    function startWaterSound() {
+      initAudio();
+      if (!audioCtx || waterSoundNode) return;
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + (0.04 * white)) / 1.04; // Pink-ish noise
+        lastOut = output[i];
+      }
+
+      waterSoundNode = audioCtx.createBufferSource();
+      waterSoundNode.buffer = noiseBuffer;
+      waterSoundNode.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, audioCtx.currentTime);
+      filter.Q.setValueAtTime(1.8, audioCtx.currentTime);
+
+      waterGainNode = audioCtx.createGain();
+      waterGainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      waterGainNode.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 0.1);
+
+      waterSoundNode.connect(filter);
+      filter.connect(waterGainNode);
+      waterGainNode.connect(audioCtx.destination);
+      waterSoundNode.start();
+    }
+
+    function stopWaterSound() {
+      if (waterGainNode && audioCtx) {
+        waterGainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+        setTimeout(() => {
+          if (waterSoundNode) {
+            try { waterSoundNode.stop(); } catch(e){}
+            waterSoundNode.disconnect();
+            waterSoundNode = null;
+          }
+        }, 130);
+      }
+    }
+
+    // Estouro de Bolha de Sabão ("Plop!")
     const BUBBLE_NOTES = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
     function playBubblePopSound() {
       initAudio();
@@ -337,18 +446,16 @@
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(now);
       osc.stop(now + 0.2);
     }
 
-    // Patinho de Borracha: "Squeak! Quack!" estridente e hilário
+    // Patinho de Borracha: "Quack!"
     function playRubberDuckSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
-      // Squeak agudo inicial
       const osc1 = audioCtx.createOscillator();
       const gain1 = audioCtx.createGain();
       osc1.type = 'triangle';
@@ -364,7 +471,6 @@
       osc1.start(now);
       osc1.stop(now + 0.11);
 
-      // Quack doce descendente
       const osc2 = audioCtx.createOscillator();
       const filter = audioCtx.createBiquadFilter();
       const gain2 = audioCtx.createGain();
@@ -389,13 +495,13 @@
       osc2.stop(now + 0.25);
     }
 
-    // Fricção de Espuma / Esponja ("shh-pop-pop")
+    // Fricção de Espuma
     let lastFoamSoundTime = 0;
     function playFoamScrubSound() {
       initAudio();
       if (!audioCtx) return;
       const now = performance.now();
-      if (now - lastFoamSoundTime < 140) return;
+      if (now - lastFoamSoundTime < 130) return;
       lastFoamSoundTime = now;
 
       const actxNow = audioCtx.currentTime;
@@ -404,41 +510,43 @@
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(600 + Math.random() * 400, actxNow);
-      osc.frequency.exponentialRampToValueAtTime(1200 + Math.random() * 300, actxNow + 0.06);
+      osc.frequency.exponentialRampToValueAtTime(1300 + Math.random() * 300, actxNow + 0.06);
 
       gain.gain.setValueAtTime(0.001, actxNow);
-      gain.gain.linearRampToValueAtTime(0.18, actxNow + 0.02);
+      gain.gain.linearRampToValueAtTime(0.2, actxNow + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.001, actxNow + 0.08);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(actxNow);
       osc.stop(actxNow + 0.09);
     }
 
-    // Piu-piu amigável de satisfação da corujinha
+    // Risada / Piu-piu alegre da corujinha
     function playOwlHappySound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      [0, 0.12].forEach((offset, idx) => {
+        const t = now + offset;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        const startFreq = idx === 0 ? 880 : 1046.5;
+        const endFreq = idx === 0 ? 1318.5 : 1567.98;
+        osc.frequency.setValueAtTime(startFreq, t);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.1);
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(783.99, now); // G5
-      osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.16); // E6
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.26, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
 
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.25, now + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.32);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.13);
+      });
     }
 
     // ==========================================
@@ -455,9 +563,14 @@
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+
+      // Reposiciona chuveiro se fora da tela
+      if (!shower.isDragging) {
+        shower.x = width * 0.68;
+        shower.y = height * 0.26;
+      }
     }
     window.addEventListener('resize', resize);
-    resize();
 
     let toastTimer = null;
     function showToast(text) {
@@ -467,7 +580,7 @@
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 1500);
+      }, 1600);
     }
 
     function addScore(pts = 1) {
@@ -476,14 +589,85 @@
     }
 
     // ==========================================
-    // 3. ENTIDADES: BOLHAS, ESPUMAS & CHUVEIRO
+    // 3. ENTIDADES DO JOGO
     // ==========================================
     let bubbles = [];
     let foams = [];
     let waterDrops = [];
-    let isShowerActive = false;
-    let showerInterval = null;
+    let sparkles = [];
+    let isShowerActive = true; // Chuveirinho já começa ativo para encantar imediatamente!
 
+    // Partículas de Água do Chuveiro
+    class WaterSplash {
+      constructor(x, y, vx, vy, color = '#38bdf8') {
+        this.x = x;
+        this.y = y;
+        this.vx = vx || (Math.random() - 0.5) * 1.5;
+        this.vy = vy || Math.random() * 4 + 7; // Cai com velocidade
+        this.radius = Math.random() * 3.5 + 2.5;
+        this.color = color;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.025 + 0.02;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.28; // Gravidade
+        this.life -= this.decay;
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Brilhos Estelares de Limpeza
+    class Sparkle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4 - 2;
+        this.size = Math.random() * 8 + 6;
+        this.color = ['#ffd043', '#ff65a6', '#38bdf8', '#ffffff'][Math.floor(Math.random() * 4)];
+        this.life = 1.0;
+        this.decay = Math.random() * 0.03 + 0.02;
+        this.rot = Math.random() * Math.PI;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+        this.rot += 0.08;
+      }
+      draw(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.fillStyle = this.color;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+
+        // Estrela de 4 pontas
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.rotate(Math.PI / 2);
+          ctx.lineTo(this.size, 0);
+          ctx.lineTo(this.size * 0.25, this.size * 0.25);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Bolhas de Sabão
     class SoapBubble {
       constructor(x, y, radius = null) {
         this.x = x || Math.random() * width;
@@ -492,18 +676,16 @@
         this.vx = (Math.random() - 0.5) * 1.0;
         this.vy = -Math.random() * 1.6 - 0.8;
         this.wobble = Math.random() * Math.PI * 2;
-        this.hue = Math.random() * 360;
       }
       hitTest(px, py) {
-        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.25;
+        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.35;
       }
       pop() {
         playBubblePopSound();
         addScore(1);
         showToast(tG.bubblePop);
-        // Partículas brilhantes
-        for (let i = 0; i < 8; i++) {
-          waterDrops.push(new WaterSplash(this.x, this.y, '#38bdf8'));
+        for (let i = 0; i < 7; i++) {
+          waterDrops.push(new WaterSplash(this.x, this.y, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3, '#38bdf8'));
         }
       }
       update() {
@@ -516,20 +698,18 @@
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Bolha translúcida irisada
         const grad = ctx.createRadialGradient(-this.radius * 0.3, -this.radius * 0.3, this.radius * 0.1, 0, 0, this.radius);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
-        grad.addColorStop(0.6, 'rgba(56, 189, 248, 0.25)');
-        grad.addColorStop(0.9, 'rgba(255, 101, 166, 0.35)');
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.75)');
+        grad.addColorStop(0.6, 'rgba(56, 189, 248, 0.28)');
+        grad.addColorStop(0.9, 'rgba(255, 101, 166, 0.38)');
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0.85)');
 
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Brilho de reflexo branco
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
         ctx.beginPath();
         ctx.ellipse(-this.radius * 0.38, -this.radius * 0.38, this.radius * 0.26, this.radius * 0.14, -0.6, 0, Math.PI * 2);
         ctx.fill();
@@ -538,9 +718,9 @@
       }
     }
 
-    // Espuma cremosa na corujinha e na banheira
+    // Flocos de Espuma Cremosa
     class FoamCluster {
-      constructor(x, y, radius = 18) {
+      constructor(x, y, radius = 20) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -550,7 +730,7 @@
         this.life = 1.0;
       }
       wash() {
-        this.life -= 0.05;
+        this.life -= 0.06;
       }
       update() {
         this.scale += (this.targetScale - this.scale) * 0.18;
@@ -567,7 +747,6 @@
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Ponto de brilho
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(-this.radius * 0.3, -this.radius * 0.3, this.radius * 0.25, 0, Math.PI * 2);
@@ -577,45 +756,129 @@
       }
     }
 
-    // Pingos de água do chuveiro
-    class WaterSplash {
-      constructor(x, y, color = '#38bdf8') {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.vx = (Math.random() - 0.5) * 3;
-        this.vy = Math.random() * 4 - 2;
-        this.radius = Math.random() * 4 + 2;
-        this.life = 1.0;
-      }
+    // ==========================================
+    // 4. CHUVEIRINHO TOTALMENTE ARRASTÁVEL
+    // ==========================================
+    const shower = {
+      x: 0,
+      y: 0,
+      radius: 46,
+      isDragging: false,
+      angle: 0.15,
+      waterFlow: true,
+
+      hitTest(px, py) {
+        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.4;
+      },
+
       update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.2;
-        this.life -= 0.035;
-      }
+        if (isShowerActive) {
+          // Jorra água a partir dos orifícios do chuveiro
+          for (let i = 0; i < 4; i++) {
+            const spread = (Math.random() - 0.5) * 24;
+            const dropX = this.x + spread + Math.sin(this.angle) * 15;
+            const dropY = this.y + 24;
+            const dropVx = Math.sin(this.angle) * 3 + (Math.random() - 0.5) * 1.5;
+            const dropVy = Math.cos(this.angle) * 8 + Math.random() * 3;
+            waterDrops.push(new WaterSplash(dropX, dropY, dropVx, dropVy, '#67e8f9'));
+          }
+
+          // Checa se os jatos atingem a corujinha
+          const owlPos = bathOwl.getPos();
+          if (Math.hypot(this.x - owlPos.x, this.y - owlPos.y) < 160) {
+            bathOwl.receiveShowerWater();
+          }
+        }
+      },
+
       draw(ctx) {
-        if (this.life <= 0) return;
         ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life);
-        ctx.fillStyle = this.color;
+
+        // 1. Mangueira flexível conectada ao topo da parede
+        const wallX = width * 0.9;
+        const wallY = 0;
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 14;
+        ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.moveTo(wallX, wallY);
+        const midX = (wallX + this.x) * 0.5 + 40;
+        const midY = (wallY + this.y) * 0.5 + 80;
+        ctx.quadraticCurveTo(midX, midY, this.x, this.y - 20);
+        ctx.stroke();
+
+        // Linha de detalhe na mangueira
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(wallX, wallY);
+        ctx.quadraticCurveTo(midX, midY, this.x, this.y - 20);
+        ctx.stroke();
+
+        // 2. Cabo e Cabeça do Chuveirinho Arrastável
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        // Cabo tátil ergonômico
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.roundRect(-12, -32, 24, 38, 8);
         ctx.fill();
+
+        // Anel cromado
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        ctx.roundRect(-16, 0, 32, 10, 5);
+        ctx.fill();
+
+        // Cabeça cônica do chuveiro
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(-16, 6);
+        ctx.lineTo(-38, 26);
+        ctx.lineTo(38, 26);
+        ctx.lineTo(16, 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // Placa furadinha do chuveiro
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.ellipse(0, 26, 38, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Furos prateados de saída d'água
+        ctx.fillStyle = '#ffffff';
+        for (let i = -24; i <= 24; i += 8) {
+          ctx.beginPath();
+          ctx.arc(i, 26, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Se estiver sendo arrastado, adiciona halo tátil
+        if (this.isDragging) {
+          ctx.strokeStyle = '#ffd043';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
         ctx.restore();
       }
-    }
+    };
 
     // ==========================================
-    // 4. CORUJINHA KRUUJ NA BANHEIRA
+    // 5. CORUJINHA KRUUJ NA BANHEIRA
     // ==========================================
     const bathOwl = {
       wobble: 0,
       scaleX: 1.0,
       scaleY: 1.0,
-      isHappy: false,
-      isClean: false,
-      foamCovered: 0,
+      foamCovered: 50, // Começa ensaboada para o bebê se divertir enxaguando!
+      isWashing: false,
+      lastWashSound: 0,
+
       getPos() {
         return {
           x: width * 0.48,
@@ -628,9 +891,9 @@
       },
       scrub(x, y) {
         playFoamScrubSound();
-        this.foamCovered = Math.min(100, this.foamCovered + 4);
-        if (foams.length < 45) {
-          foams.push(new FoamCluster(x + (Math.random() - 0.5) * 20, y + (Math.random() - 0.5) * 20, Math.random() * 12 + 14));
+        this.foamCovered = Math.min(100, this.foamCovered + 5);
+        if (foams.length < 50) {
+          foams.push(new FoamCluster(x + (Math.random() - 0.5) * 30, y + (Math.random() - 0.5) * 30, Math.random() * 14 + 16));
         }
         this.scaleX = 1.15;
         this.scaleY = 0.9;
@@ -638,20 +901,37 @@
         showToast(tG.soapyOwl);
         addScore(1);
       },
-      touch() {
-        playOwlHappySound();
-        this.scaleX = 1.25;
-        this.scaleY = 0.8;
-        setTimeout(() => { this.scaleX = 0.9; this.scaleY = 1.2; setTimeout(() => { this.scaleX = 1.0; this.scaleY = 1.0; }, 140); }, 120);
-        showToast(tG.soapyOwl);
-        addScore(2);
-      },
-      washClean() {
+      receiveShowerWater() {
+        const now = performance.now();
+        if (now - this.lastWashSound > 300) {
+          this.lastWashSound = now;
+          playOwlHappySound();
+        }
+
+        // Lava as espumas
         if (this.foamCovered > 0) {
-          this.foamCovered = Math.max(0, this.foamCovered - 3);
+          this.foamCovered = Math.max(0, this.foamCovered - 1.5);
+
+          // Gera brilhos e bolhinhas saindo do corpo
+          const p = this.getPos();
+          if (Math.random() > 0.4) {
+            sparkles.push(new Sparkle(p.x + (Math.random() - 0.5) * 80, p.y + (Math.random() - 0.5) * 60));
+          }
+          if (Math.random() > 0.6) {
+            bubbles.push(new SoapBubble(p.x + (Math.random() - 0.5) * 60, p.y - 20, Math.random() * 12 + 14));
+          }
+
+          foams.forEach(f => f.wash());
+          foams = foams.filter(f => f.life > 0);
+
           if (this.foamCovered === 0) {
+            // Celebração completa de corujinha limpa!
             showToast(tG.cleanOwl);
-            playOwlHappySound();
+            speakText(tG.voiceClean);
+            addScore(10);
+            for (let i = 0; i < 20; i++) {
+              sparkles.push(new Sparkle(p.x, p.y));
+            }
           }
         }
       },
@@ -699,9 +979,9 @@
         ctx.arc(26, 8, 9, 0, Math.PI * 2);
         ctx.fill();
 
-        // Olhos da Corujinha (Fechados de prazer no banho quentinho)
+        // Olhos da Corujinha (Fechados de felicidade com a água morna)
         ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 3.8;
         ctx.beginPath();
         ctx.arc(-16, -6, 10, 0.2 * Math.PI, 0.8 * Math.PI);
         ctx.arc(16, -6, 10, 0.2 * Math.PI, 0.8 * Math.PI);
@@ -716,12 +996,24 @@
         ctx.closePath();
         ctx.fill();
 
+        // Espuma sobre a corujinha se estiver ensaboada
+        if (this.foamCovered > 0) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+          const count = Math.min(10, Math.ceil(this.foamCovered / 10));
+          for (let i = 0; i < count; i++) {
+            const angle = (i / count) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.arc(Math.cos(angle) * 32, Math.sin(angle) * 32, 14, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
         ctx.restore();
       }
     };
 
     // ==========================================
-    // 5. PATINHO DE BORRACHA BOIANDO
+    // 6. PATINHO DE BORRACHA BOIANDO
     // ==========================================
     const rubberDuck = {
       wobble: 0,
@@ -736,21 +1028,20 @@
       },
       hitTest(px, py) {
         const p = this.getPos();
-        return Math.hypot(px - p.x, py - (p.y + this.dipOffset)) < 40;
+        return Math.hypot(px - p.x, py - (p.y + this.dipOffset)) < 42;
       },
       squeeze() {
         playRubberDuckSound();
         showToast(tG.duckSqueak);
+        speakText(tG.voiceDuck);
         addScore(2);
 
-        // Mergulho e espremer
         this.scaleX = 1.35;
         this.scaleY = 0.68;
         this.dipOffset = 18;
 
-        // Ondinhas de água
         for (let i = 0; i < 8; i++) {
-          waterDrops.push(new WaterSplash(this.getPos().x, this.getPos().y + 14, '#38bdf8'));
+          waterDrops.push(new WaterSplash(this.getPos().x, this.getPos().y + 14, (Math.random()-0.5)*4, -Math.random()*4, '#38bdf8'));
         }
 
         setTimeout(() => {
@@ -774,7 +1065,7 @@
         ctx.translate(p.x, p.y + bob + this.dipOffset);
         ctx.scale(this.scaleX, this.scaleY);
 
-        // Corpo do patinho
+        // Corpo
         ctx.fillStyle = '#facc15';
         ctx.beginPath();
         ctx.ellipse(0, 6, 26, 18, 0, 0, Math.PI * 2);
@@ -791,7 +1082,7 @@
         ctx.ellipse(-28, -8, 9, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Olhinho brilhante
+        // Olho
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
         ctx.arc(-18, -14, 3, 0, Math.PI * 2);
@@ -801,7 +1092,7 @@
         ctx.arc(-19, -15, 1.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Rabinho levantado
+        // Rabo
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
         ctx.moveTo(18, 2);
@@ -815,7 +1106,7 @@
     };
 
     // ==========================================
-    // 6. CHUVEIRINHO DE ÁGUA DAS ESTRELAS
+    // 7. CONTROLES DO CHUVEIRO & TOQUES
     // ==========================================
     function toggleShower() {
       initAudio();
@@ -826,52 +1117,58 @@
       if (isShowerActive) {
         btn.classList.add('active');
         lbl.textContent = tG.btnShowerOn;
-        runShowerCycle();
+        startWaterSound();
+        speakText(tG.voiceWater);
       } else {
         btn.classList.remove('active');
         lbl.textContent = tG.btnShower;
-        if (showerInterval) clearTimeout(showerInterval);
+        stopWaterSound();
       }
     }
 
-    function runShowerCycle() {
-      if (!isShowerActive) return;
-      const owlPos = bathOwl.getPos();
-
-      // Gotas de água caindo do topo em cascata
-      for (let i = 0; i < 6; i++) {
-        waterDrops.push(new WaterSplash(owlPos.x + (Math.random() - 0.5) * 90, height * 0.18 + Math.random() * 20, '#67e8f9'));
+    // Inicializa posições de espuma na corujinha
+    window.addEventListener('DOMContentLoaded', () => {
+      resize();
+      const p = bathOwl.getPos();
+      for (let i = 0; i < 18; i++) {
+        foams.push(new FoamCluster(p.x + (Math.random() - 0.5) * 60, p.y + (Math.random() - 0.5) * 50, Math.random() * 12 + 15));
       }
+    });
 
-      // Limpa as espumas gradualmente
-      foams.forEach(f => f.wash());
-      foams = foams.filter(f => f.life > 0);
-      bathOwl.washClean();
-
-      showerInterval = setTimeout(runShowerCycle, 80);
-    }
-
-    // ==========================================
-    // 7. TOQUE & ARRASTE
-    // ==========================================
     let isPointerDown = false;
 
     function handlePointerHit(x, y) {
       initAudio();
 
-      // 1. Tocou no patinho
+      // Esconde hint se o usuário tocou
+      const hint = document.getElementById('hintPill');
+      if (hint) hint.style.display = 'none';
+
+      // 1. Tocou no chuveirinho -> Começa a arrastar!
+      if (shower.hitTest(x, y)) {
+        shower.isDragging = true;
+        shower.x = x;
+        shower.y = y;
+        isShowerActive = true;
+        startWaterSound();
+        document.getElementById('btnShower').classList.add('active');
+        document.getElementById('showerLabel').textContent = tG.btnShowerOn;
+        return;
+      }
+
+      // 2. Tocou no patinho de borracha
       if (rubberDuck.hitTest(x, y)) {
         rubberDuck.squeeze();
         return;
       }
 
-      // 2. Tocou na corujinha
+      // 3. Tocou na corujinha -> Ensaboa com o dedinho
       if (bathOwl.hitTest(x, y)) {
         bathOwl.scrub(x, y);
         return;
       }
 
-      // 3. Tocou nas bolhas de sabão
+      // 4. Tocou nas bolhas de sabão
       for (let i = bubbles.length - 1; i >= 0; i--) {
         const b = bubbles[i];
         if (b.hitTest(x, y)) {
@@ -881,29 +1178,43 @@
         }
       }
 
-      // 4. Tocou na água ou ar: cria bolhas
+      // 5. Toque livre na tela -> Cria bolhas de sabão musicais
       bubbles.push(new SoapBubble(x, y, Math.random() * 16 + 22));
       playBubblePopSound();
     }
 
-    function handlePointerDrag(x, y) {
-      // Se esfregar perto da corujinha, ensaboa!
-      if (bathOwl.hitTest(x, y)) {
-        bathOwl.scrub(x, y);
-      } else {
-        // Gera bolhas flutuantes com o dedo
-        if (Math.random() > 0.6) {
-          bubbles.push(new SoapBubble(x, y, Math.random() * 12 + 18));
+    function handlePointerMove(x, y) {
+      // Se estiver arrastando o chuveiro, atualiza posição com suavidade
+      if (shower.isDragging) {
+        shower.x = x;
+        shower.y = y;
+        shower.angle = (x - width * 0.5) * 0.0015;
+        return;
+      }
+
+      if (isPointerDown) {
+        // Se estiver esfregando na corujinha, ensaboa!
+        if (bathOwl.hitTest(x, y)) {
+          bathOwl.scrub(x, y);
+        } else {
+          if (Math.random() > 0.65) {
+            bubbles.push(new SoapBubble(x, y, Math.random() * 12 + 18));
+          }
         }
       }
     }
 
-    window.addEventListener('pointerdown', e => { isPointerDown = true; handlePointerHit(e.clientX, e.clientY); });
-    window.addEventListener('pointermove', e => { if (isPointerDown) handlePointerDrag(e.clientX, e.clientY); });
-    window.addEventListener('pointerup', () => { isPointerDown = false; });
-    window.addEventListener('pointercancel', () => { isPointerDown = false; });
+    function handlePointerUp() {
+      isPointerDown = false;
+      shower.isDragging = false;
+    }
 
-    // Multitouch nativo
+    window.addEventListener('pointerdown', e => { isPointerDown = true; handlePointerHit(e.clientX, e.clientY); });
+    window.addEventListener('pointermove', e => { handlePointerMove(e.clientX, e.clientY); });
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    // Multitouch nativo para dedinhos de bebê
     window.addEventListener('touchstart', e => {
       e.preventDefault();
       for (let i = 0; i < e.touches.length; i++) {
@@ -914,8 +1225,13 @@
     window.addEventListener('touchmove', e => {
       e.preventDefault();
       for (let i = 0; i < e.touches.length; i++) {
-        handlePointerDrag(e.touches[i].clientX, e.touches[i].clientY);
+        handlePointerMove(e.touches[i].clientX, e.touches[i].clientY);
       }
+    }, { passive: false });
+
+    window.addEventListener('touchend', e => {
+      e.preventDefault();
+      if (e.touches.length === 0) handlePointerUp();
     }, { passive: false });
 
     // ==========================================
@@ -933,16 +1249,6 @@
       bgGrad.addColorStop(1, '#1b4d8a');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
-
-      // Chuveiro no topo
-      const owlPos = bathOwl.getPos();
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(owlPos.x - 4, 0, 8, height * 0.18);
-      // Cabeça do chuveiro
-      ctx.fillStyle = '#cbd5e1';
-      ctx.beginPath();
-      ctx.ellipse(owlPos.x, height * 0.18, 38, 14, 0, 0, Math.PI * 2);
-      ctx.fill();
 
       // Banheira Branca com Pezinhos
       const tubX = width * 0.5;
@@ -973,8 +1279,8 @@
 
       // Água com reflexos quentinhos
       const waterGrad = ctx.createLinearGradient(0, tubY - 20, 0, tubY + tubH * 0.35);
-      waterGrad.addColorStop(0, 'rgba(56, 189, 248, 0.7)');
-      waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0.85)');
+      waterGrad.addColorStop(0, 'rgba(56, 189, 248, 0.75)');
+      waterGrad.addColorStop(1, 'rgba(2, 132, 199, 0.88)');
       ctx.fillStyle = waterGrad;
       ctx.beginPath();
       ctx.ellipse(tubX, tubY - 10, tubW * 0.46, tubH * 0.35, 0, 0, Math.PI);
@@ -987,7 +1293,7 @@
       ctx.ellipse(tubX, tubY - 15, tubW * 0.48, tubH * 0.25, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Desenha e atualiza as espumas
+      // Espumas na corujinha e na água
       for (const f of foams) {
         f.update();
         f.draw(ctx);
@@ -1003,6 +1309,21 @@
           d.draw(ctx);
         }
       }
+
+      // Brilhos de limpeza
+      for (let i = sparkles.length - 1; i >= 0; i--) {
+        const sp = sparkles[i];
+        sp.update();
+        if (sp.life <= 0) {
+          sparkles.splice(i, 1);
+        } else {
+          sp.draw(ctx);
+        }
+      }
+
+      // Chuveiro arrastável (Desenhado por cima da água para fácil pegada)
+      shower.update();
+      shower.draw(ctx);
 
       // Bolhas de sabão subindo
       bubbleSpawnTimer++;
@@ -1052,7 +1373,7 @@
         if (cfg.onComplete) cfg.onComplete();
       }
       async function start(c) {
-        cfg = { gameName: 'KRUUJ Banho da Corujinha', tagline: '', tips: [], splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
+        cfg = { gameName: tG.title, tagline: tG.tagline, tips: tG.tips, splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
         target = shown = 0; finished = closing = false;
         const kl = $('kl');
         if (!kl) return;
@@ -1097,10 +1418,14 @@
         }).catch(() => {});
       }
 
-      // Aplica i18n
-      document.getElementById('showerLabel').textContent = tG.btnShower;
+      // Aplica i18n na UI
+      document.getElementById('showerLabel').textContent = tG.btnShowerOn;
+      const hint = document.getElementById('hintPill');
+      if (hint) {
+        hint.textContent = IS_PT ? '🚿 Arraste o chuveirinho para jogar água!' : (IS_ES ? '¡Arrastra la duchita para echar agua!' : '🚿 Drag the shower head to pour water!');
+      }
 
-      // Executa loader apenas standalone
+      // Loader apenas standalone
       if (window.self === window.top) {
         KruujLoader.start({
           gameName: tG.title,

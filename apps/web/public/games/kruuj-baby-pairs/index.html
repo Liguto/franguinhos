@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Cores & Mamães – KRUUJ Baby Match Pairs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
+    const I18N = {
+      pt: {
+        title: 'Cores & Mamães',
+        tagline: 'Ajude cada filhotinho a encontrar o abraço da sua mamãe!',
+        roundLabel: 'Fase',
+        cheers: ['Que amor! 💕', 'Achou a mamãe! ✨', 'Muito bem! 🦉', 'Lindo abraço! 🥰'],
+        pairFound: {
+          owl: 'A mamãe coruja dá um abraço quentinho! 🦉',
+          duck: 'A mamãe pata beija o patinho! 🦆',
+          cat: 'A mamãe gata ronrona de amor! 🐱',
+          sheep: 'A mamãe ovelha faz carinho! 🐑',
+          bunny: 'A mamãe coelha dá um pulinho! 🐰'
+        },
+        tips: ['Arraste o filhote até a mamãe da mesma cor.', 'Veja o abraço carinhoso!']
+      },
+      en: {
+        title: 'Colors & Mommies',
+        tagline: 'Help each cute baby find its mommy’s warm hug!',
+        roundLabel: 'Round',
+        cheers: ['So sweet! 💕', 'Found Mommy! ✨', 'Great job! 🦉', 'Big hug! 🥰'],
+        pairFound: {
+          owl: 'Mommy owl gives a cozy hug! 🦉',
+          duck: 'Mommy duck kisses baby duck! 🦆',
+          cat: 'Mommy cat purrs with love! 🐱',
+          sheep: 'Mommy sheep cuddles baby! 🐑',
+          bunny: 'Mommy bunny hops for joy! 🐰'
+        },
+        tips: ['Drag the baby to matching mommy.', 'Watch the loving hug!']
+      },
+      es: {
+        title: 'Colores & Mamás',
+        tagline: '¡Ayuda a cada cachorrito a encontrar el abrazo de su mamá!',
+        roundLabel: 'Nivel',
+        cheers: ['¡Qué tierno! 💕', '¡Encontró a mamá! ✨', '¡Muy bien! 🦉', '¡Lindo abrazo! 🥰'],
+        pairFound: {
+          owl: '¡Mamá búho da un abrazo calentito! 🦉',
+          duck: '¡Mamá pata besa al patito! 🦆',
+          cat: '¡Mamá gata ronronea con amor! 🐱',
+          sheep: '¡Mamá oveja mima al corderito! 🐑',
+          bunny: '¡Mamá coneja salta de alegría! 🐰'
+        },
+        tips: ['Arrastra al bebé hacia su mamá.', '¡Mira qué lindo abrazo!']
+      }
+    };
+    const tG = I18N[URL_LANG] || (IS_PT ? I18N.pt : I18N.en);
+  </script>
+
+  <style>
+    :root {
+      --bg-top: #151838;
+      --bg-bottom: #2b1442;
+      --lav: #d8d4fd;
+      --navy: #151c4a;
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, var(--bg-top), var(--bg-bottom));
+      color: #fff;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .hud { padding-left: 68px !important; }
+    }
+    .hud-badge {
+      background: rgba(21, 28, 74, 0.88);
+      border: 2px solid rgba(192, 132, 252, 0.45);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 6px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #c084fc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .toast-pill {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      background: rgba(255, 255, 255, 0.95);
+      color: #3b1464;
+      font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+      font-weight: 800;
+      padding: 8px 24px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35), 0 0 0 3px #c084fc;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 20;
+      white-space: nowrap;
+    }
+    .toast-pill.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.0);
+    }
+    #kl { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(ellipse at 50% 40%, #101a52 0%, var(--bg-top) 65%); display: grid; place-items: center; padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0); transition: opacity 0.6s ease, visibility 0.6s; }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl { width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; animation: pop 0.9s cubic-bezier(.2,1.3,.4,1) both; }
+    .splash .logo { width: min(54vw, 240px); margin-top: 20px; }
+    .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; color: var(--lav); }
+    .load { text-align: center; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); }
+    .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, #8338fc, #289afd); }
+    .pct { margin-top: 26px; font-weight: 600; font-size: 1.1rem; }
+    .tip { min-height: 1.5em; margin: 10px 0 0; color: var(--lav); font-size: 0.95rem; }
+    .brand { position: absolute; bottom: 22px; font-size: 0.8rem; color: var(--lav); opacity: 0.6; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div id="kl" role="status" aria-live="polite">
+    <div class="ph splash">
+      <img class="owl" alt="KRUUJ" src="/kruuj-avatar.png" onerror="this.src='/kruuj-mascote.png'">
+      <img class="logo" alt="Kruuj" src="/kruuj-logo.png">
+      <p class="sub">STUDIO</p>
+    </div>
+    <div class="ph load off">
+      <h1 id="kl-name">Cores & Mamães</h1>
+      <p class="tag" id="kl-tag">Ajude o filhotinho a encontrar a mamãe.</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip"></p>
+    </div>
+    <div class="brand">Kruuj Studio</div>
+  </div>
+
+  <header class="hud">
+    <div class="hud-badge"><span>👨‍👩‍👧</span><span id="roundText">Fase 1</span></div>
+    <div class="hud-badge" style="border-color: rgba(255, 208, 67, 0.4); color: #ffd043;"><span>⭐</span><span id="starScore">0</span></div>
+  </header>
+
+  <div class="toast-pill" id="toastPill">Achou a mamãe! ✨</div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playCuddleHarp() {
+      initAudio();
+      if (!audioCtx) return;
+      const freqs = [349.23, 440.00, 523.25, 659.25, 880.00];
+      const now = audioCtx.currentTime;
+      freqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + idx * 0.07);
+        g.gain.setValueAtTime(0.2, now + idx * 0.07);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.65);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(now + idx * 0.07); osc.stop(now + idx * 0.07 + 0.7);
+      });
+    }
+
+    function speakText(txt) {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(txt.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s!]/g, ''));
+          u.lang = IS_PT ? 'pt-BR' : IS_ES ? 'es-ES' : 'en-US';
+          u.rate = 0.95; u.pitch = 1.25;
+          window.speechSynthesis.speak(u);
+        } catch(e) {}
+      }
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, currentRound = 1, starScore = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let toastTimer = null;
+    function showToast(txt) {
+      const p = document.getElementById('toastPill');
+      p.textContent = txt;
+      p.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => p.classList.remove('show'), 1800);
+      speakText(txt);
+    }
+
+    const PAIR_DEFS = [
+      { id: 'owl', momIcon: '🦉', babyIcon: '🐣', color: '#c084fc', nameKey: 'owl' },
+      { id: 'duck', momIcon: '🦆', babyIcon: '🐥', color: '#fde047', nameKey: 'duck' },
+      { id: 'cat', momIcon: '🐱', babyIcon: '🐈', color: '#38bdf8', nameKey: 'cat' },
+      { id: 'sheep', momIcon: '🐑', babyIcon: '🐑', color: '#ffb7d5', nameKey: 'sheep' },
+      { id: 'bunny', momIcon: '🐰', babyIcon: '🐇', color: '#4ade80', nameKey: 'bunny' }
+    ];
+
+    class MommyTarget {
+      constructor(def, x, y) {
+        this.def = def;
+        this.x = x;
+        this.y = y;
+        this.radius = Math.min(width, height) * 0.125;
+        this.isPaired = false;
+        this.hugAnim = 0;
+      }
+
+      draw(c) {
+        c.save();
+        c.translate(this.x, this.y - this.hugAnim);
+
+        // Fundo ninho suave
+        c.fillStyle = this.isPaired ? 'rgba(192, 132, 252, 0.25)' : 'rgba(255, 255, 255, 0.08)';
+        c.beginPath();
+        c.arc(0, 0, this.radius * 1.3, 0, Math.PI * 2);
+        c.fill();
+
+        // Círculo Mamãe
+        c.fillStyle = this.def.color;
+        c.beginPath();
+        c.arc(0, 0, this.radius, 0, Math.PI * 2);
+        c.fill();
+
+        // Emoji Mamãe
+        c.font = `${this.radius * 1.1}px 'Baloo 2', sans-serif`;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(this.def.momIcon, this.isPaired ? -this.radius * 0.25 : 0, -this.radius * 0.05);
+
+        // Se reunidos, o bebê fica no colinho da mamãe
+        if (this.isPaired) {
+          c.font = `${this.radius * 0.75}px 'Baloo 2', sans-serif`;
+          c.fillText(this.def.babyIcon, this.radius * 0.35, this.radius * 0.15);
+          c.font = '24px sans-serif';
+          c.fillText('💕', 0, -this.radius * 0.75);
+        }
+
+        c.restore();
+      }
+
+      hug() {
+        this.isPaired = true;
+        this.hugAnim = 22;
+        setTimeout(() => this.hugAnim = 0, 320);
+        playCuddleHarp();
+        showToast(tG.pairFound[this.def.id] || 'Achou a mamãe! 💕');
+        starScore += 3;
+        document.getElementById('starScore').textContent = starScore;
+      }
+    }
+
+    class BabyPiece {
+      constructor(def, targetMom, initialX, initialY) {
+        this.def = def;
+        this.targetMom = targetMom;
+        this.startX = initialX;
+        this.startY = initialY;
+        this.x = initialX;
+        this.y = initialY;
+        this.radius = Math.min(width, height) * 0.08;
+        this.isUnited = false;
+        this.isDragging = false;
+      }
+
+      draw(c) {
+        if (this.isUnited) return;
+        c.save();
+        c.translate(this.x, this.y);
+        c.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        c.shadowColor = this.def.color;
+        c.shadowBlur = this.isDragging ? 26 : 14;
+        c.beginPath();
+        c.arc(0, 0, this.radius, 0, Math.PI * 2);
+        c.fill();
+        c.shadowBlur = 0;
+
+        // Emoji Filhotinho
+        c.font = `${this.radius * 1.25}px sans-serif`;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(this.def.babyIcon, 0, 0);
+
+        c.restore();
+      }
+    }
+
+    let mommies = [];
+    let babies = [];
+    let activeBaby = null;
+
+    function startRound(r) {
+      currentRound = r;
+      document.getElementById('roundText').textContent = `${tG.roundLabel} ${r}`;
+      mommies = [];
+      babies = [];
+      activeBaby = null;
+
+      const numPairs = Math.min(3, 2 + Math.floor((r - 1) / 2));
+      const pool = [...PAIR_DEFS].sort(() => Math.random() - 0.5).slice(0, numPairs);
+
+      const topY = height * 0.36;
+      const botY = height * 0.76;
+      const spacing = width / (numPairs + 1);
+
+      const shuffledIndices = pool.map((_, i) => i).sort(() => Math.random() - 0.5);
+
+      pool.forEach((def, i) => {
+        const mx = spacing * (i + 1);
+        const mom = new MommyTarget(def, mx, topY);
+        mommies.push(mom);
+
+        const bx = spacing * (shuffledIndices[i] + 1);
+        const baby = new BabyPiece(def, mom, bx, botY);
+        babies.push(baby);
+      });
+    }
+
+    startRound(1);
+
+    function getPointerPos(e) {
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      initAudio();
+      const pos = getPointerPos(e);
+      for (const b of babies) {
+        if (!b.isUnited && Math.hypot(pos.x - b.x, pos.y - b.y) < b.radius * 1.3) {
+          activeBaby = b;
+          b.isDragging = true;
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (activeBaby) {
+        const pos = getPointerPos(e);
+        activeBaby.x = pos.x;
+        activeBaby.y = pos.y;
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeBaby) {
+        const target = activeBaby.targetMom;
+        const dist = Math.hypot(activeBaby.x - target.x, activeBaby.y - target.y);
+
+        // Tolerância de encaixe magnético no colinho da mamãe (90px)
+        if (dist < target.radius * 1.5 && !target.isPaired) {
+          activeBaby.isUnited = true;
+          target.hug();
+          checkRoundComplete();
+        } else {
+          // Volta suave para o lugar
+          activeBaby.x = activeBaby.startX;
+          activeBaby.y = activeBaby.startY;
+        }
+        activeBaby.isDragging = false;
+        activeBaby = null;
+      }
+    });
+
+    function checkRoundComplete() {
+      if (mommies.every(m => m.isPaired)) {
+        setTimeout(() => {
+          showToast(tG.cheers[Math.floor(Math.random() * tG.cheers.length)]);
+          setTimeout(() => {
+            startRound(currentRound + 1);
+          }, 1500);
+        }, 400);
+      }
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Desenha mamães no topo
+      mommies.forEach(m => m.draw(ctx));
+
+      // Desenha filhotes na base
+      babies.forEach(b => b.draw(ctx));
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        });
+      }
+    });
+  </script>
+</body>
+</html>

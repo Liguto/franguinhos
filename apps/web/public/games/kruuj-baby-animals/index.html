@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Amiguinhos & Sons – Baby Animals</title>
+  <title>KRUUJ Baby Animals – Amiguinhos & Sons</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
 
@@ -19,12 +19,15 @@
       });
     }
 
-    // Suporte a i18n em PT, EN, ES
-    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    // Suporte a i18n em PT, EN, ES (Default em inglês, com adaptação completa para PT se lang=pt)
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
     const I18N = {
       pt: {
         title: 'KRUUJ Amiguinhos & Sons',
-        tagline: 'Toque nos bichinhos fofos para ouvir seus sons e dançar!',
+        tagline: 'Toque para ouvir os sons, dê comidinha saborosa e faça muito carinho nos bichinhos!',
         btnParty: 'Festa dos Bichos 🎵',
         duck: 'Patinho: Quack! 🦆',
         cat: 'Gatinho: Miau! 🐱',
@@ -32,16 +35,31 @@
         frog: 'Sapinho: Coac! 🐸',
         sheep: 'Ovelhinha: Bééé! 🐑',
         owl: 'Corujinha: Piu-piu! 🦉',
-        cheers: ['Que fofo! 💕', 'Muito lindo!', 'Amei!', 'Viva!', 'Carinho gostoso! 🥰'],
+        yum: 'Nham nham! Que delícia! 😋',
+        pet: 'Que carinho gostoso! 🥰',
+        balloonPop: 'Plop! Balão estourou! 🎈',
+        voiceYum: 'Nham nham! Que delícia!',
+        voicePet: 'Que carinho gostoso!',
+        voiceParty: 'Festa dos bichinhos!',
+        foods: {
+          corn: 'Milho para o Patinho 🌽',
+          fish: 'Peixinho para o Gatinho 🐟',
+          bone: 'Ossinho para o Cãozinho 🦴',
+          fly: 'Vagalume para o Sapinho ✨',
+          leaf: 'Folhinha para a Ovelhinha 🌿',
+          berry: 'Frutinha para a Corujinha 🍓'
+        },
+        cheers: ['Que fofo! 💕', 'Muito lindo!', 'Amei!', 'Viva!', 'Tão carinhoso! 🥰'],
         tips: [
-          'Toque em qualquer amiguinho para ouvi-lo falar e pular.',
-          'Faça carinho passando o dedinho nos bichinhos!',
-          'Toque na Festa dos Bichos para todos cantarem juntos.'
+          'Arraste as comidinhas da cesta até a boquinha de cada bichinho!',
+          'Passe o dedinho devagar para fazer carinho e vê-los ronronar.',
+          'Toque nos balões que sobem pelo céu para ouvir notas musicais.',
+          'Toque na Festa dos Bichos para todos cantarem juntos!'
         ]
       },
       en: {
         title: 'KRUUJ Baby Animals',
-        tagline: 'Touch the cute animals to hear their friendly sounds and dance!',
+        tagline: 'Tap to hear sounds, feed tasty treats and gently pet your cute animal friends!',
         btnParty: 'Animal Party 🎵',
         duck: 'Duckling: Quack! 🦆',
         cat: 'Kitten: Meow! 🐱',
@@ -49,16 +67,31 @@
         frog: 'Froggy: Ribbit! 🐸',
         sheep: 'Sheep: Baaah! 🐑',
         owl: 'Baby Owl: Chirp-chirp! 🦉',
+        yum: 'Yum yum! So delicious! 😋',
+        pet: 'So sweet and gentle! 🥰',
+        balloonPop: 'Plop! Balloon pop! 🎈',
+        voiceYum: 'Yum yum! So delicious!',
+        voicePet: 'Gentle loving cuddles!',
+        voiceParty: 'Animal party time!',
+        foods: {
+          corn: 'Sweet corn for the Duck 🌽',
+          fish: 'Fish for the Kitten 🐟',
+          bone: 'Bone for the Puppy 🦴',
+          fly: 'Firefly for the Frog 🐸',
+          leaf: 'Clover for the Sheep 🌿',
+          berry: 'Sweet berry for the Owl 🍓'
+        },
         cheers: ['So sweet! 💕', 'Adorable!', 'Loved it!', 'Yay!', 'Warm cuddles! 🥰'],
         tips: [
-          'Tap any animal friend to hear sweet sounds and watch them bounce.',
-          'Gently pet them by swiping your finger!',
-          'Tap Animal Party to hear everyone sing together.'
+          'Drag the treats from the snack bar to feed each animal friend!',
+          'Gently stroke them with your finger to hear happy purrs.',
+          'Tap the colorful floating balloons to hear xylophone bells.',
+          'Tap Animal Party to hear everyone sing and dance together!'
         ]
       },
       es: {
         title: 'KRUUJ Amiguitos & Sonidos',
-        tagline: '¡Toca los animalitos tiernos para oír sus sonidos y verlos bailar!',
+        tagline: '¡Toca para oír sus sonidos, dales rica comidita y hazles mimos!',
         btnParty: 'Fiesta Animal 🎵',
         duck: 'Patito: ¡Cuac! 🦆',
         cat: 'Gatito: ¡Miau! 🐱',
@@ -66,15 +99,30 @@
         frog: 'Ranita: ¡Croac! 🐸',
         sheep: 'Ovejita: ¡Beeé! 🐑',
         owl: 'Búho: ¡Piu-piu! 🦉',
+        yum: '¡Ñam ñam! ¡Qué rico! 😋',
+        pet: '¡Qué mimo tan lindo! 🥰',
+        balloonPop: '¡Plop! ¡Globo explotó! 🎈',
+        voiceYum: '¡Ñam ñam! ¡Qué rico!',
+        voicePet: '¡Qué lindo cariño!',
+        voiceParty: '¡Fiesta de los animalitos!',
+        foods: {
+          corn: 'Maíz para el Patito 🌽',
+          fish: 'Pescadito para el Gatito 🐟',
+          bone: 'Huesito para el Perrito 🦴',
+          fly: 'Luciérnaga para la Ranita ✨',
+          leaf: 'Trébol para la Ovejita 🌿',
+          berry: 'Frutita para el Búho 🍓'
+        },
         cheers: ['¡Qué tierno! 💕', '¡Hermoso!', '¡Me encanta!', '¡Viva!', '¡Abrazo dulce! 🥰'],
         tips: [
-          'Toca a cualquier animalito para escucharlo cantar y saltar.',
-          '¡Hazles caricias pasando suavemente el dedito!',
-          'Toca Fiesta Animal para que todos canten juntos.'
+          '¡Arrastra las comiditas hasta la boquita de los animalitos!',
+          'Pasa suavemente el dedito para hacerles mimos tiernos.',
+          '¡Toca los globos de colores para escuchar campanitas musicales!',
+          'Toca Fiesta Animal para que todos canten y bailen juntos.'
         ]
       }
     };
-    const tG = I18N[URL_LANG] || I18N.pt;
+    const tG = IS_PT ? I18N.pt : (IS_ES ? I18N.es : I18N.en);
   </script>
 
   <style>
@@ -149,8 +197,8 @@
     }
 
     .hud-btn {
-      background: rgba(21, 28, 74, 0.85);
-      border: 2px solid rgba(131, 56, 252, 0.45);
+      background: rgba(21, 28, 74, 0.9);
+      border: 2px solid rgba(131, 56, 252, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: var(--white);
@@ -183,8 +231,8 @@
     }
 
     .hud-badge {
-      background: rgba(21, 28, 74, 0.85);
-      border: 2px solid rgba(255, 208, 67, 0.4);
+      background: rgba(21, 28, 74, 0.9);
+      border: 2px solid rgba(255, 208, 67, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 9999px;
@@ -204,7 +252,7 @@
       top: 75px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       color: #3b1464;
       font-size: 1.2rem;
       font-weight: 800;
@@ -220,6 +268,50 @@
     .toast-pill.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    /* Barra Inferior de Comidinhas Fofas */
+    .food-tray {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(21, 28, 74, 0.92);
+      border: 2px solid rgba(255, 208, 67, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+
+    .food-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      display: grid;
+      place-items: center;
+      font-size: 1.6rem;
+      cursor: grab;
+      touch-action: none;
+      transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .food-btn:hover {
+      transform: scale(1.15);
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #ffd043;
+    }
+
+    .food-btn:active {
+      cursor: grabbing;
+      transform: scale(0.92);
     }
 
     /* ===== KRUUJ LOADER OFICIAL ===== */
@@ -263,7 +355,7 @@
       <p class="sub">STUDIO</p>
     </div>
     <div class="ph load off">
-      <h1 id="kl-name">KRUUJ Amiguinhos & Sons</h1>
+      <h1 id="kl-name">KRUUJ Baby Animals</h1>
       <p class="tag" id="kl-tag">Toque nos bichinhos fofos para ouvir seus sons.</p>
       <div class="track">
         <div class="fill" id="kl-fill"></div>
@@ -293,12 +385,22 @@
   <!-- Pílula Flutuante -->
   <div class="toast-pill" id="toastPill">Patinho: Quack! 🦆</div>
 
+  <!-- Bandeja de Comidinhas para Arrastar -->
+  <footer class="food-tray" id="foodTray">
+    <div class="food-btn" data-food="corn" title="Milho" onpointerdown="startDragFood(event, 'corn', '🌽', 'duck')">🌽</div>
+    <div class="food-btn" data-food="fish" title="Peixinho" onpointerdown="startDragFood(event, 'fish', '🐟', 'cat')">🐟</div>
+    <div class="food-btn" data-food="bone" title="Ossinho" onpointerdown="startDragFood(event, 'bone', '🦴', 'dog')">🦴</div>
+    <div class="food-btn" data-food="fly" title="Vagalume" onpointerdown="startDragFood(event, 'fly', '🪰', 'frog')">🪰</div>
+    <div class="food-btn" data-food="leaf" title="Folhinha" onpointerdown="startDragFood(event, 'leaf', '🌿', 'sheep')">🌿</div>
+    <div class="food-btn" data-food="berry" title="Frutinha" onpointerdown="startDragFood(event, 'berry', '🍓', 'owl')">🍓</div>
+  </footer>
+
   <!-- Canvas Principal -->
   <canvas id="gameCanvas"></canvas>
 
   <script>
     // ==========================================
-    // 1. ÁUDIO SINTÉTICO (SONS DOS BICHINHOS VIA WEBAUDIO)
+    // 1. ÁUDIO SINTÉTICO (WEBAUDIO & WEBSPEECH)
     // ==========================================
     let audioCtx = null;
     function initAudio() {
@@ -311,12 +413,86 @@
       }
     }
 
-    // Patinho: Quack carinhoso com formantes nasais
-    function playDuckQuack() {
+    // Voz Amigável via Web Speech API
+    let lastSpokenTime = 0;
+    function speakText(text) {
+      const now = Date.now();
+      if (now - lastSpokenTime < 1600) return;
+      lastSpokenTime = now;
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = IS_PT ? 'pt-BR' : (IS_ES ? 'es-ES' : 'en-US');
+          utter.rate = 0.95;
+          utter.pitch = 1.25;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+    }
+
+    // Som de Mastigação Crocante ("Chomp / Crunch")
+    function playChompSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
+      [0, 0.1, 0.2].forEach((offset) => {
+        const t = now + offset;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320 + Math.random() * 80, t);
+        osc.frequency.exponentialRampToValueAtTime(140, t + 0.08);
+
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.24, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.09);
+      });
+    }
+
+    // Ronronar Doce de Carinho ("Purrr")
+    function playPurrSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      const gain = audioCtx.createGain();
+
+      lfo.frequency.setValueAtTime(18, now);
+      lfoGain.gain.setValueAtTime(35, now);
+      lfo.connect(osc.frequency);
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(120, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+      lfo.start(now);
+      lfo.stop(now + 0.42);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.42);
+    }
+
+    // Sons dos Animais
+    function playDuckQuack() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
       [0, 0.16].forEach((offset) => {
         const t = now + offset;
         const osc = audioCtx.createOscillator();
@@ -326,7 +502,6 @@
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(380, t);
         osc.frequency.exponentialRampToValueAtTime(260, t + 0.12);
-
         filter.type = 'bandpass';
         filter.frequency.setValueAtTime(950, t);
         filter.Q.setValueAtTime(3.5, t);
@@ -338,18 +513,15 @@
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.start(t);
         osc.stop(t + 0.15);
       });
     }
 
-    // Gatinho: Miau doce com glissando macio
     function playCatMeow() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
@@ -364,17 +536,14 @@
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(now);
       osc.stop(now + 0.48);
     }
 
-    // Cachorrinho: Au-au alegre de filhotinho
     function playDogBark() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-
       [0, 0.18].forEach((offset) => {
         const t = now + offset;
         const osc = audioCtx.createOscillator();
@@ -391,18 +560,15 @@
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.start(t);
         osc.stop(t + 0.14);
       });
     }
 
-    // Sapinho: Coac borbulhante e divertido
     function playFrogCroak() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-
       const osc = audioCtx.createOscillator();
       const filter = audioCtx.createBiquadFilter();
       const gain = audioCtx.createGain();
@@ -423,25 +589,21 @@
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(now);
       osc.stop(now + 0.25);
     }
 
-    // Ovelhinha: Bééé fofo e com vibrato suave
     function playSheepBaa() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-
       const osc = audioCtx.createOscillator();
       const lfo = audioCtx.createOscillator();
       const lfoGain = audioCtx.createGain();
       const gain = audioCtx.createGain();
 
-      lfo.frequency.setValueAtTime(7, now); // vibrato a 7Hz
+      lfo.frequency.setValueAtTime(7, now);
       lfoGain.gain.setValueAtTime(18, now);
-
       lfo.connect(osc.frequency);
 
       osc.type = 'triangle';
@@ -455,20 +617,16 @@
 
       lfo.start(now);
       lfo.stop(now + 0.5);
-
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(now);
       osc.stop(now + 0.5);
     }
 
-    // Corujinha KRUUJ: Piu-piu amigável de filhotinho
     function playOwlChirp() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-
       [0, 0.15].forEach((offset, idx) => {
         const t = now + offset;
         const osc = audioCtx.createOscillator();
@@ -486,10 +644,34 @@
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.start(t);
         osc.stop(t + 0.14);
       });
+    }
+
+    // Estouro de Balão com Xilofone
+    const XILO_NOTES = [523.25, 659.25, 783.99, 1046.5, 1318.51];
+    function playBalloonPopSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const freq = XILO_NOTES[Math.floor(Math.random() * XILO_NOTES.length)];
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.95, now + 0.3);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.32, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
     }
 
     // ==========================================
@@ -510,7 +692,6 @@
     }
     window.addEventListener('resize', resize);
 
-    // Toast de carinho
     let toastTimer = null;
     function showToast(text) {
       const toast = document.getElementById('toastPill');
@@ -519,7 +700,7 @@
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 1500);
+      }, 1600);
     }
 
     function addCuddle(pts = 1) {
@@ -527,8 +708,12 @@
       document.getElementById('cuddleCount').textContent = cuddleScore;
     }
 
-    // Partículas (Corações, estrelas e notas musicais)
+    // ==========================================
+    // 3. PARTÍCULAS E BALÕES FLUTUANTES
+    // ==========================================
     let particles = [];
+    let balloons = [];
+
     class Particle {
       constructor(x, y, color, type = 'heart') {
         this.x = x;
@@ -539,7 +724,7 @@
         const spd = Math.random() * 4 + 1.5;
         this.vx = Math.cos(angle) * spd;
         this.vy = Math.sin(angle) * spd - 2;
-        this.size = Math.random() * 9 + 6;
+        this.size = Math.random() * 10 + 6;
         this.life = 1.0;
         this.decay = Math.random() * 0.02 + 0.012;
         this.rot = Math.random() * Math.PI;
@@ -566,6 +751,67 @@
         } else {
           drawStar(ctx, 0, 0, 5, this.size, this.size * 0.45);
         }
+        ctx.restore();
+      }
+    }
+
+    class FloatingBalloon {
+      constructor(x, y) {
+        this.x = x || Math.random() * width;
+        this.y = y || height + 40;
+        this.radius = Math.random() * 16 + 22;
+        this.vy = -Math.random() * 1.2 - 0.8;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.color = ['#ff65a6', '#ffd043', '#38bdf8', '#8338fc', '#4ade80'][Math.floor(Math.random() * 5)];
+      }
+      hitTest(px, py) {
+        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.35;
+      }
+      pop() {
+        playBalloonPopSound();
+        addCuddle(1);
+        showToast(tG.balloonPop);
+        for (let i = 0; i < 10; i++) {
+          particles.push(new Particle(this.x, this.y, this.color, 'star'));
+        }
+      }
+      update() {
+        this.y += this.vy;
+        this.wobble += 0.04;
+        this.x += Math.sin(this.wobble) * 0.6;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Cordão do balão
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, this.radius);
+        ctx.quadraticCurveTo(Math.sin(this.wobble) * 8, this.radius + 18, 0, this.radius + 36);
+        ctx.stroke();
+
+        // Balão
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Nó do balão
+        ctx.beginPath();
+        ctx.moveTo(-4, this.radius * 1.18);
+        ctx.lineTo(4, this.radius * 1.18);
+        ctx.lineTo(0, this.radius * 1.25);
+        ctx.closePath();
+        ctx.fill();
+
+        // Brilho de reflexo
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.beginPath();
+        ctx.ellipse(-this.radius * 0.35, -this.radius * 0.45, this.radius * 0.22, this.radius * 0.12, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.restore();
       }
     }
@@ -610,27 +856,28 @@
     }
 
     // ==========================================
-    // 3. MODELAGEM DOS 6 AMIGUINHOS BEBÊS
+    // 4. MODELAGEM DOS 6 AMIGUINHOS BEBÊS
     // ==========================================
     class BabyAnimal {
-      constructor(type, soundFn, pillKey, primaryColor) {
-        this.type = type; // 'duck', 'cat', 'dog', 'frog', 'sheep', 'owl'
+      constructor(type, soundFn, pillKey, primaryColor, favFood) {
+        this.type = type;
         this.soundFn = soundFn;
         this.pillKey = pillKey;
         this.primaryColor = primaryColor;
+        this.favFood = favFood;
         this.x = 0;
         this.y = 0;
-        this.baseY = 0;
         this.radius = 48;
         this.scaleX = 1.0;
         this.scaleY = 1.0;
         this.jumpOffset = 0;
-        this.isJumping = false;
+        this.isChewing = false;
+        this.chewTimer = 0;
         this.wobble = Math.random() * Math.PI * 2;
         this.blinkTimer = Math.floor(Math.random() * 120 + 80);
         this.isBlinking = false;
         this.isDancing = false;
-        this.cheerTimer = 0;
+        this.purrCount = 0;
       }
 
       hitTest(px, py) {
@@ -638,14 +885,21 @@
       }
 
       interact(isPet = false) {
-        this.soundFn();
-        showToast(tG[this.pillKey]);
-        addCuddle(isPet ? 1 : 2);
+        if (isPet) {
+          playPurrSound();
+          showToast(tG.pet);
+          speakText(tG.voicePet);
+          addCuddle(1);
+        } else {
+          this.soundFn();
+          showToast(tG[this.pillKey]);
+          addCuddle(2);
+        }
 
         // Squash & stretch elástico
         this.scaleX = 1.35;
         this.scaleY = 0.72;
-        this.jumpOffset = 28;
+        this.jumpOffset = 26;
 
         setTimeout(() => {
           this.scaleX = 0.85;
@@ -660,6 +914,27 @@
         createBurst(this.x, this.y - 30, this.primaryColor, isPet ? 8 : 16, isPet ? 'heart' : 'note');
       }
 
+      feed(foodType) {
+        playChompSound();
+        this.isChewing = true;
+        this.chewTimer = 40;
+        this.jumpOffset = 36;
+        this.scaleX = 1.4;
+        this.scaleY = 0.8;
+
+        showToast(tG.yum);
+        speakText(tG.voiceYum);
+        addCuddle(5);
+
+        createBurst(this.x, this.y - 20, '#ffd043', 18, 'heart');
+        setTimeout(() => {
+          this.soundFn();
+          this.scaleX = 1.0;
+          this.scaleY = 1.0;
+          this.jumpOffset = 0;
+        }, 300);
+      }
+
       update() {
         this.wobble += 0.04;
         if (this.blinkTimer > 0) {
@@ -672,6 +947,11 @@
           } else {
             this.blinkTimer--;
           }
+        }
+
+        if (this.isChewing) {
+          this.chewTimer--;
+          if (this.chewTimer <= 0) this.isChewing = false;
         }
 
         if (this.isDancing) {
@@ -693,7 +973,6 @@
         ctx.ellipse(0, 48 + this.jumpOffset * 0.6, 42 * (1 - this.jumpOffset * 0.015), 14, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Desenha o bichinho específico
         switch (this.type) {
           case 'duck': this.drawDuck(ctx); break;
           case 'cat': this.drawCat(ctx); break;
@@ -706,91 +985,80 @@
         ctx.restore();
       }
 
-      // 1. PATINHO AMARELO
+      drawEyes(ctx, x1, y1, x2, y2) {
+        if (this.isBlinking) {
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.arc(x1, y1 + 3, 7, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.arc(x2, y2 + 3, 7, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(x1, y1, 6, 0, Math.PI * 2);
+          ctx.arc(x2, y2, 6, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(x1 - 2, y1 - 2, 2.5, 0, Math.PI * 2);
+          ctx.arc(x2 - 2, y2 - 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
       drawDuck(ctx) {
-        // Corpo e Cabeça
         ctx.fillStyle = '#facc15';
         ctx.beginPath();
         ctx.arc(0, 4, 38, 0, Math.PI * 2);
         ctx.fill();
 
-        // Asinhas
         ctx.fillStyle = '#eab308';
         ctx.beginPath();
         ctx.ellipse(-34, 10, 10, 18, -0.2, 0, Math.PI * 2);
         ctx.ellipse(34, 10, 10, 18, 0.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Peninha na cabeça
-        ctx.beginPath();
-        ctx.ellipse(0, -36, 6, 12, 0.1, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bochechas rosadas
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
         ctx.arc(-22, 10, 7, 0, Math.PI * 2);
         ctx.arc(22, 10, 7, 0, Math.PI * 2);
         ctx.fill();
 
-        // Biquinho fofo laranja
         ctx.fillStyle = '#fb923c';
         ctx.beginPath();
-        ctx.ellipse(0, 12, 16, 9, 0, 0, Math.PI * 2);
+        const beakHeight = this.isChewing ? 14 : 9;
+        ctx.ellipse(0, 12, 16, beakHeight, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Olhinhos
         this.drawEyes(ctx, -14, -6, 14, -6);
       }
 
-      // 2. GATINHO FOFO
       drawCat(ctx) {
-        // Orelhinhas
         ctx.fillStyle = '#e0e7ff';
         ctx.beginPath();
-        ctx.moveTo(-34, -20);
-        ctx.lineTo(-24, -50);
-        ctx.lineTo(-6, -34);
-        ctx.closePath();
-        ctx.fill();
-
+        ctx.moveTo(-34, -20); ctx.lineTo(-24, -50); ctx.lineTo(-6, -34); ctx.closePath(); ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(34, -20);
-        ctx.lineTo(24, -50);
-        ctx.lineTo(6, -34);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(34, -20); ctx.lineTo(24, -50); ctx.lineTo(6, -34); ctx.closePath(); ctx.fill();
 
-        // Miolo da orelha rosa
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
-        ctx.moveTo(-28, -24);
-        ctx.lineTo(-24, -42);
-        ctx.lineTo(-12, -32);
-        ctx.closePath();
-        ctx.fill();
-
+        ctx.moveTo(-28, -24); ctx.lineTo(-24, -42); ctx.lineTo(-12, -32); ctx.closePath(); ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(28, -24);
-        ctx.lineTo(24, -42);
-        ctx.lineTo(12, -32);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(28, -24); ctx.lineTo(24, -42); ctx.lineTo(12, -32); ctx.closePath(); ctx.fill();
 
-        // Cabeça
         ctx.fillStyle = '#e0e7ff';
         ctx.beginPath();
         ctx.arc(0, 4, 38, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bochechas rosadas
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
         ctx.arc(-22, 12, 7, 0, Math.PI * 2);
         ctx.arc(22, 12, 7, 0, Math.PI * 2);
         ctx.fill();
 
-        // Focinho e Bigodes
         ctx.fillStyle = '#ff65a6';
         ctx.beginPath();
         ctx.ellipse(0, 8, 5, 4, 0, 0, Math.PI * 2);
@@ -798,432 +1066,361 @@
 
         ctx.strokeStyle = '#475569';
         ctx.lineWidth = 2;
-        // Bigodes esquerda
         ctx.beginPath();
         ctx.moveTo(-16, 8); ctx.lineTo(-38, 4);
         ctx.moveTo(-16, 12); ctx.lineTo(-36, 16);
-        // Bigodes direita
         ctx.moveTo(16, 8); ctx.lineTo(38, 4);
         ctx.moveTo(16, 12); ctx.lineTo(36, 16);
         ctx.stroke();
 
-        // Olhinhos
         this.drawEyes(ctx, -14, -8, 14, -8);
       }
 
-      // 3. CACHORRINHO ALEGRE
       drawDog(ctx) {
-        // Orelhas caídas fofas de filhotinho
         ctx.fillStyle = '#d97706';
         ctx.beginPath();
         ctx.ellipse(-36, -4, 12, 26, 0.4, 0, Math.PI * 2);
         ctx.ellipse(36, -4, 12, 26, -0.4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cabeça
         ctx.fillStyle = '#fbbf24';
         ctx.beginPath();
         ctx.arc(0, 4, 38, 0, Math.PI * 2);
         ctx.fill();
 
-        // Mancha de cor no olho
         ctx.fillStyle = '#f59e0b';
         ctx.beginPath();
         ctx.ellipse(14, -6, 16, 14, 0.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Focinho fofo
         ctx.fillStyle = '#fef3c7';
         ctx.beginPath();
         ctx.ellipse(0, 14, 18, 13, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Narizinho preto
         ctx.fillStyle = '#0f172a';
         ctx.beginPath();
         ctx.ellipse(0, 7, 7, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Língua para fora de felicidade!
         ctx.fillStyle = '#ff65a6';
         ctx.beginPath();
-        ctx.ellipse(4, 21, 6, 8, 0.1, 0, Math.PI * 2);
+        ctx.ellipse(4, 21, 6, this.isChewing ? 12 : 8, 0.1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Olhinhos
-        this.drawEyes(ctx, -14, -8, 14, -8);
+        this.drawEyes(ctx, -14, -6, 14, -6);
       }
 
-      // 4. SAPINHO CURIOSO
       drawFrog(ctx) {
-        // Globos oculares proeminentes no topo
         ctx.fillStyle = '#4ade80';
         ctx.beginPath();
-        ctx.arc(-20, -24, 17, 0, Math.PI * 2);
-        ctx.arc(20, -24, 17, 0, Math.PI * 2);
+        ctx.arc(-22, -18, 18, 0, Math.PI * 2);
+        ctx.arc(22, -18, 18, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cabeça redonda
-        ctx.fillStyle = '#4ade80';
         ctx.beginPath();
-        ctx.ellipse(0, 8, 44, 34, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 8, 42, 34, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bochechas rosadas
+        ctx.fillStyle = '#bbf7d0';
+        ctx.beginPath();
+        ctx.ellipse(0, 18, 26, 20, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
-        ctx.arc(-26, 10, 8, 0, Math.PI * 2);
-        ctx.arc(26, 10, 8, 0, Math.PI * 2);
+        ctx.arc(-24, 12, 7, 0, Math.PI * 2);
+        ctx.arc(24, 12, 7, 0, Math.PI * 2);
         ctx.fill();
 
-        // Boca sorridente bem larga
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#15803d';
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
-        ctx.arc(0, 8, 22, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.arc(0, 10, this.isChewing ? 16 : 10, 0.1 * Math.PI, 0.9 * Math.PI);
         ctx.stroke();
 
-        // Olhinhos grandes no topo
-        this.drawEyes(ctx, -20, -24, 20, -24, 10);
+        this.drawEyes(ctx, -22, -18, 22, -18);
       }
 
-      // 5. OVELHINHA MACIA
       drawSheep(ctx) {
-        // Nuvens de lã fofinha
         ctx.fillStyle = '#f8fafc';
-        const puffOffsets = [
-          [-28, -18], [0, -32], [28, -18],
-          [-34, 8], [34, 8], [-20, 28], [20, 28]
-        ];
-        puffOffsets.forEach(([px, py]) => {
+        const curls = [-30, -15, 0, 15, 30];
+        for (let i = 0; i < curls.length; i++) {
           ctx.beginPath();
-          ctx.arc(px, py, 18, 0, Math.PI * 2);
+          ctx.arc(curls[i], -12, 18, 0, Math.PI * 2);
+          ctx.arc(curls[i], 12, 18, 0, Math.PI * 2);
           ctx.fill();
-        });
+        }
 
-        // Orelhinhas caídas
-        ctx.fillStyle = '#cbd5e1';
+        ctx.fillStyle = '#fbcfe8';
         ctx.beginPath();
-        ctx.ellipse(-38, 0, 10, 18, 0.6, 0, Math.PI * 2);
-        ctx.ellipse(38, 0, 10, 18, -0.6, 0, Math.PI * 2);
+        ctx.ellipse(-38, 4, 10, 6, -0.3, 0, Math.PI * 2);
+        ctx.ellipse(38, 4, 10, 6, 0.3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Rosto central meigo
         ctx.fillStyle = '#fed7aa';
         ctx.beginPath();
-        ctx.ellipse(0, 4, 26, 28, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 6, 26, 22, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bochechas rosadas
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
-        ctx.arc(-16, 12, 6, 0, Math.PI * 2);
-        ctx.arc(16, 12, 6, 0, Math.PI * 2);
+        ctx.arc(-16, 10, 5, 0, Math.PI * 2);
+        ctx.arc(16, 10, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Narizinho
-        ctx.fillStyle = '#fb7185';
-        ctx.beginPath();
-        ctx.ellipse(0, 8, 4, 3, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Olhinhos
-        this.drawEyes(ctx, -10, -4, 10, -4, 6);
+        this.drawEyes(ctx, -10, 0, 10, 0);
       }
 
-      // 6. CORUJINHA KRUUJ BEBÊ
       drawOwl(ctx) {
-        // Orelhinhas / Topetes roxos
-        ctx.fillStyle = '#6a28d6';
-        ctx.beginPath();
-        ctx.moveTo(-24, -20);
-        ctx.lineTo(-30, -46);
-        ctx.lineTo(-10, -32);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(24, -20);
-        ctx.lineTo(30, -46);
-        ctx.lineTo(10, -32);
-        ctx.closePath();
-        ctx.fill();
-
-        // Corpo Roxo KRUUJ
         ctx.fillStyle = '#8338fc';
+        ctx.beginPath();
+        ctx.moveTo(-32, -10); ctx.lineTo(-24, -44); ctx.lineTo(-8, -26); ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(32, -10); ctx.lineTo(24, -44); ctx.lineTo(8, -26); ctx.closePath(); ctx.fill();
+
         ctx.beginPath();
         ctx.arc(0, 4, 38, 0, Math.PI * 2);
         ctx.fill();
 
-        // Asinhas
-        ctx.fillStyle = '#6a28d6';
-        ctx.beginPath();
-        ctx.ellipse(-34, 10, 9, 18, 0.2, 0, Math.PI * 2);
-        ctx.ellipse(34, 10, 9, 18, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Peito Lilás
         ctx.fillStyle = '#d8d4fd';
         ctx.beginPath();
-        ctx.ellipse(0, 14, 20, 22, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 14, 24, 26, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bochechas rosadas
         ctx.fillStyle = '#ff8cb0';
         ctx.beginPath();
-        ctx.arc(-22, 8, 7, 0, Math.PI * 2);
-        ctx.arc(22, 8, 7, 0, Math.PI * 2);
+        ctx.arc(-22, 10, 7, 0, Math.PI * 2);
+        ctx.arc(22, 10, 7, 0, Math.PI * 2);
         ctx.fill();
 
-        // Biquinho dourado
         ctx.fillStyle = '#ffd043';
         ctx.beginPath();
-        ctx.moveTo(-5, 4);
-        ctx.lineTo(5, 4);
-        ctx.lineTo(0, 12);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(-7, 2); ctx.lineTo(7, 2); ctx.lineTo(0, 12); ctx.closePath(); ctx.fill();
 
-        // Olhões KRUUJ (Dourados e Cintilantes)
-        this.drawEyes(ctx, -14, -8, 14, -8, 8, '#fda41d');
-      }
-
-      // Helper para desenhar olhinhos expressivos com reflexos
-      drawEyes(ctx, x1, y1, x2, y2, r = 7, irisColor = null) {
-        if (this.isBlinking) {
-          ctx.strokeStyle = '#0f172a';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.arc(x1, y1, r, 0.2 * Math.PI, 0.8 * Math.PI);
-          ctx.arc(x2, y2, r, 0.2 * Math.PI, 0.8 * Math.PI);
-          ctx.stroke();
-          return;
-        }
-
-        // Esclera branca
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(x1, y1, r + 4, 0, Math.PI * 2);
-        ctx.arc(x2, y2, r + 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Íris (se fornecida)
-        if (irisColor) {
-          ctx.fillStyle = irisColor;
-          ctx.beginPath();
-          ctx.arc(x1, y1, r + 1, 0, Math.PI * 2);
-          ctx.arc(x2, y2, r + 1, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Pupila preta
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(x1, y1, r - 1, 0, Math.PI * 2);
-        ctx.arc(x2, y2, r - 1, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Reflexos de luz
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(x1 - 2, y1 - 2, 2.8, 0, Math.PI * 2);
-        ctx.arc(x2 - 2, y2 - 2, 2.8, 0, Math.PI * 2);
-        ctx.fill();
+        this.drawEyes(ctx, -14, -8, 14, -8);
       }
     }
 
-    // Instanciação dos 6 bichinhos
     const animals = [
-      new BabyAnimal('duck', playDuckQuack, 'duck', '#facc15'),
-      new BabyAnimal('cat', playCatMeow, 'cat', '#f472b6'),
-      new BabyAnimal('dog', playDogBark, 'dog', '#fbbf24'),
-      new BabyAnimal('frog', playFrogCroak, 'frog', '#4ade80'),
-      new BabyAnimal('sheep', playSheepBaa, 'sheep', '#cbd5e1'),
-      new BabyAnimal('owl', playOwlChirp, 'owl', '#8338fc')
+      new BabyAnimal('duck', playDuckQuack, 'duck', '#facc15', 'corn'),
+      new BabyAnimal('cat', playCatMeow, 'cat', '#818cf8', 'fish'),
+      new BabyAnimal('dog', playDogBark, 'dog', '#fb923c', 'bone'),
+      new BabyAnimal('frog', playFrogCroak, 'frog', '#4ade80', 'fly'),
+      new BabyAnimal('sheep', playSheepBaa, 'sheep', '#fbcfe8', 'leaf'),
+      new BabyAnimal('owl', playOwlChirp, 'owl', '#8338fc', 'berry')
     ];
 
-    // Posicionamento inteligente (Portrait ou Landscape)
     function repositionAnimals() {
-      const isPortrait = height > width;
+      const isMobile = width < 768;
+      const cols = isMobile ? 2 : 3;
+      const rows = isMobile ? 3 : 2;
 
-      if (isPortrait) {
-        // Grade 2 colunas x 3 linhas
-        const colW = width / 2;
-        const startY = height * 0.24;
-        const rowH = (height * 0.65) / 3;
+      const startY = height * 0.24;
+      const endY = height * 0.72;
+      const rowGap = (endY - startY) / (rows - 1);
 
-        animals.forEach((a, i) => {
-          const col = i % 2;
-          const row = Math.floor(i / 2);
-          a.x = col === 0 ? colW * 0.52 : colW * 1.48;
-          a.y = startY + row * rowH;
-        });
-      } else {
-        // Landscape: 6 amiguinhos distribuídos harmonicamente pelo campo
-        const spacing = width / 7;
-        const baseCenterY = height * 0.62;
-        animals.forEach((a, i) => {
-          a.x = spacing * (i + 1);
-          // Leve arco suave para profundidade
-          const arc = Math.sin(((i + 0.5) / 6) * Math.PI) * 35;
-          a.y = baseCenterY - arc;
-        });
-      }
+      animals.forEach((a, idx) => {
+        const c = idx % cols;
+        const r = Math.floor(idx / cols);
+
+        const colGap = width / (cols + 1);
+        a.x = (c + 1) * colGap;
+        a.y = startY + r * rowGap;
+      });
     }
-    resize();
 
     // ==========================================
-    // 4. FESTA DOS BICHOS (CORAL MUSICAL)
+    // 5. SISTEMA DE ARRASTE DE COMIDINHAS
     // ==========================================
-    let isPartyActive = false;
-    let partyStep = 0;
+    let draggedFood = null;
+
+    function startDragFood(e, type, emoji, targetAnimal) {
+      e.preventDefault();
+      initAudio();
+      draggedFood = {
+        type: type,
+        emoji: emoji,
+        targetAnimal: targetAnimal,
+        x: e.clientX,
+        y: e.clientY
+      };
+    }
+
+    window.addEventListener('pointermove', e => {
+      if (draggedFood) {
+        draggedFood.x = e.clientX;
+        draggedFood.y = e.clientY;
+      }
+    });
+
+    window.addEventListener('pointerup', e => {
+      if (draggedFood) {
+        // Checa se soltou perto de algum bichinho
+        for (const a of animals) {
+          if (a.hitTest(draggedFood.x, draggedFood.y)) {
+            a.feed(draggedFood.type);
+            break;
+          }
+        }
+        draggedFood = null;
+      }
+    });
+
+    // ==========================================
+    // 6. TOQUE & CARINHO
+    // ==========================================
+    let isParty = false;
     let partyInterval = null;
 
     function toggleAnimalParty() {
       initAudio();
-      isPartyActive = !isPartyActive;
+      isParty = !isParty;
       const btn = document.getElementById('btnParty');
-
-      if (isPartyActive) {
+      if (isParty) {
         btn.classList.add('active');
+        speakText(tG.voiceParty);
         animals.forEach(a => a.isDancing = true);
-        runPartyBeat();
+        partyInterval = setInterval(() => {
+          const rand = animals[Math.floor(Math.random() * animals.length)];
+          rand.interact(false);
+        }, 800);
       } else {
         btn.classList.remove('active');
         animals.forEach(a => a.isDancing = false);
-        if (partyInterval) clearTimeout(partyInterval);
+        if (partyInterval) clearInterval(partyInterval);
       }
     }
 
-    function runPartyBeat() {
-      if (!isPartyActive) return;
-      const targetAnimal = animals[partyStep % animals.length];
-      targetAnimal.interact(false);
-      partyStep++;
-
-      partyInterval = setTimeout(runPartyBeat, 500);
-    }
-
-    // ==========================================
-    // 5. TOQUE & CARINHO
-    // ==========================================
-    let isDragging = false;
-    let lastPetAnimal = null;
-
-    function handlePointerDown(x, y) {
+    function handlePointerHit(x, y) {
       initAudio();
-      isDragging = true;
-      let hit = false;
+
+      // Checa toque nos balões
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        if (b.hitTest(x, y)) {
+          b.pop();
+          balloons.splice(i, 1);
+          return;
+        }
+      }
+
+      // Checa toque nos animaizinhos
       for (const a of animals) {
         if (a.hitTest(x, y)) {
           a.interact(false);
-          lastPetAnimal = a;
-          hit = true;
-          break;
+          return;
         }
       }
-      if (!hit) {
-        // Tocou na grama ou céu: cria estrelinhas
-        createBurst(x, y, '#fde047', 6, 'star');
-        addCuddle(1);
+
+      // Toque livre gera balão
+      if (balloons.length < 12) {
+        balloons.push(new FloatingBalloon(x, y));
       }
     }
 
-    function handlePointerMove(x, y) {
-      if (!isDragging) return;
+    function handlePointerPet(x, y) {
       for (const a of animals) {
         if (a.hitTest(x, y)) {
-          if (lastPetAnimal !== a) {
-            a.interact(true); // Carinho!
-            lastPetAnimal = a;
+          a.purrCount++;
+          if (a.purrCount % 12 === 0) {
+            a.interact(true);
           }
-          break;
         }
       }
     }
 
-    window.addEventListener('pointerdown', e => handlePointerDown(e.clientX, e.clientY));
-    window.addEventListener('pointermove', e => handlePointerMove(e.clientX, e.clientY));
-    window.addEventListener('pointerup', () => { isDragging = false; lastPetAnimal = null; });
-    window.addEventListener('pointercancel', () => { isDragging = false; lastPetAnimal = null; });
+    window.addEventListener('pointerdown', e => {
+      if (!draggedFood && e.clientY < height - 80) {
+        handlePointerHit(e.clientX, e.clientY);
+      }
+    });
 
-    // Multitouch nativo para bebês
+    window.addEventListener('pointermove', e => {
+      if (!draggedFood && e.buttons === 1) {
+        handlePointerPet(e.clientX, e.clientY);
+      }
+    });
+
     window.addEventListener('touchstart', e => {
       e.preventDefault();
-      for (let i = 0; i < e.touches.length; i++) {
-        const t = e.touches[i];
-        handlePointerDown(t.clientX, t.clientY);
+      if (!draggedFood) {
+        for (let i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].clientY < height - 80) {
+            handlePointerHit(e.touches[i].clientX, e.touches[i].clientY);
+          }
+        }
       }
     }, { passive: false });
 
     window.addEventListener('touchmove', e => {
       e.preventDefault();
-      for (let i = 0; i < e.touches.length; i++) {
-        const t = e.touches[i];
-        handlePointerMove(t.clientX, t.clientY);
+      if (!draggedFood) {
+        for (let i = 0; i < e.touches.length; i++) {
+          handlePointerPet(e.touches[i].clientX, e.touches[i].clientY);
+        }
       }
     }, { passive: false });
 
     // ==========================================
-    // 6. LOOP DE ANIMAÇÃO GRÁFICA
+    // 7. LOOP DE ANIMAÇÃO GRÁFICA
     // ==========================================
-    let cloudX = 0;
+    let balloonTimer = 0;
+
     function gameLoop() {
       ctx.clearRect(0, 0, width, height);
 
-      // Céu Cósmico Pastel
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-      skyGrad.addColorStop(0, '#0c163b');
-      skyGrad.addColorStop(0.5, '#1e245a');
-      skyGrad.addColorStop(1, '#2c1e60');
-      ctx.fillStyle = skyGrad;
+      // Fundo Cósmico Suave
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#0a173b');
+      bgGrad.addColorStop(0.5, '#152454');
+      bgGrad.addColorStop(1, '#1e336d');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Nuvens suaves ao fundo
-      cloudX += 0.3;
-      if (cloudX > width + 200) cloudX = -200;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.beginPath();
-      ctx.arc(cloudX, height * 0.15, 60, 0, Math.PI * 2);
-      ctx.arc(cloudX + 45, height * 0.13, 50, 0, Math.PI * 2);
-      ctx.arc(cloudX - 45, height * 0.17, 45, 0, Math.PI * 2);
-      ctx.fill();
+      // Balões Flutuantes
+      balloonTimer++;
+      if (balloonTimer % 120 === 0 && balloons.length < 8) {
+        balloons.push(new FloatingBalloon());
+      }
 
-      // Colina Suave da Fazendinha
-      ctx.fillStyle = '#1e3a5f';
-      ctx.beginPath();
-      ctx.moveTo(0, height * 0.55);
-      ctx.bezierCurveTo(width * 0.3, height * 0.48, width * 0.7, height * 0.62, width, height * 0.52);
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.closePath();
-      ctx.fill();
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        b.update();
+        b.draw(ctx);
+        if (b.y + b.radius < -30) balloons.splice(i, 1);
+      }
 
-      // Colina Frontal Mais Clara
-      ctx.fillStyle = '#142a4a';
-      ctx.beginPath();
-      ctx.moveTo(0, height * 0.68);
-      ctx.bezierCurveTo(width * 0.4, height * 0.75, width * 0.6, height * 0.64, width, height * 0.7);
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.closePath();
-      ctx.fill();
-
-      // Desenha e atualiza cada bichinho
+      // Desenha e atualiza os 6 animaizinhos
       for (const a of animals) {
         a.update();
         a.draw(ctx);
       }
 
-      // Partículas
+      // Partículas de Corações e Estrelas
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
-        if (p.life <= 0) {
-          particles.splice(i, 1);
-        } else {
-          p.draw(ctx);
-        }
+        p.draw(ctx);
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      // Desenha comidinha sendo arrastada
+      if (draggedFood) {
+        ctx.save();
+        ctx.translate(draggedFood.x, draggedFood.y);
+        ctx.font = '48px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(draggedFood.emoji, 0, 0);
+
+        // Halo brilhante
+        ctx.strokeStyle = '#ffd043';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 32, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
       }
 
       requestAnimationFrame(gameLoop);
@@ -1231,7 +1428,7 @@
     requestAnimationFrame(gameLoop);
 
     // ==========================================
-    // 7. KRUUJ SDK & LOADER
+    // 8. KRUUJ SDK & LOADER
     // ==========================================
     const KruujLoader = (() => {
       const $ = id => document.getElementById(id);
@@ -1259,7 +1456,7 @@
         if (cfg.onComplete) cfg.onComplete();
       }
       async function start(c) {
-        cfg = { gameName: 'KRUUJ Amiguinhos & Sons', tagline: '', tips: [], splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
+        cfg = { gameName: tG.title, tagline: tG.tagline, tips: tG.tips, splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
         target = shown = 0; finished = closing = false;
         const kl = $('kl');
         if (!kl) return;
@@ -1296,7 +1493,8 @@
     })();
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Inicia KruujSDK
+      resize();
+
       if (window.KruujSDK) {
         window.KruujSDK.init().then(() => {
           window.KruujSDK.gameLoadingFinished();
@@ -1304,10 +1502,8 @@
         }).catch(() => {});
       }
 
-      // Aplica i18n
       document.getElementById('partyLabel').textContent = tG.btnParty;
 
-      // Executa loader apenas standalone
       if (window.self === window.top) {
         KruujLoader.start({
           gameName: tG.title,

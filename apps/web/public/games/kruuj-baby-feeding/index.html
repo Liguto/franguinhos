@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Quem Come O Quê? – KRUUJ Baby Animal Feeder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
+    const I18N = {
+      pt: {
+        title: 'Quem Come O Quê?',
+        tagline: 'Arraste a comidinha gostosa para a boquinha de cada amiguinho!',
+        roundLabel: 'Fase',
+        cheers: ['Nham nham! Delícia! 😋', 'Muito bem! 💕', 'Que fofo! ✨', 'Parabéns! 🦉'],
+        correctFeed: {
+          bunny: 'O coelhinho adora cenoura! 🥕',
+          monkey: 'O macaquinho ama banana! 🍌',
+          owl: 'A corujinha quer a frutinha! 🍓',
+          cat: 'O gatinho adora peixinho! 🐟',
+          dog: 'O cachorrinho ama o ossinho! 🦴'
+        },
+        tips: ['Dê o alimento certo para cada bichinho.', 'Eles ficam muito felizes!']
+      },
+      en: {
+        title: 'Who Eats What?',
+        tagline: 'Drag the yummy food to each cute animal’s mouth!',
+        roundLabel: 'Round',
+        cheers: ['Yummy! Delicious! 😋', 'Well done! 💕', 'So cute! ✨', 'Hooray! 🦉'],
+        correctFeed: {
+          bunny: 'Bunny loves carrots! 🥕',
+          monkey: 'Monkey loves bananas! 🍌',
+          owl: 'Baby owl loves sweet berries! 🍓',
+          cat: 'Kitty loves fish! 🐟',
+          dog: 'Puppy loves bones! 🦴'
+        },
+        tips: ['Feed the right food to each animal.', 'They love it!']
+      },
+      es: {
+        title: '¿Quién Come Qué?',
+        tagline: '¡Arrastra la comidita rica a la boquita de cada amiguito!',
+        roundLabel: 'Nivel',
+        cheers: ['¡Ñam ñam! ¡Qué rico! 😋', '¡Muy bien! 💕', '¡Qué lindo! ✨', '¡Bravo! 🦉'],
+        correctFeed: {
+          bunny: '¡Al conejito le encanta la zanahoria! 🥕',
+          monkey: '¡Al monito le encanta la banana! 🍌',
+          owl: '¡Al búho le encanta la frutita! 🍓',
+          cat: '¡Al gatito le encanta el pescadito! 🐟',
+          dog: '¡Al perrito le encanta el huesito! 🦴'
+        },
+        tips: ['Dale la comida correcta a cada animalito.', '¡Se ponen muy felices!']
+      }
+    };
+    const tG = I18N[URL_LANG] || (IS_PT ? I18N.pt : I18N.en);
+  </script>
+
+  <style>
+    :root {
+      --bg-top: #0d1e3d;
+      --bg-bottom: #1e1338;
+      --lav: #d8d4fd;
+      --navy: #151c4a;
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 30%, var(--bg-top), var(--bg-bottom));
+      color: #fff;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .hud { padding-left: 68px !important; }
+    }
+    .hud-badge {
+      background: rgba(21, 28, 74, 0.88);
+      border: 2px solid rgba(255, 101, 166, 0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 6px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #ff65a6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .toast-pill {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e1b4b;
+      font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+      font-weight: 800;
+      padding: 8px 24px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35), 0 0 0 3px #ff65a6;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 20;
+      white-space: nowrap;
+    }
+    .toast-pill.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.0);
+    }
+    #kl { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(ellipse at 50% 40%, #101a52 0%, var(--bg-top) 65%); display: grid; place-items: center; padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0); transition: opacity 0.6s ease, visibility 0.6s; }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl { width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; animation: pop 0.9s cubic-bezier(.2,1.3,.4,1) both; }
+    .splash .logo { width: min(54vw, 240px); margin-top: 20px; }
+    .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; color: var(--lav); }
+    .load { text-align: center; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); }
+    .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, #8338fc, #289afd); }
+    .pct { margin-top: 26px; font-weight: 600; font-size: 1.1rem; }
+    .tip { min-height: 1.5em; margin: 10px 0 0; color: var(--lav); font-size: 0.95rem; }
+    .brand { position: absolute; bottom: 22px; font-size: 0.8rem; color: var(--lav); opacity: 0.6; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div id="kl" role="status" aria-live="polite">
+    <div class="ph splash">
+      <img class="owl" alt="KRUUJ" src="/kruuj-avatar.png" onerror="this.src='/kruuj-mascote.png'">
+      <img class="logo" alt="Kruuj" src="/kruuj-logo.png">
+      <p class="sub">STUDIO</p>
+    </div>
+    <div class="ph load off">
+      <h1 id="kl-name">Quem Come O Quê?</h1>
+      <p class="tag" id="kl-tag">Alimente os amiguinhos com amor.</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip"></p>
+    </div>
+    <div class="brand">Kruuj Studio</div>
+  </div>
+
+  <header class="hud">
+    <div class="hud-badge"><span>🍎</span><span id="roundText">Fase 1</span></div>
+    <div class="hud-badge" style="border-color: rgba(255, 208, 67, 0.4); color: #ffd043;"><span>⭐</span><span id="starScore">0</span></div>
+  </header>
+
+  <div class="toast-pill" id="toastPill">O coelhinho adora cenoura! 🥕</div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playChompSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      // Som crocante e mastigadinha alegre (Chomp)
+      for (let i = 0; i < 3; i++) {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(420 + i * 80, now + i * 0.08);
+        osc.frequency.exponentialRampToValueAtTime(260, now + i * 0.08 + 0.06);
+        g.gain.setValueAtTime(0.24, now + i * 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.07);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.08);
+      }
+    }
+
+    function playHappyFanfare() {
+      initAudio();
+      if (!audioCtx) return;
+      const freqs = [523.25, 659.25, 783.99, 1046.50];
+      const now = audioCtx.currentTime;
+      freqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + idx * 0.06);
+        g.gain.setValueAtTime(0.22, now + idx * 0.06);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.06 + 0.5);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(now + idx * 0.06); osc.stop(now + idx * 0.06 + 0.55);
+      });
+    }
+
+    function speakText(txt) {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(txt.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s!]/g, ''));
+          u.lang = IS_PT ? 'pt-BR' : IS_ES ? 'es-ES' : 'en-US';
+          u.rate = 0.95; u.pitch = 1.25;
+          window.speechSynthesis.speak(u);
+        } catch(e) {}
+      }
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, currentRound = 1, starScore = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let toastTimer = null;
+    function showToast(txt) {
+      const p = document.getElementById('toastPill');
+      p.textContent = txt;
+      p.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => p.classList.remove('show'), 1800);
+      speakText(txt);
+    }
+
+    // Definição dos bichinhos e suas comidas favoritas
+    const ANIMAL_DEFS = [
+      { id: 'bunny', name: 'Coelhinho', icon: '🐰', foodIcon: '🥕', foodName: 'Cenoura', color: '#ffb7d5' },
+      { id: 'monkey', name: 'Macaquinho', icon: '🐵', foodIcon: '🍌', foodName: 'Banana', color: '#fde047' },
+      { id: 'owl', name: 'Corujinha', icon: '🦉', foodIcon: '🍓', foodName: 'Frutinha', color: '#c084fc' },
+      { id: 'cat', name: 'Gatinho', icon: '🐱', foodIcon: '🐟', foodName: 'Peixinho', color: '#38bdf8' },
+      { id: 'dog', name: 'Cachorrinho', icon: '🐶', foodIcon: '🦴', foodName: 'Ossinho', color: '#fb923c' }
+    ];
+
+    class AnimalTarget {
+      constructor(def, x, y) {
+        this.def = def;
+        this.x = x;
+        this.y = y;
+        this.radius = Math.min(width, height) * 0.12;
+        this.isFed = false;
+        this.bounce = 0;
+        this.openMouth = false;
+      }
+
+      draw(c) {
+        c.save();
+        c.translate(this.x, this.y - this.bounce);
+
+        // Halo aconchegante
+        c.fillStyle = this.isFed ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.08)';
+        c.beginPath();
+        c.arc(0, 0, this.radius * 1.25, 0, Math.PI * 2);
+        c.fill();
+
+        // Círculo base
+        c.fillStyle = this.def.color;
+        c.beginPath();
+        c.arc(0, 0, this.radius, 0, Math.PI * 2);
+        c.fill();
+
+        // Emoji do bichinho
+        c.font = `${this.radius * 1.15}px 'Baloo 2', sans-serif`;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(this.def.icon, 0, -this.radius * 0.05);
+
+        // Se estiver esperando comida, mostra boquinha aberta
+        if (this.openMouth && !this.isFed) {
+          c.fillStyle = '#dc2626';
+          c.beginPath();
+          c.ellipse(0, this.radius * 0.35, this.radius * 0.25, this.radius * 0.18, 0, 0, Math.PI * 2);
+          c.fill();
+        }
+
+        // Se alimentado, corações flutuam
+        if (this.isFed) {
+          c.font = '24px sans-serif';
+          c.fillText('💕', this.radius * 0.65, -this.radius * 0.65);
+        }
+
+        c.restore();
+      }
+
+      feed() {
+        this.isFed = true;
+        this.openMouth = false;
+        this.bounce = 24;
+        setTimeout(() => this.bounce = 0, 300);
+        playChompSound();
+        showToast(tG.correctFeed[this.def.id] || 'Nham nham! 💕');
+        starScore += 3;
+        document.getElementById('starScore').textContent = starScore;
+      }
+    }
+
+    class FoodItem {
+      constructor(def, targetAnimal, initialX, initialY) {
+        this.def = def;
+        this.targetAnimal = targetAnimal;
+        this.startX = initialX;
+        this.startY = initialY;
+        this.x = initialX;
+        this.y = initialY;
+        this.radius = Math.min(width, height) * 0.08;
+        this.isEaten = false;
+        this.isDragging = false;
+      }
+
+      draw(c) {
+        if (this.isEaten) return;
+        c.save();
+        c.translate(this.x, this.y);
+        c.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        c.shadowColor = '#ffd043';
+        c.shadowBlur = this.isDragging ? 26 : 14;
+        c.beginPath();
+        c.arc(0, 0, this.radius, 0, Math.PI * 2);
+        c.fill();
+        c.shadowBlur = 0;
+
+        // Comida emoji
+        c.font = `${this.radius * 1.25}px sans-serif`;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(this.def.foodIcon, 0, 0);
+
+        c.restore();
+      }
+    }
+
+    let animals = [];
+    let foods = [];
+    let activeFood = null;
+
+    function startRound(r) {
+      currentRound = r;
+      document.getElementById('roundText').textContent = `${tG.roundLabel} ${r}`;
+      animals = [];
+      foods = [];
+      activeFood = null;
+
+      const numAnimals = Math.min(3, 2 + Math.floor((r - 1) / 2));
+      const pool = [...ANIMAL_DEFS].sort(() => Math.random() - 0.5).slice(0, numAnimals);
+
+      const topY = height * 0.36;
+      const botY = height * 0.76;
+      const spacing = width / (numAnimals + 1);
+
+      const shuffledIndices = pool.map((_, i) => i).sort(() => Math.random() - 0.5);
+
+      pool.forEach((def, i) => {
+        const ax = spacing * (i + 1);
+        const animal = new AnimalTarget(def, ax, topY);
+        animals.push(animal);
+
+        const fx = spacing * (shuffledIndices[i] + 1);
+        const food = new FoodItem(def, animal, fx, botY);
+        foods.push(food);
+      });
+    }
+
+    startRound(1);
+
+    function getPointerPos(e) {
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      initAudio();
+      const pos = getPointerPos(e);
+      for (const f of foods) {
+        if (!f.isEaten && Math.hypot(pos.x - f.x, pos.y - f.y) < f.radius * 1.3) {
+          activeFood = f;
+          f.isDragging = true;
+          f.targetAnimal.openMouth = true;
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (activeFood) {
+        const pos = getPointerPos(e);
+        activeFood.x = pos.x;
+        activeFood.y = pos.y;
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeFood) {
+        const target = activeFood.targetAnimal;
+        const dist = Math.hypot(activeFood.x - target.x, activeFood.y - target.y);
+
+        // Tolerância de alimentação magnética generosa para dedinhos infantis (90px)
+        if (dist < target.radius * 1.5 && !target.isFed) {
+          activeFood.isEaten = true;
+          target.feed();
+          checkRoundComplete();
+        } else {
+          // Volta suave para o lugar
+          activeFood.x = activeFood.startX;
+          activeFood.y = activeFood.startY;
+          target.openMouth = false;
+        }
+        activeFood.isDragging = false;
+        activeFood = null;
+      }
+    });
+
+    function checkRoundComplete() {
+      if (animals.every(a => a.isFed)) {
+        setTimeout(() => {
+          playHappyFanfare();
+          showToast(tG.cheers[Math.floor(Math.random() * tG.cheers.length)]);
+          setTimeout(() => {
+            startRound(currentRound + 1);
+          }, 1500);
+        }, 400);
+      }
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Desenha animais no topo
+      animals.forEach(a => a.draw(ctx));
+
+      // Desenha comidinhas na base
+      foods.forEach(f => f.draw(ctx));
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 
   <script>
-    // Suprime KruujLoader interno se carregado dentro do Portal
+    // Suprime KruujLoader interno se carregado dentro do Portal iframe
     if (window.self !== window.top) {
       window.addEventListener('DOMContentLoaded', () => {
         const kl = document.getElementById('kl');
@@ -19,21 +19,30 @@
       });
     }
 
-    // Suporte a i18n em PT, EN, ES
-    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    // Suporte a i18n em PT, EN, ES (Default em inglês, com adaptação completa para PT se lang=pt)
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
     const I18N = {
       pt: {
         title: 'Cadê a Corujinha?',
         tagline: 'Onde a corujinha está escondida? Toque para descobrir!',
+        roundLabel: 'Fase',
         found: 'Achou!',
         peekaboo: 'ACHOU! 🦉',
-        cheerWords: ['Achou!', 'Que fofa!', 'Achei você!', 'Viva!', 'Muito bem!'],
+        voiceFound: 'Achou! Muito bem!',
+        voicePeek: 'Onde está a corujinha?',
+        voiceNext: 'Próxima fase!',
+        cheerWords: ['Achou!', 'Que fofa!', 'Achei você!', 'Viva!', 'Muito bem! 💕'],
         cloudSurprise: 'Pluft! Gota mágica! 💧',
         giftSurprise: 'Boing! Presente surpresa! 🎁',
         bushSurprise: 'Flores mágicas! 🌸',
         planetSurprise: 'Planeta veloz! 🪐',
+        shellSurprise: 'Pérola brilhante! 🐚',
+        starSurprise: 'Estrela cadente! ⭐',
         tips: [
-          'Toque nas nuvens, presentes e arbustos.',
+          'Toque nas nuvens, presentes, arbustos e planetas.',
           'Olhe com atenção para ver as orelhinhas espiando!',
           'A corujinha adora brincar de esconde-esconde!'
         ]
@@ -41,15 +50,21 @@
       en: {
         title: 'Where is the Owl?',
         tagline: 'Where is the baby owl hiding? Tap to find out!',
+        roundLabel: 'Round',
         found: 'Found!',
         peekaboo: 'PEEKABOO! 🦉',
-        cheerWords: ['Found you!', 'So cute!', 'Peekaboo!', 'Yay!', 'Well done!'],
+        voiceFound: 'Peekaboo! You found me!',
+        voicePeek: 'Where is the baby owl?',
+        voiceNext: 'Next level!',
+        cheerWords: ['Found you!', 'So cute!', 'Peekaboo!', 'Yay!', 'Well done! 💕'],
         cloudSurprise: 'Plop! Magic drops! 💧',
         giftSurprise: 'Boing! Surprise gift! 🎁',
         bushSurprise: 'Magic flowers! 🌸',
         planetSurprise: 'Spinning planet! 🪐',
+        shellSurprise: 'Shiny pearl! 🐚',
+        starSurprise: 'Shooting star! ⭐',
         tips: [
-          'Tap clouds, gifts, and bushes.',
+          'Tap clouds, gifts, bushes, and planets.',
           'Look closely to see tiny ears peeking!',
           'The baby owl loves playing peekaboo!'
         ]
@@ -57,21 +72,27 @@
       es: {
         title: '¿Dónde está el Búho?',
         tagline: '¿Dónde se esconde el búho? ¡Toca para descubrir!',
+        roundLabel: 'Nivel',
         found: '¡Encontrado!',
         peekaboo: '¡ACÁ ESTÁ! 🦉',
-        cheerWords: ['¡Te encontré!', '¡Qué lindo!', '¡Aquí está!', '¡Viva!', '¡Muy bien!'],
+        voiceFound: '¡Acá está! ¡Muy bien!',
+        voicePeek: '¿Dónde se esconde el búho?',
+        voiceNext: '¡Siguiente nivel!',
+        cheerWords: ['¡Te encontré!', '¡Qué lindo!', '¡Aquí está!', '¡Viva!', '¡Muy bien! 💕'],
         cloudSurprise: '¡Gotitas mágicas! 💧',
         giftSurprise: '¡Sorpresa mágica! 🎁',
         bushSurprise: '¡Flores brillantes! 🌸',
         planetSurprise: '¡Planeta giratorio! 🪐',
+        shellSurprise: '¡Perla brillante! 🐚',
+        starSurprise: '¡Estrella fugaz! ⭐',
         tips: [
-          'Toca las nubes, regalos y arbustos.',
+          'Toca las nubes, regalos, arbustos y planetas.',
           '¡Mira bien para ver sus orejitas asomando!',
           '¡Al pequeño búho le encanta jugar al escondite!'
         ]
       }
     };
-    const tG = I18N[URL_LANG] || I18N.pt;
+    const tG = IS_PT ? I18N.pt : (IS_ES ? I18N.es : I18N.en);
   </script>
 
   <style>
@@ -118,7 +139,7 @@
       z-index: 1;
     }
 
-    /* HUD Superior — Recuo de 68px no mobile para não sobrepor o botão Poki */
+    /* HUD Superior — Recuo de 68px no mobile obrigatório */
     .hud {
       position: fixed;
       top: 14px;
@@ -139,8 +160,8 @@
     }
 
     .hud-badge {
-      background: rgba(21, 28, 74, 0.88);
-      border: 2px solid rgba(255, 208, 67, 0.45);
+      background: rgba(21, 28, 74, 0.9);
+      border: 2px solid rgba(255, 208, 67, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 9999px;
@@ -181,13 +202,13 @@
       transform: translateX(-50%) scale(1.0);
     }
 
-    /* Toast de carinho */
+    /* Toast de Carinho */
     .toast-msg {
       position: fixed;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       color: #3b1464;
       font-size: 1.15rem;
       font-weight: 800;
@@ -260,26 +281,26 @@
 
   <!-- HUD do Jogo -->
   <header class="hud">
-    <div class="hud-badge">
-      <span>🦉</span>
-      <span>ACHOU: <strong id="scoreCount">0</strong></span>
+    <div class="hud-badge" id="roundBadge">
+      <span>🎯</span>
+      <span id="roundText">Fase 1</span>
     </div>
-    <div class="hud-badge" style="border-color: rgba(72, 229, 155, 0.4); color: #48e59b;">
+    <div class="hud-badge" id="scoreBadge">
       <span>⭐</span>
       <span id="starCount">0</span>
     </div>
   </header>
 
-  <!-- Banner comemorativo "ACHOU!" -->
+  <!-- Banner Gigante de Celebração -->
   <div class="peekaboo-banner" id="peekabooBanner">ACHOU! 🦉</div>
-  <div class="toast-msg" id="toastMsg">Toque para procurar! ❤️</div>
+  <div class="toast-msg" id="toastMsg">Onde está a corujinha?</div>
 
   <!-- Canvas Principal -->
   <canvas id="gameCanvas"></canvas>
 
   <script>
     // ==========================================
-    // 1. ÁUDIO SINTÉTICO (WEBAUDIO)
+    // 1. ÁUDIO SINTÉTICO (WEBAUDIO & WEBSPEECH)
     // ==========================================
     let audioCtx = null;
     function initAudio() {
@@ -292,77 +313,78 @@
       }
     }
 
-    // Acorde triunfal alegre de "Achou!" (C5 - E5 - G5 - C6)
-    function playAchouSound() {
+    // Voz Amigável via Web Speech API
+    let lastSpokenTime = 0;
+    function speakText(text) {
+      const now = Date.now();
+      if (now - lastSpokenTime < 1600) return;
+      lastSpokenTime = now;
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = IS_PT ? 'pt-BR' : (IS_ES ? 'es-ES' : 'en-US');
+          utter.rate = 0.95;
+          utter.pitch = 1.25;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+    }
+
+    // Fanfarra Triunfal ao Encontrar a Corujinha ("Ta-daaa!")
+    function playFanfareSound() {
       initAudio();
       if (!audioCtx) return;
-      const notes = [523.25, 659.25, 783.99, 1046.50];
       const now = audioCtx.currentTime;
-
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // Dó, Mi, Sol, Dó maior
       notes.forEach((freq, idx) => {
+        const t = now + idx * 0.1;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        osc.frequency.setValueAtTime(freq, t);
 
-        gain.gain.setValueAtTime(0.001, now + idx * 0.08);
-        gain.gain.linearRampToValueAtTime(0.35, now + idx * 0.08 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.7);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.32, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
-        osc.start(now + idx * 0.08);
-        osc.stop(now + idx * 0.08 + 0.75);
+        osc.start(t);
+        osc.stop(t + 0.48);
       });
-
-      // Risadinha sintetizada da corujinha ("hi-hi-hi")
-      setTimeout(() => {
-        if (!audioCtx) return;
-        const cTime = audioCtx.currentTime;
-        for (let r = 0; r < 3; r++) {
-          const oscR = audioCtx.createOscillator();
-          const gainR = audioCtx.createGain();
-          oscR.type = 'sine';
-          oscR.frequency.setValueAtTime(880 + r * 60, cTime + r * 0.09);
-          oscR.frequency.exponentialRampToValueAtTime(1150 + r * 60, cTime + r * 0.09 + 0.07);
-
-          gainR.gain.setValueAtTime(0.001, cTime + r * 0.09);
-          gainR.gain.linearRampToValueAtTime(0.28, cTime + r * 0.09 + 0.02);
-          gainR.gain.exponentialRampToValueAtTime(0.0001, cTime + r * 0.09 + 0.08);
-
-          oscR.connect(gainR);
-          gainR.connect(audioCtx.destination);
-          oscR.start(cTime + r * 0.09);
-          oscR.stop(cTime + r * 0.09 + 0.09);
-        }
-      }, 340);
     }
 
-    // Som de Espiadinha ("Psiu / Peek")
-    function playPeekSound() {
+    // Risadinha / Piu-piu amigável da Coruja
+    function playOwlChirp() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      [0, 0.12].forEach((offset, idx) => {
+        const t = now + offset;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, now);
-      osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12);
+        osc.type = 'sine';
+        const startF = idx === 0 ? 740 : 880;
+        const endF = idx === 0 ? 1220 : 1480;
+        osc.frequency.setValueAtTime(startF, t);
+        osc.frequency.exponentialRampToValueAtTime(endF, t + 0.1);
 
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.25, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
 
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.22);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.13);
+      });
     }
 
-    // Som de Mola Boing (Surpresa do presente/objeto)
+    // Som de Mola Boing
     function playBoingSound() {
       initAudio();
       if (!audioCtx) return;
@@ -370,22 +392,23 @@
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(220, now);
-      osc.frequency.exponentialRampToValueAtTime(580, now + 0.22);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.exponentialRampToValueAtTime(750, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.32);
 
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
+      gain.gain.linearRampToValueAtTime(0.24, now + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(now);
-      osc.stop(now + 0.38);
+      osc.stop(now + 0.36);
     }
 
-    // Som de toque livre suave
-    function playTapSound(freq = 440) {
+    // Som de Shuffle / Troca de Lugar Suave
+    function playShuffleSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
@@ -393,27 +416,29 @@
       const gain = audioCtx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.linearRampToValueAtTime(600, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(350, now + 0.3);
 
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.25, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(now);
-      osc.stop(now + 0.45);
+      osc.stop(now + 0.33);
     }
 
     // ==========================================
-    // 2. CONFIGURAÇÃO DE CENÁRIO E ESCONDERIJOS
+    // 2. CANVAS & RESPONSIVIDADE
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     let width = 0;
     let height = 0;
-    let foundCount = 0;
-    let starCount = 0;
+    let starScore = 0;
+    let currentRound = 1;
 
     function resize() {
       width = window.innerWidth;
@@ -424,7 +449,6 @@
     }
     window.addEventListener('resize', resize);
 
-    // Feedback Toast e Banner
     let bannerTimeout = null;
     function showPeekabooBanner(text) {
       const banner = document.getElementById('peekabooBanner');
@@ -433,7 +457,7 @@
       if (bannerTimeout) clearTimeout(bannerTimeout);
       bannerTimeout = setTimeout(() => {
         banner.classList.remove('show');
-      }, 2200);
+      }, 2000);
     }
 
     let toastTimeout = null;
@@ -444,13 +468,11 @@
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
-      }, 2000);
+      }, 1800);
     }
 
-    // Partículas e Efeitos
+    // Partículas de Confetes e Estrelas
     let particles = [];
-    let touchRipples = [];
-
     class Particle {
       constructor(x, y, color, speed = 5, size = 8, shape = 'star') {
         this.x = x;
@@ -460,7 +482,7 @@
         const spd = Math.random() * speed + 2;
         this.vx = Math.cos(angle) * spd;
         this.vy = Math.sin(angle) * spd - 2;
-        this.size = Math.random() * size + 4;
+        this.size = Math.random() * size + 5;
         this.life = 1.0;
         this.decay = Math.random() * 0.02 + 0.012;
         this.shape = shape;
@@ -469,7 +491,7 @@
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.vy += 0.08; // Gravidade suave
+        this.vy += 0.08;
         this.life -= this.decay;
         this.rot += 0.04;
       }
@@ -527,7 +549,7 @@
       ctx.fill();
     }
 
-    function createCelebration(x, y, count = 28) {
+    function createCelebration(x, y, count = 30) {
       const colors = ['#ffd043', '#ff65a6', '#289afd', '#48e59b', '#8338fc', '#ffffff'];
       for (let i = 0; i < count; i++) {
         const c = colors[Math.floor(Math.random() * colors.length)];
@@ -537,47 +559,51 @@
     }
 
     // ==========================================
-    // 3. OS 4 ESCONDERIJOS FOFOS
+    // 3. ESCONDERIJOS COM PROGRESSÃO EM ROUNDS
     // ==========================================
     class HidingSpot {
       constructor(type, name, color, surpriseKey) {
-        this.type = type; // 'cloud', 'gift', 'bush', 'planet'
+        this.type = type; // 'cloud', 'gift', 'bush', 'planet', 'shell', 'star'
         this.name = name;
         this.color = color;
         this.surpriseKey = surpriseKey;
         this.x = 0;
         this.y = 0;
-        this.width = 130;
-        this.height = 110;
+        this.targetX = 0;
+        this.targetY = 0;
         this.scale = 1.0;
         this.targetScale = 1.0;
-        this.wobble = 0;
+        this.wobble = Math.random() * Math.PI * 2;
       }
+
       hitTest(px, py) {
-        return Math.hypot(px - this.x, py - this.y) < 70 * this.scale;
+        return Math.hypot(px - this.x, py - this.y) < 68 * this.scale;
       }
+
       animateSurprise() {
         this.scale = 1.4;
         setTimeout(() => { this.scale = 1.0; }, 240);
         playBoingSound();
         createCelebration(this.x, this.y, 14);
         showToast(tG[this.surpriseKey]);
-        starCount += 1;
-        document.getElementById('starCount').textContent = starCount;
+        starScore += 1;
+        document.getElementById('starCount').textContent = starScore;
       }
+
       update() {
         this.scale += (this.targetScale - this.scale) * 0.12;
+        this.x += (this.targetX - this.x) * 0.1;
+        this.y += (this.targetY - this.y) * 0.1;
       }
+
       draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.scale(this.scale, this.scale);
 
         if (this.type === 'cloud') {
-          // Nuvem fofa de algodão doce
+          // Nuvem de Algodão Doce
           ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#8338fc';
-          ctx.shadowBlur = 18;
           ctx.beginPath();
           ctx.arc(0, 0, 42, 0, Math.PI * 2);
           ctx.arc(-32, 8, 30, 0, Math.PI * 2);
@@ -585,9 +611,8 @@
           ctx.arc(-16, 20, 28, 0, Math.PI * 2);
           ctx.arc(16, 20, 28, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
 
-          // Rostinho sorrindo na nuvem
+          // Rostinho sorrindo
           ctx.strokeStyle = '#6366f1';
           ctx.lineWidth = 3;
           ctx.beginPath();
@@ -595,7 +620,6 @@
           ctx.arc(14, 6, 6, 0.2 * Math.PI, 0.8 * Math.PI);
           ctx.stroke();
 
-          // Bochechas
           ctx.fillStyle = '#f472b6';
           ctx.beginPath();
           ctx.arc(-22, 12, 5, 0, Math.PI * 2);
@@ -603,90 +627,84 @@
           ctx.fill();
 
         } else if (this.type === 'gift') {
-          // Caixa de Presente Lilás com Fita Dourada
+          // Presente Lilás
           ctx.fillStyle = '#a855f7';
-          ctx.shadowColor = '#ffd043';
-          ctx.shadowBlur = 16;
           ctx.beginPath();
           ctx.roundRect(-42, -28, 84, 76, 14);
           ctx.fill();
-          ctx.shadowBlur = 0;
 
-          // Tampa da caixa
           ctx.fillStyle = '#9333ea';
           ctx.beginPath();
           ctx.roundRect(-48, -42, 96, 22, 10);
           ctx.fill();
 
-          // Fita Dourada
           ctx.fillStyle = '#ffd043';
           ctx.fillRect(-10, -42, 20, 90);
           ctx.fillRect(-42, 4, 84, 18);
 
-          // Laço de fita no topo
           ctx.beginPath();
           ctx.ellipse(-14, -48, 14, 9, -0.4, 0, Math.PI * 2);
           ctx.ellipse(14, -48, 14, 9, 0.4, 0, Math.PI * 2);
           ctx.fill();
 
         } else if (this.type === 'bush') {
-          // Arbusto Cósmico / Árvore Encantada
+          // Arbusto Cósmico
           ctx.fillStyle = '#10b981';
-          ctx.shadowColor = '#34d399';
-          ctx.shadowBlur = 18;
           ctx.beginPath();
           ctx.arc(0, -6, 44, 0, Math.PI * 2);
           ctx.arc(-30, 10, 32, 0, Math.PI * 2);
           ctx.arc(30, 10, 32, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
 
-          // Floreszinhas brilhantes sorridentes
           ctx.fillStyle = '#ffd043';
           ctx.beginPath();
           ctx.arc(-16, -14, 8, 0, Math.PI * 2);
           ctx.arc(18, -10, 8, 0, Math.PI * 2);
-          ctx.arc(0, 16, 8, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.fillStyle = '#f43f5e';
-          ctx.beginPath();
-          ctx.arc(-16, -14, 4, 0, Math.PI * 2);
-          ctx.arc(18, -10, 4, 0, Math.PI * 2);
-          ctx.arc(0, 16, 4, 0, Math.PI * 2);
-          ctx.fill();
-
-        } else {
-          // Planeta de Anéis Coloridos Fofo
-          ctx.shadowColor = '#38bdf8';
-          ctx.shadowBlur = 20;
-
-          // Corpo do planeta
+        } else if (this.type === 'planet') {
+          // Planeta com Anéis
           ctx.fillStyle = '#38bdf8';
           ctx.beginPath();
           ctx.arc(0, 0, 40, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
 
-          // Anéis estilo Saturno
           ctx.strokeStyle = '#ffd043';
           ctx.lineWidth = 10;
           ctx.beginPath();
           ctx.ellipse(0, 0, 68, 20, -0.3, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Olhinhos felizes no planeta
           ctx.fillStyle = '#0f172a';
           ctx.beginPath();
           ctx.arc(-12, -4, 5, 0, Math.PI * 2);
           ctx.arc(12, -4, 5, 0, Math.PI * 2);
           ctx.fill();
 
-          // Bochechas
-          ctx.fillStyle = '#ff8cb0';
+        } else if (this.type === 'shell') {
+          // Concha do Mar Encantada
+          ctx.fillStyle = '#ff65a6';
           ctx.beginPath();
-          ctx.arc(-18, 4, 5, 0, Math.PI * 2);
-          ctx.arc(18, 4, 5, 0, Math.PI * 2);
+          ctx.arc(0, 0, 42, Math.PI, 0);
+          ctx.lineTo(0, 26);
+          ctx.closePath();
+          ctx.fill();
+
+          // Pérola no centro
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(0, -4, 14, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else {
+          // Estrela Mágica Dourada
+          ctx.fillStyle = '#ffd043';
+          drawStar(ctx, 0, 0, 5, 46, 22);
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(-10, -4, 4, 0, Math.PI * 2);
+          ctx.arc(10, -4, 4, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -694,323 +712,291 @@
       }
     }
 
-    const spots = [
+    const allSpots = [
       new HidingSpot('cloud', 'Nuvem', '#bae6fd', 'cloudSurprise'),
       new HidingSpot('gift', 'Presente', '#c084fc', 'giftSurprise'),
       new HidingSpot('bush', 'Arbusto', '#86efac', 'bushSurprise'),
-      new HidingSpot('planet', 'Planeta', '#7dd3fc', 'planetSurprise')
+      new HidingSpot('planet', 'Planeta', '#7dd3fc', 'planetSurprise'),
+      new HidingSpot('shell', 'Concha', '#fbcfe8', 'shellSurprise'),
+      new HidingSpot('star', 'Estrela', '#fde047', 'starSurprise')
     ];
 
+    // Quantidade de esconderijos por Round:
+    // Round 1: 2 spots (fácil e direto)
+    // Round 2: 3 spots
+    // Round 3: 4 spots (com shuffle suave)
+    // Round 4+: 5 a 6 spots (com rotação divertida)
+    function getActiveSpotsCount() {
+      if (currentRound === 1) return 2;
+      if (currentRound === 2) return 3;
+      if (currentRound === 3) return 4;
+      if (currentRound === 4) return 5;
+      return 6;
+    }
+
+    function getActiveSpots() {
+      return allSpots.slice(0, getActiveSpotsCount());
+    }
+
     function updateHidingPositions() {
-      // Disposição responsiva quadrante em 2x2 ou cruz fluida
-      const isPortrait = height > width;
-      const marginX = width * 0.24;
-      const marginY = height * 0.28;
+      const active = getActiveSpots();
+      const count = active.length;
+      const isMobile = width < 768;
 
-      if (isPortrait) {
-        spots[0].x = width * 0.28; spots[0].y = height * 0.35;
-        spots[1].x = width * 0.72; spots[1].y = height * 0.35;
-        spots[2].x = width * 0.28; spots[2].y = height * 0.68;
-        spots[3].x = width * 0.72; spots[3].y = height * 0.68;
+      if (count === 2) {
+        active[0].targetX = width * 0.32; active[0].targetY = height * 0.52;
+        active[1].targetX = width * 0.68; active[1].targetY = height * 0.52;
+      } else if (count === 3) {
+        active[0].targetX = width * 0.25; active[0].targetY = height * 0.52;
+        active[1].targetX = width * 0.50; active[1].targetY = height * 0.44;
+        active[2].targetX = width * 0.75; active[2].targetY = height * 0.52;
+      } else if (count === 4) {
+        active[0].targetX = width * 0.28; active[0].targetY = height * 0.38;
+        active[1].targetX = width * 0.72; active[1].targetY = height * 0.38;
+        active[2].targetX = width * 0.28; active[2].targetY = height * 0.68;
+        active[3].targetX = width * 0.72; active[3].targetY = height * 0.68;
       } else {
-        spots[0].x = width * 0.18; spots[0].y = height * 0.52;
-        spots[1].x = width * 0.39; spots[1].y = height * 0.52;
-        spots[2].x = width * 0.61; spots[2].y = height * 0.52;
-        spots[3].x = width * 0.82; spots[3].y = height * 0.52;
+        const cols = isMobile ? 2 : 3;
+        const rows = Math.ceil(count / cols);
+        active.forEach((s, i) => {
+          const c = i % cols;
+          const r = Math.floor(i / cols);
+          s.targetX = (c + 1) * (width / (cols + 1));
+          s.targetY = height * 0.32 + r * (height * 0.36);
+        });
       }
+
+      active.forEach(s => {
+        if (s.x === 0 && s.y === 0) {
+          s.x = s.targetX;
+          s.y = s.targetY;
+        }
+      });
     }
-    resize();
 
     // ==========================================
-    // 4. A CORUJINHA KRUUJ BEBÊ (PEEKABOO)
+    // 4. A CORUJINHA KRUUJ ESCONDIDA
     // ==========================================
-    let currentSpotIndex = 0;
-    let isRevealed = false;
-    let revealTimer = null;
-    let peekOffset = 0;
-    let peekDirection = 1;
-    let isPeeking = false;
-    let owlDanceTime = 0;
+    const owl = {
+      spotIndex: 0,
+      isRevealed: false,
+      revealScale: 0.1,
+      peekOffset: 0,
+      peekTimer: 0,
+      wobble: 0,
 
-    // Escolhe esconderijo inicial
-    function chooseNewSpot() {
-      isRevealed = false;
-      const prev = currentSpotIndex;
-      let next = Math.floor(Math.random() * spots.length);
-      while (next === prev && spots.length > 1) {
-        next = Math.floor(Math.random() * spots.length);
-      }
-      currentSpotIndex = next;
-    }
-    chooseNewSpot();
+      hide() {
+        this.isRevealed = false;
+        this.revealScale = 0.1;
+        const activeCount = getActiveSpotsCount();
+        this.spotIndex = Math.floor(Math.random() * activeCount);
+      },
 
-    // Temporizador de Espiadinha (Peek) a cada 2.5s
-    setInterval(() => {
-      if (!isRevealed && !isPeeking) {
-        isPeeking = true;
-        playPeekSound();
-        peekOffset = 0;
-        let step = 0;
-        const peekAnim = setInterval(() => {
-          step++;
-          if (step <= 12) {
-            peekOffset = (step / 12) * 38; // Sobe até mostrar as orelhinhas e olhinhos
-          } else if (step <= 24) {
-            // Fica olhando
-          } else if (step <= 36) {
-            peekOffset = (1 - (step - 24) / 12) * 38; // Desce
-          } else {
-            clearInterval(peekAnim);
-            isPeeking = false;
-            peekOffset = 0;
+      reveal() {
+        this.isRevealed = true;
+        this.revealScale = 0.2;
+        playFanfareSound();
+        playOwlChirp();
+
+        showPeekabooBanner(tG.peekaboo);
+        speakText(tG.voiceFound);
+        starScore += 5;
+        document.getElementById('starCount').textContent = starScore;
+
+        const currentSpot = allSpots[this.spotIndex];
+        createCelebration(currentSpot.x, currentSpot.y, 45);
+
+        // Avança de Round após a comemoração
+        setTimeout(() => {
+          currentRound++;
+          document.getElementById('roundText').textContent = `${tG.roundLabel} ${currentRound}`;
+          showToast(`${tG.roundLabel} ${currentRound}!`);
+
+          // Se estiver na Fase 3+, faz shuffle suave
+          if (currentRound >= 3) {
+            playShuffleSound();
           }
-        }, 30);
-      }
-    }, 2800);
 
-    function onFoundOwl(spot) {
-      if (isRevealed) return;
-      isRevealed = true;
-      foundCount += 1;
-      starCount += 3;
-      document.getElementById('scoreCount').textContent = foundCount;
-      document.getElementById('starCount').textContent = starCount;
+          updateHidingPositions();
+          this.hide();
+        }, 2200);
+      },
 
-      playAchouSound();
-      spot.scale = 1.35;
-      createCelebration(spot.x, spot.y - 70, 36);
+      update() {
+        this.wobble += 0.05;
+        this.peekTimer += 0.04;
+        // As orelhinhas espiam ritmicamente
+        this.peekOffset = Math.sin(this.peekTimer) * 14;
 
-      // Frase alegre comemorativa
-      const cheers = tG.cheerWords;
-      const pickWord = cheers[Math.floor(Math.random() * cheers.length)];
-      showPeekabooBanner(pickWord + ' 🦉');
+        if (this.isRevealed && this.revealScale < 1.0) {
+          this.revealScale += (1.0 - this.revealScale) * 0.18;
+        }
+      },
 
-      // Telemetria via KruujSDK
-      if (window.KruujSDK && window.KruujSDK.measure) {
-        window.KruujSDK.measure('gameplay', 'owl_found', 'round_' + foundCount);
-      }
+      drawBehind(ctx) {
+        if (this.isRevealed) return;
+        const active = getActiveSpots();
+        const s = active[this.spotIndex];
+        if (!s) return;
 
-      // Anima por 2.6s e se esconde novamente em outro ponto
-      setTimeout(() => {
-        chooseNewSpot();
-      }, 2600);
-    }
-
-    function drawBabyOwl(ctx, x, y, isJumping = false, jumpY = 0) {
-      ctx.save();
-      ctx.translate(x, y - jumpY);
-
-      const danceWobble = isJumping ? Math.sin(Date.now() * 0.012) * 0.15 : 0;
-      ctx.rotate(danceWobble);
-
-      // Corpo da Corujinha Bebê
-      ctx.fillStyle = '#8338fc';
-      ctx.shadowColor = '#ffd043';
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 42, 46, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Orelhinhas pontudas
-      ctx.beginPath();
-      ctx.moveTo(-28, -34);
-      ctx.lineTo(-38, -54);
-      ctx.lineTo(-14, -42);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(14, -42);
-      ctx.lineTo(38, -54);
-      ctx.lineTo(28, -34);
-      ctx.fill();
-
-      // Barriguinha fofa branca
-      ctx.fillStyle = '#f5f3ff';
-      ctx.beginPath();
-      ctx.ellipse(0, 10, 28, 30, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Asinhas abertas em festa se achou!
-      ctx.fillStyle = '#6d28d9';
-      if (isJumping) {
-        const wingFlap = Math.sin(Date.now() * 0.015) * 0.4;
-        // Asas para cima comemorando
+        // Orelhinhas espiando atrás do esconderijo
         ctx.save();
-        ctx.translate(-36, -4);
-        ctx.rotate(-0.8 + wingFlap);
+        ctx.translate(s.x, s.y - 40 + this.peekOffset);
+
+        ctx.fillStyle = '#8338fc';
         ctx.beginPath();
-        ctx.ellipse(0, 0, 14, 28, 0, 0, Math.PI * 2);
+        ctx.moveTo(-28, 0); ctx.lineTo(-18, -32); ctx.lineTo(-4, -10); ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(28, 0); ctx.lineTo(18, -32); ctx.lineTo(4, -10); ctx.closePath(); ctx.fill();
+
+        // Olhinhos grandes espiando
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-14, -6, 12, 0, Math.PI * 2);
+        ctx.arc(14, -6, 12, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-14, -6, 5, 0, Math.PI * 2);
+        ctx.arc(14, -6, 5, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.restore();
+      },
+
+      drawRevealed(ctx) {
+        if (!this.isRevealed) return;
+        const active = getActiveSpots();
+        const s = active[this.spotIndex];
+        if (!s) return;
 
         ctx.save();
-        ctx.translate(36, -4);
-        ctx.rotate(0.8 - wingFlap);
+        ctx.translate(s.x, s.y - 45);
+        ctx.scale(this.revealScale, this.revealScale);
+
+        // Corpo Roxo KRUUJ
+        ctx.fillStyle = '#8338fc';
         ctx.beginPath();
-        ctx.ellipse(0, 0, 14, 28, 0, 0, Math.PI * 2);
+        ctx.arc(0, 0, 52, 0, Math.PI * 2);
         ctx.fill();
+
+        // Orelhas
+        ctx.beginPath();
+        ctx.moveTo(-44, -16); ctx.lineTo(-32, -62); ctx.lineTo(-10, -42); ctx.closePath(); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(44, -16); ctx.lineTo(32, -62); ctx.lineTo(10, -42); ctx.closePath(); ctx.fill();
+
+        // Peito Lilás
+        ctx.fillStyle = '#d8d4fd';
+        ctx.beginPath();
+        ctx.ellipse(0, 14, 30, 34, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Olhos gigantes e brilhantes
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-18, -12, 16, 0, Math.PI * 2);
+        ctx.arc(18, -12, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-18, -12, 7, 0, Math.PI * 2);
+        ctx.arc(18, -12, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-21, -15, 3.5, 0, Math.PI * 2);
+        ctx.arc(15, -15, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bochechas rosadas
+        ctx.fillStyle = '#ff8cb0';
+        ctx.beginPath();
+        ctx.arc(-28, 8, 8, 0, Math.PI * 2);
+        ctx.arc(28, 8, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bico dourado
+        ctx.fillStyle = '#ffd043';
+        ctx.beginPath();
+        ctx.moveTo(-8, 2); ctx.lineTo(8, 2); ctx.lineTo(0, 14); ctx.closePath(); ctx.fill();
+
         ctx.restore();
-      } else {
-        // Asinhas fechadas
-        ctx.beginPath();
-        ctx.ellipse(-36, 4, 12, 22, -0.2, 0, Math.PI * 2);
-        ctx.ellipse(36, 4, 12, 22, 0.2, 0, Math.PI * 2);
-        ctx.fill();
       }
-
-      // Olhos Grandes Kawaii
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(-16, -10, 15, 0, Math.PI * 2);
-      ctx.arc(16, -10, 15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Íris Azul
-      ctx.fillStyle = '#289afd';
-      ctx.beginPath();
-      ctx.arc(-16, -10, 9, 0, Math.PI * 2);
-      ctx.arc(16, -10, 9, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Pupila
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(-16, -10, 6, 0, Math.PI * 2);
-      ctx.arc(16, -10, 6, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Brilhos nos olhos
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(-18, -12, 3.5, 0, Math.PI * 2);
-      ctx.arc(14, -12, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Bochechas rosadas
-      ctx.fillStyle = '#ff8cb0';
-      ctx.beginPath();
-      ctx.arc(-26, 4, 6, 0, Math.PI * 2);
-      ctx.arc(26, 4, 6, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Biquinho fofo dourado
-      ctx.fillStyle = '#fda41d';
-      ctx.beginPath();
-      ctx.moveTo(-6, -4);
-      ctx.lineTo(6, -4);
-      ctx.lineTo(0, 6);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.restore();
-    }
+    };
 
     // ==========================================
-    // 5. INTERAÇÃO TÁTIL
+    // 5. TOQUE & INTERAÇÃO
     // ==========================================
-    function handlePointer(px, py) {
+    function handlePointerHit(x, y) {
       initAudio();
+      if (owl.isRevealed) return;
 
-      // Verifica toque nos esconderijos
-      for (let i = 0; i < spots.length; i++) {
-        const spot = spots[i];
-        if (spot.hitTest(px, py)) {
-          if (i === currentSpotIndex && !isRevealed) {
-            onFoundOwl(spot);
+      const active = getActiveSpots();
+      for (let i = 0; i < active.length; i++) {
+        const spot = active[i];
+        if (spot.hitTest(x, y)) {
+          if (i === owl.spotIndex) {
+            spot.scale = 1.35;
+            owl.reveal();
           } else {
             spot.animateSurprise();
           }
           return;
         }
       }
-
-      // Toque livre no céu: sininhos pentatônicos + partículas
-      const freqs = [329.63, 392.00, 440.00, 523.25, 659.25, 783.99];
-      const pickFreq = freqs[Math.floor(Math.random() * freqs.length)];
-      playTapSound(pickFreq);
-
-      createCelebration(px, py, 10);
-      starCount += 1;
-      document.getElementById('starCount').textContent = starCount;
     }
 
-    window.addEventListener('pointerdown', (e) => {
-      handlePointer(e.clientX, e.clientY);
+    window.addEventListener('pointerdown', e => {
+      if (e.clientY > 60) handlePointerHit(e.clientX, e.clientY);
     });
 
-    window.addEventListener('touchstart', (e) => {
+    window.addEventListener('touchstart', e => {
       e.preventDefault();
       for (let i = 0; i < e.touches.length; i++) {
-        handlePointer(e.touches[i].clientX, e.touches[i].clientY);
+        if (e.touches[i].clientY > 60) {
+          handlePointerHit(e.touches[i].clientX, e.touches[i].clientY);
+        }
       }
     }, { passive: false });
 
     // ==========================================
-    // 6. LOOP DE ANIMAÇÃO (60FPS)
+    // 6. LOOP DE ANIMAÇÃO GRÁFICA
     // ==========================================
-    const bgStars = [];
-    for (let i = 0; i < 40; i++) {
-      bgStars.push({
-        x: Math.random(),
-        y: Math.random(),
-        size: Math.random() * 3 + 1,
-        twinkle: Math.random() * Math.PI * 2
-      });
-    }
-
     function gameLoop() {
       ctx.clearRect(0, 0, width, height);
 
-      // Fundo
-      const grad = ctx.createLinearGradient(0, 0, 0, height);
-      grad.addColorStop(0, '#151b4d');
-      grad.addColorStop(0.5, '#201b54');
-      grad.addColorStop(1, '#341a66');
-      ctx.fillStyle = grad;
+      // Fundo Mágico Suave
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#151b4d');
+      bgGrad.addColorStop(0.5, '#251b54');
+      bgGrad.addColorStop(1, '#3b1c61');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Estrelas
-      ctx.fillStyle = '#ffffff';
-      for (const s of bgStars) {
-        s.twinkle += 0.02;
-        ctx.globalAlpha = 0.25 + Math.sin(s.twinkle) * 0.25;
-        ctx.beginPath();
-        ctx.arc(s.x * width, s.y * height, s.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
+      // 1. Corujinha espiando atrás
+      owl.update();
+      owl.drawBehind(ctx);
 
-      // 1. Desenha a Corujinha (atrás do esconderijo se estiver escondida/espiando)
-      const currentSpot = spots[currentSpotIndex];
-      if (!isRevealed) {
-        if (peekOffset > 0) {
-          // Espiando por cima do esconderijo
-          drawBabyOwl(ctx, currentSpot.x, currentSpot.y - peekOffset, false, 0);
-        }
+      // 2. Esconderijos
+      const active = getActiveSpots();
+      for (const s of active) {
+        s.update();
+        s.draw(ctx);
       }
 
-      // 2. Desenha todos os esconderijos
-      for (const spot of spots) {
-        spot.update();
-        spot.draw(ctx);
-      }
+      // 3. Corujinha pulando na frente quando achada
+      owl.drawRevealed(ctx);
 
-      // 3. Se Achou! Desenha a Corujinha saltando radiante na frente com dancinha
-      if (isRevealed) {
-        const jumpY = Math.abs(Math.sin(Date.now() * 0.006)) * 65 + 35;
-        drawBabyOwl(ctx, currentSpot.x, currentSpot.y, true, jumpY);
-      }
-
-      // 4. Partículas
+      // 4. Confetes e Estrelas
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.update();
-        if (p.life <= 0) {
-          particles.splice(i, 1);
-        } else {
-          p.draw(ctx);
-        }
+        p.draw(ctx);
+        if (p.life <= 0) particles.splice(i, 1);
       }
 
       requestAnimationFrame(gameLoop);
@@ -1046,7 +1032,7 @@
         if (cfg.onComplete) cfg.onComplete();
       }
       async function start(c) {
-        cfg = { gameName: 'Cadê a Corujinha?', tagline: '', tips: [], splash: 2000, minTime: 2800, manual: false, onComplete() {}, ...c };
+        cfg = { gameName: tG.title, tagline: tG.tagline, tips: tG.tips, splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
         target = shown = 0; finished = closing = false;
         const kl = $('kl');
         if (!kl) return;
@@ -1083,7 +1069,9 @@
     })();
 
     window.addEventListener('DOMContentLoaded', () => {
-      // KruujSDK
+      resize();
+      owl.hide();
+
       if (window.KruujSDK) {
         window.KruujSDK.init().then(() => {
           window.KruujSDK.gameLoadingFinished();
@@ -1091,7 +1079,8 @@
         }).catch(() => {});
       }
 
-      // Standalone KruujLoader
+      document.getElementById('roundText').textContent = `${tG.roundLabel} 1`;
+
       if (window.self === window.top) {
         KruujLoader.start({
           gameName: tG.title,

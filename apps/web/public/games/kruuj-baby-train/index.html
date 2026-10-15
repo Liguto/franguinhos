@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Trenzinho das Estrelas – Baby Train</title>
+  <title>KRUUJ Baby Star Train – Trenzinho das Estrelas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
 
@@ -19,65 +19,95 @@
       });
     }
 
-    // Suporte a i18n em PT, EN, ES
-    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+    // Suporte a i18n em PT, EN, ES (Default em inglês, com adaptação completa para PT se lang=pt)
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
     const I18N = {
       pt: {
         title: 'KRUUJ Trenzinho das Estrelas',
-        tagline: 'Passeio mágico de trem! Toque no apito, nos vagões e estoure balões coloridos.',
+        tagline: 'Passeio mágico de trem! Mude o caminho, apite alto e toque nos bichinhos músicos.',
         btnWhistle: 'Apito 🚂',
-        btnSpeed: 'Acelerar ⚡',
+        btnTrack: 'Subir ao Céu ✨',
+        btnTrackGround: 'Descer à Terra 🌸',
         whistleToast: 'Piuííí! Choo-choo! 🚂',
         balloonPop: 'Plop! Balão estourou! 🎈',
-        bearHello: 'Ursinho: Olá amiguinho! 🧸',
-        giftSurprise: 'Presente Mágico! 🎁',
-        bunnyHop: 'Coelhinho saltou! 🐰',
+        bearHello: 'Ursinho do Tambor! 🧸',
+        giftSurprise: 'Presente Surpresa! 🎁',
+        bunnyHop: 'Coelhinho do Chocalho! 🐰',
+        frogCroak: 'Sapinho do Sino! 🐸',
+        skyTrack: 'O trem voou para o céu das estrelas! ⭐',
+        groundTrack: 'O trem desceu para as colinas floridas! 🌼',
+        voiceWhistle: 'Piuííí! Todos a bordo do trenzinho!',
+        voiceSky: 'O trem está voando no céu!',
+        voiceGround: 'O trem está nas colinas!',
+        voiceBear: 'Tum tum tum!',
+        voiceBunny: 'Pula pula coelhinho!',
         cheers: ['Muito rápido!', 'Que divertido!', 'Lindo trem!', 'Viva!', 'Tchu-tchu! 💕'],
         tips: [
-          'Toque na locomotiva para tocar o apito do trem.',
-          'Toque nos vagões para ver passageiros surpresa!',
-          'Toque nos balões que sobem no céu para ouvir notas musicais.',
-          'Toque no chão para plantar florzinhas mágicas!'
+          'Toque no céu ou no chão para o trem mudar de altitude!',
+          'Toque na locomotiva para soprar o grande apito do trem.',
+          'Toque nos bichinhos dos vagões para vê-los tocar música!',
+          'Toque no chão para brotar florzinhas mágicas.'
         ]
       },
       en: {
         title: 'KRUUJ Star Train',
-        tagline: 'Magical train ride! Blow the whistle, tap cars and pop colorful balloons.',
+        tagline: 'Magical train ride! Change tracks, blow the whistle and play music with animal pals.',
         btnWhistle: 'Whistle 🚂',
-        btnSpeed: 'Faster ⚡',
+        btnTrack: 'Fly to Stars ✨',
+        btnTrackGround: 'Return to Hills 🌸',
         whistleToast: 'Toot-toot! Choo-choo! 🚂',
         balloonPop: 'Plop! Balloon pop! 🎈',
-        bearHello: 'Teddy Bear: Hello! 🧸',
+        bearHello: 'Drummer Teddy Bear! 🧸',
         giftSurprise: 'Surprise Gift! 🎁',
-        bunnyHop: 'Bunny hop! 🐰',
+        bunnyHop: 'Shaker Bunny! 🐰',
+        frogCroak: 'Bell Froggy! 🐸',
+        skyTrack: 'The train is flying among the stars! ⭐',
+        groundTrack: 'The train is riding through green hills! 🌼',
+        voiceWhistle: 'Toot-toot! All aboard the star train!',
+        voiceSky: 'The train is flying in the sky!',
+        voiceGround: 'The train is rolling through the hills!',
+        voiceBear: 'Boom boom boom!',
+        voiceBunny: 'Hop hop happy bunny!',
         cheers: ['So fast!', 'So fun!', 'Pretty train!', 'Yay!', 'Choo-choo! 💕'],
         tips: [
+          'Tap high in the sky or low on the ground to move the train tracks!',
           'Tap the locomotive to blow the cheerful whistle.',
-          'Tap the carriages to meet surprise passengers!',
-          'Tap floating balloons to pop them and hear xylophone notes.',
-          'Tap the ground to sprout magical blooming flowers!'
+          'Tap animal passengers to see them play musical instruments!',
+          'Tap the ground to sprout magical blooming flowers.'
         ]
       },
       es: {
         title: 'KRUUJ Trencito de las Estrellas',
-        tagline: '¡Paseo mágico en tren! Toca el silbato, los vagones y explota globos de colores.',
+        tagline: '¡Paseo mágico en tren! Cambia de camino, haz sonar el silbato y canta con los amigos.',
         btnWhistle: 'Silbato 🚂',
-        btnSpeed: 'Acelerar ⚡',
+        btnTrack: 'Volar al Cielo ✨',
+        btnTrackGround: 'Bajar al Pasto 🌸',
         whistleToast: '¡Pi-pííí! ¡Chu-chu! 🚂',
         balloonPop: '¡Plop! ¡Globo explotó! 🎈',
-        bearHello: '¡Osito: Hola amiguito! 🧸',
+        bearHello: '¡Osito Tamborilero! 🧸',
         giftSurprise: '¡Regalo Mágico! 🎁',
-        bunnyHop: '¡El conejito saltó! 🐰',
+        bunnyHop: '¡Conejito Alegre! 🐰',
+        frogCroak: '¡Ranita Cantarina! 🐸',
+        skyTrack: '¡El tren vuela entre las estrellas! ⭐',
+        groundTrack: '¡El tren rueda por las colinas verdes! 🌼',
+        voiceWhistle: '¡Chu-chu! ¡Todos a bordo del trencito!',
+        voiceSky: '¡El tren está volando en el cielo!',
+        voiceGround: '¡El tren va por las colinas!',
+        voiceBear: '¡Pum pum pum!',
+        voiceBunny: '¡Salta conejito!',
         cheers: ['¡Qué rápido!', '¡Qué divertido!', '¡Lindo tren!', '¡Viva!', '¡Chu-chu! 💕'],
         tips: [
-          'Toca la locomotora para hacer sonar el silbato.',
-          '¡Toca los vagones para descubrir pasajeros sorpresa!',
-          'Toca los globos del cielo para escuchar notas musicales.',
+          '¡Toca arriba en el cielo o abajo en el suelo para mover las vías!',
+          'Toca la locomotora para hacer sonar el gran silbato.',
+          '¡Toca a los animalitos en los vagones para oírlos tocar música!',
           '¡Toca el pasto para que broten flores brillantes!'
         ]
       }
     };
-    const tG = I18N[URL_LANG] || I18N.pt;
+    const tG = IS_PT ? I18N.pt : (IS_ES ? I18N.es : I18N.en);
   </script>
 
   <style>
@@ -124,7 +154,7 @@
       z-index: 1;
     }
 
-    /* HUD Superior de Controles — Recuo Poki obrigatório de 68px no mobile */
+    /* HUD Superior — Desvio Poki de 68px no mobile obrigatório */
     .hud {
       position: fixed;
       top: 14px;
@@ -152,8 +182,8 @@
     }
 
     .hud-btn {
-      background: rgba(21, 28, 74, 0.85);
-      border: 2px solid rgba(131, 56, 252, 0.45);
+      background: rgba(21, 28, 74, 0.9);
+      border: 2px solid rgba(131, 56, 252, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       color: var(--white);
@@ -180,8 +210,8 @@
     }
 
     .hud-badge {
-      background: rgba(21, 28, 74, 0.85);
-      border: 2px solid rgba(255, 208, 67, 0.4);
+      background: rgba(21, 28, 74, 0.9);
+      border: 2px solid rgba(255, 208, 67, 0.5);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 9999px;
@@ -201,7 +231,7 @@
       top: 75px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       color: #3b1464;
       font-size: 1.2rem;
       font-weight: 800;
@@ -261,7 +291,7 @@
     </div>
     <div class="ph load off">
       <h1 id="kl-name">KRUUJ Trenzinho das Estrelas</h1>
-      <p class="tag" id="kl-tag">Passeio mágico com a corujinha maquinista.</p>
+      <p class="tag" id="kl-tag">Passeio mágico de trem com bichinhos e balões.</p>
       <div class="track">
         <div class="fill" id="kl-fill"></div>
         <img class="rider" id="kl-rider" alt="" src="/kruuj-avatar.png">
@@ -275,17 +305,17 @@
   <!-- HUD do Jogo -->
   <header class="hud">
     <div class="hud-group">
-      <button class="hud-btn" id="btnWhistle" onclick="triggerWhistle()">
+      <button class="hud-btn" id="btnWhistle" onclick="blowWhistle()">
         <span id="whistleLabel">Apito 🚂</span>
       </button>
-      <button class="hud-btn" id="btnSpeed" onclick="boostSpeed()">
-        <span id="speedLabel">Acelerar ⚡</span>
+      <button class="hud-btn" id="btnTrack" onclick="toggleTrainAltitude()">
+        <span id="trackLabel">Subir ao Céu ✨</span>
       </button>
     </div>
     <div class="hud-group">
       <div class="hud-badge" id="starBadge">
         <span>⭐</span>
-        <span id="starCount">0</span>
+        <span id="starScore">0</span>
       </div>
     </div>
   </header>
@@ -298,7 +328,7 @@
 
   <script>
     // ==========================================
-    // 1. ÁUDIO SINTÉTICO (WEBAUDIO)
+    // 1. ÁUDIO SINTÉTICO (WEBAUDIO & WEBSPEECH)
     // ==========================================
     let audioCtx = null;
     function initAudio() {
@@ -311,124 +341,172 @@
       }
     }
 
-    // Apito do Trenzinho: Dois tons afinados em harmonia (F5 + A5)
+    // Voz Amigável via Web Speech API
+    let lastSpokenTime = 0;
+    function speakText(text) {
+      const now = Date.now();
+      if (now - lastSpokenTime < 1600) return;
+      lastSpokenTime = now;
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = IS_PT ? 'pt-BR' : (IS_ES ? 'es-ES' : 'en-US');
+          utter.rate = 0.95;
+          utter.pitch = 1.25;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+    }
+
+    // Apito do Trem Realista ("Toot-toot!")
     function playTrainWhistle() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
 
-      const freqs = [698.46, 880.00]; // F5 e A5 (acorde maior doce)
-      freqs.forEach(f => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+      [0, 0.22].forEach(offset => {
+        const t = now + offset;
+        [440, 554.37, 659.25].forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, t);
+          osc.frequency.linearRampToValueAtTime(freq * 1.02, t + 0.12);
 
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, now);
-        osc.frequency.linearRampToValueAtTime(f * 1.02, now + 0.15);
-        osc.frequency.linearRampToValueAtTime(f, now + 0.45);
+          gain.gain.setValueAtTime(0.001, t);
+          gain.gain.linearRampToValueAtTime(0.12, t + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.22, now + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t);
+          osc.stop(t + 0.21);
+        });
       });
     }
 
-    // Estouro de Balão com Nota de Xilofone Pentatônica
-    const XYLO_FREQS = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
-    function playBalloonPopSound() {
+    // Tambor do Ursinho
+    function playDrumSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-      // Pop agudo
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(450, now);
-      osc1.frequency.exponentialRampToValueAtTime(1400, now + 0.06);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(50, now + 0.18);
 
-      gain1.gain.setValueAtTime(0.001, now);
-      gain1.gain.linearRampToValueAtTime(0.28, now + 0.02);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.35, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
-      osc1.start(now);
-      osc1.stop(now + 0.2);
-
-      // Ressonância de Xilofone
-      const freq = XYLO_FREQS[Math.floor(Math.random() * XYLO_FREQS.length)];
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(freq, now + 0.02);
-
-      gain2.gain.setValueAtTime(0.001, now + 0.02);
-      gain2.gain.linearRampToValueAtTime(0.25, now + 0.04);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-
-      osc2.connect(gain2);
-      gain2.connect(audioCtx.destination);
-      osc2.start(now + 0.02);
-      osc2.stop(now + 0.65);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.22);
     }
 
-    // Chugga-chugga rítmico do trem nos trilhos
-    let lastChugTime = 0;
+    // Sino Pentatônico Cristalino (Sapinho / Estrelas)
+    const BELL_FREQS = [523.25, 659.25, 783.99, 1046.5, 1174.66, 1318.51];
+    function playBellSound(idx = null) {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const freq = idx !== null ? BELL_FREQS[idx % BELL_FREQS.length] : BELL_FREQS[Math.floor(Math.random() * BELL_FREQS.length)];
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.3, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.46);
+    }
+
+    // Chocalho do Coelhinho ("Shhk-shhk")
+    function playShakerSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      [0, 0.08].forEach(offset => {
+        const t = now + offset;
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(2400 + Math.random() * 400, t);
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(2000, t);
+
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.18, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      });
+    }
+
+    // Som de Chugga-Chugga do Trem em Movimento
+    let lastChug = 0;
     function playChugSound() {
       initAudio();
       if (!audioCtx) return;
       const now = performance.now();
-      if (now - lastChugTime < 240) return;
-      lastChugTime = now;
+      if (now - lastChug < 380) return;
+      lastChug = now;
 
       const actxNow = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(160, actxNow);
-      osc.frequency.exponentialRampToValueAtTime(80, actxNow + 0.04);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(110, actxNow);
+      osc.frequency.exponentialRampToValueAtTime(55, actxNow + 0.08);
 
       gain.gain.setValueAtTime(0.001, actxNow);
-      gain.gain.linearRampToValueAtTime(0.12, actxNow + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, actxNow + 0.06);
+      gain.gain.linearRampToValueAtTime(0.08, actxNow + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, actxNow + 0.09);
 
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       osc.start(actxNow);
-      osc.stop(actxNow + 0.07);
+      osc.stop(actxNow + 0.1);
     }
 
-    // Pulo fofo dos passageiros surpresa
-    function playBoingSound() {
+    // Harpa de Flores Brotandono Chão
+    function playFlowerBloomSound() {
       initAudio();
       if (!audioCtx) return;
       const now = audioCtx.currentTime;
+      [0, 0.05, 0.1].forEach((offset, idx) => {
+        const t = now + offset;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33 * (1 + idx * 0.25), t);
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.2, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(320, now);
-      osc.frequency.exponentialRampToValueAtTime(840, now + 0.16);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.38);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.2);
+      });
     }
 
     // ==========================================
@@ -457,50 +535,46 @@
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 1500);
+      }, 1600);
     }
 
     function addScore(pts = 1) {
       starScore += pts;
-      document.getElementById('starCount').textContent = starScore;
+      document.getElementById('starScore').textContent = starScore;
     }
 
     // ==========================================
-    // 3. FUMAÇA DO APITO & BALÕES
+    // 3. ENTIDADES DINÂMICAS
     // ==========================================
     let smokePuffs = [];
     let balloons = [];
     let flowers = [];
-    let confetti = [];
+    let stars = [];
 
     class SmokePuff {
       constructor(x, y, shape = 'heart') {
         this.x = x;
         this.y = y;
+        this.vx = (Math.random() - 0.5) * 1.5 - 1.2;
+        this.vy = -Math.random() * 2.5 - 1.5;
+        this.size = Math.random() * 12 + 14;
+        this.color = ['#ff65a6', '#ffd043', '#38bdf8', '#c084fc', '#ffffff'][Math.floor(Math.random() * 5)];
         this.shape = shape;
-        this.vx = -1.2 + (Math.random() - 0.5) * 0.8;
-        this.vy = -Math.random() * 2 - 1.2;
-        this.size = Math.random() * 12 + 16;
-        this.color = Math.random() > 0.4 ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 101, 166, 0.85)';
         this.life = 1.0;
-        this.rot = Math.random() * Math.PI;
-      }
-      hitTest(px, py) {
-        return Math.hypot(px - this.x, py - this.y) < this.size * 1.5;
+        this.decay = Math.random() * 0.02 + 0.015;
       }
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.size += 0.25;
-        this.life -= 0.015;
+        this.size += 0.4;
+        this.life -= this.decay;
       }
       draw(ctx) {
         if (this.life <= 0) return;
         ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life * 0.8);
+        ctx.globalAlpha = Math.max(0, this.life * 0.85);
         ctx.fillStyle = this.color;
         ctx.translate(this.x, this.y);
-        ctx.rotate(this.rot);
 
         if (this.shape === 'heart') {
           drawHeart(ctx, 0, 0, this.size);
@@ -513,100 +587,52 @@
       }
     }
 
-    class Balloon {
-      constructor(x = null, y = null) {
+    class FloatingBalloon {
+      constructor(x, y) {
         this.x = x || Math.random() * width;
-        this.y = y || height + 40;
+        this.y = y || height + 30;
         this.radius = Math.random() * 16 + 22;
-        const colors = ['#ff65a6', '#ffd043', '#38bdf8', '#4ade80', '#a78bfa', '#fb923c'];
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.vx = (Math.random() - 0.5) * 0.8;
-        this.vy = -Math.random() * 1.5 - 1.0;
+        this.vy = -Math.random() * 1.2 - 0.9;
         this.wobble = Math.random() * Math.PI * 2;
+        this.color = ['#ff65a6', '#ffd043', '#38bdf8', '#8338fc', '#4ade80'][Math.floor(Math.random() * 5)];
       }
       hitTest(px, py) {
-        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.3;
+        return Math.hypot(px - this.x, py - this.y) < this.radius * 1.35;
       }
       pop() {
-        playBalloonPopSound();
+        playBellSound();
+        addScore(1);
         showToast(tG.balloonPop);
-        addScore(2);
-        // Confetes
-        for (let i = 0; i < 16; i++) {
-          confetti.push(new ConfettiPiece(this.x, this.y, this.color));
+        for (let i = 0; i < 8; i++) {
+          smokePuffs.push(new SmokePuff(this.x, this.y, 'heart'));
         }
       }
       update() {
-        this.x += this.vx;
         this.y += this.vy;
-        this.wobble += 0.035;
-        this.x += Math.sin(this.wobble) * 0.4;
+        this.wobble += 0.04;
+        this.x += Math.sin(this.wobble) * 0.5;
       }
       draw(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Cordão do balão
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, this.radius);
-        ctx.bezierCurveTo(4, this.radius + 12, -4, this.radius + 24, 2, this.radius + 36);
+        ctx.quadraticCurveTo(Math.sin(this.wobble) * 6, this.radius + 18, 0, this.radius + 32);
         ctx.stroke();
 
-        // Balão
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Nó do balão
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
         ctx.beginPath();
-        ctx.moveTo(-4, this.radius);
-        ctx.lineTo(4, this.radius);
-        ctx.lineTo(0, this.radius + 5);
-        ctx.closePath();
+        ctx.ellipse(-this.radius * 0.35, -this.radius * 0.45, this.radius * 0.22, this.radius * 0.12, -0.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Brilho do balão
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.beginPath();
-        ctx.ellipse(-this.radius * 0.35, -this.radius * 0.35, this.radius * 0.22, this.radius * 0.12, -0.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-      }
-    }
-
-    class ConfettiPiece {
-      constructor(x, y, color) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        const angle = Math.random() * Math.PI * 2;
-        const spd = Math.random() * 5 + 2;
-        this.vx = Math.cos(angle) * spd;
-        this.vy = Math.sin(angle) * spd - 2;
-        this.size = Math.random() * 6 + 4;
-        this.life = 1.0;
-        this.decay = Math.random() * 0.02 + 0.015;
-        this.rot = Math.random() * Math.PI;
-      }
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.15;
-        this.life -= this.decay;
-        this.rot += 0.08;
-      }
-      draw(ctx) {
-        if (this.life <= 0) return;
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.life);
-        ctx.fillStyle = this.color;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rot);
-        ctx.fillRect(-this.size * 0.5, -this.size * 0.5, this.size, this.size * 1.5);
         ctx.restore();
       }
     }
@@ -617,7 +643,7 @@
         this.y = y;
         this.scale = 0.1;
         this.targetScale = 1.0;
-        this.color = ['#ff65a6', '#ffd043', '#a78bfa', '#38bdf8'][Math.floor(Math.random() * 4)];
+        this.color = ['#ff65a6', '#ffd043', '#a78bfa', '#38bdf8', '#fb923c'][Math.floor(Math.random() * 5)];
         this.life = 1.0;
       }
       update() {
@@ -633,14 +659,14 @@
         for (let i = 0; i < 5; i++) {
           const a = (i / 5) * Math.PI * 2;
           ctx.beginPath();
-          ctx.arc(Math.cos(a) * 10, Math.sin(a) * 10, 6, 0, Math.PI * 2);
+          ctx.arc(Math.cos(a) * 11, Math.sin(a) * 11, 7, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // Miolo
+        // Miolo sorridente
         ctx.fillStyle = '#ffd043';
         ctx.beginPath();
-        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.arc(0, 0, 6, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
@@ -659,52 +685,77 @@
     }
 
     // ==========================================
-    // 4. O TREM DAS ESTRELAS (LOCOMOTIVA + VAGÕES)
+    // 4. TREM DAS ESTRELAS COM ALTITUDE DINÂMICA
     // ==========================================
     class BabyStarTrain {
       constructor() {
         this.x = 80;
-        this.speed = 1.6;
-        this.baseSpeed = 1.6;
-        this.wobble = 0;
+        this.speed = 1.8;
         this.wheelRot = 0;
+        this.wobble = 0;
 
-        // Passageiros dos 3 vagões
+        // Altitude Dinâmica: pode subir para o céu ou descer para a terra
+        this.targetAltitude = 0.70; // 0.30 = Céu das estrelas, 0.70 = Colinas
+        this.currentAltitude = 0.70;
+
+        // Vagões com bichinhos e instrumentos musicais
         this.cars = [
-          { type: 'bear', label: 'bearHello', jump: 0 },
-          { type: 'gift', label: 'giftSurprise', jump: 0 },
-          { type: 'bunny', label: 'bunnyHop', jump: 0 }
+          { type: 'bear', label: 'bearHello', voice: 'voiceBear', soundFn: playDrumSound, jump: 0 },
+          { type: 'bunny', label: 'bunnyHop', voice: 'voiceBunny', soundFn: playShakerSound, jump: 0 },
+          { type: 'frog', label: 'frogCroak', voice: null, soundFn: () => playBellSound(3), jump: 0 },
+          { type: 'gift', label: 'giftSurprise', voice: null, soundFn: () => playBellSound(0), jump: 0 }
         ];
+      }
+
+      setAltitude(ratio) {
+        this.targetAltitude = ratio;
+        if (ratio < 0.45) {
+          showToast(tG.skyTrack);
+          speakText(tG.voiceSky);
+          document.getElementById('trackLabel').textContent = tG.btnTrackGround;
+        } else {
+          showToast(tG.groundTrack);
+          speakText(tG.voiceGround);
+          document.getElementById('trackLabel').textContent = tG.btnTrack;
+        }
       }
 
       whistle() {
         playTrainWhistle();
         showToast(tG.whistleToast);
-        addScore(2);
+        speakText(tG.voiceWhistle);
+        addScore(3);
 
-        // Solta nuvens de fumaça em coração
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 7; i++) {
           setTimeout(() => {
-            const chimneyX = (this.x + 220) % (width + 500) - 100;
+            const chimneyX = (this.x + 220) % (width + 600) - 100;
             const chimneyY = this.getY(chimneyX) - 88;
             smokePuffs.push(new SmokePuff(chimneyX, chimneyY, Math.random() > 0.4 ? 'heart' : 'circle'));
-          }, i * 90);
+          }, i * 80);
         }
       }
 
       tapCar(idx) {
-        playBoingSound();
         const car = this.cars[idx];
+        car.soundFn();
         showToast(tG[car.label]);
-        addScore(1);
+        if (car.voice) speakText(tG[car.voice]);
+        addScore(2);
 
-        car.jump = 24;
+        car.jump = 28;
         setTimeout(() => { car.jump = 0; }, 260);
+
+        const carX = (this.x + 220 - (idx + 1) * 115) % (width + 600) - 100;
+        const carY = this.getY(carX);
+        for (let i = 0; i < 6; i++) {
+          smokePuffs.push(new SmokePuff(carX, carY - 40, 'heart'));
+        }
       }
 
       getY(trainX) {
-        // Trilhos sobre a colina
-        return height * 0.72 + Math.sin(trainX * 0.005) * 18;
+        // Traçado suave sobre colina ou arco-íris
+        const baseY = height * this.currentAltitude;
+        return baseY + Math.sin(trainX * 0.005) * 16;
       }
 
       update() {
@@ -712,36 +763,33 @@
         this.wheelRot += this.speed * 0.06;
         this.wobble += 0.08;
 
-        // Ritmo do chugga-chugga
+        // Deslocamento suave de altitude
+        this.currentAltitude += (this.targetAltitude - this.currentAltitude) * 0.03;
+
         playChugSound();
 
-        // Desacelera suavemente para baseSpeed se acelerado
-        if (this.speed > this.baseSpeed) {
-          this.speed -= 0.01;
-        }
-
-        // Fumaça periódica suave
-        if (Math.random() < 0.08) {
-          const chimneyX = (this.x + 220) % (width + 500) - 100;
+        // Fumaça periódica
+        if (Math.random() < 0.1) {
+          const chimneyX = (this.x + 220) % (width + 600) - 100;
           const chimneyY = this.getY(chimneyX) - 88;
           smokePuffs.push(new SmokePuff(chimneyX, chimneyY, 'circle'));
         }
       }
 
       hitTest(px, py) {
-        // Testa se tocou na locomotiva
-        const locoX = (this.x + 220) % (width + 500) - 100;
+        // Locomotiva
+        const locoX = (this.x + 220) % (width + 600) - 100;
         const locoY = this.getY(locoX);
-        if (Math.hypot(px - locoX, py - (locoY - 40)) < 65) {
+        if (Math.hypot(px - locoX, py - (locoY - 40)) < 70) {
           this.whistle();
           return true;
         }
 
-        // Testa toque nos vagões
+        // Vagões
         for (let i = 0; i < this.cars.length; i++) {
-          const carX = (this.x + 220 - (i + 1) * 110) % (width + 500) - 100;
+          const carX = (this.x + 220 - (i + 1) * 115) % (width + 600) - 100;
           const carY = this.getY(carX);
-          if (Math.hypot(px - carX, py - (carY - 30)) < 45) {
+          if (Math.hypot(px - carX, py - (carY - 30)) < 50) {
             this.tapCar(i);
             return true;
           }
@@ -750,25 +798,56 @@
       }
 
       draw(ctx) {
-        // 1. Desenha os 3 vagões
+        // Desenha os trilhos mágicos
+        this.drawTracks(ctx);
+
+        // Vagões
         for (let i = this.cars.length - 1; i >= 0; i--) {
           const car = this.cars[i];
-          const carX = (this.x + 220 - (i + 1) * 110) % (width + 500) - 100;
+          const carX = (this.x + 220 - (i + 1) * 115) % (width + 600) - 100;
           const carY = this.getY(carX);
           this.drawCar(ctx, carX, carY, car, i);
         }
 
-        // 2. Desenha a Locomotiva com a Corujinha Maquinista
-        const locoX = (this.x + 220) % (width + 500) - 100;
+        // Locomotiva com a Corujinha Maquinista
+        const locoX = (this.x + 220) % (width + 600) - 100;
         const locoY = this.getY(locoX);
         this.drawLocomotive(ctx, locoX, locoY);
+      }
+
+      drawTracks(ctx) {
+        ctx.save();
+        const isSky = this.currentAltitude < 0.5;
+
+        // Linha dos trilhos
+        ctx.strokeStyle = isSky ? 'rgba(56, 189, 248, 0.8)' : '#fbbf24';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        for (let x = 0; x <= width; x += 30) {
+          const y = this.getY(x) + 16;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Travessas de madeira / estrelas
+        ctx.strokeStyle = isSky ? '#ffd043' : '#b45309';
+        ctx.lineWidth = 4;
+        for (let x = 0; x <= width; x += 38) {
+          const y = this.getY(x) + 16;
+          ctx.beginPath();
+          ctx.moveTo(x, y - 8);
+          ctx.lineTo(x, y + 8);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
 
       drawLocomotive(ctx, x, y) {
         ctx.save();
         ctx.translate(x, y);
 
-        // Corpo da locomotiva
+        // Corpo
         ctx.fillStyle = '#8338fc';
         ctx.beginPath();
         ctx.roundRect(-45, -60, 90, 50, 10);
@@ -787,35 +866,37 @@
         ctx.roundRect(5, -80, 50, 70, 8);
         ctx.fill();
 
-        // Janelinha da cabine
+        // Janelinha
         ctx.fillStyle = '#fef08a';
         ctx.beginPath();
         ctx.roundRect(14, -72, 32, 28, 6);
         ctx.fill();
 
-        // Corujinha Maquinista KRUUJ na janelinha
+        // Corujinha Maquinista KRUUJ
         ctx.fillStyle = '#8338fc';
         ctx.beginPath();
         ctx.arc(30, -56, 12, 0, Math.PI * 2);
         ctx.fill();
-        // Chapeuzinho de maquinista azul
+
+        // Chapéu azul
         ctx.fillStyle = '#289afd';
         ctx.fillRect(20, -70, 20, 6);
         ctx.beginPath();
         ctx.arc(30, -70, 7, Math.PI, Math.PI * 2);
         ctx.fill();
+
         // Biquinho
         ctx.fillStyle = '#ffd043';
         ctx.beginPath();
         ctx.moveTo(28, -54); ctx.lineTo(32, -54); ctx.lineTo(30, -50); ctx.fill();
 
-        // Farol brilhante na frente
+        // Farol brilhante
         ctx.fillStyle = '#fef08a';
         ctx.beginPath();
         ctx.arc(-45, -35, 10, 0, Math.PI * 2);
         ctx.fill();
 
-        // Rodas da locomotiva
+        // Rodas
         this.drawWheel(ctx, -26, 4, 18);
         this.drawWheel(ctx, 24, 4, 22);
 
@@ -826,63 +907,69 @@
         ctx.save();
         ctx.translate(x, y);
 
-        const colors = ['#289afd', '#ff65a6', '#4ade80'];
+        const colors = ['#289afd', '#ff65a6', '#4ade80', '#fb923c'];
         const carColor = colors[idx % colors.length];
-
-        // Passageiro pulando
         const jumpY = -car.jump;
 
         if (car.type === 'bear') {
-          // Ursinho
+          // Ursinho com Tambor
           ctx.fillStyle = '#b45309';
           ctx.beginPath();
-          ctx.arc(0, -42 + jumpY, 16, 0, Math.PI * 2); // Cabeça
-          ctx.arc(-14, -54 + jumpY, 6, 0, Math.PI * 2); // Orelha esq
-          ctx.arc(14, -54 + jumpY, 6, 0, Math.PI * 2); // Orelha dir
+          ctx.arc(0, -42 + jumpY, 16, 0, Math.PI * 2);
+          ctx.arc(-14, -54 + jumpY, 6, 0, Math.PI * 2);
+          ctx.arc(14, -54 + jumpY, 6, 0, Math.PI * 2);
           ctx.fill();
-          // Focinho
-          ctx.fillStyle = '#fde68a';
+
+          // Tamborzinho na frente
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(-12, -32 + jumpY, 24, 14);
+          ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.arc(0, -38 + jumpY, 7, 0, Math.PI * 2);
+          ctx.ellipse(0, -32 + jumpY, 12, 4, 0, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = '#0f172a';
+
+        } else if (car.type === 'bunny') {
+          // Coelhinho com Chocalho
+          ctx.fillStyle = '#f8fafc';
           ctx.beginPath();
-          ctx.arc(0, -40 + jumpY, 2.5, 0, Math.PI * 2);
+          ctx.arc(0, -40 + jumpY, 15, 0, Math.PI * 2);
+          ctx.ellipse(-6, -58 + jumpY, 4, 14, -0.15, 0, Math.PI * 2);
+          ctx.ellipse(6, -58 + jumpY, 4, 14, 0.15, 0, Math.PI * 2);
           ctx.fill();
-        } else if (car.type === 'gift') {
+
+          ctx.fillStyle = '#ffd043';
+          ctx.beginPath();
+          ctx.arc(14, -42 + jumpY, 6, 0, Math.PI * 2); // Chocalho
+          ctx.fill();
+
+        } else if (car.type === 'frog') {
+          // Sapinho com Sino
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.arc(-10, -50 + jumpY, 8, 0, Math.PI * 2);
+          ctx.arc(10, -50 + jumpY, 8, 0, Math.PI * 2);
+          ctx.arc(0, -38 + jumpY, 15, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Sininho dourado
+          ctx.fillStyle = '#ffd043';
+          ctx.beginPath();
+          ctx.arc(0, -30 + jumpY, 7, 0, Math.PI);
+          ctx.fill();
+
+        } else {
           // Caixa de presente
           ctx.fillStyle = '#ffd043';
           ctx.fillRect(-16, -52 + jumpY, 32, 28);
           ctx.fillStyle = '#ff65a6';
           ctx.fillRect(-4, -52 + jumpY, 8, 28);
-          // Laço de fita
           ctx.beginPath();
           ctx.arc(-6, -56 + jumpY, 6, 0, Math.PI * 2);
           ctx.arc(6, -56 + jumpY, 6, 0, Math.PI * 2);
           ctx.fill();
-        } else {
-          // Coelhinho
-          ctx.fillStyle = '#f8fafc';
-          ctx.beginPath();
-          ctx.arc(0, -40 + jumpY, 15, 0, Math.PI * 2); // Cabeça
-          ctx.ellipse(-6, -58 + jumpY, 4, 14, -0.15, 0, Math.PI * 2); // Orelha esq
-          ctx.ellipse(6, -58 + jumpY, 4, 14, 0.15, 0, Math.PI * 2); // Orelha dir
-          ctx.fill();
-          // Miolo rosa
-          ctx.fillStyle = '#ff8cb0';
-          ctx.beginPath();
-          ctx.ellipse(-6, -58 + jumpY, 2, 9, -0.15, 0, Math.PI * 2);
-          ctx.ellipse(6, -58 + jumpY, 2, 9, 0.15, 0, Math.PI * 2);
-          ctx.fill();
-          // Olhinhos e focinho
-          ctx.fillStyle = '#0f172a';
-          ctx.beginPath();
-          ctx.arc(-4, -40 + jumpY, 2, 0, Math.PI * 2);
-          ctx.arc(4, -40 + jumpY, 2, 0, Math.PI * 2);
-          ctx.fill();
         }
 
-        // Vagão de madeira colorida
+        // Corpo do vagão
         ctx.fillStyle = carColor;
         ctx.beginPath();
         ctx.roundRect(-40, -32, 80, 36, 8);
@@ -892,37 +979,33 @@
         this.drawWheel(ctx, -24, 6, 14);
         this.drawWheel(ctx, 24, 6, 14);
 
-        // Engate metálico
+        // Engate
         ctx.fillStyle = '#94a3b8';
         ctx.fillRect(40, -14, 25, 6);
 
         ctx.restore();
       }
 
-      drawWheel(ctx, wx, wy, radius) {
+      drawWheel(ctx, cx, cy, r) {
         ctx.save();
-        ctx.translate(wx, wy);
+        ctx.translate(cx, cy);
         ctx.rotate(this.wheelRot);
 
-        // Aro de borracha
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
-        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Centro metálico
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, r - 3, 0, Math.PI * 2);
+        ctx.stroke();
+
         ctx.fillStyle = '#ffd043';
         ctx.beginPath();
-        ctx.arc(0, 0, radius * 0.55, 0, Math.PI * 2);
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
         ctx.fill();
-
-        // Raios
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(-radius * 0.55, 0); ctx.lineTo(radius * 0.55, 0);
-        ctx.moveTo(0, -radius * 0.55); ctx.lineTo(0, radius * 0.55);
-        ctx.stroke();
 
         ctx.restore();
       }
@@ -930,29 +1013,30 @@
 
     const train = new BabyStarTrain();
 
-    function triggerWhistle() {
-      initAudio();
+    // ==========================================
+    // 5. TOQUE & INTERAÇÃO DO JOGO
+    // ==========================================
+    function blowWhistle() {
       train.whistle();
     }
 
-    function boostSpeed() {
-      initAudio();
-      train.speed = Math.min(4.0, train.speed + 1.2);
-      showToast(tG.cheers[0]);
+    function toggleTrainAltitude() {
+      if (train.targetAltitude > 0.5) {
+        train.setAltitude(0.32); // Sobe ao céu
+      } else {
+        train.setAltitude(0.70); // Desce à terra
+      }
     }
 
-    // ==========================================
-    // 5. TOQUE & INTERAÇÃO
-    // ==========================================
     function handlePointerHit(x, y) {
       initAudio();
 
-      // 1. Testa se tocou no trem (locomotiva ou vagões)
+      // 1. Tocou no trem ou vagões?
       if (train.hitTest(x, y)) {
         return;
       }
 
-      // 2. Testa se tocou em algum balão
+      // 2. Tocou em balão flutuante?
       for (let i = balloons.length - 1; i >= 0; i--) {
         const b = balloons[i];
         if (b.hitTest(x, y)) {
@@ -962,176 +1046,83 @@
         }
       }
 
-      // 3. Testa se tocou em alguma fumaça de coração
-      for (let i = smokePuffs.length - 1; i >= 0; i--) {
-        const sp = smokePuffs[i];
-        if (sp.hitTest(x, y)) {
-          playBalloonPopSound();
-          addScore(1);
-          smokePuffs.splice(i, 1);
-          return;
-        }
-      }
-
-      // 4. Tocou no chão/grama: brota florzinha mágica!
-      if (y > height * 0.6) {
-        flowers.push(new SproutFlower(x, y));
-        playBalloonPopSound();
-        addScore(1);
+      // 3. Tocou no topo/céu -> Muda o trem para o céu e cria estrela/balão
+      if (y < height * 0.45) {
+        train.setAltitude(0.32);
+        balloons.push(new FloatingBalloon(x, y));
+        playBellSound();
       } else {
-        // Tocou no céu: cria balão
-        balloons.push(new Balloon(x, y));
-        playBalloonPopSound();
+        // 4. Tocou embaixo/terra -> Muda o trem para a colina e brota florzinha mágica!
+        train.setAltitude(0.70);
+        flowers.push(new SproutFlower(x, y));
+        playFlowerBloomSound();
+        addScore(1);
       }
     }
 
-    window.addEventListener('pointerdown', e => handlePointerHit(e.clientX, e.clientY));
+    window.addEventListener('pointerdown', e => {
+      if (e.clientY > 60) handlePointerHit(e.clientX, e.clientY);
+    });
 
-    // Multitouch nativo
     window.addEventListener('touchstart', e => {
       e.preventDefault();
       for (let i = 0; i < e.touches.length; i++) {
-        handlePointerHit(e.touches[i].clientX, e.touches[i].clientY);
+        if (e.touches[i].clientY > 60) {
+          handlePointerHit(e.touches[i].clientX, e.touches[i].clientY);
+        }
       }
     }, { passive: false });
 
     // ==========================================
-    // 6. LOOP DE ANIMAÇÃO
+    // 6. LOOP DE ANIMAÇÃO GRÁFICA
     // ==========================================
-    let balloonSpawnTimer = 0;
+    let balloonTimer = 0;
 
     function gameLoop() {
       ctx.clearRect(0, 0, width, height);
 
-      // Céu Cósmico Pastel
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-      skyGrad.addColorStop(0, '#0a133b');
-      skyGrad.addColorStop(0.5, '#1e1d52');
-      skyGrad.addColorStop(1, '#2f1a60');
-      ctx.fillStyle = skyGrad;
+      // Fundo Gradiente Cósmico
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#0a133b');
+      bgGrad.addColorStop(0.45, '#1e1d52');
+      bgGrad.addColorStop(1, '#1b3b2b');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // Solzinho Sorridente no céu
-      ctx.save();
-      ctx.translate(width * 0.18, height * 0.2);
-      ctx.fillStyle = '#ffd043';
+      // Colina Verde Suave no Chão
+      ctx.fillStyle = '#15803d';
       ctx.beginPath();
-      ctx.arc(0, 0, 36, 0, Math.PI * 2);
-      ctx.fill();
-      // Raios do sol
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 + performance.now() * 0.001;
-        ctx.beginPath();
-        ctx.arc(Math.cos(a) * 48, Math.sin(a) * 48, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // Rostinho feliz do Sol
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(-10, -6, 4, 0, Math.PI * 2);
-      ctx.arc(10, -6, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ff8cb0';
-      ctx.beginPath();
-      ctx.arc(-16, 4, 5, 0, Math.PI * 2);
-      ctx.arc(16, 4, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(0, 2, 8, 0.15 * Math.PI, 0.85 * Math.PI);
-      ctx.stroke();
-      ctx.restore();
-
-      // Colina Suave Arco-Íris ao Fundo
-      ctx.fillStyle = '#26336a';
-      ctx.beginPath();
-      ctx.moveTo(0, height * 0.6);
-      ctx.bezierCurveTo(width * 0.35, height * 0.52, width * 0.65, height * 0.68, width, height * 0.58);
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.closePath();
+      ctx.ellipse(width * 0.5, height + 80, width * 0.7, height * 0.35, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Colina da Frente com os Trilhos
-      ctx.fillStyle = '#172554';
-      ctx.beginPath();
-      ctx.moveTo(0, height * 0.72);
-      for (let x = 0; x <= width; x += 20) {
-        ctx.lineTo(x, train.getY(x));
-      }
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.closePath();
-      ctx.fill();
-
-      // Trilhos de Trem (Travessas de madeira e linha dourada)
-      ctx.strokeStyle = '#ffd043';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      for (let x = 0; x <= width; x += 10) {
-        const y = train.getY(x) + 16;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      // Travessas do trilho
-      ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 3;
-      for (let x = 10; x <= width; x += 32) {
-        const y = train.getY(x) + 16;
-        ctx.beginPath();
-        ctx.moveTo(x, y - 6);
-        ctx.lineTo(x, y + 6);
-        ctx.stroke();
-      }
-
-      // Florzinhas brotadas
+      // Flores brotadas
       for (const fl of flowers) {
         fl.update();
         fl.draw(ctx);
       }
 
-      // Atualiza e desenha o trem
+      // Balões no céu
+      balloonTimer++;
+      if (balloonTimer % 110 === 0 && balloons.length < 9) {
+        balloons.push(new FloatingBalloon());
+      }
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        b.update();
+        b.draw(ctx);
+        if (b.y + b.radius < -30) balloons.splice(i, 1);
+      }
+
+      // O Trem das Estrelas
       train.update();
       train.draw(ctx);
 
       // Fumaça do apito
       for (let i = smokePuffs.length - 1; i >= 0; i--) {
-        const sp = smokePuffs[i];
-        sp.update();
-        if (sp.life <= 0) {
-          smokePuffs.splice(i, 1);
-        } else {
-          sp.draw(ctx);
-        }
-      }
-
-      // Balões de ar flutuando
-      balloonSpawnTimer++;
-      if (balloonSpawnTimer % 80 === 0 && balloons.length < 10) {
-        balloons.push(new Balloon());
-      }
-
-      for (let i = balloons.length - 1; i >= 0; i--) {
-        const b = balloons[i];
-        b.update();
-        b.draw(ctx);
-        if (b.y + b.radius < -30) {
-          balloons.splice(i, 1);
-        }
-      }
-
-      // Confetes
-      for (let i = confetti.length - 1; i >= 0; i--) {
-        const c = confetti[i];
-        c.update();
-        if (c.life <= 0) {
-          confetti.splice(i, 1);
-        } else {
-          c.draw(ctx);
-        }
+        const s = smokePuffs[i];
+        s.update();
+        s.draw(ctx);
+        if (s.life <= 0) smokePuffs.splice(i, 1);
       }
 
       requestAnimationFrame(gameLoop);
@@ -1167,7 +1158,7 @@
         if (cfg.onComplete) cfg.onComplete();
       }
       async function start(c) {
-        cfg = { gameName: 'KRUUJ Trenzinho das Estrelas', tagline: '', tips: [], splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
+        cfg = { gameName: tG.title, tagline: tG.tagline, tips: tG.tips, splash: 1800, minTime: 2600, manual: false, onComplete() {}, ...c };
         target = shown = 0; finished = closing = false;
         const kl = $('kl');
         if (!kl) return;
@@ -1204,7 +1195,8 @@
     })();
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Inicia KruujSDK
+      resize();
+
       if (window.KruujSDK) {
         window.KruujSDK.init().then(() => {
           window.KruujSDK.gameLoadingFinished();
@@ -1212,11 +1204,9 @@
         }).catch(() => {});
       }
 
-      // Aplica i18n
       document.getElementById('whistleLabel').textContent = tG.btnWhistle;
-      document.getElementById('speedLabel').textContent = tG.btnSpeed;
+      document.getElementById('trackLabel').textContent = tG.btnTrack;
 
-      // Executa loader apenas standalone
       if (window.self === window.top) {
         KruujLoader.start({
           gameName: tG.title,

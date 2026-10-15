@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>KRUUJ Encaixe & Silhuetas – Baby Shape Sorter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    if (window.self !== window.top) {
+      window.addEventListener('DOMContentLoaded', () => {
+        const kl = document.getElementById('kl');
+        if (kl) kl.style.display = 'none';
+      });
+    }
+
+    const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'en').toLowerCase();
+    const IS_PT = URL_LANG.startsWith('pt');
+    const IS_ES = URL_LANG.startsWith('es');
+
+    const I18N = {
+      pt: {
+        title: 'Encaixe & Silhuetas',
+        tagline: 'Arraste a forma colorida até a sua sombra mágica!',
+        roundLabel: 'Fase',
+        shapes: {
+          circle: 'Círculo Amarelo! 🟡',
+          star: 'Estrela Dourada! ⭐',
+          square: 'Quadrado Azul! 🟦',
+          heart: 'Coração Rosa! 💕',
+          triangle: 'Triângulo Menta! 🔺',
+          moon: 'Lua Lilás! 🌙'
+        },
+        cheers: ['Muito bem! ✨', 'Incrível! 🎉', 'Que fofo! 💕', 'Parabéns! 🦉'],
+        tips: ['Arraste cada forma até a sua sombra.', 'A corujinha comemora com você!']
+      },
+      en: {
+        title: 'Shape Sorter & Shadows',
+        tagline: 'Drag the colorful shape into its magic shadow!',
+        roundLabel: 'Round',
+        shapes: {
+          circle: 'Yellow Circle! 🟡',
+          star: 'Golden Star! ⭐',
+          square: 'Blue Square! 🟦',
+          heart: 'Pink Heart! 💕',
+          triangle: 'Mint Triangle! 🔺',
+          moon: 'Purple Moon! 🌙'
+        },
+        cheers: ['Great job! ✨', 'Awesome! 🎉', 'So cute! 💕', 'Hooray! 🦉'],
+        tips: ['Drag each shape to its shadow.', 'The baby owl celebrates with you!']
+      },
+      es: {
+        title: 'Encaje & Siluetas',
+        tagline: '¡Arrastra la forma colorida a su sombra mágica!',
+        roundLabel: 'Nivel',
+        shapes: {
+          circle: '¡Círculo Amarillo! 🟡',
+          star: '¡Estrella Dorada! ⭐',
+          square: '¡Cuadrado Azul! 🟦',
+          heart: '¡Corazón Rosa! 💕',
+          triangle: '¡Triángulo Menta! 🔺',
+          moon: '¡Luna Violeta! 🌙'
+        },
+        cheers: ['¡Muy bien! ✨', '¡Increíble! 🎉', '¡Qué lindo! 💕', '¡Bravo! 🦉'],
+        tips: ['Arrastra cada figura a su sombra.', '¡El búho festeja contigo!']
+      }
+    };
+    const tG = I18N[URL_LANG] || (IS_PT ? I18N.pt : I18N.en);
+  </script>
+
+  <style>
+    :root {
+      --bg-top: #0a1128;
+      --bg-bottom: #1c1033;
+      --lav: #d8d4fd;
+      --navy: #151c4a;
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 25%, var(--bg-top), var(--bg-bottom));
+      color: #fff;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .hud { padding-left: 68px !important; }
+    }
+    .hud-badge {
+      background: rgba(21, 28, 74, 0.88);
+      border: 2px solid rgba(56, 189, 248, 0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      padding: 6px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .toast-pill {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e1b4b;
+      font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+      font-weight: 800;
+      padding: 8px 24px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35), 0 0 0 3px #38bdf8;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 20;
+      white-space: nowrap;
+    }
+    .toast-pill.show {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.0);
+    }
+    /* KruujLoader Oficial */
+    #kl { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(ellipse at 50% 40%, #101a52 0%, var(--bg-top) 65%); display: grid; place-items: center; padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0); transition: opacity 0.6s ease, visibility 0.6s; }
+    #kl.out { opacity: 0; visibility: hidden; }
+    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; }
+    #kl .ph.off { opacity: 0; pointer-events: none; }
+    .splash .owl { width: min(34vw, 150px); aspect-ratio: 1; border-radius: 50%; animation: pop 0.9s cubic-bezier(.2,1.3,.4,1) both; }
+    .splash .logo { width: min(54vw, 240px); margin-top: 20px; }
+    .splash .sub { margin: 8px 0 0; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.38em; color: var(--lav); }
+    .load { text-align: center; }
+    .load h1 { margin: 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.2rem); }
+    .track { position: relative; width: 100%; height: 10px; margin: 48px 0 0; border-radius: 99px; background: var(--navy); }
+    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, #8338fc, #289afd); }
+    .pct { margin-top: 26px; font-weight: 600; font-size: 1.1rem; }
+    .tip { min-height: 1.5em; margin: 10px 0 0; color: var(--lav); font-size: 0.95rem; }
+    .brand { position: absolute; bottom: 22px; font-size: 0.8rem; color: var(--lav); opacity: 0.6; }
+    @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div id="kl" role="status" aria-live="polite">
+    <div class="ph splash">
+      <img class="owl" alt="KRUUJ" src="/kruuj-avatar.png" onerror="this.src='/kruuj-mascote.png'">
+      <img class="logo" alt="Kruuj" src="/kruuj-logo.png">
+      <p class="sub">STUDIO</p>
+    </div>
+    <div class="ph load off">
+      <h1 id="kl-name">KRUUJ Silhuetas</h1>
+      <p class="tag" id="kl-tag">Arraste a forma até a sombra mágica.</p>
+      <div class="track"><div class="fill" id="kl-fill"></div></div>
+      <div class="pct" id="kl-pct">0%</div>
+      <p class="tip" id="kl-tip"></p>
+    </div>
+    <div class="brand">Kruuj Studio</div>
+  </div>
+
+  <header class="hud">
+    <div class="hud-badge"><span>🧩</span><span id="roundText">Fase 1</span></div>
+    <div class="hud-badge" style="border-color: rgba(255, 208, 67, 0.4); color: #ffd043;"><span>⭐</span><span id="starScore">0</span></div>
+  </header>
+
+  <div class="toast-pill" id="toastPill">Estrela Dourada! ⭐</div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // Sintetizador WebAudio
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSnapChord() {
+      initAudio();
+      if (!audioCtx) return;
+      const freqs = [392.00, 523.25, 659.25, 783.99]; // Acorde Maior Triunfal
+      const now = audioCtx.currentTime;
+      freqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, now + idx * 0.05);
+        g.gain.setValueAtTime(0.001, now + idx * 0.05);
+        g.gain.linearRampToValueAtTime(0.3, now + idx * 0.05 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.05 + 0.6);
+        osc.connect(g); g.connect(audioCtx.destination);
+        osc.start(now + idx * 0.05); osc.stop(now + idx * 0.05 + 0.65);
+      });
+    }
+
+    function playDragSound() {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(480, now + 0.1);
+      g.gain.setValueAtTime(0.12, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(now); osc.stop(now + 0.12);
+    }
+
+    // Web Speech API
+    function speakText(txt) {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(txt.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s!]/g, ''));
+          u.lang = IS_PT ? 'pt-BR' : IS_ES ? 'es-ES' : 'en-US';
+          u.rate = 0.95; u.pitch = 1.25;
+          window.speechSynthesis.speak(u);
+        } catch(e) {}
+      }
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, currentRound = 1, starScore = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let toastTimer = null;
+    function showToast(txt) {
+      const p = document.getElementById('toastPill');
+      p.textContent = txt;
+      p.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => p.classList.remove('show'), 1600);
+      speakText(txt);
+    }
+
+    const SHAPE_TEMPLATES = [
+      { type: 'circle', color: '#ffd043', nameKey: 'circle' },
+      { type: 'star', color: '#ff5ca8', nameKey: 'star' },
+      { type: 'square', color: '#38bdf8', nameKey: 'square' },
+      { type: 'heart', color: '#f43f5e', nameKey: 'heart' },
+      { type: 'triangle', color: '#4ade80', nameKey: 'triangle' },
+      { type: 'moon', color: '#c084fc', nameKey: 'moon' }
+    ];
+
+    class ShapePiece {
+      constructor(tmpl, targetX, targetY, initialX, initialY) {
+        this.tmpl = tmpl;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.x = initialX;
+        this.y = initialY;
+        this.radius = Math.min(width, height) * 0.085;
+        this.isPlaced = false;
+        this.isDragging = false;
+        this.scale = 1;
+      }
+
+      drawShadow(c) {
+        c.save();
+        c.translate(this.targetX, this.targetY);
+        c.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        c.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        c.lineWidth = 3;
+        c.setLineDash([6, 6]);
+        this.renderGeometry(c, this.radius, true);
+        c.fill();
+        c.stroke();
+        c.restore();
+      }
+
+      drawPiece(c) {
+        c.save();
+        c.translate(this.x, this.y);
+        c.scale(this.scale, this.scale);
+        c.fillStyle = this.tmpl.color;
+        c.shadowColor = this.tmpl.color;
+        c.shadowBlur = this.isDragging ? 26 : 14;
+        this.renderGeometry(c, this.radius, false);
+        c.fill();
+        c.shadowBlur = 0;
+
+        // Rostinho Kawaii
+        c.fillStyle = '#0f172a';
+        c.beginPath();
+        c.arc(-this.radius * 0.28, -this.radius * 0.1, 4, 0, Math.PI * 2);
+        c.arc(this.radius * 0.28, -this.radius * 0.1, 4, 0, Math.PI * 2);
+        c.fill();
+
+        // Bochechinhas
+        c.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        c.beginPath();
+        c.arc(-this.radius * 0.4, this.radius * 0.1, 5, 0, Math.PI * 2);
+        c.arc(this.radius * 0.4, this.radius * 0.1, 5, 0, Math.PI * 2);
+        c.fill();
+
+        c.restore();
+      }
+
+      renderGeometry(c, r, isDashed) {
+        c.beginPath();
+        const t = this.tmpl.type;
+        if (t === 'circle') {
+          c.arc(0, 0, r, 0, Math.PI * 2);
+        } else if (t === 'square') {
+          c.roundRect(-r, -r, r * 2, r * 2, 16);
+        } else if (t === 'triangle') {
+          c.moveTo(0, -r * 1.15);
+          c.lineTo(r, r * 0.9);
+          c.lineTo(-r, r * 0.9);
+          c.closePath();
+        } else if (t === 'heart') {
+          c.moveTo(0, -r * 0.2);
+          c.bezierCurveTo(-r, -r, -r * 1.25, r * 0.35, 0, r * 1.05);
+          c.bezierCurveTo(r * 1.25, r * 0.35, r, -r, 0, -r * 0.2);
+        } else if (t === 'moon') {
+          c.arc(0, 0, r, 0.4, Math.PI * 1.6);
+          c.bezierCurveTo(r * 0.3, -r * 0.3, r * 0.3, r * 0.3, 0, r);
+        } else { // star
+          for (let i = 0; i < 5; i++) {
+            c.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * r, -Math.sin((18 + i * 72) * Math.PI / 180) * r);
+            c.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * (r * 0.48), -Math.sin((54 + i * 72) * Math.PI / 180) * (r * 0.48));
+          }
+          c.closePath();
+        }
+      }
+
+      snap() {
+        this.x = this.targetX;
+        this.y = this.targetY;
+        this.isPlaced = true;
+        this.isDragging = false;
+        playSnapChord();
+        showToast(tG.shapes[this.tmpl.nameKey] || 'Muito bem!');
+        starScore += 3;
+        document.getElementById('starScore').textContent = starScore;
+        createConfetti(this.targetX, this.targetY, this.tmpl.color);
+      }
+    }
+
+    let pieces = [];
+    let confetti = [];
+
+    function createConfetti(x, y, color) {
+      for (let i = 0; i < 30; i++) {
+        const a = Math.random() * Math.PI * 2, s = Math.random() * 8 + 3;
+        confetti.push({
+          x, y,
+          vx: Math.cos(a) * s,
+          vy: Math.sin(a) * s - 3,
+          color,
+          size: Math.random() * 8 + 4,
+          life: 1.0
+        });
+      }
+    }
+
+    function startRound(r) {
+      currentRound = r;
+      document.getElementById('roundText').textContent = `${tG.roundLabel} ${r}`;
+      pieces = [];
+      const numShapes = Math.min(4, 2 + Math.floor(r / 2));
+      const pool = [...SHAPE_TEMPLATES].sort(() => Math.random() - 0.5).slice(0, numShapes);
+
+      const topY = height * 0.35;
+      const botY = height * 0.72;
+      const spacing = width / (numShapes + 1);
+
+      // Posiciona sombras no topo e peças embaralhadas na base
+      const shuffledIndices = pool.map((_, i) => i).sort(() => Math.random() - 0.5);
+
+      pool.forEach((tmpl, i) => {
+        const tx = spacing * (i + 1);
+        const bx = spacing * (shuffledIndices[i] + 1);
+        pieces.push(new ShapePiece(tmpl, tx, topY, bx, botY));
+      });
+    }
+
+    startRound(1);
+
+    // Rastreamento Multitouch & Pointer
+    let activeDrag = null;
+
+    function getPointerPos(e) {
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      initAudio();
+      const pos = getPointerPos(e);
+      for (const p of pieces) {
+        if (!p.isPlaced && Math.hypot(pos.x - p.x, pos.y - p.y) < p.radius * 1.3) {
+          activeDrag = p;
+          p.isDragging = true;
+          p.scale = 1.25;
+          playDragSound();
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (activeDrag) {
+        const pos = getPointerPos(e);
+        activeDrag.x = pos.x;
+        activeDrag.y = pos.y;
+      }
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (activeDrag) {
+        const dist = Math.hypot(activeDrag.x - activeDrag.targetX, activeDrag.y - activeDrag.targetY);
+        // Snap tolerante e magnético (80px) ideal para dedinhos de bebê
+        if (dist < activeDrag.radius * 1.5) {
+          activeDrag.snap();
+          checkRoundComplete();
+        } else {
+          // Volta suave
+          activeDrag.scale = 1;
+          activeDrag.isDragging = false;
+        }
+        activeDrag = null;
+      }
+    });
+
+    function checkRoundComplete() {
+      if (pieces.every(p => p.isPlaced)) {
+        setTimeout(() => {
+          showToast(tG.cheers[Math.floor(Math.random() * tG.cheers.length)]);
+          setTimeout(() => {
+            startRound(currentRound + 1);
+          }, 1400);
+        }, 300);
+      }
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Desenha sombras no topo
+      pieces.forEach(p => p.drawShadow(ctx));
+
+      // 2. Desenha peças encaixadas e arrastáveis
+      pieces.forEach(p => p.drawPiece(ctx));
+
+      // 3. Partículas de confete
+      for (let i = confetti.length - 1; i >= 0; i--) {
+        const c = confetti[i];
+        c.x += c.vx; c.y += c.vy; c.vy += 0.22; c.life -= 0.02;
+        ctx.fillStyle = c.color;
+        ctx.globalAlpha = Math.max(0, c.life);
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        if (c.life <= 0) confetti.splice(i, 1);
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.KruujSDK) {
+        window.KruujSDK.init().then(() => {
+          window.KruujSDK.gameLoadingFinished();
+          window.KruujSDK.gameplayStart();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
