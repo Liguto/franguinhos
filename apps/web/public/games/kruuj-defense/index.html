@@ -665,9 +665,10 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 10px 14px;
       z-index: 100;
       box-sizing: border-box;
+      overflow-y: auto;
     }
 
     .modal-backdrop.active {
@@ -675,21 +676,22 @@
     }
 
     .modal-card {
-      width: min(92vw, 480px);
-      max-height: 85vh;
+      width: min(94vw, 640px);
+      max-height: 90vh;
+      max-height: 90dvh;
       background: #0d1224;
       border: 1.5px solid rgba(255, 255, 255, 0.15);
       border-radius: 20px;
-      padding: 22px;
+      padding: 16px 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
     }
 
     .modal-title {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: #fff;
       display: flex;
@@ -705,25 +707,76 @@
       cursor: pointer;
     }
 
-    /* Tela de Menu Inicial Oficial */
+    /* Tela de Menu Inicial Oficial Widescreen Landscape */
     .main-menu-card {
-      width: min(92vw, 400px);
-      background: rgba(13, 18, 36, 0.95);
+      width: min(94vw, 680px);
+      max-height: 92vh;
+      max-height: 92dvh;
+      background: rgba(13, 18, 36, 0.96);
       border: 1.5px solid var(--border-color);
-      border-radius: 24px;
-      padding: 26px 20px;
+      border-radius: 22px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
+      position: relative;
+      overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 35px rgba(139, 92, 246, 0.25);
+    }
+
+    .main-menu-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 16px;
+      width: 100%;
       align-items: center;
-      text-align: center;
-      gap: 14px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(139, 92, 246, 0.25);
+    }
+
+    .menu-col-left {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .menu-brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .menu-brand-icon {
+      font-size: 2.4rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+    }
+
+    .menu-title {
+      font-size: clamp(20px, 3.8vw, 26px);
+      font-weight: 800;
+      margin: 0;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, #38e8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .menu-subtitle {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      margin: 2px 0 0;
+      font-weight: 700;
+    }
+
+    .menu-col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .menu-buttons-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
       width: 100%;
     }
 
@@ -732,8 +785,8 @@
       border: 1.5px solid var(--border-color);
       color: #fff;
       border-radius: 12px;
-      padding: 11px 16px;
-      font-size: 0.95rem;
+      padding: 9px 14px;
+      font-size: 0.88rem;
       font-weight: 800;
       font-family: inherit;
       cursor: pointer;
@@ -751,10 +804,31 @@
     }
 
     .btn-menu-action.primary {
-      background: linear-gradient(135deg, #0284c7 0%, #8b5cff 100%);
-      border: none;
-      box-shadow: 0 0 25px rgba(56, 232, 255, 0.4);
-      font-size: 1.1rem;
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #0284c7 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      font-size: 1.05rem;
+      padding: 11px 16px;
+    }
+
+    .btn-menu-action.primary:hover {
+      box-shadow: 0 0 28px rgba(16, 185, 129, 0.7);
+      transform: scale(1.02);
+    }
+
+    @media (max-width: 560px), (max-aspect-ratio: 1/1) {
+      .main-menu-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .menu-col-left {
+        text-align: center;
+        align-items: center;
+      }
+      .menu-brand-header {
+        flex-direction: column;
+        gap: 4px;
+      }
     }
 
     .track-card {
@@ -1058,65 +1132,78 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
   <!-- ===== MODAIS POPUPS ===== -->
 
-  <!-- Modal 0: TELA DE MENU INICIAL OFICIAL DO JOGO -->
+  <!-- Modal 0: TELA DE MENU INICIAL OFICIAL DO JOGO (WIDESCREEN LANDSCAPE) -->
   <div class="modal-backdrop active" id="modal-mainmenu">
     <div class="main-menu-card">
-      <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: -6px; margin-bottom: -10px;">
+      <div style="position: absolute; top: 10px; right: 14px; z-index: 10;">
         <button class="btn-close-modal" onclick="window.guardiansGame.closeModal()" title="Fechar Menu">✕</button>
       </div>
-      <div style="font-size: 2.8rem; margin-bottom: -10px;">🦉🎈</div>
-      <h1 style="font-size: clamp(26px, 6vw, 36px); margin: 0;">KRUUJ GUARDIANS</h1>
-      <p style="font-size: 0.88rem; color: var(--cyan); margin: 0; font-weight: 700;">Defesa Cósmica das Corujas • Bloons TD</p>
 
-      <!-- Card de Continuar Partida Salva (Se houver jogo não terminado) -->
-      <div id="resume-game-card" style="display: none; width: 100%; background: rgba(56, 232, 255, 0.1); border: 1.5px solid var(--cyan); border-radius: 14px; padding: 12px; text-align: left; box-shadow: 0 0 20px rgba(56, 232, 255, 0.2);">
-        <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--cyan); font-weight: 800; letter-spacing: 0.05em; display: flex; justify-content: space-between;">
-          <span>💾 PARTIDA EM ANDAMENTO</span>
-          <span style="color: var(--text-muted); font-size: 0.68rem;">Salvo</span>
-        </div>
-        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin: 3px 0;" id="save-info-text">
-          Trilha Cósmica • Fase 1 (Onda 14)
-        </div>
-        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;" id="save-detail-text">
-          Dificuldade: Médio • 3 Corujas no mapa
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-menu-action primary" style="flex: 1; padding: 8px 12px; font-size: 0.9rem;" onclick="window.guardiansGame.resumeSavedGame()">
-            <span>▶️</span> CONTINUAR FASE
-          </button>
-          <button class="btn-menu-action" style="padding: 8px 12px; font-size: 0.78rem; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;" onclick="window.guardiansGame.discardSavedGame()">
-            Descartar
-          </button>
-        </div>
-      </div>
+      <div class="main-menu-grid">
+        <!-- Coluna Esquerda: Marca, Partida Salva e Seletor de Dificuldade -->
+        <div class="menu-col-left">
+          <div class="menu-brand-header">
+            <div class="menu-brand-icon">🦉🎈</div>
+            <div>
+              <h1 class="menu-title">KRUUJ GUARDIANS</h1>
+              <p class="menu-subtitle">Defesa Cósmica das Corujas • Bloons TD</p>
+            </div>
+          </div>
 
-      <!-- Seletor de Dificuldade no Menu -->
-      <div style="width: 100%; display: flex; flex-direction: column; gap: 4px; margin: 4px 0;">
-        <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.08em;">Dificuldade</span>
-        <div style="display: flex; gap: 5px; width: 100%;">
-          <button class="phase-btn" id="diff-btn-0" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(0)">🟢 Fácil</button>
-          <button class="phase-btn active" id="diff-btn-1" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(1)">🟡 Médio</button>
-          <button class="phase-btn" id="diff-btn-2" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(2)">🔴 Difícil</button>
-          <button class="phase-btn" id="diff-btn-3" style="flex: 1;" onclick="window.guardiansGame.setDifficulty(3)">💀 Extremo</button>
-        </div>
-      </div>
+          <!-- Card de Continuar Partida Salva (Se houver jogo não terminado) -->
+          <div id="resume-game-card" style="display: none; width: 100%; background: rgba(56, 232, 255, 0.1); border: 1.5px solid var(--cyan); border-radius: 12px; padding: 10px; text-align: left; box-shadow: 0 0 16px rgba(56, 232, 255, 0.2);">
+            <div style="font-size: 0.68rem; text-transform: uppercase; color: var(--cyan); font-weight: 800; letter-spacing: 0.05em; display: flex; justify-content: space-between;">
+              <span>💾 PARTIDA EM ANDAMENTO</span>
+              <span style="color: var(--text-muted); font-size: 0.65rem;">Salvo</span>
+            </div>
+            <div style="font-size: 0.88rem; font-weight: 800; color: #fff; margin: 2px 0;" id="save-info-text">
+              Trilha Cósmica • Fase 1 (Onda 14)
+            </div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); margin-bottom: 6px;" id="save-detail-text">
+              Dificuldade: Médio • 3 Corujas no mapa
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-menu-action primary" style="flex: 1; padding: 6px 10px; font-size: 0.82rem;" onclick="window.guardiansGame.resumeSavedGame()">
+                <span>▶️</span> CONTINUAR
+              </button>
+              <button class="btn-menu-action" style="padding: 6px 10px; font-size: 0.72rem; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;" onclick="window.guardiansGame.discardSavedGame()">
+                Descartar
+              </button>
+            </div>
+          </div>
 
-      <div class="menu-buttons-list">
-        <button class="btn-menu-action primary" id="btn-menu-resume" onclick="window.guardiansGame.closeModal()">
-          <span>▶️</span> JOGAR
-        </button>
-        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('phases')">
-          <span>🗺️</span> TRILHAS & FASES (15)
-        </button>
-        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('encyclopedia')">
-          <span>🦉</span> GRIMÓRIO DAS CORUJAS
-        </button>
-        <button class="btn-menu-action" onclick="window.guardiansGame.openModal('howto')">
-          <span>📖</span> COMO JOGAR
-        </button>
-        <button class="btn-menu-action" id="btn-menu-restart" style="display: none; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="window.guardiansGame.restartGame()">
-          <span>🔄</span> REINICIAR PARTIDA
-        </button>
+          <!-- Seletor de Dificuldade no Menu -->
+          <div style="width: 100%; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.08em;">Dificuldade</span>
+            <div style="display: flex; gap: 4px; width: 100%;">
+              <button class="phase-btn" id="diff-btn-0" style="flex: 1; padding: 6px 2px;" onclick="window.guardiansGame.setDifficulty(0)">🟢 Fácil</button>
+              <button class="phase-btn active" id="diff-btn-1" style="flex: 1; padding: 6px 2px;" onclick="window.guardiansGame.setDifficulty(1)">🟡 Médio</button>
+              <button class="phase-btn" id="diff-btn-2" style="flex: 1; padding: 6px 2px;" onclick="window.guardiansGame.setDifficulty(2)">🔴 Difícil</button>
+              <button class="phase-btn" id="diff-btn-3" style="flex: 1; padding: 6px 2px;" onclick="window.guardiansGame.setDifficulty(3)">💀 Extremo</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Botões de Ação do Jogo -->
+        <div class="menu-col-right">
+          <div class="menu-buttons-list">
+            <button class="btn-menu-action primary" id="btn-menu-resume" onclick="window.guardiansGame.closeModal()">
+              <span>▶️</span> JOGAR
+            </button>
+            <button class="btn-menu-action" onclick="window.guardiansGame.openModal('phases')">
+              <span>🗺️</span> TRILHAS & FASES (15)
+            </button>
+            <button class="btn-menu-action" onclick="window.guardiansGame.openModal('encyclopedia')">
+              <span>🦉</span> GRIMÓRIO DAS CORUJAS
+            </button>
+            <button class="btn-menu-action" onclick="window.guardiansGame.openModal('howto')">
+              <span>📖</span> COMO JOGAR
+            </button>
+            <button class="btn-menu-action" id="btn-menu-restart" style="display: none; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="window.guardiansGame.restartGame()">
+              <span>🔄</span> REINICIAR PARTIDA
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
