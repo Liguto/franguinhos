@@ -252,6 +252,8 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     let width = 0, height = 0, currentRound = 1, starScore = 0;
+    let pieces = [];
+    let confetti = [];
 
     function repositionCurrentRound() {
       if (!pieces || pieces.length === 0) return;
@@ -284,7 +286,7 @@
     window.addEventListener('resize', resize);
     window.addEventListener('orientationchange', resize);
     window.addEventListener('message', (e) => {
-      if (e.data === 'resize' || e.data?.type === 'KRUUJ_RESUME_AUDIO') {
+      if (e && (e.data === 'resize' || e.data?.type === 'KRUUJ_RESUME_AUDIO')) {
         resize();
       }
     });
@@ -404,9 +406,6 @@
       }
     }
 
-    let pieces = [];
-    let confetti = [];
-
     function createConfetti(x, y, color) {
       for (let i = 0; i < 30; i++) {
         const a = Math.random() * Math.PI * 2, s = Math.random() * 8 + 3;
@@ -448,10 +447,13 @@
     let activeDrag = null;
 
     function getPointerPos(e) {
-      return { x: e.clientX, y: e.clientY };
+      if (!e) return { x: 0, y: 0 };
+      if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      return { x: e.clientX || 0, y: e.clientY || 0 };
     }
 
     window.addEventListener('pointerdown', (e) => {
+      if (!e) return;
       initAudio();
       const pos = getPointerPos(e);
       for (const p of pieces) {
