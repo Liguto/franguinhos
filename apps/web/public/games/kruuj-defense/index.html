@@ -1540,65 +1540,75 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       buildWaypoints() {
-        const w = this.width;
-        // Reserva os 80px inferiores para o Bloons Dock
-        const h = Math.max(200, this.height - 80);
+        // Área útil do mapa ajustada dinamicamente para mobile e desktop
+        // Garante recuo de 72px à esquerda (para não colidir com o botão Poki) e reserva espaço para TopBar e Bottom Dock
+        const isMobile = this.width < 768;
+        const padLeft = isMobile ? Math.max(72, this.width * 0.12) : 24;
+        const padRight = isMobile ? Math.max(20, this.width * 0.06) : 24;
+        const padTop = isMobile ? Math.max(56, this.height * 0.14) : 48;
+        const padBottom = isMobile ? 96 : 84;
+
+        const effectiveW = Math.max(100, this.width - padLeft - padRight);
+        const effectiveH = Math.max(100, this.height - padTop - padBottom);
+
+        const mapX = (normX) => padLeft + normX * effectiveW;
+        const mapY = (normY) => padTop + normY * effectiveH;
 
         switch(this.layoutIndex % 5) {
           case 0:
             this.waypoints = [
-              { x: -30, y: h * 0.22 },
-              { x: w * 0.3, y: h * 0.22 },
-              { x: w * 0.3, y: h * 0.72 },
-              { x: w * 0.65, y: h * 0.72 },
-              { x: w * 0.65, y: h * 0.35 },
-              { x: w * 0.88, y: h * 0.35 },
-              { x: w * 0.88, y: h * 0.82 },
-              { x: w + 30, y: h * 0.82 }
+              { x: -30, y: mapY(0.22) },
+              { x: mapX(0.28), y: mapY(0.22) },
+              { x: mapX(0.28), y: mapY(0.75) },
+              { x: mapX(0.65), y: mapY(0.75) },
+              { x: mapX(0.65), y: mapY(0.32) },
+              { x: mapX(0.88), y: mapY(0.32) },
+              { x: mapX(0.88), y: mapY(0.85) },
+              { x: this.width + 30, y: mapY(0.85) }
             ];
             break;
           case 1:
             this.waypoints = [
-              { x: -30, y: h * 0.18 },
-              { x: w * 0.75, y: h * 0.18 },
-              { x: w * 0.75, y: h * 0.45 },
-              { x: w * 0.22, y: h * 0.45 },
-              { x: w * 0.22, y: h * 0.75 },
-              { x: w + 30, y: h * 0.75 }
+              { x: -30, y: mapY(0.18) },
+              { x: mapX(0.78), y: mapY(0.18) },
+              { x: mapX(0.78), y: mapY(0.48) },
+              { x: mapX(0.22), y: mapY(0.48) },
+              { x: mapX(0.22), y: mapY(0.80) },
+              { x: this.width + 30, y: mapY(0.80) }
             ];
             break;
           case 2:
             this.waypoints = [
-              { x: -30, y: h * 0.15 },
-              { x: w * 0.85, y: h * 0.15 },
-              { x: w * 0.85, y: h * 0.82 },
-              { x: w * 0.18, y: h * 0.82 },
-              { x: w * 0.18, y: h * 0.48 },
-              { x: w * 0.62, y: h * 0.48 },
-              { x: w * 0.62, y: h * 0.65 },
-              { x: w + 30, y: h * 0.65 }
+              { x: -30, y: mapY(0.15) },
+              { x: mapX(0.85), y: mapY(0.15) },
+              { x: mapX(0.85), y: mapY(0.85) },
+              { x: mapX(0.18), y: mapY(0.85) },
+              { x: mapX(0.18), y: mapY(0.48) },
+              { x: mapX(0.62), y: mapY(0.48) },
+              { x: mapX(0.62), y: mapY(0.68) },
+              { x: this.width + 30, y: mapY(0.68) }
             ];
             break;
           case 3:
             this.waypoints = [
-              { x: w * 0.15, y: -30 },
-              { x: w * 0.15, y: h * 0.6 },
-              { x: w * 0.5, y: h * 0.6 },
-              { x: w * 0.5, y: h * 0.2 },
-              { x: w * 0.82, y: h * 0.2 },
-              { x: w * 0.82, y: h + 30 }
+              { x: mapX(0.15), y: -30 },
+              { x: mapX(0.15), y: mapY(0.65) },
+              { x: mapX(0.50), y: mapY(0.65) },
+              { x: mapX(0.50), y: mapY(0.22) },
+              { x: mapX(0.82), y: mapY(0.22) },
+              { x: mapX(0.82), y: this.height + 30 }
             ];
             break;
           case 4:
             this.waypoints = [
-              { x: -30, y: h * 0.3 },
-              { x: w * 0.25, y: h * 0.3 },
-              { x: w * 0.25, y: h * 0.18 },
-              { x: w * 0.55, y: h * 0.18 },
-              { x: w * 0.55, y: h * 0.82 },
-              { x: w * 0.82, y: h * 0.82 },
-              { x: w * 0.82, y: h * 0.5 },
-              { x: w + 30, y: h * 0.5 }
+              { x: -30, y: mapY(0.30) },
+              { x: mapX(0.25), y: mapY(0.30) },
+              { x: mapX(0.25), y: mapY(0.18) },
+              { x: mapX(0.55), y: mapY(0.18) },
+              { x: mapX(0.55), y: mapY(0.82) },
+              { x: mapX(0.82), y: mapY(0.82) },
+              { x: mapX(0.82), y: mapY(0.50) },
+              { x: this.width + 30, y: mapY(0.50) }
             ];
             break;
         }
@@ -1705,6 +1715,21 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           this.reward = 2;
           this.color = '#eab308';
           this.radius = 15;
+        } else if (type === 'pink') {
+          this.health = 5;
+          this.maxHp = 5;
+          this.speed = 3.3;
+          this.reward = 2;
+          this.color = '#ec4899';
+          this.radius = 13;
+        } else if (type === 'lead') {
+          this.health = 13;
+          this.maxHp = 13;
+          this.speed = 1.25;
+          this.reward = 3;
+          this.color = '#64748b';
+          this.radius = 16;
+          this.isLead = true;
         } else if (type === 'ceramic') {
           this.health = 8;
           this.maxHp = 8;

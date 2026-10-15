@@ -1375,7 +1375,7 @@ export default function App() {
       prefixUrl: '/games/kruuj-defense/',
       version: '1.0.0',
       controls: { mouse: true, teclado: false, toque: true, gamepad: false },
-      orientation: 'both',
+      orientation: 'landscape',
       statusTechnical: 'aprovado',
       statusEditorial: 'publicado',
       statusDoc: 'aprovado',

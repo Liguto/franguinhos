@@ -281,7 +281,7 @@ export const REAL_18_GAMES = [
     teclado: false,
     toque: true,
     gamepad: false,
-    orientation: 'both',
+    orientation: 'landscape',
     statusTechnical: 'aprovado',
     statusEditorial: 'publicado',
     statusDoc: 'aprovado',
