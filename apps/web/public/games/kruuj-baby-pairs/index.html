@@ -233,13 +233,44 @@
     const ctx = canvas.getContext('2d');
     let width = 0, height = 0, currentRound = 1, starScore = 0;
 
+    function repositionCurrentRound() {
+      if (!mommies || mommies.length === 0) return;
+      const num = mommies.length;
+      const topY = height * 0.36;
+      const botY = height * 0.76;
+      const spacing = width / (num + 1);
+
+      mommies.forEach((m, i) => {
+        m.radius = Math.min(width, height) * 0.125;
+        m.x = spacing * (i + 1);
+        m.y = topY;
+      });
+
+      babies.forEach((b, i) => {
+        b.radius = Math.min(width, height) * 0.08;
+        b.startX = spacing * (i + 1);
+        b.startY = botY;
+        if (!b.isDragging && !b.isUnited) {
+          b.x = b.startX;
+          b.y = b.startY;
+        }
+      });
+    }
+
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+      repositionCurrentRound();
     }
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
+    window.addEventListener('message', (e) => {
+      if (e.data === 'resize' || e.data?.type === 'KRUUJ_RESUME_AUDIO') {
+        resize();
+      }
+    });
     resize();
 
     let toastTimer = null;

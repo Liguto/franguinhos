@@ -250,13 +250,44 @@
     const ctx = canvas.getContext('2d');
     let width = 0, height = 0, currentRound = 1, starScore = 0;
 
+    function repositionCurrentRound() {
+      if (!animals || animals.length === 0) return;
+      const num = animals.length;
+      const topY = height * 0.36;
+      const botY = height * 0.76;
+      const spacing = width / (num + 1);
+
+      animals.forEach((a, i) => {
+        a.radius = Math.min(width, height) * 0.12;
+        a.x = spacing * (i + 1);
+        a.y = topY;
+      });
+
+      foods.forEach((f, i) => {
+        f.radius = Math.min(width, height) * 0.08;
+        f.startX = spacing * (i + 1);
+        f.startY = botY;
+        if (!f.isDragging && !f.isEaten) {
+          f.x = f.startX;
+          f.y = f.startY;
+        }
+      });
+    }
+
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+      repositionCurrentRound();
     }
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
+    window.addEventListener('message', (e) => {
+      if (e.data === 'resize' || e.data?.type === 'KRUUJ_RESUME_AUDIO') {
+        resize();
+      }
+    });
     resize();
 
     let toastTimer = null;

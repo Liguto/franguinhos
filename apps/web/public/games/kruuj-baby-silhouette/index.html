@@ -253,13 +253,41 @@
     const ctx = canvas.getContext('2d');
     let width = 0, height = 0, currentRound = 1, starScore = 0;
 
+    function repositionCurrentRound() {
+      if (!pieces || pieces.length === 0) return;
+      const numShapes = pieces.length;
+      const topY = height * 0.35;
+      const botY = height * 0.72;
+      const spacing = width / (numShapes + 1);
+
+      pieces.forEach((p, i) => {
+        p.radius = Math.min(width, height) * 0.085;
+        p.targetX = spacing * (i + 1);
+        p.targetY = topY;
+        if (p.isPlaced) {
+          p.x = p.targetX;
+          p.y = p.targetY;
+        } else if (!p.isDragging) {
+          p.x = spacing * (i + 1);
+          p.y = botY;
+        }
+      });
+    }
+
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+      repositionCurrentRound();
     }
     window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', resize);
+    window.addEventListener('message', (e) => {
+      if (e.data === 'resize' || e.data?.type === 'KRUUJ_RESUME_AUDIO') {
+        resize();
+      }
+    });
     resize();
 
     let toastTimer = null;

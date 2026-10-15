@@ -4153,6 +4153,7 @@ export default function App() {
                             onLoad={() => {
                               try {
                                 gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
+                              gameIframeRef.current?.contentWindow?.postMessage('resize', '*');
                                 gameIframeRef.current?.focus();
                               } catch(e) {}
                             }}
@@ -4315,6 +4316,7 @@ export default function App() {
         }
                             try {
                               gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
+                              gameIframeRef.current?.contentWindow?.postMessage('resize', '*');
                               gameIframeRef.current?.focus();
                             } catch(e) {}
                           }}
