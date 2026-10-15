@@ -1824,7 +1824,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
     }
 
-    // ===== 5. PROJÉTIL =====
+    // ===== 5. PROJÉTIL (COM SUPORTE A PERFURAÇÃO / PIERCE) =====
     class Projectile {
       constructor(x, y, target, tower) {
         this.x = x;
@@ -1835,6 +1835,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.isAOE = tower.isAOE;
         this.aoeRadius = tower.aoeRadius;
         this.isSlow = tower.isSlow;
+        this.pierce = tower.pierce || 1;
+        this.hitEnemies = new Set();
         this.color = tower.projColor;
         this.isFinished = false;
         this.radius = 4;
@@ -1852,16 +1854,40 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         const dist = Math.hypot(dx, dy);
         const curSpeed = this.speed * timeScale;
 
-        if (dist <= curSpeed || dist < 14) {
-          this.hit(game);
-          this.isFinished = true;
-        } else {
+        if (dist > 0) {
           this.x += (dx / dist) * curSpeed;
           this.y += (dy / dist) * curSpeed;
         }
+
+        // Colisões de linha para projéteis perfurantes (Pierce)
+        this.checkCollisions(game);
+
+        if (dist <= curSpeed || dist < 14) {
+          this.hitTarget(game);
+        }
       }
 
-      hit(game) {
+      checkCollisions(game) {
+        if (this.isFinished || this.isAOE) return;
+
+        for (let e of game.enemies) {
+          if (e.isAlive && !this.hitEnemies.has(e) && Math.hypot(e.x - this.x, e.y - this.y) <= (e.radius + 6)) {
+            this.hitEnemies.add(e);
+            if (this.isSlow) e.slowTimer = this.level >= 2 ? 180 : 120;
+            e.takeDamage(this.damage);
+            if (!e.isAlive) game.onEnemyKilled(e);
+            else game.sound.playPop(1.1);
+            this.pierce--;
+            if (this.pierce <= 0) {
+              this.isFinished = true;
+              break;
+            }
+          }
+        }
+      }
+
+      hitTarget(game) {
+        if (this.isFinished) return;
         if (this.isAOE) {
           game.sound.playExplosion();
           game.enemies.forEach(e => {
@@ -1871,8 +1897,10 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
             }
           });
           game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
+          this.isFinished = true;
         } else {
-          if (this.target.isAlive) {
+          if (this.target.isAlive && !this.hitEnemies.has(this.target)) {
+            this.hitEnemies.add(this.target);
             if (this.isSlow) this.target.slowTimer = this.level >= 2 ? 180 : 120;
             this.target.takeDamage(this.damage);
             if (!this.target.isAlive) {
@@ -1880,8 +1908,10 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
             } else {
               game.sound.playPop(1.1);
             }
+            this.pierce--;
           }
           game.spawnHitParticles(this.x, this.y, this.color);
+          this.isFinished = true;
         }
       }
 
@@ -1903,63 +1933,67 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       {
         archetype: 'OwlApprentice',
         name: 'Coruja Aprendiz',
-        cost: 200,
-        range: 135,
-        cooldown: 34,
+        cost: 190,
+        range: 140,
+        cooldown: 26,
         damage: 1,
+        pierce: 2,
         color: '#8b5cff',
         projColor: '#ffb020',
-        projSpeed: 10,
+        projSpeed: 11,
         icon: '🦉',
         ranks: ['Aprendiz', 'Veterana', 'Arquimaga Cósmica'],
-        upgradeCosts: [270, 620],
-        desc: 'Tiro místico com perfuração arcana e cadência acelerada.'
+        upgradeCosts: [240, 550],
+        desc: 'Tiro místico com perfuração arcana (Pierce 2/3/5) de longo alcance.'
       },
       {
         archetype: 'OwlScientist',
         name: 'Coruja Cientista',
-        cost: 340,
-        range: 105,
-        cooldown: 12,
+        cost: 380,
+        range: 95,
+        cooldown: 14,
         damage: 1,
+        pierce: 1,
         color: '#06b6d4',
         projColor: '#38e8ff',
-        projSpeed: 13,
+        projSpeed: 14,
         icon: '⚡',
         ranks: ['Cientista', 'Engenheira Elétrica', 'Mestre do Eletromagnetismo'],
-        upgradeCosts: [440, 980],
-        desc: 'Descargas elétricas e feixes de plasma em altíssima frequência.'
+        upgradeCosts: [460, 1050],
+        desc: 'Descargas de altíssima frequência em alvo único. Derrete balões blindados de chumbo!'
       },
       {
         archetype: 'OwlSniper',
         name: 'Coruja Sniper',
-        cost: 420,
-        range: 260,
+        cost: 440,
+        range: 280,
         cooldown: 66,
-        damage: 4,
+        damage: 5,
+        pierce: 1,
         color: '#ca8a04',
         projColor: '#fde047',
-        projSpeed: 17,
+        projSpeed: 18,
         icon: '🎯',
         ranks: ['Sniper', 'Atiradora de Elite', 'Olho de Falcão Supremo'],
-        upgradeCosts: [560, 1250],
+        upgradeCosts: [580, 1300],
         desc: 'Alcance colossal e dano concentrado com bônus crítico contra Titãs.'
       },
       {
         archetype: 'OwlBomber',
         name: 'Coruja Bombardeira',
-        cost: 520,
+        cost: 530,
         range: 145,
         cooldown: 58,
         damage: 3,
+        pierce: 1,
         isAOE: true,
-        aoeRadius: 60,
+        aoeRadius: 65,
         color: '#dc2626',
         projColor: '#f97316',
         projSpeed: 9,
         icon: '💥',
         ranks: ['Bombardeira', 'Demolidora Pesada', 'Comandante da Supernova'],
-        upgradeCosts: [720, 1550],
+        upgradeCosts: [740, 1600],
         desc: 'Artilharia pesada com grande raio de explosão (AOE) e impacto devastador.'
       },
       {
@@ -1969,13 +2003,14 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         range: 130,
         cooldown: 30,
         damage: 0,
+        pierce: 1,
         isSlow: true,
         color: '#2563eb',
         projColor: '#60a5fa',
         projSpeed: 9,
         icon: '❄️',
         ranks: ['Mago Glacial', 'Senhor do Gelo', 'Arquidruida do Zero Absoluto'],
-        upgradeCosts: [360, 780],
+        upgradeCosts: [380, 820],
         desc: 'Esferas de geada em área que desaceleram inimigos em até 60%.'
       }
     ];
@@ -2038,13 +2073,15 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Buffs de Evolução por Patente
         if (this.level === 2) {
           this.range = Math.round(this.range * 1.25);
-          this.cooldownMax = Math.round(this.cooldownMax * 0.8);
+          this.cooldownMax = Math.max(8, Math.round(this.cooldownMax * 0.8));
           this.damage += 1;
+          if (this.pierce > 1) this.pierce += 1;
           if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.35);
         } else if (this.level === 3) {
           this.range = Math.round(this.range * 1.3);
-          this.cooldownMax = Math.round(this.cooldownMax * 0.75);
+          this.cooldownMax = Math.max(6, Math.round(this.cooldownMax * 0.75));
           this.damage += 2;
+          if (this.pierce > 1) this.pierce += 2;
           if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.45);
         }
         return true;
@@ -2577,9 +2614,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
               
               if (isOverCanvas) {
                 const cfg = this.towerConfigs[this.draggingShopIndex];
-                if (this.money >= cfg.cost && this.canPlaceTower(dropX, dropY)) {
-                  this.money -= cfg.cost;
+                const actualCost = Math.round(cfg.cost * this.difficulty.costMult);
+                if (this.money >= actualCost && this.canPlaceTower(dropX, dropY)) {
+                  this.money -= actualCost;
                   const newTower = createTower(this.draggingShopIndex, dropX, dropY);
+                  newTower.baseCost = actualCost;
+                  newTower.totalInvested = actualCost;
                   this.towers.push(newTower);
                   this.sound.playBuy();
                   this.cancelPurchase();
@@ -2621,9 +2661,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Modo Toque para Posicionar (Quando tocou no botão de compra antes)
         if (this.selectedShopIndex !== null && this.draggingShopIndex === null) {
           const cfg = this.towerConfigs[this.selectedShopIndex];
-          if (this.money >= cfg.cost && this.canPlaceTower(clickX, clickY)) {
-            this.money -= cfg.cost;
+          const actualCost = Math.round(cfg.cost * this.difficulty.costMult);
+          if (this.money >= actualCost && this.canPlaceTower(clickX, clickY)) {
+            this.money -= actualCost;
             const newTower = createTower(this.selectedShopIndex, clickX, clickY);
+            newTower.baseCost = actualCost;
+            newTower.totalInvested = actualCost;
             this.towers.push(newTower);
             this.sound.playBuy();
             this.cancelPurchase();
@@ -2744,26 +2787,28 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Rodadas Redondas 10, 20, 30, 40, 50, 60, 70... -> BALÃO TITÃ ZEPELIM!
         if (r % 10 === 0) {
           this.sound.playBossHorn();
-          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * (this.difficulty.id === 'extreme' ? 1.35 : 1.0));
+          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * this.difficulty.bossHpMult);
           this.spawnQueue.push({ type: 'boss', hp: bossHp });
-          const yellowEscorts = Math.min(22, 6 + Math.floor(r / 4));
-          const ceramicEscorts = Math.min(18, 3 + Math.floor(r / 5));
+          const escortMult = this.difficulty.id === 'extreme' ? 1.7 : (this.difficulty.id === 'hard' ? 1.3 : 1.0);
+          const yellowEscorts = Math.round(Math.min(26, 6 + Math.floor(r / 4)) * escortMult);
+          const ceramicEscorts = Math.round(Math.min(22, 3 + Math.floor(r / 5)) * escortMult);
           for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
           for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
           return;
         }
 
-        // Densidade de balões por onda escalonando de forma competitiva
-        const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
-        const densityMult = this.difficulty.id === 'extreme' ? 1.35 : this.difficulty.id === 'hard' ? 1.2 : 1.0;
+        // Densidade e agressividade escalando de forma brutal no Difícil e Extremo
+        const isHard = this.difficulty.id === 'hard';
+        const isExtreme = this.difficulty.id === 'extreme';
+        const densityMult = isExtreme ? 1.55 : (isHard ? 1.25 : 1.0);
 
         const redCount = r <= 15 ? Math.round(Math.max(0, 12 - r) * densityMult) : 0;
-        const blueCount = r <= 35 ? Math.round(Math.min(22, Math.max(4, 18 - Math.floor(r / 2))) * densityMult) : 0;
-        const greenCount = r >= 2 && r <= 45 ? Math.round(Math.min(20, 5 + Math.floor(r * 0.8)) * densityMult) : 0;
-        const yellowCount = r >= 5 ? Math.round(Math.min(26, 6 + Math.floor(r * 0.7)) * densityMult) : 0;
-        const pinkCount = (isHardOrExt ? r >= 5 : r >= 8) ? Math.round(Math.min(18, 3 + Math.floor(r * 0.6)) * densityMult) : 0;
-        const leadCount = (isHardOrExt ? r >= 7 : r >= 10) ? Math.round(Math.min(14, 2 + Math.floor(r * 0.45)) * densityMult) : 0;
-        const ceramicCount = r >= 12 ? Math.round(Math.min(24, 3 + Math.floor(r * 0.55)) * densityMult) : 0;
+        const blueCount = r <= 35 ? Math.round(Math.min(24, Math.max(4, 18 - Math.floor(r / 2))) * densityMult) : 0;
+        const greenCount = r >= 2 && r <= 45 ? Math.round(Math.min(22, 5 + Math.floor(r * 0.8)) * densityMult) : 0;
+        const yellowCount = r >= 4 ? Math.round(Math.min(28, 6 + Math.floor(r * 0.7)) * densityMult) : 0;
+        const pinkCount = (isExtreme ? r >= 3 : (isHard ? r >= 5 : r >= 8)) ? Math.round(Math.min(22, 3 + Math.floor(r * 0.65)) * densityMult) : 0;
+        const leadCount = (isExtreme ? r >= 5 : (isHard ? r >= 7 : r >= 10)) ? Math.round(Math.min(18, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
+        const ceramicCount = (isExtreme ? r >= 8 : (isHard ? r >= 11 : r >= 14)) ? Math.round(Math.min(28, 3 + Math.floor(r * 0.6)) * densityMult) : 0;
 
         for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
         for (let i = 0; i < blueCount; i++) this.spawnQueue.push('blue');
@@ -2775,7 +2820,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       onEnemyKilled(enemy) {
-        const earned = Math.max(1, Math.round(enemy.reward * this.difficulty.rewardMult));
+        // Redução gradual de recompensa nas ondas avançadas em dificuldades altas (Bloons TD economic decay)
+        let decay = 1.0;
+        if ((this.difficulty.id === 'hard' || this.difficulty.id === 'extreme') && this.round >= 15) {
+          decay = Math.max(0.35, 1.0 - (this.round - 15) * 0.035);
+        }
+        const earned = Math.max(1, Math.round(enemy.reward * this.difficulty.rewardMult * decay));
         this.money += earned;
         this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
@@ -3000,9 +3050,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         startBtn.disabled = this.isRoundRunning;
 
         this.towerConfigs.forEach((cfg, i) => {
+          const actualCost = Math.round(cfg.cost * this.difficulty.costMult);
           const btn = document.getElementById(`shop-btn-${i}`);
           if (btn) {
-            const canAfford = this.money >= cfg.cost;
+            const priceEl = btn.querySelector('.card-price');
+            if (priceEl) priceEl.textContent = `$${actualCost}`;
+            const canAfford = this.money >= actualCost;
             btn.disabled = !canAfford;
             btn.classList.toggle('cant-afford', !canAfford);
             btn.classList.toggle('selected', this.selectedShopIndex === i);
