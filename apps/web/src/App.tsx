@@ -1780,6 +1780,48 @@ export default function App() {
       statusDoc: 'aprovado',
       author: 'KRUUJ Studio',
       licenseName: 'Proprietário'
+    },
+    {
+      id: '33',
+      slug: 'kruuj-aim-trainer',
+      title: 'KRUUJ Aim Trainer',
+      description: 'Treine sua mira, tempo de reação e precisão em 4 modos de tiro dinâmicos com a coruja KRUUJ. Ideal para jogadores de FPS e reflexo.',
+      category: 'Ação',
+      subcategories: ['Tiro', 'Reflexo', 'Precisão', 'Arcade', 'FPS'],
+      tags: ['mira', 'aim', 'tiro', 'reflexo', 'fps', 'precisao', 'competitivo'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'target',
+      prefixUrl: '/games/kruuj-aim-trainer/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '34',
+      slug: 'kruuj-neon-blocks',
+      title: 'KRUUJ: Neon Blocks',
+      description: 'Encaixe blocos luminosos estilo Block Puzzle em um tabuleiro neon 8x8 relaxante e hipnótico. Limpe linhas e colunas para pontuar!',
+      category: 'Puzzle',
+      subcategories: ['Blocos', 'Tetris', 'Estratégia', 'Lógica', 'Neon'],
+      tags: ['blocos', 'neon', 'puzzle', 'tetris', 'estrategia', 'logica', 'relaxante'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'grid',
+      prefixUrl: '/games/kruuj-neon-blocks/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
     }
   ];
 

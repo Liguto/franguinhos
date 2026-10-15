@@ -44,8 +44,8 @@ button{font:inherit;border:0;cursor:pointer;color:#fff;padding:0}
 @keyframes splat{from{transform:scale(1) translateY(0)}}
 .big{min-width:64px;height:64px;border-radius:32px;font-size:34px;font-weight:800;padding:0 28px;background:var(--verde);box-shadow:0 5px 0 #15803d}
 .owl{width:52px;height:52px;border-radius:50%;background:var(--roxo);display:grid;place-items:center;font-size:30px;border:3px solid #a78bfa}
-#win,#gv,#zoom{position:fixed;inset:0;background:#0b0b1eee;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;text-align:center;color:#fff}
-#win.show,#gv.show,#zoom.show{display:flex}
+#win,#gv,#bv,#zoom{position:fixed;inset:0;background:#0b0b1eee;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;text-align:center;color:#fff}
+#win.show,#gv.show,#bv.show,#zoom.show{display:flex}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:6;width:100vw;height:100vh}
 .big-owl{font-size:110px;animation:hop .8s ease-in-out infinite}
 @keyframes hop{50%{transform:translateY(-24px) rotate(-6deg)}}
@@ -53,11 +53,15 @@ button{font:inherit;border:0;cursor:pointer;color:#fff;padding:0}
 .stars span{display:inline-block;animation:pop .5s backwards cubic-bezier(.3,1.8,.5,1)}
 @keyframes pop{from{transform:scale(0) rotate(-90deg)}}
 #win h1{margin:0;font-size:42px}
-#gv,#zoom{z-index:7;touch-action:pan-y;justify-content:flex-start;background:#1c1448}
+#bv,#gv,#zoom{z-index:7;touch-action:pan-y;justify-content:flex-start;background:#1c1448}
 #zoom{z-index:8;justify-content:center;background:#1c1448f5}
-#gv header{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px}
-#gv h2{margin:0;font-size:28px;flex:1;text-align:left}
-#grid{overflow:auto;flex:1;width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:12px;align-content:start}
+#bv header,#gv header{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px}
+#bv h2,#gv h2{margin:0;font-size:28px;flex:1;text-align:left}
+#bgrid,#grid{overflow:auto;flex:1;width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:12px;align-content:start}
+.bth{background:#fff;border-radius:18px;border:3px solid #7c3aed;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:#2b1a5e;box-shadow:0 4px 10px rgba(0,0,0,0.3);transition:transform .15s}
+.bth:hover{transform:scale(1.05)}
+.bth img{width:100%;aspect-ratio:1;object-fit:contain}
+.bth span{font-size:14px;font-weight:800;color:#2b1a5e}
 .th{background:none;font-size:18px}
 .th img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:20px;border:4px solid var(--roxo);display:block;background:#fff}
 .empty{grid-column:1/-1;font-size:22px;padding:40px 12px}.empty b{display:block;font-size:80px}
@@ -132,6 +136,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
  <div class="col" id="right">
   <button class="sq" data-t="bucket" aria-label="Balde de tinta">🪣</button>
   <button class="sq" data-t="erase" aria-label="Borracha">🧽</button>
+  <button class="sq" id="book" title="Livro de Desenhos" aria-label="Escolher desenho">📖</button>
   <button class="sq" id="gal" aria-label="Meus desenhos">🖼️</button>
   <button class="sq" id="skip" aria-label="Outro desenho">🎲</button>
  </div>
@@ -139,8 +144,9 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 </div>
 <div id="win"><div class="big-owl">🦉</div><h1 id="wt"></h1><div class="stars" id="st"></div>
  <div style="display:flex;gap:16px;align-items:center"><button class="sq" id="gal2" style="width:72px;font-size:34px" aria-label="Meus desenhos">🖼️</button><button class="big" id="next" style="height:80px;font-size:40px;padding:0 40px" aria-label="Próximo desenho">➜</button></div></div>
+<div id="bv"><header><div class="owl">🦉</div><h2>Escolha um desenho</h2><button class="rb" id="bclose" aria-label="Fechar">✕</button></header><div id="bgrid"></div></div>
 <div id="gv"><header><div class="owl">🦉</div><h2>Meus desenhos</h2><button class="rb" id="gclose" aria-label="Fechar">✕</button></header><div id="grid"></div></div>
-<div id="zoom"><img id="zimg" alt="Desenho pintado"><div class="row"><button class="rb" id="zclose" style="width:72px" aria-label="Voltar">⬅</button><button class="rb" id="del" style="width:72px" aria-label="Apagar">🗑</button></div></div>
+<div id="zoom"><img id="zimg" alt="Desenho pintado"><div class="row"><button class="rb" id="zclose" style="width:72px" aria-label="Voltar">⬅</button><button class="rb" id="zedit" style="width:140px;font-size:16px;font-weight:bold;background:#22c55e;border-radius:28px" aria-label="Editar">✏️ Editar</button><button class="rb" id="del" style="width:72px" aria-label="Apagar">🗑</button></div></div>
 <canvas id="fx"></canvas>
 <script>
 const W=900,$=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
@@ -228,6 +234,67 @@ $('grid').onclick=e=>{const b=e.target.closest('.th');if(!b)return;zi=+b.dataset
 $('zclose').onclick=()=>$('zoom').classList.remove('show');
 function resetDel(){clearTimeout(armT);$('del').classList.remove('arm');$('del').dataset.a=''}
 $('del').onclick=()=>{const d=$('del');if(d.dataset.a){G.splice(zi,1);persist('kruuj_gal',G);$('zoom').classList.remove('show');resetDel();openGal()}else{d.dataset.a='1';d.classList.add('arm');armT=setTimeout(resetDel,3000)}};
+
+// CATÁLOGO DE DESENHOS EM BRANCO (ESCOLHER DESENHO)
+function openBook(){
+  const icons = {
+    'Sol': '☀️', 'Peixe': '🐟', 'Casa': '🏠', 'Flor': '🌸',
+    'Borboleta': '🦋', 'Foguete': '🚀', 'Carro': '🚗', 'Gatinho': '🐱',
+    'Castelo': '🏰', 'Árvore': '🌳', 'Coruja': '🦉', 'Banho de patinho': '🛁'
+  };
+  $('bgrid').innerHTML = DR.map((d, i) => `
+    <button class="bth" data-idx="${i}" aria-label="${d.n}">
+      <span style="font-size:38px">${icons[d.n] || '🎨'}</span>
+      <span>${d.n}</span>
+    </button>
+  `).join('');
+  $('bv').classList.add('show');
+}
+$('book').onclick = openBook;
+$('bclose').onclick = () => $('bv').classList.remove('show');
+$('bgrid').onclick = (e) => {
+  const b = e.target.closest('.bth');
+  if (!b) return;
+  const idx = +b.dataset.idx;
+  if (DR[idx]) {
+    $('bv').classList.remove('show');
+    load(DR[idx]);
+    snd(520, .15);
+  }
+};
+
+// EDITAR DESENHO JÁ SALVO DA GALERIA
+$('zedit').onclick = () => {
+  if (zi < 0 || !G[zi]) return;
+  const item = G[zi];
+  $('zoom').classList.remove('show');
+  $('gv').classList.remove('show');
+
+  const im = new Image();
+  im.onload = () => {
+    const found = DR.find(d => d.n === item.n);
+    if (found) {
+      load(found);
+      setTimeout(() => {
+        pc.drawImage(im, 0, 0, W, W);
+        render();
+        snap();
+        $('pill').textContent = `${LV[found.l]} ${found.n} (Editando)`;
+      }, 60);
+    } else {
+      cur = { l: 0, n: item.n || 'Desenho', id: -1, p: [] };
+      lc.clearRect(0, 0, W, W);
+      pc.clearRect(0, 0, W, W);
+      pc.drawImage(im, 0, 0, W, W);
+      prep();
+      render();
+      snap();
+      $('pill').textContent = `🎨 ${cur.n} (Editando)`;
+    }
+    snd(580, .2);
+  };
+  im.src = item.i;
+};
 function confetti(){const f=$('fx'),x=f.getContext('2d'),K=['#ef4444','#fb923c','#facc15','#22c55e','#2e90fa','#7c3aed','#ec4899','#a16207'];f.width=innerWidth;f.height=innerHeight;
  const Q=Array.from({length:120},()=>({x:Math.random()*f.width,y:-Math.random()*f.height*.5,v:2+Math.random()*4,r:5+Math.random()*7,c:K[Math.random()*8|0],w:Math.random()*6}));
  let k=0;(function A(){x.clearRect(0,0,f.width,f.height);Q.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.w+=.05)*2;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.r,p.r*1.4)});if(++k<260)requestAnimationFrame(A);else x.clearRect(0,0,f.width,f.height)})()}
