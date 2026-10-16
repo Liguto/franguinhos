@@ -2451,6 +2451,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
+        if (this.ctx) this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
         this.sound = new SoundManager();
         this.wakeLock = new WakeLockController(); // Mantém a tela acesa no mobile
@@ -2547,6 +2548,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         this.canvas.width = w;
         this.canvas.height = h;
+        if (this.ctx) this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
         const scale = Math.min(w / this.virtualWidth, h / this.virtualHeight);
         const offsetX = (w - this.virtualWidth * scale) / 2;
@@ -3083,6 +3085,14 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
       gameOver() {
         this.isRoundRunning = false;
+        this.enemies = [];
+        this.projectiles = [];
+        this.particles = [];
+        this.spawnQueue = [];
+        this.activeBoss = null;
+        const bossHud = document.getElementById('boss-hud');
+        if (bossHud) bossHud.style.display = 'none';
+
         this.clearSavedGame();
         this.openModal('gameover');
         try {
@@ -3091,6 +3101,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       restartGame() {
+        if (this.ctx) this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.closeModal();
         this.clearSavedGame();
         this.money = this.difficulty.startMoney || 650;
@@ -3103,8 +3114,10 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.towers = [];
         this.projectiles = [];
         this.particles = [];
+        this.spawnQueue = [];
         this.activeBoss = null;
-        document.getElementById('boss-hud').style.display = 'none';
+        const bossHud = document.getElementById('boss-hud');
+        if (bossHud) bossHud.style.display = 'none';
 
         this.deselectTower();
         this.updateUI();
@@ -3322,6 +3335,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         const timeScale = this.gameSpeed;
         const speedMult = this.difficulty.speedMult;
 
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.fillStyle = this.map.track.bgColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -3330,126 +3344,131 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.ctx.translate(this.viewport.offsetX, this.viewport.offsetY);
         this.ctx.scale(this.viewport.scale, this.viewport.scale);
 
-        this.map.render(this.ctx);
+        try {
+          this.map.render(this.ctx);
 
-        if (this.isRoundRunning && this.spawnQueue.length > 0) {
-          this.spawnTimer += timeScale;
-          if (this.spawnTimer >= 26) {
-            this.spawnTimer = 0;
-            const nextItem = this.spawnQueue.shift();
-            if (typeof nextItem === 'string') {
-              this.enemies.push(new Enemy(nextItem, this.map.waypoints));
-            } else if (nextItem.type === 'boss') {
-              const boss = new Enemy('boss', this.map.waypoints, nextItem.hp);
-              this.enemies.push(boss);
-              this.activeBoss = boss;
-              document.getElementById('boss-hud').style.display = 'flex';
+          if (this.isRoundRunning && this.spawnQueue.length > 0) {
+            this.spawnTimer += timeScale;
+            if (this.spawnTimer >= 26) {
+              this.spawnTimer = 0;
+              const nextItem = this.spawnQueue.shift();
+              if (typeof nextItem === 'string') {
+                this.enemies.push(new Enemy(nextItem, this.map.waypoints));
+              } else if (nextItem.type === 'boss') {
+                const boss = new Enemy('boss', this.map.waypoints, nextItem.hp);
+                this.enemies.push(boss);
+                this.activeBoss = boss;
+                const bossHud = document.getElementById('boss-hud');
+                if (bossHud) bossHud.style.display = 'flex';
+              }
             }
           }
-        }
 
-        if (this.activeBoss && this.activeBoss.isAlive) {
-          const pct = Math.max(0, (this.activeBoss.health / this.activeBoss.maxHp) * 100);
-          document.getElementById('boss-hp-bar').style.width = `${pct}%`;
-          document.getElementById('boss-hp-text').textContent = `${Math.max(0, this.activeBoss.health)} / ${this.activeBoss.maxHp} HP`;
-        }
+          if (this.activeBoss && this.activeBoss.isAlive) {
+            const pct = Math.max(0, (this.activeBoss.health / this.activeBoss.maxHp) * 100);
+            const bossBar = document.getElementById('boss-hp-bar');
+            if (bossBar) bossBar.style.width = `${pct}%`;
+            const bossText = document.getElementById('boss-hp-text');
+            if (bossText) bossText.textContent = `${Math.max(0, this.activeBoss.health)} / ${this.activeBoss.maxHp} HP`;
+          }
 
-        for (let i = this.enemies.length - 1; i >= 0; i--) {
-          const e = this.enemies[i];
-          e.update(timeScale * speedMult);
+          for (let i = this.enemies.length - 1; i >= 0; i--) {
+            const e = this.enemies[i];
+            e.update(timeScale * speedMult);
 
-          if (e.reachedEnd) {
-            this.lives -= e.isBoss ? 10 : e.health;
-            this.sound.playPop(0.7);
-            this.enemies.splice(i, 1);
+            if (e.reachedEnd) {
+              this.lives -= e.isBoss ? 10 : e.health;
+              this.sound.playPop(0.7);
+              this.enemies.splice(i, 1);
+              this.updateUI();
+              if (this.lives <= 0) {
+                this.gameOver();
+                return;
+              }
+            } else if (!e.isAlive) {
+              this.enemies.splice(i, 1);
+            } else {
+              e.render(this.ctx);
+            }
+          }
+
+          if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
+            this.isRoundRunning = false;
+            const baseBonus = 70 + this.round * 5;
+            const waveBonus = Math.max(10, Math.round(baseBonus * (this.difficulty.waveBonusMult || 1.0)));
+            this.money += waveBonus;
+            this.round++;
+            this.sound.playBuy();
+            this.updateInspectorBox();
             this.updateUI();
-            if (this.lives <= 0) {
-              this.gameOver();
-              return;
+
+            this.checkObjectiveSuccess();
+            this.saveGameState();
+
+            if (this.autoStart) {
+              setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
             }
-          } else if (!e.isAlive) {
-            this.enemies.splice(i, 1);
-          } else {
-            e.render(this.ctx);
           }
-        }
 
-        if (this.isRoundRunning && this.spawnQueue.length === 0 && this.enemies.length === 0) {
-          this.isRoundRunning = false;
-          const baseBonus = 70 + this.round * 5;
-          const waveBonus = Math.max(10, Math.round(baseBonus * (this.difficulty.waveBonusMult || 1.0)));
-          this.money += waveBonus;
-          this.round++;
-          this.sound.playBuy();
-          this.updateInspectorBox();
-          this.updateUI();
+          this.towers.forEach(t => {
+            t.update(this, timeScale);
+            t.render(this.ctx, t === this.inspectingTower);
+          });
 
-          this.checkObjectiveSuccess();
-          this.saveGameState();
-
-          if (this.autoStart) {
-            setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
+          for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const p = this.projectiles[i];
+            p.update(this, timeScale);
+            if (p.isFinished) {
+              this.projectiles.splice(i, 1);
+            } else {
+              p.render(this.ctx);
+            }
           }
-        }
 
-        this.towers.forEach(t => {
-          t.update(this, timeScale);
-          t.render(this.ctx, t === this.inspectingTower);
-        });
-
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
-          const p = this.projectiles[i];
-          p.update(this, timeScale);
-          if (p.isFinished) {
-            this.projectiles.splice(i, 1);
-          } else {
-            p.render(this.ctx);
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            const pt = this.particles[i];
+            pt.update(timeScale);
+            if (pt.life <= 0) {
+              this.particles.splice(i, 1);
+            } else {
+              pt.render(this.ctx);
+            }
           }
-        }
 
-        for (let i = this.particles.length - 1; i >= 0; i--) {
-          const pt = this.particles[i];
-          pt.update(timeScale);
-          if (pt.life <= 0) {
-            this.particles.splice(i, 1);
-          } else {
-            pt.render(this.ctx);
+          // Preview Holográfico Bloons TD
+          const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
+          if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.x <= this.virtualWidth && this.mousePos.y >= 0 && this.mousePos.y <= this.virtualHeight) {
+            const cfg = this.towerConfigs[activePreviewIndex];
+            const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
+
+            this.ctx.save();
+            this.ctx.translate(this.mousePos.x, this.mousePos.y);
+
+            this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.85)' : 'rgba(239, 68, 68, 0.85)';
+            this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.15)' : 'rgba(239, 68, 68, 0.18)';
+            this.ctx.lineWidth = 2.5;
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, cfg.range, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+
+            this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
+            this.ctx.globalAlpha = 0.8;
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            this.ctx.font = '14px sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(cfg.icon, 0, 1);
+
+            this.ctx.restore();
           }
-        }
-
-        // Preview Holográfico Bloons TD
-        const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
-        if (activePreviewIndex !== null && this.mousePos.x >= 0 && this.mousePos.x <= this.virtualWidth && this.mousePos.y >= 0 && this.mousePos.y <= this.virtualHeight) {
-          const cfg = this.towerConfigs[activePreviewIndex];
-          const isValid = this.canPlaceTower(this.mousePos.x, this.mousePos.y);
-
-          this.ctx.save();
-          this.ctx.translate(this.mousePos.x, this.mousePos.y);
-
-          this.ctx.strokeStyle = isValid ? 'rgba(56, 232, 255, 0.85)' : 'rgba(239, 68, 68, 0.85)';
-          this.ctx.fillStyle = isValid ? 'rgba(56, 232, 255, 0.15)' : 'rgba(239, 68, 68, 0.18)';
-          this.ctx.lineWidth = 2.5;
-          this.ctx.beginPath();
-          this.ctx.arc(0, 0, cfg.range, 0, Math.PI * 2);
-          this.ctx.fill();
-          this.ctx.stroke();
-
-          this.ctx.fillStyle = isValid ? cfg.color : '#ef4444';
-          this.ctx.globalAlpha = 0.8;
-          this.ctx.beginPath();
-          this.ctx.arc(0, 0, 18, 0, Math.PI * 2);
-          this.ctx.fill();
-
-          this.ctx.font = '14px sans-serif';
-          this.ctx.textAlign = 'center';
-          this.ctx.textBaseline = 'middle';
-          this.ctx.fillText(cfg.icon, 0, 1);
-
+        } finally {
+          // Fim da matriz de escala virtual canônica (960 x 540)
           this.ctx.restore();
         }
-
-        // Fim da matriz de escala virtual canônica (960 x 540)
-        this.ctx.restore();
       }
     }
 
