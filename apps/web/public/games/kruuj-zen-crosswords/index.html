@@ -196,32 +196,31 @@
       transform: scale(0.96);
     }
 
-    /* SELETOR DE TEMAS */
+    /* SELETOR DE TEMAS (3 COLUNAS: 100% VISÍVEL SEM CORTES EM QUALQUER TELA) */
     .themes-bar {
       width: 100%;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 12px 2px 8px;
-      scrollbar-width: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px 0;
     }
-    .themes-bar::-webkit-scrollbar { display: none; }
     .theme-chip {
-      flex: 1 0 auto;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 22px;
+      min-height: 38px;
+      padding: 0 4px;
+      border-radius: 12px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      font-size: 0.92rem;
-      font-weight: 600;
+      font-size: 0.82rem;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      text-align: center;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: all 0.2s;
     }
     .theme-chip.active {
@@ -759,26 +758,26 @@
           {
             "num": 3,
             "dir": "H",
-            "r": 2,
-            "c": 2,
+            "r": 4,
+            "c": 0,
             "answer": "POEMA",
             "clue": "Texto lírico repleto de rimas e emoção (5 letras)"
           },
           {
             "num": 4,
             "dir": "V",
-            "r": 1,
-            "c": 6,
-            "answer": "CANTO",
-            "clue": "Expressão musical executada pela voz (5 letras)"
+            "r": 3,
+            "c": 1,
+            "answer": "CORO",
+            "clue": "Conjunto de vozes cantando em harmonia (4 letras)"
           },
           {
             "num": 5,
             "dir": "H",
-            "r": 5,
-            "c": 3,
-            "answer": "CORO",
-            "clue": "Conjunto de vozes cantando em harmonia (4 letras)"
+            "r": 6,
+            "c": 0,
+            "answer": "NOTAS",
+            "clue": "Símbolos musicais como Dó, Ré e Mi (5 letras)"
           }
         ]
       },
@@ -879,7 +878,7 @@
             "r": 3,
             "c": 2,
             "answer": "ROME",
-            "clue": "The Eternal City where the ancient Colosseum stands (4 letras)"
+            "clue": "The Eternal City where the ancient Colosseum stands (4 letters)"
           },
           {
             "num": 5,
@@ -915,26 +914,26 @@
           {
             "num": 3,
             "dir": "H",
-            "r": 2,
-            "c": 1,
-            "answer": "NOTES",
-            "clue": "Musical pitch marks written on a harmonious staff (5 letters)"
+            "r": 3,
+            "c": 0,
+            "answer": "CHOIR",
+            "clue": "Ensemble of vocalists singing in peaceful harmony (5 letters)"
           },
           {
             "num": 4,
             "dir": "V",
-            "r": 1,
+            "r": 2,
             "c": 2,
-            "answer": "SOUND",
-            "clue": "Vibrating acoustic waves that fill the air with music (5 letters)"
+            "answer": "NOTES",
+            "clue": "Musical pitch marks written on a harmonious staff (5 letters)"
           },
           {
             "num": 5,
             "dir": "H",
-            "r": 4,
+            "r": 5,
             "c": 0,
-            "answer": "SONG",
-            "clue": "Melodic musical piece shared across generations (4 letters)"
+            "answer": "POEM",
+            "clue": "Soulful verse celebrating love, art, and life (4 letters)"
           }
         ]
       },
@@ -971,7 +970,7 @@
             "num": 4,
             "dir": "V",
             "r": 2,
-            "c": 2,
+            "c": 3,
             "answer": "WATER",
             "clue": "Pure crystal liquid nourishing every living plant (5 letters)"
           },
@@ -979,7 +978,7 @@
             "num": 5,
             "dir": "H",
             "r": 3,
-            "c": 1,
+            "c": 2,
             "answer": "EARTH",
             "clue": "Our shared home and rich soil where seeds sprout (5 letters)"
           }
@@ -1032,18 +1031,18 @@
           {
             "num": 4,
             "dir": "V",
-            "r": 1,
+            "r": 2,
             "c": 1,
-            "answer": "MADRID",
-            "clue": "Capital vibrante y museo a cielo abierto de España (6 letras)"
+            "answer": "BARCO",
+            "clue": "Embarcación serena para cruzar mares tranquilos (5 letras)"
           },
           {
             "num": 5,
             "dir": "H",
-            "r": 2,
+            "r": 6,
             "c": 0,
-            "answer": "MAPA",
-            "clue": "Guía geográfica con caminos y rutas señaladas (4 letras)"
+            "answer": "HOTEL",
+            "clue": "Alojamiento confortable para descansar en viaje (5 letras)"
           }
         ]
       },
@@ -1071,26 +1070,26 @@
           {
             "num": 3,
             "dir": "H",
-            "r": 2,
-            "c": 2,
+            "r": 4,
+            "c": 0,
             "answer": "POEMA",
             "clue": "Versos con rima y cálida sensibilidad (5 letras)"
           },
           {
             "num": 4,
             "dir": "V",
-            "r": 1,
-            "c": 6,
-            "answer": "CANTO",
-            "clue": "Expresión melódica del alma a través de la voz (5 letras)"
+            "r": 3,
+            "c": 1,
+            "answer": "CORO",
+            "clue": "Grupo de voces afinadas cantando al unísono (4 letras)"
           },
           {
             "num": 5,
             "dir": "H",
-            "r": 5,
-            "c": 3,
-            "answer": "CORO",
-            "clue": "Grupo de voces afinadas cantando al unísono (4 letras)"
+            "r": 6,
+            "c": 0,
+            "answer": "NOTAS",
+            "clue": "Sonidos musicales como Do, Re, Mi (5 letras)"
           }
         ]
       },
@@ -1126,18 +1125,18 @@
           {
             "num": 4,
             "dir": "V",
-            "r": 1,
+            "r": 2,
             "c": 2,
-            "answer": "VIENTO",
-            "clue": "Brisa fresca que acaricia las hojas de los árboles (6 letras)"
+            "answer": "VERDE",
+            "clue": "Color vivo de los prados y la vegetación sana (5 letras)"
           },
           {
             "num": 5,
             "dir": "H",
             "r": 6,
-            "c": 1,
-            "answer": "BOSQUE",
-            "clue": "Arboleda apacible llena de senderos sombreados (6 letras)"
+            "c": 0,
+            "answer": "VIENTO",
+            "clue": "Brisa fresca que acaricia las folhas de los árboles (6 letras)"
           }
         ]
       }
