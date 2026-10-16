@@ -165,8 +165,8 @@ export default function App() {
         },
         {
           game: {
-            id: '2', slug: 'memory-match', title: 'Memory Training Neon', description: 'Exercite sua mente combinando as cartas de neon vibrantes. Ideal para melhorar a atenção de crianças e excelente para a manutenção cognitiva na terceira idade!',
-            category: 'Memória', subcategories: ['Cognitivo', 'Educacional', 'Infantil'], tags: ['memoria', 'educacional', 'mente', 'cartas', 'infantil', 'idoso'],
+            id: '2', slug: 'memory-match', title: 'Memory Training Neon', description: 'Exercite sua mente combinando as cartas de neon vibrantes. Ideal para melhorar a atenção de crianças e excelente para a manutenção cognitiva e estímulo da mente ativa!',
+            category: 'Memória', subcategories: ['Cognitivo', 'Educacional', 'Infantil'], tags: ['memoria', 'educacional', 'mente', 'cartas', 'infantil', 'senior', '60+'],
             ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=800&auto=format&fit=crop&q=60',
             iconUrl: 'brain', prefixUrl: '/games/memory-match/', version: '1.0.2',
             controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'portrait',
@@ -177,7 +177,7 @@ export default function App() {
             id: 'c-2', gameId: '2', contractNumber: 'CON-2026-002', signatoryCreator: 'MindCare Software SA', termsAccepted: true,
             licenseType: 'Licença Comercial Não Exclusiva', exclusivityScope: 'Global',
             durationMonths: 36, revenueSharePercent: 15.0, fixedPaymentAmount: 800.0,
-            auditLog: `[2026-08-24T10:20:00Z] Contrato validado por MindCare SA.\n[2026-08-24T10:30:00Z] Aprovado editorialmente para categorias Infantil e Terceira Idade.\n`
+            auditLog: `[2026-08-24T10:20:00Z] Contrato validado por MindCare SA.\n[2026-08-24T10:30:00Z] Aprovado editorialmente para categorias Infantil e Sênior Play.\n`
           }
         },
         {
@@ -233,8 +233,8 @@ export default function App() {
         },
         {
           game: {
-            id: '6', slug: 'sudoku-zen', title: 'Sudoku Zen Master', description: 'O clássico tabuleiro matemático de preenchimento numérico em trilha sonora relaxante. Excelente para exercitar a memória lógica de todas as idades, ideal para terceira idade.',
-            category: 'Terceira Idade', subcategories: ['Puzzle', 'Lógica', 'Cognitivo'], tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'idoso', 'mente'],
+            id: '6', slug: 'sudoku-zen', title: 'Sudoku Zen Master', description: 'O clássico tabuleiro matemático de preenchimento numérico em trilha sonora relaxante. Excelente para exercitar a memória lógica e manter a mente ativa no dia a dia.',
+            category: 'Sênior Play', subcategories: ['Puzzle', 'Lógica', 'Cognitivo'], tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'senior', '60+', 'mente'],
             ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
             iconUrl: 'hash', prefixUrl: '/games/sudoku-zen/', version: '1.0.0',
             controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'both',
@@ -796,7 +796,7 @@ export default function App() {
                           <option value="Ação">Ação</option>
                           <option value="Puzzle">Puzzle</option>
                           <option value="Infantil">Infantil (Kids)</option>
-                          <option value="Terceira Idade">Terceira Idade (Sênior)</option>
+                          <option value="Sênior Play">Sênior Play (60+)</option>
                         </select>
                       </div>
                       <div>

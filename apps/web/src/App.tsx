@@ -993,8 +993,8 @@ export default function App() {
         pageTitle = 'Jogos Educacionais e Lógicos | KRUUJ Kids';
         pageDesc = 'Os melhores jogos educativos de matemática, memória e lógica para crianças e adolescentes jogarem grátis no KRUUJ Kids.';
       } else if (agePreference === 'terceira_idade') {
-        pageTitle = 'Jogos Cognitivos e Memória | KRUUJ 60+';
-        pageDesc = 'Jogos gratuitos para estimular a memória de idosos. Sudoku e jogos de lógica fáceis e relaxantes no KRUUJ 60+.';
+        pageTitle = 'Jogos Cognitivos e Memória | KRUUJ 60+ Sênior Play';
+        pageDesc = 'Jogos cognitivos e estimulantes para manter a mente ativa e relaxar. Sudoku, paciência e jogos de lógica sem estresse no KRUUJ 60+ (Sênior Play).';
       }
     }
 
@@ -1218,10 +1218,10 @@ export default function App() {
       id: '5',
       slug: 'sudoku-zen',
       title: 'Sudoku Zen Master',
-      description: 'Sudoku fácil para celular sem instalar grátis. O clássico tabuleiro matemático de lógica com trilha relaxante, excelente para manter o cérebro da terceira idade ativo.',
-      category: 'Terceira Idade',
+      description: 'Sudoku fácil para celular sem instalar grátis. O clássico tabuleiro matemático de lógica com trilha relaxante, excelente para manter a mente ativa e o raciocínio afiado no dia a dia.',
+      category: 'Sênior Play',
       subcategories: ['Puzzle', 'Lógica', 'Cognitivo'],
-      tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'idoso', 'mente'],
+      tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'senior', '60+', 'mente'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'hash',
@@ -1429,9 +1429,9 @@ export default function App() {
       slug: 'kruuj-solitaire',
       title: 'KRUUJ SOLITAIRE',
       description: 'KRUUJ SOLITAIRE — O clássico Paciência repaginado! Relaxe com cartas de visual moderno e temas personalizáveis no melhor estilo KRUUJ.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Cartas', 'Paciência', 'Clássico', 'Relaxante'],
-      tags: ['cartas', 'paciencia', 'solitaire', 'idoso', 'relaxante', 'kruuj'],
+      tags: ['cartas', 'paciencia', 'solitaire', 'senior', '60+', 'relaxante', 'kruuj'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'grid',
@@ -1681,9 +1681,9 @@ export default function App() {
       slug: 'kruuj-zen-crosswords',
       title: 'KRUUJ Palavras Cruzadas Zen',
       description: 'Palavras cruzadas relaxantes de alta legibilidade com temas de sabedoria, viagens e artes. Estimule seu vocabulário e memória sem pressão de tempo.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Palavras', 'Cruzadas', 'Cognitivo', 'Relaxante', 'Lógica'],
-      tags: ['palavras', 'cruzadas', 'zen', 'terceira idade', 'mente', 'vocabulario', 'idoso', 'cerebro'],
+      tags: ['palavras', 'cruzadas', 'zen', 'senior', '60+', 'mente', 'vocabulario', 'cerebro'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'edit3',
@@ -1702,9 +1702,9 @@ export default function App() {
       slug: 'kruuj-word-search',
       title: 'KRUUJ Caça-Palavras dos Mestres',
       description: 'Caça-palavras tradicional com letras nítidas e seleção suave por arrasto ou dois toques. Descubra palavras ricas e treine o foco visual.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Caça-Palavras', 'Percepção', 'Cognitivo', 'Relaxante', 'Vocabulário'],
-      tags: ['caca palavras', 'letras', 'zen', 'terceira idade', 'mente', 'foco', 'idoso', 'cerebro'],
+      tags: ['caca palavras', 'letras', 'zen', 'senior', '60+', 'mente', 'foco', 'cerebro'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'search',
@@ -1723,9 +1723,9 @@ export default function App() {
       slug: 'kruuj-golden-memory',
       title: 'KRUUJ Memória Dourada',
       description: 'O nobre jogo da memória com ícones afetivos vintage e animação 3D suave. Estimule sua memória de curto prazo no seu próprio ritmo.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Memória', 'Vintage', 'Cognitivo', 'Relaxante', 'Clássico'],
-      tags: ['memoria', 'retro', 'zen', 'terceira idade', 'mente', 'pares', 'idoso', 'cerebro'],
+      tags: ['memoria', 'retro', 'zen', 'senior', '60+', 'mente', 'pares', 'cerebro'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'heart',
@@ -1744,9 +1744,9 @@ export default function App() {
       slug: 'kruuj-master-dominoes',
       title: 'KRUUJ Dominó dos Mestres',
       description: 'O tradicional dominó de 28 pedras (duplo 6) jogado de forma zen contra IA amigável. Pedras grandes de marfim, regras oficiais e destaque tático.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Dominó', 'Tabuleiro', 'Estratégia', 'Clássico', 'Raciocínio'],
-      tags: ['domino', 'tabuleiro', 'zen', 'terceira idade', 'mente', 'estrategia', 'idoso', 'raciocinio'],
+      tags: ['domino', 'tabuleiro', 'zen', 'senior', '60+', 'mente', 'estrategia', 'raciocinio'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'grid',
@@ -1765,9 +1765,9 @@ export default function App() {
       slug: 'kruuj-jigsaw-gallery',
       title: 'KRUUJ Galeria de Quebra-Cabeças',
       description: 'Quebra-cabeça artístico com paisagens relaxantes, guia fantasma, filtro de bordas e encaixe magnético suave. Montagem meditativa sem estresse.',
-      category: 'Terceira Idade',
+      category: 'Sênior Play',
       subcategories: ['Quebra-Cabeça', 'Arte', 'Paisagem', 'Relaxante', 'Cognitivo'],
-      tags: ['quebra-cabeca', 'jigsaw', 'arte', 'zen', 'terceira idade', 'mente', 'idoso', 'relaxante'],
+      tags: ['quebra-cabeca', 'jigsaw', 'arte', 'zen', 'senior', '60+', 'mente', 'relaxante'],
       ageRating: 'Livre',
       bannerUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=60',
       iconUrl: 'image',
@@ -1936,7 +1936,7 @@ export default function App() {
         {
           game: {
             id: '5', slug: 'sudoku-zen', title: 'Sudoku Zen Master', description: 'O clássico tabuleiro matemático de lógica com trilha relaxante.',
-            category: 'Terceira Idade', subcategories: ['Puzzle', 'Lógica', 'Cognitivo'], tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'idoso', 'mente'],
+            category: 'Sênior Play', subcategories: ['Puzzle', 'Lógica', 'Cognitivo'], tags: ['sudoku', 'tabuleiro', 'logica', 'zen', 'senior', '60+', 'mente'],
             ageRating: 'Livre', bannerUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=60',
             iconUrl: 'hash', prefixUrl: '/games/sudoku-zen/', version: '1.0.0',
             controls: { mouse: true, teclado: false, toque: true, gamepad: false }, orientation: 'both' as any,
@@ -2841,9 +2841,12 @@ export default function App() {
   const getMappedCategory = (cat: string) => {
     if (cat === 'Bebês') return 'Arcade';
     if (cat === 'Educacional' || cat === 'Infantil') return 'Memória';
-    if (cat === 'Terceira Idade' || cat === 'Puzzle') return 'Memória';
+    if (cat === 'Sênior Play' || cat === 'Terceira Idade' || cat === 'Puzzle') return 'Memória';
     return cat; // 'Arcade', 'Memória', 'Ação' mantêm-se iguais
   };
+
+  // Garante que a categoria seja exibida com nomenclatura moderna e respeitosa
+  const formatCategoryName = (cat: string) => (cat === 'Terceira Idade' ? 'Sênior Play' : cat);
 
   // Filtragem de Jogos baseada nas preferências ativas e filtros dimensionais de exploração
   const getFilteredGames = () => {
@@ -2856,7 +2859,7 @@ export default function App() {
         else if (exploreAudience === 'Kids') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('kids') || g.tags.includes('infantil'));
         else if (exploreAudience === 'Play') result = result.filter(g => g.ageRating === 'Livre' || g.ageRating === '10+');
         else if (exploreAudience === 'Family') result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
-        else if (exploreAudience === '60+') result = result.filter(g => g.category === 'Terceira Idade' || g.tags.includes('mente') || g.tags.includes('zen'));
+        else if (exploreAudience === '60+') result = result.filter(g => g.category === 'Sênior Play' || g.category === 'Terceira Idade' || g.tags.includes('mente') || g.tags.includes('zen') || g.tags.includes('senior'));
         else if (exploreAudience === 'Edu') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('educacional'));
       }
 
@@ -2898,10 +2901,11 @@ export default function App() {
         );
       } else if (agePreference === 'terceira_idade') { // 60+
         result = result.filter(g => 
+          g.category === 'Sênior Play' || 
           g.category === 'Terceira Idade' || 
           g.category === 'Memória' || 
           g.category === 'Puzzle' || 
-          g.tags.some(t => ['mente', 'zen', 'cerebro', 'raciocinio', 'tabuleiro', 'memoria'].includes(t.toLowerCase())) || 
+          g.tags.some(t => ['mente', 'zen', 'cerebro', 'raciocinio', 'tabuleiro', 'memoria', 'senior', '60+'].includes(t.toLowerCase())) || 
           g.slug === 'sudoku-zen' || 
           g.slug === 'kruujdoku'
         );
@@ -3606,7 +3610,7 @@ export default function App() {
                                 </div>
                                 <div className="kruuj-poki-meta">
                                   <span className="kruuj-poki-title">{game.title}</span>
-                                  <span className="kruuj-poki-cat">{game.category}</span>
+                                  <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
                                 </div>
                               </div>
                             ))}
@@ -3639,7 +3643,7 @@ export default function App() {
                                 </div>
                                 <div className="kruuj-poki-meta">
                                   <span className="kruuj-poki-title">{game.title}</span>
-                                  <span className="kruuj-poki-cat">{game.category}</span>
+                                  <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
                                 </div>
                               </div>
                             ))}
@@ -3736,7 +3740,7 @@ export default function App() {
                             </button>
                           </div>
                           <div className="kruuj-game-title-clean">{game.title}</div>
-                          <span className="text-[10px] text-gray-400 font-medium">{game.category}</span>
+                          <span className="text-[10px] text-gray-400 font-medium">{formatCategoryName(game.category)}</span>
                         </div>
                       ))}
                     </div>
@@ -3911,7 +3915,7 @@ export default function App() {
                                 <div className="kruuj-recent-info">
                                   <h4 className="kruuj-recent-title">{g.title}</h4>
                                   <div className="kruuj-recent-meta">
-                                    <span className="kruuj-recent-tag">{g.category}</span>
+                                    <span className="kruuj-recent-tag">{formatCategoryName(g.category)}</span>
                                     {hist.timestamp && (
                                       <span className="kruuj-recent-score">🕒 {formatRelativeTime(hist.timestamp)}</span>
                                     )}
@@ -4472,7 +4476,7 @@ export default function App() {
                         </div>
                         <div className="kruuj-poki-meta">
                           <span className="kruuj-poki-title">{rel.title}</span>
-                          <span className="kruuj-poki-cat">{rel.category}</span>
+                          <span className="kruuj-poki-cat">{formatCategoryName(rel.category)}</span>
                         </div>
                       </div>
                     ))}
@@ -4507,7 +4511,7 @@ export default function App() {
                           </div>
                           <div className="kruuj-poki-meta">
                             <span className="kruuj-poki-title">{game.title}</span>
-                            <span className="kruuj-poki-cat">{game.category}</span>
+                            <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
                           </div>
                         </div>
                       ))}
@@ -4713,7 +4717,7 @@ export default function App() {
                                   <option value="Memória">Memória</option>
                                   <option value="Ação">Ação</option>
                                   <option value="Educacional">Educacional</option>
-                                  <option value="Terceira Idade">Terceira Idade</option>
+                                  <option value="Sênior Play">Sênior Play (60+)</option>
                                   <option value="Bebês">Bebês</option>
                                 </select>
                               </div>
@@ -5536,7 +5540,7 @@ export default function App() {
                               <div className="flex-grow min-w-0 text-left">
                                 <div className="kruuj-history-title">{g.title}</div>
                                 <div className="flex items-center justify-between gap-2 mt-0.5">
-                                  <div className="kruuj-history-category">{g.category}</div>
+                                  <div className="kruuj-history-category">{formatCategoryName(g.category)}</div>
                                   <span className="text-[8px] text-gray-500 font-extrabold uppercase font-mono tracking-wider">{formatRelativeTime(play.timestamp)}</span>
                                 </div>
                               </div>
