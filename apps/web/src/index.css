@@ -4614,6 +4614,14 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   transform: translateY(-4px);
 }
 
+.kruuj-banner-novelty {
+  background-position: center 32% !important;
+}
+
+.kruuj-banner-trending {
+  background-position: center 36% !important;
+}
+
 .kruuj-banner-novelty:hover {
   border-color: rgba(56, 189, 248, 0.6);
   box-shadow: 0 16px 42px rgba(56, 189, 248, 0.25);
@@ -5139,10 +5147,10 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 .kruuj-poki-thumb {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  height: 100%;
   overflow: hidden;
   background: #090d1a;
 }
@@ -5151,6 +5159,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 36%;
   transition: transform 0.35s ease;
 }
 
@@ -5250,10 +5259,17 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 .kruuj-poki-meta {
-  padding: 10px 12px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 32px 12px 10px 12px;
+  background: linear-gradient(to top, rgba(7, 11, 28, 0.96) 0%, rgba(7, 11, 28, 0.72) 48%, rgba(7, 11, 28, 0.15) 82%, transparent 100%);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .kruuj-poki-title {
