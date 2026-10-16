@@ -330,8 +330,28 @@
       transform: scale(1.05);
       z-index: 2;
     }
-    .cell.correct {
-      color: #bbf7d0;
+    .cell.correct, .cell.word-solved {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.45), rgba(16, 185, 129, 0.3)) !important;
+      border-color: #22c55e !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.4);
+      animation: popCorrect 0.35s ease;
+    }
+    @keyframes popCorrect {
+      0% { transform: scale(0.92); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .cell.word-wrong {
+      background: rgba(239, 68, 68, 0.4) !important;
+      border-color: #ef4444 !important;
+      color: #fca5a5 !important;
+      animation: shakeWrong 0.4s ease;
+    }
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
     }
     .cell-number {
       position: absolute;
@@ -655,163 +675,475 @@
        BANCO DE DADOS TEMÁTICOS & LOCALIZAÇÃO (PT / EN / ES)
        ========================================================= */
     const I18N_DATA = {
-      pt: {
-        title: "Palavras Cruzadas Zen",
-        subtitle: "KRUUJ Studio 60+",
-        horizontal: "Horizontal",
-        vertical: "Vertical",
-        selectClue: "Toque em uma casinha para ler a pista...",
-        hintLetter: "Revelar Letra",
-        hintWord: "Revelar Palavra",
-        restart: "Limpar",
-        winTitle: "Parabéns, Mestre!",
-        winDesc: "Você completou esta linda cruzada com tranquilidade e sabedoria. Seu cérebro agradece!",
-        winNext: "Próximo Tema ➔",
-        themes: [
+  "pt": {
+    "title": "KRUUJ CROSSWORDS",
+    "subtitle": "KRUUJ Studio 60+",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "selectClue": "Toque em uma casinha para ler a pista...",
+    "hintLetter": "Revelar Letra",
+    "hintWord": "Revelar Palavra",
+    "restart": "Limpar",
+    "winTitle": "Parabéns, Mestre!",
+    "winDesc": "Você completou esta linda cruzada com serenidade e sabedoria. Seu cérebro agradece esse estímulo!",
+    "winNext": "Próximo Tema ➔",
+    "themes": [
+      {
+        "id": "viagens",
+        "name": "🌍 Viagens & Cidades",
+        "size": 7,
+        "words": [
           {
-            id: 'viagens',
-            name: '🌍 Viagens & Cidades',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'Capital francesa famosa pela icônica Torre Eiffel (5 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SUIÇA', clue: 'País europeu famoso por relógios e montanhas alpinas (5 letras)' },
-              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROMA', clue: 'A Cidade Eterna e berço do Coliseu (4 letras)' },
-              { num: 4, dir: 'V', r: 2, c: 2, answer: 'RIO', clue: 'Cidade maravilhosa do Cristo Redentor (3 letras)' },
-              { num: 5, dir: 'H', r: 4, c: 0, answer: 'NAVIO', clue: 'Meio de transporte marítimo usado em grandes cruzeiros (5 letras)' },
-              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PRAIA', clue: 'Lugar de areia, brisa fresca e mar calmo (5 letras)' }
-            ]
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PARIS",
+            "clue": "Capital francesa famosa pela icônica Torre Eiffel (5 letras)"
           },
           {
-            id: 'musica',
-            name: '🎵 Música & Poesia',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Instrumento clássico de teclas brancas e pretas (5 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEMA', clue: 'Texto de rimas e profunda sensibilidade (5 letras)' },
-              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Gênero teatral cantado de grande solenidade (5 letras)' },
-              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTAS', clue: 'Símbolos musicais como Dó, Ré e Mi (5 letras)' },
-              { num: 5, dir: 'H', r: 4, c: 2, answer: 'VALSA', clue: 'Dança clássica e elegante ao compasso de três tempos (5 letras)' }
-            ]
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 0,
+            "answer": "PORTO",
+            "clue": "Bela cidade costeira portuguesa famosa pelo vinho (5 letras)"
           },
           {
-            id: 'natureza',
-            name: '🌿 Natureza & Jardim',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLORES', clue: 'Desabrocham na primavera e perfumam a casa (6 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 2, answer: 'ORVALHO', clue: 'Gotas frescas que repousam nas folhas ao amanhecer (7 letras)' },
-              { num: 3, dir: 'H', r: 3, c: 1, answer: 'VENTO', clue: 'Brisa suave que balança os galhos das árvores (5 letras)' },
-              { num: 4, dir: 'V', r: 1, c: 5, answer: 'SOLAR', clue: 'Energia acolhedora que vem da luz do astro-rei (5 letras)' },
-              { num: 5, dir: 'H', r: 5, c: 2, answer: 'LAGO', clue: 'Espelho de água sereno e tranquilo no parque (4 letras)' }
-            ]
+            "num": 3,
+            "dir": "H",
+            "r": 2,
+            "c": 0,
+            "answer": "ROMA",
+            "clue": "A Cidade Eterna e berço do Coliseu histórico (4 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 2,
+            "c": 2,
+            "answer": "MADRI",
+            "clue": "Capital ensolarada e cultural da Espanha (5 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 6,
+            "c": 0,
+            "answer": "SUIÇA",
+            "clue": "País alpino famoso pelos relógios e queijos (5 letras)"
           }
         ]
       },
-      en: {
-        title: "Zen Crosswords",
-        subtitle: "KRUUJ Studio 60+",
-        horizontal: "Across",
-        vertical: "Down",
-        selectClue: "Tap any tile to read the clue...",
-        hintLetter: "Reveal Letter",
-        hintWord: "Reveal Word",
-        restart: "Clear",
-        winTitle: "Bravo, Master!",
-        winDesc: "You completed this peaceful crossword puzzle. Your mind stays vibrant and sharp!",
-        winNext: "Next Theme ➔",
-        themes: [
+      {
+        "id": "musica",
+        "name": "🎵 Música & Poesia",
+        "size": 7,
+        "words": [
           {
-            id: 'viagens',
-            name: '🌍 Travel & Places',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'French capital celebrated for the Eiffel Tower (5 letters)' },
-              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SPAIN', clue: 'Sunny European country known for flamenco and tapas (5 letters)' },
-              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROME', clue: 'The Eternal City where the Colosseum stands (4 letters)' },
-              { num: 4, dir: 'V', r: 2, c: 2, answer: 'ROAD', clue: 'A scenic path or journey ahead (4 letters)' },
-              { num: 5, dir: 'H', r: 4, c: 0, answer: 'TRAIN', clue: 'Comfortable rail transport for scenic travels (5 letters)' },
-              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PEACE', clue: 'Quiet and serene feeling in a lovely holiday (5 letters)' }
-            ]
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PIANO",
+            "clue": "Instrumento clássico de 88 teclas brancas e pretas (5 letras)"
           },
           {
-            id: 'musica',
-            name: '🎵 Music & Arts',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Classic acoustic instrument with 88 black and white keys (5 letters)' },
-              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEM', clue: 'Written verse expressing soulful feelings (4 letters)' },
-              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Dramatic musical art form performed on grand stages (5 letters)' },
-              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTES', clue: 'Musical pitch marks like Do, Re, Mi (5 letters)' },
-              { num: 5, dir: 'H', r: 4, c: 2, answer: 'WALTZ', clue: 'Graceful ballroom dance in triple time (5 letters)' }
-            ]
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 4,
+            "answer": "OPERA",
+            "clue": "Gênero teatral cantado com grande orquestra (5 letras)"
           },
           {
-            id: 'natureza',
-            name: '🌿 Nature & Garden',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLOWER', clue: 'Blooms gently in the garden during springtime (6 letters)' },
-              { num: 2, dir: 'V', r: 0, c: 2, answer: 'FOREST', clue: 'Vast wooded sanctuary of tall trees and wildlife (6 letters)' },
-              { num: 3, dir: 'H', r: 3, c: 1, answer: 'WATER', clue: 'Pure crystal liquid nourishing every living plant (5 letters)' },
-              { num: 4, dir: 'V', r: 1, c: 5, answer: 'RIVER', clue: 'Natural stream of peaceful water flowing to sea (5 letters)' },
-              { num: 5, dir: 'H', r: 5, c: 2, answer: 'TREE', clue: 'Majestic trunk and leafy canopy giving gentle shade (4 letters)' }
-            ]
+            "num": 3,
+            "dir": "H",
+            "r": 2,
+            "c": 2,
+            "answer": "POEMA",
+            "clue": "Texto lírico repleto de rimas e emoção (5 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 1,
+            "c": 6,
+            "answer": "CANTO",
+            "clue": "Expressão musical executada pela voz (5 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 5,
+            "c": 3,
+            "answer": "CORO",
+            "clue": "Conjunto de vozes cantando em harmonia (4 letras)"
           }
         ]
       },
-      es: {
-        title: "Crucigrama Zen",
-        subtitle: "KRUUJ Studio 60+",
-        horizontal: "Horizontal",
-        vertical: "Vertical",
-        selectClue: "Toca una casilla para ver la pista...",
-        hintLetter: "Revelar Letra",
-        hintWord: "Revelar Palabra",
-        restart: "Limpiar",
-        winTitle: "¡Bravo, Maestro!",
-        winDesc: "Completaste este hermoso crucigrama con calma y sabiduría. ¡Tu mente se mantiene lúcida y ágil!",
-        winNext: "Siguiente Tema ➔",
-        themes: [
+      {
+        "id": "natureza",
+        "name": "🌿 Natureza & Jardim",
+        "size": 7,
+        "words": [
           {
-            id: 'viagens',
-            name: '🌍 Viajes & Ciudades',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 0, answer: 'PARIS', clue: 'Capital francesa célebre por la Torre Eiffel (5 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 4, answer: 'SUIZA', clue: 'Bello país alpino famoso por sus relojes y nieve (5 letras)' },
-              { num: 3, dir: 'H', r: 2, c: 2, answer: 'ROMA', clue: 'La Ciudad Eterna donde se erige el Coliseo (4 letras)' },
-              { num: 4, dir: 'V', r: 2, c: 2, answer: 'RIO', clue: 'Ciudad alegre del Cristo Redentor y el carnaval (3 letras)' },
-              { num: 5, dir: 'H', r: 4, c: 0, answer: 'BARCO', clue: 'Embarcación serena para cruzar mares tranquilos (5 letras)' },
-              { num: 6, dir: 'V', r: 0, c: 0, answer: 'PLAYA', clue: 'Lugar de arena dorada, brisa y olas calmas (5 letras)' }
-            ]
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "FLORES",
+            "clue": "Desabrocham na primavera e perfumam o jardim (6 letras)"
           },
           {
-            id: 'musica',
-            name: '🎵 Música & Poesía',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 0, c: 1, answer: 'PIANO', clue: 'Noble instrumento con teclas blancas y negras (5 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 1, answer: 'POEMA', clue: 'Versos con rima y cálida sensibilidad (5 letras)' },
-              { num: 3, dir: 'H', r: 2, c: 0, answer: 'OPERA', clue: 'Arte dramático y lírico de gran esplendor (5 letras)' },
-              { num: 4, dir: 'V', r: 0, c: 3, answer: 'NOTAS', clue: 'Sonidos musicales como Do, Re, Mi (5 letras)' },
-              { num: 5, dir: 'H', r: 4, c: 2, answer: 'VALS', clue: 'Danza clásica y majestuosa en compás de tres tiempos (4 letras)' }
-            ]
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 2,
+            "answer": "ORVALHO",
+            "clue": "Gotas frescas que repousam nas folhas ao amanhecer (7 letras)"
           },
           {
-            id: 'natureza',
-            name: '🌿 Naturaleza & Flores',
-            size: 7,
-            words: [
-              { num: 1, dir: 'H', r: 1, c: 0, answer: 'FLORES', clue: 'Crecen en primavera y perfuman con dulzura el hogar (6 letras)' },
-              { num: 2, dir: 'V', r: 0, c: 2, answer: 'ROCIOS', clue: 'Gotitas de agua que embellecen el alba (6 letras)' },
-              { num: 3, dir: 'H', r: 3, c: 1, answer: 'VIENTO', clue: 'Brisa fresca que acaricia las hojas de los árboles (6 letras)' },
-              { num: 4, dir: 'V', r: 1, c: 5, answer: 'SOLAR', clue: 'Luz y tibieza que proviene de nuestro astro-rey (5 letras)' },
-              { num: 5, dir: 'H', r: 5, c: 2, answer: 'LAGO', clue: 'Espejo de agua cristalino donde nadan los cisnes (4 letras)' }
-            ]
+            "num": 3,
+            "dir": "H",
+            "r": 2,
+            "c": 2,
+            "answer": "VENTO",
+            "clue": "Brisa suave que sopra pelas copas das árvores (5 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 2,
+            "c": 5,
+            "answer": "TERRA",
+            "clue": "Solo fértil onde germinam as sementes (5 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 6,
+            "c": 1,
+            "answer": "FOLHA",
+            "clue": "Estrutura vegetal que realiza a fotossíntese (5 letras)"
           }
         ]
       }
-    };
+    ]
+  },
+  "en": {
+    "title": "KRUUJ CROSSWORDS",
+    "subtitle": "KRUUJ Studio 60+",
+    "horizontal": "Across",
+    "vertical": "Down",
+    "selectClue": "Tap any tile to read the clue...",
+    "hintLetter": "Reveal Letter",
+    "hintWord": "Reveal Word",
+    "restart": "Clear",
+    "winTitle": "Bravo, Master!",
+    "winDesc": "You completed this peaceful crossword puzzle. Your mind stays vibrant and sharp!",
+    "winNext": "Next Theme ➔",
+    "themes": [
+      {
+        "id": "viagens",
+        "name": "🌍 Travel & Places",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PARIS",
+            "clue": "French capital celebrated for the Eiffel Tower (5 letters)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 4,
+            "answer": "SPAIN",
+            "clue": "Sunny European country known for flamenco and tapas (5 letters)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 3,
+            "c": 1,
+            "answer": "TRAIN",
+            "clue": "Comfortable rail transport for scenic European travel (5 letters)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 3,
+            "c": 2,
+            "answer": "ROME",
+            "clue": "The Eternal City where the ancient Colosseum stands (4 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 6,
+            "c": 1,
+            "answer": "BEACH",
+            "clue": "Golden sand retreat by the gentle ocean waves (5 letters)"
+          }
+        ]
+      },
+      {
+        "id": "musica",
+        "name": "🎵 Music & Arts",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PIANO",
+            "clue": "Classic acoustic instrument with 88 black and white keys (5 letters)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 4,
+            "answer": "OPERA",
+            "clue": "Grand theatrical performance sung with full orchestra (5 letters)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 2,
+            "c": 1,
+            "answer": "NOTES",
+            "clue": "Musical pitch marks written on a harmonious staff (5 letters)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 1,
+            "c": 2,
+            "answer": "SOUND",
+            "clue": "Vibrating acoustic waves that fill the air with music (5 letters)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 4,
+            "c": 0,
+            "answer": "SONG",
+            "clue": "Melodic musical piece shared across generations (4 letters)"
+          }
+        ]
+      },
+      {
+        "id": "natureza",
+        "name": "🌿 Nature & Garden",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "FLOWER",
+            "clue": "Blooms gently in the garden with vibrant colors (6 letters)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 0,
+            "answer": "FOREST",
+            "clue": "Vast wooded sanctuary of tall trees and wildlife (6 letters)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 5,
+            "c": 0,
+            "answer": "TREES",
+            "clue": "Majestic woody plants offering cool restful shade (5 letters)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 2,
+            "c": 2,
+            "answer": "WATER",
+            "clue": "Pure crystal liquid nourishing every living plant (5 letters)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 3,
+            "c": 1,
+            "answer": "EARTH",
+            "clue": "Our shared home and rich soil where seeds sprout (5 letters)"
+          }
+        ]
+      }
+    ]
+  },
+  "es": {
+    "title": "KRUUJ CROSSWORDS",
+    "subtitle": "KRUUJ Studio 60+",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "selectClue": "Toca una casilla para ver la pista...",
+    "hintLetter": "Revelar Letra",
+    "hintWord": "Revelar Palabra",
+    "restart": "Limpiar",
+    "winTitle": "¡Bravo, Maestro!",
+    "winDesc": "Completaste este hermoso crucigrama con calma y sabiduría. ¡Tu mente se mantiene lúcida y ágil!",
+    "winNext": "Siguiente Tema ➔",
+    "themes": [
+      {
+        "id": "viagens",
+        "name": "🌍 Viajes & Ciudades",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PARIS",
+            "clue": "Capital francesa célebre por la Torre Eiffel (5 letras)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 4,
+            "answer": "SUIZA",
+            "clue": "Bello país alpino famoso por sus relojes y nieve (5 letras)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 4,
+            "c": 1,
+            "answer": "ROMA",
+            "clue": "La Ciudad Eterna donde se erige el Coliseo (4 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 1,
+            "c": 1,
+            "answer": "MADRID",
+            "clue": "Capital vibrante y museo a cielo abierto de España (6 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 2,
+            "c": 0,
+            "answer": "MAPA",
+            "clue": "Guía geográfica con caminos y rutas señaladas (4 letras)"
+          }
+        ]
+      },
+      {
+        "id": "musica",
+        "name": "🎵 Música & Poesía",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "PIANO",
+            "clue": "Noble instrumento con teclas blancas y negras (5 letras)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 4,
+            "answer": "OPERA",
+            "clue": "Arte dramático y lírico de gran esplendor (5 letras)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 2,
+            "c": 2,
+            "answer": "POEMA",
+            "clue": "Versos con rima y cálida sensibilidad (5 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 1,
+            "c": 6,
+            "answer": "CANTO",
+            "clue": "Expresión melódica del alma a través de la voz (5 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 5,
+            "c": 3,
+            "answer": "CORO",
+            "clue": "Grupo de voces afinadas cantando al unísono (4 letras)"
+          }
+        ]
+      },
+      {
+        "id": "natureza",
+        "name": "🌿 Naturaleza & Flores",
+        "size": 7,
+        "words": [
+          {
+            "num": 1,
+            "dir": "H",
+            "r": 0,
+            "c": 0,
+            "answer": "FLORES",
+            "clue": "Crecen en primavera y perfuman con dulzura el hogar (6 letras)"
+          },
+          {
+            "num": 2,
+            "dir": "V",
+            "r": 0,
+            "c": 5,
+            "answer": "SOLAR",
+            "clue": "Luz y tibieza que proviene de nuestro astro-rey (5 letras)"
+          },
+          {
+            "num": 3,
+            "dir": "H",
+            "r": 3,
+            "c": 0,
+            "answer": "TIERRA",
+            "clue": "Suelo fecundo donde germina la vida vegetal (6 letras)"
+          },
+          {
+            "num": 4,
+            "dir": "V",
+            "r": 1,
+            "c": 2,
+            "answer": "VIENTO",
+            "clue": "Brisa fresca que acaricia las hojas de los árboles (6 letras)"
+          },
+          {
+            "num": 5,
+            "dir": "H",
+            "r": 6,
+            "c": 1,
+            "answer": "BOSQUE",
+            "clue": "Arboleda apacible llena de senderos sombreados (6 letras)"
+          }
+        ]
+      }
+    ]
+  }
+};
 
     let currentLang = CURRENT_LANG;
     let currentThemeIndex = 0;
@@ -1098,18 +1430,50 @@
       if (!activeWord) return;
 
       const letters = activeWord.answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-      let complete = true;
+      let isComplete = true;
+      let isCorrect = true;
+
       for (let i = 0; i < letters.length; i++) {
         const r = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
         const c = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
-        if (currentBoard.gridData[r][c].userLetter !== letters[i]) {
-          complete = false;
+        const cell = currentBoard.gridData[r][c];
+        if (!cell.userLetter) {
+          isComplete = false;
           break;
         }
+        if (cell.userLetter !== letters[i]) {
+          isCorrect = false;
+        }
       }
-      if (complete && !activeWord.solved) {
-        activeWord.solved = true;
-        audio.successWord();
+
+      if (isComplete) {
+        if (isCorrect) {
+          if (!activeWord.solved) {
+            activeWord.solved = true;
+            audio.successWord();
+          }
+          // Pinta as células da palavra acertada permanentemente de verde brilhante!
+          for (let i = 0; i < letters.length; i++) {
+            const r = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
+            const c = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
+            const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+            if (el) {
+              el.classList.add('word-solved');
+              el.classList.remove('word-wrong');
+            }
+          }
+        } else {
+          // Palavra preenchida com erro: destaque e tremulação vermelha temporária
+          for (let i = 0; i < letters.length; i++) {
+            const r = activeWord.dir === 'H' ? activeWord.r : activeWord.r + i;
+            const c = activeWord.dir === 'H' ? activeWord.c + i : activeWord.c;
+            const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+            if (el) {
+              el.classList.add('word-wrong');
+              setTimeout(() => { if (el) el.classList.remove('word-wrong'); }, 800);
+            }
+          }
+        }
       }
     }
 
