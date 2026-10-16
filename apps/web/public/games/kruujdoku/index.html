@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
+  <script src="/sdk/v1/kruuj-loader.js"></script>
 
 <script>
 const LANG_GENERIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
@@ -330,46 +331,7 @@ fit();
 startLevel(level);
 </script>
 <script>
-const KruujLoader=(()=>{
-  const $=id=>document.getElementById(id);
-  let target,shown,cfg,t0,raf,tipTimer,finished,closing;
-  const wait=ms=>new Promise(r=>setTimeout(r,ms));
-  function frame(){
-    if(!cfg.manual&&!finished)target=Math.min(.9,target+.004*(1-target)+.0015);
-    shown+=(target-shown)*.08;
-    if(finished&&target-shown<.002)shown=target;
-    const pc=Math.round(shown*100);
-    $('kl-fill').style.width=pc+'%';$('kl-rider').style.left=pc+'%';$('kl-pct').textContent=pc+'%';
-    if(shown>=1&&performance.now()-t0>=cfg.minTime)return close();
-    raf=requestAnimationFrame(frame);
-  }
-  async function close(){
-    if(closing)return;closing=true;clearInterval(tipTimer);
-    $('kl').classList.add('out');await wait(650);
-    $('kl').style.display='none';cfg.onComplete();
-  }
-  async function start(c){
-    cfg={gameName:'Seu jogo',tagline:'',tips:['Use fones para a melhor experiência.','Dica: respire fundo e boa sorte!'],splash: 2200,minTime: 3000,manual:false,onComplete(){},...c};
-    target=shown=0;finished=closing=false;
-    const kl=$('kl');kl.style.display='';kl.classList.remove('out');
-    const [sp,ld]=kl.querySelectorAll('.ph');
-    sp.classList.remove('off');ld.classList.add('off');$('kl-brand').style.opacity='';
-    // reinicia as animações da abertura
-    sp.style.display='none';void sp.offsetWidth;sp.style.display='';
-    $('kl-name').textContent=cfg.gameName;$('kl-tag').textContent=cfg.tagline;
-    document.title=cfg.gameName+' – Kruuj Studio';
-    await wait(cfg.splash);
-    sp.classList.add('off');await wait(450);ld.classList.remove('off');
-    $('kl-brand').style.opacity=.6;t0=performance.now();
-    let i=0;const tip=$('kl-tip');
-    const nextTip=()=>{tip.style.opacity=0;setTimeout(()=>{tip.textContent=cfg.tips[i++%cfg.tips.length]||'';tip.style.opacity=.85},350)};
-    if(cfg.tips.length){nextTip();tipTimer=setInterval(nextTip,3200)}
-    cancelAnimationFrame(raf);raf=requestAnimationFrame(frame);
-  }
-  return{start,
-    setProgress(v){cfg.manual=true;target=Math.max(target,Math.min(1,v))},
-    finish(){finished=true;target=1}};
-})();
+// KruujLoader fornecido centralmente via /sdk/v1/kruuj-loader.js
 
 window.addEventListener('DOMContentLoaded', () => {
   try {

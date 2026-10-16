@@ -5,18 +5,14 @@
   <title>KRUUJ Palavras Cruzadas Zen / Zen Crosswords</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
+  <script src="/sdk/v1/kruuj-loader.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
 
   <script>
-    if (window.self !== window.top) {
-      window.addEventListener('DOMContentLoaded', () => {
-        const kl = document.getElementById('kl');
-        if (kl) kl.style.display = 'none';
-      });
-    }
+    /* Loader ativo no iframe */
 
     const URL_LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
     const IS_PT = !URL_LANG.startsWith('en') && !URL_LANG.startsWith('es');
