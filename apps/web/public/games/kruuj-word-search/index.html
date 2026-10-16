@@ -302,6 +302,47 @@
       color: #fff;
       border-color: var(--gold);
     }
+    .letter-cell.found {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      border-color: rgba(255, 255, 255, 0.45) !important;
+      animation: cellPop 0.3s ease;
+    }
+    @keyframes cellPop {
+      0% { transform: scale(0.92); }
+      50% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .letter-cell.found-color-0 {
+      background: linear-gradient(135deg, rgba(245, 196, 98, 0.75), rgba(217, 119, 6, 0.55)) !important;
+      border-color: #f5c462 !important;
+      box-shadow: 0 0 12px rgba(245, 196, 98, 0.4) !important;
+    }
+    .letter-cell.found-color-1 {
+      background: linear-gradient(135deg, rgba(74, 222, 128, 0.75), rgba(16, 185, 129, 0.55)) !important;
+      border-color: #4ade80 !important;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.4) !important;
+    }
+    .letter-cell.found-color-2 {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.75), rgba(59, 130, 246, 0.55)) !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 12px rgba(96, 165, 250, 0.4) !important;
+    }
+    .letter-cell.found-color-3 {
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.75), rgba(236, 72, 153, 0.55)) !important;
+      border-color: #f472b6 !important;
+      box-shadow: 0 0 12px rgba(244, 114, 182, 0.4) !important;
+    }
+    .letter-cell.found-color-4 {
+      background: linear-gradient(135deg, rgba(192, 132, 252, 0.75), rgba(168, 85, 247, 0.55)) !important;
+      border-color: #c084fc !important;
+      box-shadow: 0 0 12px rgba(192, 132, 252, 0.4) !important;
+    }
+    .letter-cell.found-color-5 {
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.75), rgba(234, 88, 12, 0.55)) !important;
+      border-color: #fb923c !important;
+      box-shadow: 0 0 12px rgba(251, 146, 60, 0.4) !important;
+    }
     .letter-cell.hint-pulse {
       animation: hintGlow 1.2s infinite ease-in-out;
     }
@@ -1055,8 +1096,19 @@
         if (!foundWords.has(pw.cleaned) && (pw.cleaned === forward || pw.cleaned === reverse)) {
           foundWords.add(pw.cleaned);
           pw.colorIndex = colorIdx % HIGHLIGHT_COLORS.length;
+
+          // Pinta as células da palavra encontrada na grade imediatamente!
+          const wordCells = getLineCells(pw.start, pw.end);
+          wordCells.forEach(pt => {
+            const el = document.querySelector(`.letter-cell[data-r="${pt.r}"][data-c="${pt.c}"]`);
+            if (el) {
+              el.classList.add('found', `found-color-${pw.colorIndex}`);
+            }
+          });
+
           audio.wordFound();
           renderWordList();
+          drawFoundHighlights();
           checkVictory();
         }
       });
@@ -1072,6 +1124,20 @@
     }
 
     function drawFoundHighlights() {
+      // Garante que todas as palavras já encontradas continuem pintadas nas células
+      placedWords.forEach((pw, colorIdx) => {
+        if (foundWords.has(pw.cleaned)) {
+          const cIdx = pw.colorIndex !== undefined ? pw.colorIndex : (colorIdx % HIGHLIGHT_COLORS.length);
+          const wordCells = getLineCells(pw.start, pw.end);
+          wordCells.forEach(pt => {
+            const el = document.querySelector(`.letter-cell[data-r="${pt.r}"][data-c="${pt.c}"]`);
+            if (el) {
+              el.classList.add('found', `found-color-${cIdx}`);
+            }
+          });
+        }
+      });
+
       const canvas = document.getElementById('selection-canvas');
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
