@@ -1416,8 +1416,8 @@ export default function App() {
       subcategories: ['Corrida', 'Retrô', 'Ação'],
       tags: ['corrida', 'outrun', 'retro', 'kruuj', 'arcade', 'carros'],
       ageRating: 'Livre',
-      bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
-      iconUrl: 'rocket',
+      bannerUrl: '/banners/kruuj-overdrive.png',
+      iconUrl: '/icons/kruuj-overdrive.png',
       prefixUrl: '/games/kruuj-overdrive/',
       version: '1.0.0',
       controls: { mouse: true, teclado: true, toque: true, gamepad: false },
@@ -2954,10 +2954,10 @@ export default function App() {
   // Helper para renderizar a imagem de capa (foto real) ou ícone do jogo
   const renderGameCover = (game: Game) => {
     const validImage = 
-      (game.bannerUrl && (game.bannerUrl.startsWith('http') || game.bannerUrl.startsWith('/'))) 
-        ? game.bannerUrl 
-        : ((game.iconUrl && (game.iconUrl.startsWith('http') || game.iconUrl.startsWith('/'))) 
-          ? game.iconUrl 
+      (game.iconUrl && (game.iconUrl.startsWith('/') || game.iconUrl.startsWith('http')))
+        ? game.iconUrl
+        : ((game.bannerUrl && (game.bannerUrl.startsWith('http') || game.bannerUrl.startsWith('/'))) 
+          ? game.bannerUrl 
           : null);
 
     if (validImage) {
@@ -3024,7 +3024,7 @@ export default function App() {
       subtitle: 'Acelere em neon arcade pelas ruas de Tóquio, Miami e Berlim em alta velocidade!',
       tag: 'CORRIDA RETRÔ',
       slug: 'kruuj-overdrive',
-      bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
+      bannerUrl: '/banners/kruuj-overdrive.png',
       category: 'Arcade / Corrida'
     },
     {
