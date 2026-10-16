@@ -626,7 +626,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-044'
   },
   {
-    title: 'KRUUJ Palavras Cruzadas Zen',
+    title: 'KRUUJ CROSSWORDS',
     slug: 'kruuj-zen-crosswords',
     description: 'Palavras cruzadas relaxantes de alta legibilidade com temas de sabedoria, viagens e artes. Estimule seu vocabulário e memória sem pressão de tempo.',
     category: 'Sênior Play',
@@ -650,7 +650,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-045'
   },
   {
-    title: 'KRUUJ Caça-Palavras dos Mestres',
+    title: 'KRUUJ SEARCH',
     slug: 'kruuj-word-search',
     description: 'Caça-palavras tradicional com letras nítidas e seleção suave por arrasto ou dois toques. Descubra palavras ricas e treine o foco visual.',
     category: 'Sênior Play',
@@ -674,7 +674,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-046'
   },
   {
-    title: 'KRUUJ Memória Dourada',
+    title: 'KRUUJ MEMORY',
     slug: 'kruuj-golden-memory',
     description: 'O nobre jogo da memória com ícones afetivos vintage e animação 3D suave. Estimule sua memória de curto prazo no seu próprio ritmo.',
     category: 'Sênior Play',
@@ -698,7 +698,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-047'
   },
   {
-    title: 'KRUUJ Dominó dos Mestres',
+    title: 'KRUUJ DOMINO',
     slug: 'kruuj-master-dominoes',
     description: 'O tradicional dominó de 28 pedras (duplo 6) jogado de forma zen contra IA amigável. Pedras grandes de marfim, regras oficiais e destaque tático.',
     category: 'Sênior Play',
@@ -722,7 +722,7 @@ export const REAL_18_GAMES = [
     contractNumber: 'CON-2026-048'
   },
   {
-    title: 'KRUUJ Galeria de Quebra-Cabeças',
+    title: 'KRUUJ JIGSAW',
     slug: 'kruuj-jigsaw-gallery',
     description: 'Quebra-cabeça artístico com paisagens relaxantes, guia fantasma, filtro de bordas e encaixe magnético suave. Montagem meditativa sem estresse.',
     category: 'Sênior Play',

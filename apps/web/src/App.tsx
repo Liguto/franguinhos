@@ -1683,7 +1683,7 @@ export default function App() {
     {
       id: '28',
       slug: 'kruuj-zen-crosswords',
-      title: 'KRUUJ Palavras Cruzadas Zen',
+      title: 'KRUUJ CROSSWORDS',
       description: 'Palavras cruzadas relaxantes de alta legibilidade com temas de sabedoria, viagens e artes. Estimule seu vocabulário e memória sem pressão de tempo.',
       category: 'Sênior Play',
       subcategories: ['Palavras', 'Cruzadas', 'Cognitivo', 'Relaxante', 'Lógica'],
@@ -1704,7 +1704,7 @@ export default function App() {
     {
       id: '29',
       slug: 'kruuj-word-search',
-      title: 'KRUUJ Caça-Palavras dos Mestres',
+      title: 'KRUUJ SEARCH',
       description: 'Caça-palavras tradicional com letras nítidas e seleção suave por arrasto ou dois toques. Descubra palavras ricas e treine o foco visual.',
       category: 'Sênior Play',
       subcategories: ['Caça-Palavras', 'Percepção', 'Cognitivo', 'Relaxante', 'Vocabulário'],
@@ -1725,7 +1725,7 @@ export default function App() {
     {
       id: '30',
       slug: 'kruuj-golden-memory',
-      title: 'KRUUJ Memória Dourada',
+      title: 'KRUUJ MEMORY',
       description: 'O nobre jogo da memória com ícones afetivos vintage e animação 3D suave. Estimule sua memória de curto prazo no seu próprio ritmo.',
       category: 'Sênior Play',
       subcategories: ['Memória', 'Vintage', 'Cognitivo', 'Relaxante', 'Clássico'],
@@ -1746,7 +1746,7 @@ export default function App() {
     {
       id: '31',
       slug: 'kruuj-master-dominoes',
-      title: 'KRUUJ Dominó dos Mestres',
+      title: 'KRUUJ DOMINO',
       description: 'O tradicional dominó de 28 pedras (duplo 6) jogado de forma zen contra IA amigável. Pedras grandes de marfim, regras oficiais e destaque tático.',
       category: 'Sênior Play',
       subcategories: ['Dominó', 'Tabuleiro', 'Estratégia', 'Clássico', 'Raciocínio'],
@@ -1767,7 +1767,7 @@ export default function App() {
     {
       id: '32',
       slug: 'kruuj-jigsaw-gallery',
-      title: 'KRUUJ Galeria de Quebra-Cabeças',
+      title: 'KRUUJ JIGSAW',
       description: 'Quebra-cabeça artístico com paisagens relaxantes, guia fantasma, filtro de bordas e encaixe magnético suave. Montagem meditativa sem estresse.',
       category: 'Sênior Play',
       subcategories: ['Quebra-Cabeça', 'Arte', 'Paisagem', 'Relaxante', 'Cognitivo'],

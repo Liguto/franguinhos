@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Galeria de Quebra-Cabeças / Jigsaw Art Gallery</title>
+  <title>KRUUJ JIGSAW – Kruuj Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <script src="/sdk/v1/kruuj-sdk.js"></script>
   <script src="/sdk/v1/kruuj-loader.js"></script>
@@ -48,46 +48,77 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow: hidden; /* ZERO SCROLLBARS NO IFRAME */
       background: radial-gradient(circle at 50% 15%, #1d2748 0%, var(--bg) 85%);
       color: var(--text-white);
       font-family: var(--font-ui);
     }
-
-    /* KruujLoader nativo */
-    #kl {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: radial-gradient(ellipse at 50% 40%, #172244 0%, var(--bg) 75%);
-      display: grid;
-      place-items: center;
-      padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
-      transition: opacity .6s ease, visibility .6s;
-    }
-    #kl.out { opacity: 0; visibility: hidden; }
-    #kl .ph { grid-area: 1/1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; transition: opacity .5s ease; text-align: center; }
-    #kl .ph.off { opacity: 0; pointer-events: none; }
-    .splash .owl-icon { width: 120px; height: 120px; border-radius: 50%; filter: drop-shadow(0 0 20px rgba(244,196,98,0.6)); animation: floatOwl 2.8s ease-in-out infinite; }
-    @keyframes floatOwl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    .splash .logo-title { font-family: var(--font-title); font-size: 2.2rem; font-weight: 700; color: var(--gold); margin: 16px 0 4px; letter-spacing: 0.05em; }
-    .splash .sub { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
-    .track { position: relative; width: 100%; height: 10px; margin: 32px 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
-    .fill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold-dark), var(--gold)); transition: width 0.2s ease; }
-    .pct { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
-    .tip { margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; }
 
     /* LAYOUT PRINCIPAL */
     .app-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100dvh;
-      max-width: 900px;
+      width: 100%;
+      height: 100vh;
+      max-width: 1050px;
       margin: 0 auto;
-      padding: 8px 12px 20px;
+      padding: 4px 12px 6px;
+      box-sizing: border-box;
+      overflow: hidden;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 769px) {
+      .top-header {
+        padding: 4px 0 6px !important;
+      }
+      .art-bar {
+        padding: 4px 2px !important;
+      }
+      .art-chip {
+        min-height: 32px !important;
+        font-size: 0.8rem !important;
+      }
+      .tools-bar {
+        margin: 2px 0 4px !important;
+      }
+      .btn-diff, .btn-tool {
+        min-height: 32px !important;
+        font-size: 0.8rem !important;
+        padding: 0 10px !important;
+      }
+      .puzzle-board-container {
+        flex: 1 !important;
+        min-height: 180px !important;
+        max-height: calc(100vh - 210px) !important;
+        aspect-ratio: 4 / 3 !important;
+        width: auto !important;
+        height: 100% !important;
+        margin: 0 auto !important;
+      }
+      .tray-section {
+        padding: 4px 8px !important;
+        margin-top: 2px !important;
+      }
+      .tray-header {
+        margin-bottom: 2px !important;
+      }
+      .tray-pieces-scroll {
+        min-height: 55px !important;
+        max-height: 70px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      html, body {
+        overflow-y: auto;
+      }
+      .app-container {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+      }
     }
 
     /* TOP HEADER & POKI RECUO */
@@ -485,7 +516,7 @@
       <div class="brand-group">
         <div class="game-logo">🧩</div>
         <div class="game-titles">
-          <h1 id="ui-title">Galeria de Quebra-Cabeças</h1>
+          <h1 id="ui-title">KRUUJ JIGSAW</h1>
           <span id="ui-subtitle">KRUUJ Studio 60+</span>
         </div>
       </div>
