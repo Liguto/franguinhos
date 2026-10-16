@@ -861,9 +861,14 @@
     function buildVirtualKeyboard() {
       const kbContainer = document.getElementById('virtual-keyboard');
       kbContainer.innerHTML = '';
+      
+      const row2 = currentLang === 'es'
+        ? ['A','S','D','F','G','H','J','K','L','Ñ']
+        : ['A','S','D','F','G','H','J','K','L','Ç'];
+
       const rows = [
         ['Q','W','E','R','T','Y','U','I','O','P'],
-        ['A','S','D','F','G','H','J','K','L'],
+        row2,
         ['DEL', 'Z','X','C','V','B','N','M', '➔']
       ];
 
@@ -1030,7 +1035,7 @@
         moveToPrevCell();
       } else if (key === '➔' || key === 'Enter') {
         moveToNextCell();
-      } else if (/^[A-ZÑÁÉÍÓÚ]$/i.test(key)) {
+      } else if (/^[A-ZÑÁÉÍÓÚÇ]$/i.test(key)) {
         const cleanChar = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
         cellData.userLetter = cleanChar;
         renderCellText(selectedRow, selectedCol, cleanChar);
@@ -1210,7 +1215,7 @@
         if (e.key === 'ArrowLeft' && selectedCol > 0) { selectedCol--; updateSelection(); }
         if (e.key === 'ArrowDown' && selectedRow < currentBoard.size - 1) { selectedRow++; updateSelection(); }
         if (e.key === 'ArrowUp' && selectedRow > 0) { selectedRow--; updateSelection(); }
-      } else if (e.key.length === 1 && /^[a-zA-ZñáéíóúÁÉÍÓÚÑ]$/i.test(e.key)) {
+      } else if (e.key.length === 1 && /^[a-zA-ZñáéíóúÁÉÍÓÚÑçÇ]$/i.test(e.key)) {
         handleKeyPress(e.key.toUpperCase());
       }
     });
