@@ -4099,8 +4099,8 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */
           <>
+            {/* VIEWS DE JOGO EM FOCO OU ÁREA ADMINISTRATIVA INTEIRA */}
             {view === 'playing' && selectedGame && (
               <div className="poki-stage-container">
                 {/* 1. LINHA SUPERIOR DO PALCO (ESQUERDA - CENTRO - DIREITA) */}
@@ -4192,7 +4192,7 @@ export default function App() {
                         </div>
                       )}
 
-                      /* JOGO EM EXECUÇÃO REAL AO VIVO (PADRÃO POKI.COM COM KRUUJPORTALLOADER DE 3S) */
+                      {/* JOGO EM EXECUÇÃO REAL AO VIVO (PADRÃO POKI.COM) */}
                       <div className="poki-stage-iframe-container" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
                         {isPhysicalGame(selectedGame.slug) ? (
                           <iframe
