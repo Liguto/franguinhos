@@ -224,32 +224,31 @@
       transform: scale(0.96);
     }
 
-    /* BARRA DE TEMAS */
+    /* SELETOR DE TEMAS (GRID 2x2: 100% VISÍVEL, ZERO CORTE, ZERO SCROLL) */
     .themes-bar {
       width: 100%;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 10px 2px;
-      scrollbar-width: none;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      padding: 4px 0 8px;
     }
-    .themes-bar::-webkit-scrollbar { display: none; }
     .theme-chip {
-      flex: 1 0 auto;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 22px;
+      min-height: 38px;
+      padding: 0 8px;
+      border-radius: 12px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      font-size: 0.92rem;
-      font-weight: 600;
+      font-size: 0.82rem;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      text-align: center;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: all 0.2s;
     }
     .theme-chip.active {
@@ -349,17 +348,6 @@
     @keyframes hintGlow {
       0%, 100% { background: var(--cell-bg); transform: scale(1); }
       50% { background: var(--gold); color: #0c1222; transform: scale(1.1); box-shadow: 0 0 16px var(--gold); }
-    }
-
-    /* CANVAS DE MARCA-TEXTO RETROILUMINADO */
-    #selection-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
     }
 
     /* LISTA DE PALAVRAS A ENCONTRAR */
@@ -557,7 +545,6 @@
     <div class="game-main-content">
       <!-- TABULEIRO DO CAÇA-PALAVRAS -->
       <main class="game-board-area" id="board-container">
-        <canvas id="selection-canvas"></canvas>
         <div class="word-grid" id="grid"></div>
       </main>
 
@@ -676,7 +663,7 @@
        ========================================================= */
     const I18N_DATA = {
       pt: {
-        title: "Caça-Palavras dos Mestres",
+        title: "KRUUJ SEARCH",
         subtitle: "KRUUJ Studio 60+",
         wordsTitle: "Palavras a encontrar",
         hint: "Dica Amiga",
@@ -712,7 +699,7 @@
         ]
       },
       en: {
-        title: "Word Search Masters",
+        title: "KRUUJ SEARCH",
         subtitle: "KRUUJ Studio 60+",
         wordsTitle: "Words to find",
         hint: "Gentle Hint",
@@ -748,7 +735,7 @@
         ]
       },
       es: {
-        title: "Sopa de Letras Maestra",
+        title: "KRUUJ SEARCH",
         subtitle: "KRUUJ Studio 60+",
         wordsTitle: "Palabras a buscar",
         hint: "Pista Amiga",
@@ -915,7 +902,6 @@
 
       renderGrid();
       renderWordList();
-      resizeCanvas();
       drawFoundHighlights();
     }
 
@@ -1114,17 +1100,8 @@
       });
     }
 
-    function resizeCanvas() {
-      const canvas = document.getElementById('selection-canvas');
-      const grid = document.getElementById('grid');
-      canvas.width = grid.offsetWidth;
-      canvas.height = grid.offsetHeight;
-      canvas.style.top = grid.offsetTop + 'px';
-      canvas.style.left = grid.offsetLeft + 'px';
-    }
-
     function drawFoundHighlights() {
-      // Garante que todas as palavras já encontradas continuem pintadas nas células
+      // Garante que todas as palavras já encontradas continuem pintadas diretamente nas células com suas cores temáticas
       placedWords.forEach((pw, colorIdx) => {
         if (foundWords.has(pw.cleaned)) {
           const cIdx = pw.colorIndex !== undefined ? pw.colorIndex : (colorIdx % HIGHLIGHT_COLORS.length);
@@ -1135,33 +1112,6 @@
               el.classList.add('found', `found-color-${cIdx}`);
             }
           });
-        }
-      });
-
-      const canvas = document.getElementById('selection-canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      placedWords.forEach((pw) => {
-        if (foundWords.has(pw.cleaned)) {
-          const startEl = document.querySelector(`.letter-cell[data-r="${pw.start.r}"][data-c="${pw.start.c}"]`);
-          const endEl = document.querySelector(`.letter-cell[data-r="${pw.end.r}"][data-c="${pw.end.c}"]`);
-          if (startEl && endEl) {
-            const x1 = startEl.offsetLeft + startEl.offsetWidth / 2;
-            const y1 = startEl.offsetTop + startEl.offsetHeight / 2;
-            const x2 = endEl.offsetLeft + endEl.offsetWidth / 2;
-            const y2 = endEl.offsetTop + endEl.offsetHeight / 2;
-
-            ctx.save();
-            ctx.lineCap = 'round';
-            ctx.lineWidth = startEl.offsetWidth * 0.85;
-            ctx.strokeStyle = HIGHLIGHT_COLORS[pw.colorIndex || 0];
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-            ctx.restore();
-          }
         }
       });
     }
@@ -1222,7 +1172,6 @@
     };
 
     window.addEventListener('resize', () => {
-      resizeCanvas();
       drawFoundHighlights();
     });
 
