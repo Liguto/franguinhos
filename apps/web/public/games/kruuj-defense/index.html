@@ -1553,8 +1553,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     const DIFFICULTIES = [
       { id: 'easy', name: 'Fácil', icon: '🟢', lives: 40, startMoney: 750, speedMult: 0.90, costMult: 0.90, rewardMult: 1.10, waveBonusMult: 1.15, bossHpMult: 0.85, spawnInterval: 26 },
       { id: 'medium', name: 'Médio', icon: '🟡', lives: 20, startMoney: 650, speedMult: 1.00, costMult: 1.00, rewardMult: 1.00, waveBonusMult: 1.00, bossHpMult: 1.00, spawnInterval: 22 },
-      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 10, startMoney: 500, speedMult: 1.15, costMult: 1.05, rewardMult: 0.85, waveBonusMult: 0.85, bossHpMult: 1.30, spawnInterval: 18 },
-      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 450, speedMult: 1.30, costMult: 1.10, rewardMult: 0.75, waveBonusMult: 0.70, bossHpMult: 1.65, spawnInterval: 14 }
+      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 15, startMoney: 600, speedMult: 1.08, costMult: 1.00, rewardMult: 0.90, waveBonusMult: 0.92, bossHpMult: 1.10, spawnInterval: 20 },
+      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 550, speedMult: 1.18, costMult: 1.05, rewardMult: 0.82, waveBonusMult: 0.80, bossHpMult: 1.35, spawnInterval: 16 }
     ];
 
     // ===== 2. DEFINIÇÃO DAS TRILHAS E FASES TEMÁTICAS =====
@@ -3046,29 +3046,47 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Rodadas Redondas 10, 20, 30, 40, 50, 60, 70... -> BALÃO TITÃ ZEPELIM!
         if (r % 10 === 0) {
           this.sound.playBossHorn();
-          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * (this.difficulty.bossHpMult || 1.0));
+          // Calibração do HP do Boss:
+          // Na onda 10 (primeiro chefe): 50 base HP (Hard = 55 HP, Extreme = 68 HP)
+          // Nas ondas 20+: escala suavemente
+          const tier = r / 10;
+          const baseHp = tier === 1 ? 50 : (50 + (tier - 1) * 90);
+          const bossHp = Math.round(baseHp * (this.difficulty.bossHpMult || 1.0));
           this.spawnQueue.push({ type: 'boss', hp: bossHp });
-          const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
-          const escortMult = this.difficulty.id === 'extreme' ? 1.35 : (this.difficulty.id === 'hard' ? 1.15 : 1.0);
-          const yellowEscorts = Math.round(Math.min(22, 6 + Math.floor(r / 5)) * escortMult);
-          const ceramicEscorts = Math.round(Math.min(16, 2 + Math.floor(r / 6)) * escortMult);
-          for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
-          for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
+
+          if (r === 10) {
+            // Na onda 10, escoltas equilibradas para dar desafio tático sem sufocar
+            const isHard = this.difficulty.id === 'hard';
+            const isExtreme = this.difficulty.id === 'extreme';
+            const greenEscorts = isExtreme ? 8 : (isHard ? 6 : 4);
+            const yellowEscorts = isExtreme ? 5 : (isHard ? 3 : 2);
+            for (let i = 0; i < greenEscorts; i++) this.spawnQueue.push('green');
+            for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
+          } else {
+            const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
+            const escortMult = this.difficulty.id === 'extreme' ? 1.25 : (this.difficulty.id === 'hard' ? 1.10 : 1.0);
+            const yellowEscorts = Math.round(Math.min(18, 6 + Math.floor(r / 5)) * escortMult);
+            const ceramicEscorts = Math.round(Math.min(12, 2 + Math.floor(r / 6)) * escortMult);
+            for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
+            for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
+          }
           return;
         }
 
         // Densidade calibrada para desafio tático justo em todas as dificuldades
         const isHard = this.difficulty.id === 'hard';
         const isExtreme = this.difficulty.id === 'extreme';
-        const densityMult = isExtreme ? 1.25 : (isHard ? 1.10 : 1.0);
+        const densityMult = isExtreme ? 1.20 : (isHard ? 1.05 : 1.0);
 
         const redCount = r <= 15 ? Math.round(Math.max(0, 12 - r) * densityMult) : 0;
         const blueCount = r <= 35 ? Math.round(Math.min(24, Math.max(4, 18 - Math.floor(r / 2))) * densityMult) : 0;
         const greenCount = r >= 2 && r <= 45 ? Math.round(Math.min(22, 5 + Math.floor(r * 0.8)) * densityMult) : 0;
-        const yellowCount = r >= 4 ? Math.round(Math.min(28, 6 + Math.floor(r * 0.7)) * densityMult) : 0;
-        const pinkCount = (isExtreme ? r >= 3 : (isHard ? r >= 5 : r >= 8)) ? Math.round(Math.min(22, 3 + Math.floor(r * 0.65)) * densityMult) : 0;
-        const leadCount = (isExtreme ? r >= 5 : (isHard ? r >= 7 : r >= 10)) ? Math.round(Math.min(18, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
-        const ceramicCount = (isExtreme ? r >= 8 : (isHard ? r >= 11 : r >= 14)) ? Math.round(Math.min(28, 3 + Math.floor(r * 0.6)) * densityMult) : 0;
+        const yellowCount = r >= 4 ? Math.round(Math.min(26, 6 + Math.floor(r * 0.7)) * densityMult) : 0;
+        // Pinks e Leads introduzidos com respiro tático pré-onda 10
+        const pinkCount = (isExtreme ? r >= 5 : (isHard ? r >= 7 : r >= 8)) ? Math.round(Math.min(18, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
+        const leadCount = (isExtreme ? r >= 6 : (isHard ? r >= 8 : r >= 10)) ? Math.round(Math.min(14, 2 + Math.floor(r * 0.4)) * densityMult) : 0;
+        // Cerâmica surge após o primeiro boss
+        const ceramicCount = (isExtreme ? r >= 9 : (isHard ? r >= 11 : r >= 14)) ? Math.round(Math.min(22, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
 
         for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
         for (let i = 0; i < blueCount; i++) this.spawnQueue.push('blue');
@@ -3083,7 +3101,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Decaimento econômico suave apenas a partir da onda 20 em dificuldades altas
         let decay = 1.0;
         if ((this.difficulty.id === 'hard' || this.difficulty.id === 'extreme') && this.round >= 20) {
-          decay = Math.max(0.70, 1.0 - (this.round - 20) * 0.02);
+          decay = Math.max(0.75, 1.0 - (this.round - 20) * 0.015);
         }
         const earned = Math.max(1, Math.round(enemy.reward * (this.difficulty.rewardMult || 1.0) * decay));
         this.money += earned;
@@ -3092,17 +3110,48 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
         if (enemy.isBoss) {
           const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
-          const escortCount = isHardOrExt ? 6 : 4;
+          const isEarlyBoss = this.round <= 15;
+          const escortCount = isEarlyBoss ? 4 : (isHardOrExt ? 6 : 4);
+
           for (let k = 0; k < escortCount; k++) {
-            const escortType = isHardOrExt ? (k % 2 === 0 ? 'pink' : 'lead') : 'yellow';
+            let escortType;
+            if (isEarlyBoss) {
+              escortType = (k % 2 === 0 ? 'yellow' : 'green');
+            } else {
+              escortType = isHardOrExt ? (k % 2 === 0 ? 'pink' : 'lead') : 'yellow';
+            }
+
             const escort = new Enemy(escortType, this.map.waypoints);
-            // Eclode os balões de escolta exatamente na posição do Titã destruído
-            escort.x = enemy.x + (Math.random() - 0.5) * 24;
-            escort.y = enemy.y + (Math.random() - 0.5) * 24;
-            escort.targetIndex = Math.min(enemy.targetIndex, this.map.waypoints.length - 1);
-            escort.traveledDistance = Math.max(0, enemy.traveledDistance - k * 14);
+
+            // Espaçamento seguro na trilha para dar tempo de defesa sem vazamento instantâneo
+            const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 22);
+            escort.traveledDistance = safeDistance;
+
+            let acc = 0;
+            let targetIdx = 1;
+            let posX = this.map.waypoints[0].x;
+            let posY = this.map.waypoints[0].y;
+
+            for (let w = 0; w < this.map.waypoints.length - 1; w++) {
+              const p1 = this.map.waypoints[w];
+              const p2 = this.map.waypoints[w + 1];
+              const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+              if (acc + segLen >= safeDistance) {
+                targetIdx = w + 1;
+                const ratio = Math.max(0, Math.min(1, (safeDistance - acc) / segLen));
+                posX = p1.x + (p2.x - p1.x) * ratio;
+                posY = p1.y + (p2.y - p1.y) * ratio;
+                break;
+              }
+              acc += segLen;
+            }
+
+            escort.x = posX + (Math.random() - 0.5) * 16;
+            escort.y = posY + (Math.random() - 0.5) * 16;
+            escort.targetIndex = targetIdx;
             this.enemies.push(escort);
           }
+
           this.activeBoss = null;
           document.getElementById('boss-hud').style.display = 'none';
         }
