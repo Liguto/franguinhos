@@ -1549,12 +1549,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
     }
 
-    // ===== 1.2 DEFINIÇÃO DE DIFICULDADES =====
+    // ===== 1.2 DEFINIÇÃO DE DIFICULDADES BALANCEADAS =====
     const DIFFICULTIES = [
       { id: 'easy', name: 'Fácil', icon: '🟢', lives: 40, startMoney: 750, speedMult: 0.90, costMult: 0.90, rewardMult: 1.10, waveBonusMult: 1.15, bossHpMult: 0.85, spawnInterval: 26 },
       { id: 'medium', name: 'Médio', icon: '🟡', lives: 20, startMoney: 650, speedMult: 1.00, costMult: 1.00, rewardMult: 1.00, waveBonusMult: 1.00, bossHpMult: 1.00, spawnInterval: 22 },
-      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 6, startMoney: 460, speedMult: 1.25, costMult: 1.15, rewardMult: 0.70, waveBonusMult: 0.60, bossHpMult: 1.60, spawnInterval: 16 },
-      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 360, speedMult: 1.42, costMult: 1.25, rewardMult: 0.50, waveBonusMult: 0.35, bossHpMult: 2.40, spawnInterval: 11 }
+      { id: 'hard', name: 'Difícil', icon: '🔴', lives: 10, startMoney: 500, speedMult: 1.15, costMult: 1.05, rewardMult: 0.85, waveBonusMult: 0.85, bossHpMult: 1.30, spawnInterval: 18 },
+      { id: 'extreme', name: 'Extremo', icon: '💀', lives: 1, startMoney: 450, speedMult: 1.30, costMult: 1.10, rewardMult: 0.75, waveBonusMult: 0.70, bossHpMult: 1.65, spawnInterval: 14 }
     ];
 
     // ===== 2. DEFINIÇÃO DAS TRILHAS E FASES TEMÁTICAS =====
@@ -1764,7 +1764,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.isAlive = true;
         this.reachedEnd = false;
         this.slowTimer = 0;
+        this.slowFactor = 0.5;
+        this.stunTimer = 0;
         this.traveledDistance = 0;
+        this.isBoss = false;
+        this.isLead = false;
+        this.isCeramic = false;
 
         if (type === 'red') {
           this.health = 1;
@@ -1816,6 +1821,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           this.reward = 4;
           this.color = '#8b5cff';
           this.radius = 16;
+          this.isCeramic = true;
         } else if (type === 'boss') {
           this.health = hpOverride || 80;
           this.maxHp = this.health;
@@ -1830,6 +1836,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       update(timeScale = 1.0) {
         if (!this.isAlive || this.reachedEnd) return;
 
+        // Microatordoamento (Supernova)
+        if (this.stunTimer > 0) {
+          this.stunTimer -= timeScale;
+          return;
+        }
+
         const target = this.waypoints[this.targetIndex];
         const dx = target.x - this.x;
         const dy = target.y - this.y;
@@ -1837,7 +1849,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
         let curSpeed = this.speed * timeScale;
         if (this.slowTimer > 0) {
-          curSpeed *= 0.5;
+          curSpeed *= (this.slowFactor || 0.5);
           this.slowTimer -= timeScale;
         }
 
@@ -1856,15 +1868,44 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
       }
 
-      takeDamage(amount) {
-        this.health -= amount;
+      takeDamage(amount, damageType = 'normal', tower = null) {
+        let finalDamage = amount;
+
+        // Balão de Chumbo Blindado (Lead)
+        if (this.isLead) {
+          if (damageType === 'electric') {
+            // Cientista derrete chumbo com superaquecimento elétrico
+            const bonus = tower ? (tower.level === 3 ? 4 : (tower.level === 2 ? 3 : 2)) : 2;
+            finalDamage += bonus;
+          } else if (damageType === 'explosive') {
+            // Artilharia quebra chumbo com facilidade
+            finalDamage = Math.max(finalDamage, 3);
+          } else if (tower && (tower.pierceLead || (tower.typeIndex === 0 && tower.level === 3) || (tower.typeIndex === 2 && tower.level >= 2))) {
+            // Aprendiz R3 e Sniper R2/R3 perfuram armadura pesada
+            finalDamage = amount;
+          } else {
+            // Projétil comum não penetra chumbo
+            return 0;
+          }
+        }
+
+        // Bônus anti-Titã contra Boss (Sniper)
+        if (this.isBoss) {
+          if (damageType === 'sniper' || (tower && tower.typeIndex === 2)) {
+            const sniperBonus = tower ? (tower.antiTitanBonus || (tower.level === 3 ? 12 : (tower.level === 2 ? 6 : 3))) : 3;
+            finalDamage += sniperBonus;
+          }
+        }
+
+        this.health -= finalDamage;
         if (this.health <= 0) {
           this.isAlive = false;
-        } else if (!this.isBoss) {
+        } else if (!this.isBoss && !this.isLead && !this.isCeramic) {
           if (this.health === 3) { this.color = '#10b981'; this.speed = 1.6; }
           else if (this.health === 2) { this.color = '#3b82f6'; this.speed = 2.0; }
           else if (this.health === 1) { this.color = '#ef4444'; this.speed = 2.4; }
         }
+        return finalDamage;
       }
 
       render(ctx) {
@@ -1896,6 +1937,20 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           ctx.ellipse(0, 0, this.radius * 0.85, this.radius, 0, 0, Math.PI * 2);
           ctx.fill();
 
+          if (this.isLead) {
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.isCeramic) {
+            ctx.strokeStyle = '#c084fc';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+
           ctx.beginPath();
           ctx.moveTo(-3, this.radius);
           ctx.lineTo(3, this.radius);
@@ -1912,59 +1967,127 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
     }
 
-    // ===== 5. PROJÉTIL (COM SUPORTE A PERFURAÇÃO / PIERCE) =====
+    // ===== 5. PROJÉTIL (COM SUPORTE A PERFURAÇÃO / PIERCE REAL, AOE E DANO ESPECÍFICO) =====
     class Projectile {
       constructor(x, y, target, tower) {
         this.x = x;
         this.y = y;
         this.target = target;
+        this.tower = tower;
+        this.typeIndex = tower.typeIndex;
+        this.level = tower.level;
         this.damage = tower.damage;
-        this.speed = tower.projSpeed;
-        this.isAOE = tower.isAOE;
-        this.aoeRadius = tower.aoeRadius;
-        this.isSlow = tower.isSlow;
+        this.speed = tower.projSpeed || 10;
+        this.isAOE = tower.isAOE || false;
+        this.aoeRadius = tower.aoeRadius || 0;
+        this.isSlow = tower.isSlow || false;
         this.pierce = tower.pierce || 1;
         this.hitEnemies = new Set();
         this.color = tower.projColor;
         this.isFinished = false;
         this.radius = 4;
-        this.level = tower.level;
+
+        if (this.typeIndex === 1) this.damageType = 'electric';
+        else if (this.typeIndex === 3) this.damageType = 'explosive';
+        else if (this.typeIndex === 2) this.damageType = 'sniper';
+        else if (this.typeIndex === 4) this.damageType = 'ice';
+        else this.damageType = 'mystic';
+
+        const targetX = target ? target.x : x;
+        const targetY = target ? target.y : y;
+        const dx = targetX - x;
+        const dy = targetY - y;
+        const dist = Math.hypot(dx, dy) || 1;
+        this.vx = (dx / dist) * this.speed;
+        this.vy = (dy / dist) * this.speed;
       }
 
       update(game, timeScale = 1.0) {
         if (this.isFinished) return;
 
-        const targetX = this.target.isAlive ? this.target.x : this.target.x;
-        const targetY = this.target.isAlive ? this.target.y : this.target.y;
-
-        const dx = targetX - this.x;
-        const dy = targetY - this.y;
-        const dist = Math.hypot(dx, dy);
-        const curSpeed = this.speed * timeScale;
-
-        if (dist > 0) {
-          this.x += (dx / dist) * curSpeed;
-          this.y += (dy / dist) * curSpeed;
+        // Rastreio leve inicial até o primeiro impacto
+        if (this.target && this.target.isAlive && this.hitEnemies.size === 0) {
+          const dx = this.target.x - this.x;
+          const dy = this.target.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0) {
+            this.vx = (dx / dist) * this.speed;
+            this.vy = (dy / dist) * this.speed;
+          }
         }
 
-        // Colisões de linha para projéteis perfurantes (Pierce)
+        this.x += this.vx * timeScale;
+        this.y += this.vy * timeScale;
+
+        // Limite da tela canônica (960x540)
+        if (this.x < -30 || this.x > 990 || this.y < -30 || this.y > 570) {
+          this.isFinished = true;
+          return;
+        }
+
         this.checkCollisions(game);
-
-        if (dist <= curSpeed || dist < 14) {
-          this.hitTarget(game);
-        }
       }
 
       checkCollisions(game) {
-        if (this.isFinished || this.isAOE) return;
+        if (this.isFinished) return;
 
+        // 1. Projéteis em Área (Bombardeira e Mago Glacial)
+        if (this.isAOE) {
+          let hitAny = false;
+          for (let e of game.enemies) {
+            if (e.isAlive && Math.hypot(e.x - this.x, e.y - this.y) <= (e.radius + this.radius)) {
+              hitAny = true;
+              break;
+            }
+          }
+
+          if (!hitAny && this.target) {
+            const dist = Math.hypot(this.target.x - this.x, this.target.y - this.y);
+            if (dist <= (this.speed * 1.3 || 12)) {
+              hitAny = true;
+            }
+          }
+
+          if (hitAny) {
+            this.explodeAOE(game);
+            this.isFinished = true;
+          }
+          return;
+        }
+
+        // 2. Projéteis Perfurantes / Diretos (Aprendiz, Cientista, Sniper)
         for (let e of game.enemies) {
-          if (e.isAlive && !this.hitEnemies.has(e) && Math.hypot(e.x - this.x, e.y - this.y) <= (e.radius + 6)) {
+          if (!e.isAlive || this.hitEnemies.has(e)) continue;
+
+          const dist = Math.hypot(e.x - this.x, e.y - this.y);
+          if (dist <= (e.radius + this.radius + 3)) {
             this.hitEnemies.add(e);
-            if (this.isSlow) e.slowTimer = this.level >= 2 ? 180 : 120;
-            e.takeDamage(this.damage);
-            if (!e.isAlive) game.onEnemyKilled(e);
-            else game.sound.playPop(1.1);
+
+            const dealt = e.takeDamage(this.damage, this.damageType, this.tower);
+            if (!e.isAlive) {
+              game.onEnemyKilled(e);
+            } else if (dealt > 0) {
+              game.sound.playPop(1.1);
+            }
+
+            // Descarga em Cadeia (Chain Lightning) para Cientista Nv 3
+            if (this.damageType === 'electric' && this.level === 3) {
+              let chains = 0;
+              for (let other of game.enemies) {
+                if (other.isAlive && other !== e && !this.hitEnemies.has(other)) {
+                  if (Math.hypot(other.x - e.x, other.y - e.y) <= 85) {
+                    this.hitEnemies.add(other);
+                    other.takeDamage(2, 'electric', this.tower);
+                    if (!other.isAlive) game.onEnemyKilled(other);
+                    game.spawnHitParticles(other.x, other.y, '#38e8ff');
+                    chains++;
+                    if (chains >= 2) break;
+                  }
+                }
+              }
+            }
+
+            game.spawnHitParticles(this.x, this.y, this.color);
             this.pierce--;
             if (this.pierce <= 0) {
               this.isFinished = true;
@@ -1974,32 +2097,39 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
       }
 
-      hitTarget(game) {
-        if (this.isFinished) return;
-        if (this.isAOE) {
+      explodeAOE(game) {
+        if (this.damageType === 'explosive') {
           game.sound.playExplosion();
+          game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
+
           game.enemies.forEach(e => {
             if (e.isAlive && Math.hypot(e.x - this.x, e.y - this.y) <= this.aoeRadius) {
-              e.takeDamage(this.damage);
+              const dealt = e.takeDamage(this.damage, 'explosive', this.tower);
+              if (this.level === 3 && !e.isBoss) {
+                e.stunTimer = 15; // 0.25s microatordoamento
+              }
               if (!e.isAlive) game.onEnemyKilled(e);
             }
           });
-          game.spawnExplosionParticles(this.x, this.y, this.aoeRadius);
-          this.isFinished = true;
-        } else {
-          if (this.target.isAlive && !this.hitEnemies.has(this.target)) {
-            this.hitEnemies.add(this.target);
-            if (this.isSlow) this.target.slowTimer = this.level >= 2 ? 180 : 120;
-            this.target.takeDamage(this.damage);
-            if (!this.target.isAlive) {
-              game.onEnemyKilled(this.target);
-            } else {
-              game.sound.playPop(1.1);
+        } else if (this.damageType === 'ice') {
+          game.sound.playPop(1.4);
+          game.spawnHitParticles(this.x, this.y, '#60a5fa');
+
+          const slowDur = this.level === 3 ? 180 : (this.level === 2 ? 150 : 120);
+          const slowFactor = this.level === 3 ? 0.35 : (this.level === 2 ? 0.45 : 0.50);
+
+          game.enemies.forEach(e => {
+            if (e.isAlive && Math.hypot(e.x - this.x, e.y - this.y) <= this.aoeRadius) {
+              if (!e.isBoss || (this.level === 3 && e.isBoss)) {
+                e.slowTimer = slowDur;
+                e.slowFactor = e.isBoss ? 0.75 : slowFactor;
+              }
+              if (this.damage > 0) {
+                const dealt = e.takeDamage(this.damage, 'ice', this.tower);
+                if (!e.isAlive) game.onEnemyKilled(e);
+              }
             }
-            this.pierce--;
-          }
-          game.spawnHitParticles(this.x, this.y, this.color);
-          this.isFinished = true;
+          });
         }
       }
 
@@ -2028,7 +2158,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         pierce: 2,
         color: '#8b5cff',
         projColor: '#ffb020',
-        projSpeed: 11,
+        projSpeed: 12,
         icon: '🦉',
         ranks: ['Aprendiz', 'Veterana', 'Arquimaga Cósmica'],
         upgradeCosts: [240, 550],
@@ -2038,7 +2168,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         archetype: 'OwlScientist',
         name: 'Coruja Cientista',
         cost: 380,
-        range: 95,
+        range: 100,
         cooldown: 14,
         damage: 1,
         pierce: 1,
@@ -2055,12 +2185,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         name: 'Coruja Sniper',
         cost: 440,
         range: 280,
-        cooldown: 66,
+        cooldown: 64,
         damage: 5,
         pierce: 1,
         color: '#ca8a04',
         projColor: '#fde047',
-        projSpeed: 18,
+        projSpeed: 20,
         icon: '🎯',
         ranks: ['Sniper', 'Atiradora de Elite', 'Olho de Falcão Supremo'],
         upgradeCosts: [580, 1300],
@@ -2070,8 +2200,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         archetype: 'OwlBomber',
         name: 'Coruja Bombardeira',
         cost: 530,
-        range: 145,
-        cooldown: 58,
+        range: 150,
+        cooldown: 56,
         damage: 3,
         pierce: 1,
         isAOE: true,
@@ -2089,17 +2219,19 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         name: 'Coruja Mago Glacial',
         cost: 260,
         range: 130,
-        cooldown: 30,
+        cooldown: 32,
         damage: 0,
         pierce: 1,
         isSlow: true,
+        isAOE: true,
+        aoeRadius: 55,
         color: '#2563eb',
         projColor: '#60a5fa',
         projSpeed: 9,
         icon: '❄️',
         ranks: ['Mago Glacial', 'Senhor do Gelo', 'Arquidruida do Zero Absoluto'],
         upgradeCosts: [380, 820],
-        desc: 'Esferas de geada em área que desaceleram inimigos em até 60%.'
+        desc: 'Esferas de geada em área que desaceleram inimigos em até 65%.'
       }
     ];
 
@@ -2116,22 +2248,73 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.level = 1; // Nível 1, 2, 3
         this.ranks = config.ranks;
         this.upgradeCosts = config.upgradeCosts;
-
-        this.range = config.range;
-        this.cooldownMax = config.cooldown;
-        this.cooldown = 0;
-        this.damage = config.damage;
-        this.pierce = config.pierce || 1;
-        this.isAOE = config.isAOE || false;
-        this.aoeRadius = config.aoeRadius || 0;
-        this.isSlow = config.isSlow || false;
         this.projSpeed = config.projSpeed || 10;
-        this.color = config.color;
-        this.projColor = config.projColor;
-        this.icon = config.icon;
         this.radius = 18;
         this.target = null;
         this.headAngle = 0; // Rotação da cabeça da coruja
+        this.cooldown = 0;
+
+        this.applyRankStats();
+      }
+
+      applyRankStats() {
+        const cfg = TOWER_CONFIGS[this.typeIndex];
+        this.name = cfg.name;
+        this.color = cfg.color;
+        this.projColor = cfg.projColor;
+        this.icon = cfg.icon;
+        this.isAOE = cfg.isAOE || false;
+        this.isSlow = cfg.isSlow || false;
+
+        if (this.typeIndex === 0) {
+          // Coruja Aprendiz
+          if (this.level === 1) {
+            this.range = 140; this.cooldownMax = 26; this.damage = 1; this.pierce = 2; this.pierceLead = false;
+          } else if (this.level === 2) {
+            this.range = 175; this.cooldownMax = 21; this.damage = 2; this.pierce = 3; this.pierceLead = false;
+          } else {
+            this.range = 220; this.cooldownMax = 16; this.damage = 3; this.pierce = 5; this.pierceLead = true;
+          }
+        } else if (this.typeIndex === 1) {
+          // Coruja Cientista
+          if (this.level === 1) {
+            this.range = 100; this.cooldownMax = 14; this.damage = 1; this.pierce = 1; this.chainLightning = false;
+          } else if (this.level === 2) {
+            this.range = 125; this.cooldownMax = 11; this.damage = 2; this.pierce = 1; this.chainLightning = false;
+          } else {
+            this.range = 155; this.cooldownMax = 8; this.damage = 3; this.pierce = 1; this.chainLightning = true;
+          }
+        } else if (this.typeIndex === 2) {
+          // Coruja Sniper
+          if (this.level === 1) {
+            this.range = 280; this.cooldownMax = 64; this.damage = 5; this.pierce = 1; this.pierceLead = false; this.antiTitanBonus = 3;
+          } else if (this.level === 2) {
+            this.range = 360; this.cooldownMax = 52; this.damage = 7; this.pierce = 1; this.pierceLead = true; this.antiTitanBonus = 6;
+          } else {
+            this.range = 460; this.cooldownMax = 40; this.damage = 10; this.pierce = 2; this.pierceLead = true; this.antiTitanBonus = 12;
+          }
+        } else if (this.typeIndex === 3) {
+          // Coruja Bombardeira
+          this.isAOE = true;
+          if (this.level === 1) {
+            this.range = 150; this.cooldownMax = 56; this.damage = 3; this.pierce = 1; this.aoeRadius = 65; this.microStun = false;
+          } else if (this.level === 2) {
+            this.range = 185; this.cooldownMax = 46; this.damage = 5; this.pierce = 1; this.aoeRadius = 85; this.microStun = false;
+          } else {
+            this.range = 225; this.cooldownMax = 36; this.damage = 8; this.pierce = 1; this.aoeRadius = 115; this.microStun = true;
+          }
+        } else if (this.typeIndex === 4) {
+          // Coruja Mago Glacial
+          this.isSlow = true;
+          this.isAOE = true;
+          if (this.level === 1) {
+            this.range = 130; this.cooldownMax = 32; this.damage = 0; this.pierce = 1; this.aoeRadius = 55; this.slowFactor = 0.50; this.slowDuration = 120; this.canSlowBoss = false;
+          } else if (this.level === 2) {
+            this.range = 165; this.cooldownMax = 26; this.damage = 1; this.pierce = 1; this.aoeRadius = 75; this.slowFactor = 0.45; this.slowDuration = 150; this.canSlowBoss = false;
+          } else {
+            this.range = 200; this.cooldownMax = 20; this.damage = 2; this.pierce = 1; this.aoeRadius = 100; this.slowFactor = 0.35; this.slowDuration = 180; this.canSlowBoss = true;
+          }
+        }
       }
 
       getCurrentRank() {
@@ -2145,33 +2328,19 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         return null;
       }
 
-      getUpgradeCost() {
+      getUpgradeCost(costMult = 1.0) {
         if (this.level - 1 < this.upgradeCosts.length) {
-          return this.upgradeCosts[this.level - 1];
+          return Math.round(this.upgradeCosts[this.level - 1] * (costMult || 1.0));
         }
         return null; // Nível Máximo (MAX)
       }
 
-      upgrade() {
+      upgrade(costMult = 1.0) {
         if (this.level >= 3) return false;
-        const cost = this.getUpgradeCost();
+        const cost = this.getUpgradeCost(costMult);
         this.level++;
         this.totalInvested += cost;
-
-        // Buffs de Evolução por Patente
-        if (this.level === 2) {
-          this.range = Math.round(this.range * 1.25);
-          this.cooldownMax = Math.max(8, Math.round(this.cooldownMax * 0.8));
-          this.damage += 1;
-          if (this.pierce > 1) this.pierce += 1;
-          if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.35);
-        } else if (this.level === 3) {
-          this.range = Math.round(this.range * 1.3);
-          this.cooldownMax = Math.max(6, Math.round(this.cooldownMax * 0.75));
-          this.damage += 2;
-          if (this.pierce > 1) this.pierce += 2;
-          if (this.isAOE) this.aoeRadius = Math.round(this.aoeRadius * 1.45);
-        }
+        this.applyRankStats();
         return true;
       }
 
@@ -2814,7 +2983,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         const cost = this.inspectingTower.getUpgradeCost(this.difficulty.costMult);
         if (cost !== null && this.money >= cost) {
           this.money -= cost;
-          this.inspectingTower.upgrade();
+          this.inspectingTower.upgrade(this.difficulty.costMult);
           this.sound.playUpgrade();
           this.updateInspectorBox();
           this.updateUI();
@@ -2877,20 +3046,21 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         // Rodadas Redondas 10, 20, 30, 40, 50, 60, 70... -> BALÃO TITÃ ZEPELIM!
         if (r % 10 === 0) {
           this.sound.playBossHorn();
-          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * this.difficulty.bossHpMult);
+          const bossHp = Math.round((80 + (r / 10 - 1) * 160) * (this.difficulty.bossHpMult || 1.0));
           this.spawnQueue.push({ type: 'boss', hp: bossHp });
-          const escortMult = this.difficulty.id === 'extreme' ? 1.7 : (this.difficulty.id === 'hard' ? 1.3 : 1.0);
-          const yellowEscorts = Math.round(Math.min(26, 6 + Math.floor(r / 4)) * escortMult);
-          const ceramicEscorts = Math.round(Math.min(22, 3 + Math.floor(r / 5)) * escortMult);
+          const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
+          const escortMult = this.difficulty.id === 'extreme' ? 1.35 : (this.difficulty.id === 'hard' ? 1.15 : 1.0);
+          const yellowEscorts = Math.round(Math.min(22, 6 + Math.floor(r / 5)) * escortMult);
+          const ceramicEscorts = Math.round(Math.min(16, 2 + Math.floor(r / 6)) * escortMult);
           for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
           for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
           return;
         }
 
-        // Densidade e agressividade escalando de forma brutal no Difícil e Extremo
+        // Densidade calibrada para desafio tático justo em todas as dificuldades
         const isHard = this.difficulty.id === 'hard';
         const isExtreme = this.difficulty.id === 'extreme';
-        const densityMult = isExtreme ? 1.55 : (isHard ? 1.25 : 1.0);
+        const densityMult = isExtreme ? 1.25 : (isHard ? 1.10 : 1.0);
 
         const redCount = r <= 15 ? Math.round(Math.max(0, 12 - r) * densityMult) : 0;
         const blueCount = r <= 35 ? Math.round(Math.min(24, Math.max(4, 18 - Math.floor(r / 2))) * densityMult) : 0;
@@ -2910,12 +3080,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       onEnemyKilled(enemy) {
-        // Redução gradual de recompensa nas ondas avançadas em dificuldades altas (Bloons TD economic decay)
+        // Decaimento econômico suave apenas a partir da onda 20 em dificuldades altas
         let decay = 1.0;
-        if ((this.difficulty.id === 'hard' || this.difficulty.id === 'extreme') && this.round >= 15) {
-          decay = Math.max(0.35, 1.0 - (this.round - 15) * 0.035);
+        if ((this.difficulty.id === 'hard' || this.difficulty.id === 'extreme') && this.round >= 20) {
+          decay = Math.max(0.70, 1.0 - (this.round - 20) * 0.02);
         }
-        const earned = Math.max(1, Math.round(enemy.reward * this.difficulty.rewardMult * decay));
+        const earned = Math.max(1, Math.round(enemy.reward * (this.difficulty.rewardMult || 1.0) * decay));
         this.money += earned;
         this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
@@ -2925,7 +3095,13 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           const escortCount = isHardOrExt ? 6 : 4;
           for (let k = 0; k < escortCount; k++) {
             const escortType = isHardOrExt ? (k % 2 === 0 ? 'pink' : 'lead') : 'yellow';
-            this.enemies.push(new Enemy(escortType, this.map.waypoints));
+            const escort = new Enemy(escortType, this.map.waypoints);
+            // Eclode os balões de escolta exatamente na posição do Titã destruído
+            escort.x = enemy.x + (Math.random() - 0.5) * 24;
+            escort.y = enemy.y + (Math.random() - 0.5) * 24;
+            escort.targetIndex = Math.min(enemy.targetIndex, this.map.waypoints.length - 1);
+            escort.traveledDistance = Math.max(0, enemy.traveledDistance - k * 14);
+            this.enemies.push(escort);
           }
           this.activeBoss = null;
           document.getElementById('boss-hud').style.display = 'none';
@@ -3232,7 +3408,9 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         };
 
         try {
-          localStorage.setItem('kruuj_guardians_save_v1', JSON.stringify(saveData));
+          const str = JSON.stringify(saveData);
+          localStorage.setItem('kruuj_guardians_save_v1', str);
+          localStorage.setItem('kruuj_guardians_save', str);
           window.parent.postMessage({ type: 'game_save', gameSlug: 'kruuj-defense', saveData }, '*');
         } catch(e) {}
       }
@@ -3240,12 +3418,14 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       clearSavedGame() {
         try {
           localStorage.removeItem('kruuj_guardians_save_v1');
+          localStorage.removeItem('kruuj_guardians_save');
         } catch(e) {}
       }
 
       loadSavedGame() {
         try {
-          const raw = localStorage.getItem('kruuj_guardians_save_v1');
+          let raw = localStorage.getItem('kruuj_guardians_save_v1');
+          if (!raw) raw = localStorage.getItem('kruuj_guardians_save');
           if (!raw) return null;
           return JSON.parse(raw);
         } catch(e) {
@@ -3297,19 +3477,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
             const tower = createTower(st.typeIndex, st.x, st.y);
             tower.level = st.level || 1;
             tower.totalInvested = st.totalInvested || tower.baseCost;
-
-            if (tower.level === 2) {
-              tower.range = Math.round(tower.range * 1.25);
-              tower.cooldownMax = Math.round(tower.cooldownMax * 0.8);
-              tower.damage += 1;
-              if (tower.isAOE) tower.aoeRadius = Math.round(tower.aoeRadius * 1.35);
-            } else if (tower.level === 3) {
-              tower.range = Math.round(tower.range * 1.55);
-              tower.cooldownMax = Math.round(tower.cooldownMax * 0.6);
-              tower.damage += 3;
-              if (tower.isAOE) tower.aoeRadius = Math.round(tower.aoeRadius * 1.85);
-            }
-
+            tower.applyRankStats();
             this.towers.push(tower);
           });
         }
@@ -3328,6 +3496,25 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       discardSavedGame() {
         this.clearSavedGame();
         this.checkSavedGameForMenu();
+      }
+
+      getTelemetryReport() {
+        return {
+          round: this.round,
+          difficulty: this.difficulty ? this.difficulty.name : 'N/A',
+          money: this.money,
+          lives: this.lives,
+          towersCount: this.towers.length,
+          towers: this.towers.map(t => ({
+            name: t.name,
+            rank: t.getCurrentRank(),
+            level: t.level,
+            invested: t.totalInvested
+          })),
+          activeBoss: this.activeBoss ? { hp: this.activeBoss.health, maxHp: this.activeBoss.maxHp } : null,
+          enemiesAlive: this.enemies.filter(e => e.isAlive).length,
+          spawnQueueRemaining: this.spawnQueue.length
+        };
       }
 
       loop() {
@@ -3350,7 +3537,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
           if (this.isRoundRunning && this.spawnQueue.length > 0) {
             this.spawnTimer += timeScale;
-            if (this.spawnTimer >= 26) {
+            if (this.spawnTimer >= (this.difficulty.spawnInterval || 22)) {
               this.spawnTimer = 0;
               const nextItem = this.spawnQueue.shift();
               if (typeof nextItem === 'string') {
