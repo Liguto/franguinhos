@@ -340,6 +340,11 @@
       background: rgba(244, 196, 98, 0.35);
       border-color: var(--gold);
     }
+    .puzzle-slot.drop-hover {
+      background: rgba(56, 232, 255, 0.35) !important;
+      border: 2px solid #38e8ff !important;
+      box-shadow: 0 0 16px rgba(56, 232, 255, 0.6);
+    }
 
     /* PEÇA ENCAIXADA */
     .slot-piece {
@@ -351,6 +356,38 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
       animation: snapPop 0.25s ease;
+      cursor: grab;
+      touch-action: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .slot-piece:hover {
+      box-shadow: 0 0 14px var(--gold);
+      transform: scale(1.02);
+      z-index: 5;
+    }
+    .slot-piece:active {
+      cursor: grabbing;
+    }
+    .slot-piece .recall-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      background: rgba(13, 18, 36, 0.85);
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .slot-piece:hover .recall-badge {
+      display: flex;
     }
     @keyframes snapPop {
       0% { transform: scale(0.9); opacity: 0.7; }
@@ -368,6 +405,11 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .tray-section.drop-hover {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 22px rgba(244, 196, 98, 0.45) !important;
     }
     .tray-header {
       display: flex;
@@ -409,10 +451,14 @@
       border-radius: 10px;
       border: 2px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      cursor: pointer;
+      cursor: grab;
+      touch-action: none;
       position: relative;
       background-size: cover;
       transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .tray-piece:active {
+      cursor: grabbing;
     }
     .tray-piece:hover {
       transform: translateY(-4px);
@@ -423,6 +469,21 @@
       box-shadow: 0 0 16px var(--gold);
       transform: scale(1.1) translateY(-6px);
       z-index: 10;
+    }
+
+    /* PEÇA FLUTUANTE DE ARRASTE (DRAG AVATAR) */
+    #drag-avatar {
+      position: fixed;
+      display: none;
+      pointer-events: none;
+      z-index: 999999;
+      transform: translate(-50%, -50%);
+      border-radius: 12px;
+      border: 2.5px solid var(--gold);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 25px rgba(244, 196, 98, 0.55);
+      background-size: cover;
+      background-position: center;
+      opacity: 0.95;
     }
 
     /* MODAL DE VITÓRIA */
@@ -547,6 +608,9 @@
         <button class="btn-tool" id="btn-hint" title="Encaixar uma peça">
           💡 <span id="txt-hint">Dica Mágica</span>
         </button>
+        <button class="btn-tool" id="btn-reset" title="Recolher todas as peças colocadas de volta para a bandeja">
+          🔄 <span id="txt-reset">Recolher Peças</span>
+        </button>
       </div>
     </section>
 
@@ -565,6 +629,9 @@
       <div class="tray-pieces-scroll" id="tray-container"></div>
     </section>
   </div>
+
+  <!-- AVATAR FLUTUANTE DE ARRASTE -->
+  <div id="drag-avatar" aria-hidden="true"></div>
 
   <!-- MODAL DE VITÓRIA -->
   <div class="modal-overlay" id="win-modal">
@@ -864,11 +931,13 @@
 
     const I18N_DATA = {
       pt: {
-        title: "Galeria de Quebra-Cabeças",
+        title: "KRUUJ JIGSAW",
         subtitle: "KRUUJ Studio 60+",
         ghost: "Guia Fantasma",
         edges: "Só Bordas",
         hint: "Dica Mágica",
+        reset: "Recolher Peças",
+        recallTip: "Toque ou arraste para recolher para a bandeja",
         trayTitle: "Bandeja de Peças",
         trayCounter: (f, t) => `${f} / ${t} encaixadas`,
         winTitle: "Obra Concluída com Maestria!",
@@ -876,11 +945,13 @@
         winNext: "Próxima Pintura ➔"
       },
       en: {
-        title: "Jigsaw Art Gallery",
+        title: "KRUUJ JIGSAW",
         subtitle: "KRUUJ Studio 60+",
         ghost: "Ghost Guide",
         edges: "Edges Only",
         hint: "Magic Hint",
+        reset: "Recall Pieces",
+        recallTip: "Tap or drag to return to tray",
         trayTitle: "Pieces Tray",
         trayCounter: (f, t) => `${f} / ${t} placed`,
         winTitle: "Masterpiece Completed!",
@@ -888,11 +959,13 @@
         winNext: "Next Artwork ➔"
       },
       es: {
-        title: "Galería de Rompecabezas",
+        title: "KRUUJ JIGSAW",
         subtitle: "KRUUJ Studio 60+",
         ghost: "Guía Fantasma",
         edges: "Solo Bordes",
         hint: "Pista Mágica",
+        reset: "Recoger Piezas",
+        recallTip: "Toca o arrastra para devolver a la bandeja",
         trayTitle: "Bandeja de Piezas",
         trayCounter: (f, t) => `${f} / ${t} colocadas`,
         winTitle: "¡Obra de Arte Completada!",
@@ -911,6 +984,14 @@
     let filterEdgesOnly = false;
     let artworkCanvas = null;
 
+    // Estado do Drag-and-Drop
+    let draggingPiece = null;
+    let dragSource = null; // 'tray' ou 'board'
+    let dragSourceSlotId = null;
+    let isDragging = false;
+    let startPointerX = 0;
+    let startPointerY = 0;
+
     function getTexts() {
       return I18N_DATA[currentLang] || I18N_DATA.pt;
     }
@@ -923,6 +1004,8 @@
       document.getElementById('txt-ghost').textContent = texts.ghost;
       document.getElementById('txt-edges').textContent = texts.edges;
       document.getElementById('txt-hint').textContent = texts.hint;
+      const txtReset = document.getElementById('txt-reset');
+      if (txtReset) txtReset.textContent = texts.reset;
       document.getElementById('txt-tray-title').textContent = texts.trayTitle;
       document.getElementById('win-title').textContent = texts.winTitle;
       document.getElementById('win-desc').textContent = texts.winDesc;
@@ -965,6 +1048,7 @@
       renderArtworkToCanvas();
       placedPieces.clear();
       selectedPieceId = null;
+      cleanupDrag();
 
       // Cria a lista de peças cortadas
       pieces = [];
@@ -1009,6 +1093,7 @@
       gridEl.innerHTML = '';
       gridEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
       gridEl.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+      const texts = getTexts();
 
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
@@ -1023,6 +1108,21 @@
             const pieceDiv = document.createElement('div');
             pieceDiv.className = 'slot-piece';
             pieceDiv.style.backgroundImage = `url(${piece.imgDataUrl})`;
+            pieceDiv.title = texts.recallTip;
+
+            // Selo indicativo de recolher
+            const badge = document.createElement('span');
+            badge.className = 'recall-badge';
+            badge.textContent = '↩';
+            pieceDiv.appendChild(badge);
+
+            // Suporte a arrastar a peça para fora ou clicar para recolher
+            pieceDiv.addEventListener('pointerdown', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              startDrag(e, piece, 'board', slotId);
+            });
+
             slot.appendChild(pieceDiv);
           }
 
@@ -1047,12 +1147,11 @@
         if (selectedPieceId === piece.id) pieceEl.classList.add('selected');
         pieceEl.style.backgroundImage = `url(${piece.imgDataUrl})`;
 
-        pieceEl.onclick = () => {
-          audio.pick();
-          selectedPieceId = selectedPieceId === piece.id ? null : piece.id;
-          document.querySelectorAll('.puzzle-slot').forEach(s => s.classList.remove('highlight'));
-          renderTray();
-        };
+        // Suporte a arrastar da bandeja para o tabuleiro
+        pieceEl.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          startDrag(e, piece, 'tray', null);
+        });
 
         container.appendChild(pieceEl);
       });
@@ -1097,6 +1196,164 @@
       renderBoardSlots();
       renderTray();
       checkVictory();
+    }
+
+    function unsnapPiece(pieceId) {
+      if (placedPieces.has(pieceId)) {
+        audio.pick();
+        placedPieces.delete(pieceId);
+        selectedPieceId = null;
+        renderBoardSlots();
+        renderTray();
+        updateTrayCounter();
+      }
+    }
+
+    function recallAllPieces() {
+      if (placedPieces.size === 0) return;
+      audio.pick();
+      placedPieces.clear();
+      selectedPieceId = null;
+      renderBoardSlots();
+      renderTray();
+      updateTrayCounter();
+    }
+
+    /* =========================================================
+       MOTOR DE ARRASTAR E SOLTAR (DRAG & DROP TOQUE/MOUSE)
+       ========================================================= */
+    function startDrag(e, piece, source, slotId) {
+      if (e.button !== undefined && e.button !== 0) return;
+
+      draggingPiece = piece;
+      dragSource = source;
+      dragSourceSlotId = slotId;
+      isDragging = false;
+      startPointerX = e.clientX;
+      startPointerY = e.clientY;
+
+      const avatar = document.getElementById('drag-avatar');
+      avatar.style.backgroundImage = `url(${piece.imgDataUrl})`;
+
+      const gridEl = document.getElementById('grid');
+      const slotWidth = gridEl ? (gridEl.offsetWidth / gridSize) : 80;
+      const avatarSize = Math.max(64, Math.min(130, slotWidth));
+      avatar.style.width = `${avatarSize}px`;
+      avatar.style.height = `${avatarSize}px`;
+      avatar.style.left = `${e.clientX}px`;
+      avatar.style.top = `${e.clientY}px`;
+      avatar.style.display = 'block';
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp, { passive: false });
+      window.addEventListener('pointercancel', onPointerCancel, { passive: false });
+    }
+
+    function onPointerMove(e) {
+      if (!draggingPiece) return;
+      e.preventDefault();
+
+      const dist = Math.hypot(e.clientX - startPointerX, e.clientY - startPointerY);
+      if (dist > 5) {
+        isDragging = true;
+      }
+
+      const avatar = document.getElementById('drag-avatar');
+      avatar.style.left = `${e.clientX}px`;
+      avatar.style.top = `${e.clientY}px`;
+
+      document.querySelectorAll('.puzzle-slot').forEach(s => s.classList.remove('drop-hover'));
+      const trayEl = document.querySelector('.tray-section');
+      if (trayEl) trayEl.classList.remove('drop-hover');
+
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!el) return;
+
+      const slot = el.closest('.puzzle-slot');
+      if (slot) {
+        slot.classList.add('drop-hover');
+      } else if (el.closest('.tray-section')) {
+        if (trayEl) trayEl.classList.add('drop-hover');
+      }
+    }
+
+    function onPointerCancel() {
+      cleanupDrag();
+      renderBoardSlots();
+      renderTray();
+    }
+
+    function cleanupDrag() {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerCancel);
+
+      const avatar = document.getElementById('drag-avatar');
+      if (avatar) avatar.style.display = 'none';
+
+      document.querySelectorAll('.puzzle-slot').forEach(s => s.classList.remove('drop-hover'));
+      const trayEl = document.querySelector('.tray-section');
+      if (trayEl) trayEl.classList.remove('drop-hover');
+    }
+
+    function onPointerUp(e) {
+      if (!draggingPiece) return;
+      e.preventDefault();
+
+      const piece = draggingPiece;
+      const source = dragSource;
+      const wasDragged = isDragging;
+
+      cleanupDrag();
+      draggingPiece = null;
+      dragSource = null;
+      dragSourceSlotId = null;
+
+      // Se foi apenas um toque/clique sem arrasto:
+      if (!wasDragged) {
+        if (source === 'tray') {
+          audio.pick();
+          selectedPieceId = selectedPieceId === piece.id ? null : piece.id;
+          highlightMatchingSlot();
+          renderTray();
+        } else if (source === 'board') {
+          // Clique suave em peça já colocada no tabuleiro: recolhe para a bandeja!
+          unsnapPiece(piece.id);
+        }
+        return;
+      }
+
+      // Se arrastou e soltou:
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (!el) {
+        if (source === 'board') unsnapPiece(piece.id);
+        return;
+      }
+
+      const targetSlot = el.closest('.puzzle-slot');
+      const targetTray = el.closest('.tray-section');
+
+      if (targetSlot) {
+        const r = parseInt(targetSlot.dataset.r, 10);
+        const c = parseInt(targetSlot.dataset.c, 10);
+        const targetSlotId = `${r}-${c}`;
+
+        if (piece.id === targetSlotId) {
+          // Encaixe perfeito!
+          snapPiece(piece.id);
+        } else {
+          // Slot incorreto: som suave e mantém o estado
+          audio.pick();
+          renderBoardSlots();
+          renderTray();
+        }
+      } else if (targetTray && source === 'board') {
+        // Peça do tabuleiro arrastada para a bandeja: recolhe!
+        unsnapPiece(piece.id);
+      } else if (source === 'board') {
+        // Soltou fora do tabuleiro: recolhe de volta para a bandeja!
+        unsnapPiece(piece.id);
+      }
     }
 
     function updateTrayCounter() {
@@ -1146,6 +1403,11 @@
       if (unplaced) {
         snapPiece(unplaced.id);
       }
+    };
+
+    // BOTÃO RECOLHER / RESETAR PEÇAS
+    document.getElementById('btn-reset').onclick = () => {
+      recallAllPieces();
     };
 
     // SELETOR DE DIFICULDADE (GRADE 3, 4 OU 5)
