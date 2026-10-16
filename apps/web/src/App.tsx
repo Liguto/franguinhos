@@ -495,6 +495,10 @@ export default function App() {
 
   // Estados dos Novos Módulos do Layout KRUUJ Oficial
   const [featuredIndex, setFeaturedIndex] = useState<number>(0);
+  const [noveltyIndex, setNoveltyIndex] = useState<number>(0);
+  const [trendingIndex, setTrendingIndex] = useState<number>(0);
+  const [isNoveltyHovered, setIsNoveltyHovered] = useState<boolean>(false);
+  const [isTrendingHovered, setIsTrendingHovered] = useState<boolean>(false);
   const [exploreAudience, setExploreAudience] = useState<string>('Todos');
   const [exploreGenre, setExploreGenre] = useState<string>('Todos');
   const [exploreMoment, setExploreMoment] = useState<string>('Todos');
@@ -3005,11 +3009,20 @@ export default function App() {
   };
 
   // --- Helpers e Dados do Layout KRUUJ Oficial ---
-  const featuredGames = [
+  // 1. Curadoria do Banner "NOVIDADE DA SEMANA"
+  const noveltyGames = [
+    {
+      title: 'KRUUJ GUARDIANS',
+      subtitle: 'Tower defense tático! Estoure balões cósmicos com Corujas Guardiãs.',
+      tag: 'NOVO LANÇAMENTO',
+      slug: 'kruuj-defense',
+      bannerUrl: '/banners/kruuj-defense.jpg',
+      category: 'Estratégia / Defesa'
+    },
     {
       title: 'KRUUJ OVERDRIVE',
-      subtitle: 'Acelere pelas ruas de Tóquio, Miami e Berlim em uma corrida arcade alucinante!',
-      tag: 'NOVO Lançamento • CORRIDA RETRÔ',
+      subtitle: 'Acelere em neon arcade pelas ruas de Tóquio, Miami e Berlim em alta velocidade!',
+      tag: 'CORRIDA RETRÔ',
       slug: 'kruuj-overdrive',
       bannerUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?w=800&auto=format&fit=crop&q=60',
       category: 'Arcade / Corrida'
@@ -3017,87 +3030,100 @@ export default function App() {
     {
       title: 'KRUUJ ORBIT',
       subtitle: 'Salte entre órbitas planetárias com física cósmica e pegue o impulso certo!',
-      tag: 'NOVO • ARCADE CÓSMICO',
+      tag: 'ARCADE CÓSMICO',
       slug: 'kruuj-orbit',
       bannerUrl: '/banners/kruuj-orbit.jpg',
       category: 'Arcade / Gravidade'
     },
     {
-      title: 'KRUUJ SOLITAIRE',
-      subtitle: 'O clássico Paciência repaginado! Relaxe com cartas de visual moderno.',
-      tag: 'EM ALTA • CARTAS',
-      slug: 'kruuj-solitaire',
-      bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
-      category: 'Paciência / Clássico'
-    },
-    {
-      title: 'KRUUJ 3D PENALTY SHOOTOUT',
-      subtitle: 'Sinta a tensão do futebol e cobre pênaltis com gráficos 3D incríveis!',
-      tag: 'ESPORTES',
-      slug: 'kruuj-penalty',
-      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
-      category: 'Esporte / Futebol'
+      title: 'KRUUJ: NEON BLOCKS',
+      subtitle: 'Encaixe blocos luminescentes e limpe linhas com efeitos neon eletrizantes!',
+      tag: 'NOVO PUZZLE',
+      slug: 'kruuj-neon-blocks',
+      bannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=60',
+      category: 'Puzzle / Blocos'
     },
     {
       title: 'KRUUJ NEON DOMAIN',
-      subtitle: 'Um jogo de estratégia abstrato: cerque e domine a malha cibernética!',
-      tag: 'NOVO • ESTRATÉGIA',
+      subtitle: 'Cerque territórios e domine a malha cibernética neste jogo de estratégia abstrata!',
+      tag: 'ESTRATÉGIA',
       slug: 'kruuj-dominio',
       bannerUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=60',
       category: 'Estratégia / Tabuleiro'
-    },
-    {
-      title: 'KRUUJ BABY PAINT',
-      subtitle: 'Ambiente lúdico e seguro para crianças desenharem e colorirem.',
-      tag: 'INFANTIL • LÚDICO',
-      slug: 'kruuj-paint',
-      bannerUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&auto=format&fit=crop&q=60',
-      category: 'Bebês / Arte'
-    },
-    {
-      title: 'KRUUJ.IO ARENA',
-      subtitle: 'Entre na grande arena cósmica! Colete energia, cresça e domine o topo do ranking!',
-      tag: 'POPULAR • ARENA IO',
-      slug: 'kruujio',
-      bannerUrl: '/banners/kruujio.png',
-      category: 'Ação / Arena'
-    },
+    }
+  ];
+
+  // 2. Curadoria do Banner "EM ALTA"
+  const trendingFeaturedGames = [
     {
       title: 'KRUUJ MATCH',
-      subtitle: 'Alquimia estelar relaxante! Combine 3 cristais rúnicos e liberte super poderes!',
-      tag: 'PUZZLE ZEN',
+      subtitle: 'Alquimia estelar relaxante! Combine 3 cristais cósmicos e libere super poderes rúnicos.',
+      tag: 'TOP 1 DO PORTAL',
       slug: 'kruuj-match',
       bannerUrl: '/banners/kruuj-match.jpg',
       category: 'Puzzle / Match-3'
     },
     {
-      title: 'KRUUJ GUARDIANS',
-      subtitle: 'Tower defense tático estilo Bloons TD! Estoure balões cósmicos com Corujas Guardiãs!',
-      tag: 'ESTRATÉGIA',
-      slug: 'kruuj-defense',
-      bannerUrl: '/banners/kruuj-defense.jpg',
-      category: 'Estratégia / Defesa'
+      title: 'KRUUJ.IO ARENA',
+      subtitle: 'Batalha frenética multiplayer na arena cósmica! Colete energia e domine o ranking.',
+      tag: 'SUPER POPULAR',
+      slug: 'kruujio',
+      bannerUrl: '/banners/kruujio.png',
+      category: 'Ação / Arena IO'
     },
     {
-      title: 'KRUUJ WORD',
-      subtitle: 'O enigma das corujas! Conecte letras cósmicas e descubra as palavras secretas!',
-      tag: 'EDUCACIONAL',
-      slug: 'kruuj-words',
-      bannerUrl: '/banners/kruuj-words.jpg',
-      category: 'Educacional / Palavras'
+      title: 'KRUUJ ROCKET RISE',
+      subtitle: 'Pilote o foguete através de campos de asteroides e quebre recordes estelares!',
+      tag: 'EM ALTA HOJE',
+      slug: 'rocket-rise',
+      bannerUrl: '/banners/rocket-rise.jpg',
+      category: 'Arcade / Reflexo'
     },
     {
       title: 'KRUUJDOKU',
-      subtitle: 'O puzzle oficial de raciocínio das corujinhas! 100 fases + Modo Infinito.',
-      tag: 'Exclusivo KRUUJ',
+      subtitle: 'O puzzle oficial de raciocínio lógico das corujinhas! 100 fases + Modo Infinito.',
+      tag: 'FAVORITO DA GALERA',
       slug: 'kruujdoku',
       bannerUrl: '/banners/kruujdoku.jpg',
       category: 'Puzzle / Raciocínio'
+    },
+    {
+      title: 'KRUUJ 3D PENALTY',
+      subtitle: 'Sinta a tensão do futebol e cobre pênaltis com física 3D ultrarrealista!',
+      tag: 'MAIS JOGADO',
+      slug: 'kruuj-penalty',
+      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
+      category: 'Esporte / Futebol'
     }
   ];
 
-  const nextFeatured = () => setFeaturedIndex((prev) => (prev + 1) % featuredGames.length);
-  const prevFeatured = () => setFeaturedIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
+  // Funções de navegação dos novos banners duplos
+  const nextNovelty = () => setNoveltyIndex((prev) => (prev + 1) % noveltyGames.length);
+  const prevNovelty = () => setNoveltyIndex((prev) => (prev - 1 + noveltyGames.length) % noveltyGames.length);
+
+  const nextTrending = () => setTrendingIndex((prev) => (prev + 1) % trendingFeaturedGames.length);
+  const prevTrending = () => setTrendingIndex((prev) => (prev - 1 + trendingFeaturedGames.length) % trendingFeaturedGames.length);
+
+  // Auto-rotação inteligente com timers independentes (pausa quando o mouse está sobre o card)
+  useEffect(() => {
+    if (isNoveltyHovered) return;
+    const timer = setInterval(() => {
+      setNoveltyIndex((prev) => (prev + 1) % noveltyGames.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [isNoveltyHovered, noveltyGames.length]);
+
+  useEffect(() => {
+    if (isTrendingHovered) return;
+    const timer = setInterval(() => {
+      setTrendingIndex((prev) => (prev + 1) % trendingFeaturedGames.length);
+    }, 8500);
+    return () => clearInterval(timer);
+  }, [isTrendingHovered, trendingFeaturedGames.length]);
+
+  const featuredGames = noveltyGames;
+  const nextFeatured = nextNovelty;
+  const prevFeatured = prevNovelty;
 
   
   // Abre o Palco Poki em modo de PRÉ-VISUALIZAÇÃO (com o vídeo/banner e botão Play Now)
@@ -3438,67 +3464,174 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      {/* 1. Banner Carrossel Destaque (KRUUJ recomenda) no Topo do Layout */}
-                      <div 
-                        className="kruuj-featured-banner"
-                        style={{
-                          backgroundImage: `linear-gradient(90deg, rgba(8, 14, 26, 0.96) 0%, rgba(8, 14, 26, 0.84) 48%, rgba(8, 14, 26, 0.3) 80%, rgba(8, 14, 26, 0.1) 100%), url('${featuredGames[featuredIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
-                          backgroundPosition: 'right center',
-                          backgroundSize: 'cover',
-                          backgroundRepeat: 'no-repeat'
-                        }}
-                      >
-                        <button 
-                          className="kruuj-featured-arrow-left"
-                          onClick={prevFeatured}
-                          title="Anterior"
+                      {/* 1. Grid de Banners Duplos Oficiais: NOVIDADE DA SEMANA & EM ALTA */}
+                      <div className="kruuj-dual-banners-grid">
+                        {/* Banner 1: NOVIDADE DA SEMANA */}
+                        <div 
+                          className="kruuj-featured-banner-card kruuj-banner-novelty"
+                          style={{
+                            backgroundImage: `linear-gradient(to top, rgba(5, 11, 36, 0.96) 0%, rgba(5, 11, 36, 0.74) 48%, rgba(5, 11, 36, 0.2) 85%, rgba(5, 11, 36, 0.05) 100%), url('${noveltyGames[noveltyIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
+                          }}
+                          onClick={() => {
+                            const cur = noveltyGames[noveltyIndex];
+                            const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                            handlePlayGame(matched);
+                          }}
+                          onMouseEnter={() => setIsNoveltyHovered(true)}
+                          onMouseLeave={() => setIsNoveltyHovered(false)}
                         >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
+                          <button 
+                            className="kruuj-featured-arrow-left"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevNovelty();
+                            }}
+                            title="Anterior"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
 
-                        <div className="flex flex-col z-10 pl-6 pr-4">
-                          <span className="kruuj-featured-badge">
-                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> {featuredGames[featuredIndex].tag}
-                          </span>
-                          <h2 className="kruuj-featured-title">
-                            {featuredGames[featuredIndex].title}
-                          </h2>
-                          <p className="kruuj-featured-desc">
-                            {featuredGames[featuredIndex].subtitle}
-                          </p>
-                          <div>
-                            <button 
-                              className="kruuj-featured-play-btn"
-                              onClick={() => {
-                                const matched = games.find(g => g.slug === featuredGames[featuredIndex].slug) || defaultGamesCatalog.find(g => g.slug === featuredGames[featuredIndex].slug) || defaultGamesCatalog[0];
-                                handlePlayGame(matched);
-                              }}
-                            >
-                              <Play className="w-4 h-4 fill-current" /> {t.playNow}
-                            </button>
+                          <div className="kruuj-banner-top-row">
+                            <span className="kruuj-featured-badge kruuj-badge-novelty">
+                              <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> NOVIDADE DA SEMANA
+                            </span>
+                            <span className="kruuj-banner-subtag">
+                              {noveltyGames[noveltyIndex]?.tag}
+                            </span>
+                          </div>
+
+                          <div className="kruuj-banner-card-body">
+                            <h3 className="kruuj-banner-card-title">
+                              {noveltyGames[noveltyIndex]?.title}
+                            </h3>
+                            <p className="kruuj-banner-card-desc">
+                              {noveltyGames[noveltyIndex]?.subtitle}
+                            </p>
+                            <div className="kruuj-banner-card-footer">
+                              <button 
+                                className="kruuj-featured-play-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const cur = noveltyGames[noveltyIndex];
+                                  const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                                  handlePlayGame(matched);
+                                }}
+                              >
+                                <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                              </button>
+                              <span className="kruuj-banner-category-chip">
+                                {noveltyGames[noveltyIndex]?.category}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button 
+                            className="kruuj-featured-arrow-right"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextNovelty();
+                            }}
+                            title="Próximo"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="kruuj-featured-card-dots">
+                            {noveltyGames.map((_, i) => (
+                              <span 
+                                key={i} 
+                                className={`kruuj-dot ${noveltyIndex === i ? 'active' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setNoveltyIndex(i);
+                                }}
+                              />
+                            ))}
                           </div>
                         </div>
 
-                        <div className="hidden md:flex items-center gap-4 z-10 pr-4 shrink-0">
-                          {/* Espaço reservado para visualização limpa do banner de fundo */}
-                        </div>
-
-                        <button 
-                          className="kruuj-featured-arrow-right"
-                          onClick={nextFeatured}
-                          title="Próximo"
+                        {/* Banner 2: EM ALTA */}
+                        <div 
+                          className="kruuj-featured-banner-card kruuj-banner-trending"
+                          style={{
+                            backgroundImage: `linear-gradient(to top, rgba(5, 11, 36, 0.96) 0%, rgba(5, 11, 36, 0.74) 48%, rgba(5, 11, 36, 0.2) 85%, rgba(5, 11, 36, 0.05) 100%), url('${trendingFeaturedGames[trendingIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
+                          }}
+                          onClick={() => {
+                            const cur = trendingFeaturedGames[trendingIndex];
+                            const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                            handlePlayGame(matched);
+                          }}
+                          onMouseEnter={() => setIsTrendingHovered(true)}
+                          onMouseLeave={() => setIsTrendingHovered(false)}
                         >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
+                          <button 
+                            className="kruuj-featured-arrow-left"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              prevTrending();
+                            }}
+                            title="Anterior"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
 
-                        <div className="kruuj-featured-dots">
-                          {featuredGames.map((_, i) => (
-                            <span 
-                              key={i} 
-                              className={`kruuj-dot ${featuredIndex === i ? 'active' : ''}`}
-                              onClick={() => setFeaturedIndex(i)}
-                            />
-                          ))}
+                          <div className="kruuj-banner-top-row">
+                            <span className="kruuj-featured-badge kruuj-badge-trending">
+                              <Flame className="w-3.5 h-3.5 text-orange-400" /> EM ALTA
+                            </span>
+                            <span className="kruuj-banner-subtag">
+                              {trendingFeaturedGames[trendingIndex]?.tag}
+                            </span>
+                          </div>
+
+                          <div className="kruuj-banner-card-body">
+                            <h3 className="kruuj-banner-card-title">
+                              {trendingFeaturedGames[trendingIndex]?.title}
+                            </h3>
+                            <p className="kruuj-banner-card-desc">
+                              {trendingFeaturedGames[trendingIndex]?.subtitle}
+                            </p>
+                            <div className="kruuj-banner-card-footer">
+                              <button 
+                                className="kruuj-featured-play-btn kruuj-play-btn-trending"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const cur = trendingFeaturedGames[trendingIndex];
+                                  const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                                  handlePlayGame(matched);
+                                }}
+                              >
+                                <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                              </button>
+                              <span className="kruuj-banner-category-chip">
+                                {trendingFeaturedGames[trendingIndex]?.category}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button 
+                            className="kruuj-featured-arrow-right"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              nextTrending();
+                            }}
+                            title="Próximo"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="kruuj-featured-card-dots">
+                            {trendingFeaturedGames.map((_, i) => (
+                              <span 
+                                key={i} 
+                                className={`kruuj-dot ${trendingIndex === i ? 'active' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTrendingIndex(i);
+                                }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
 
