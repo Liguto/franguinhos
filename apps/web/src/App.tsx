@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Gamepad2, Search, Heart, User, LogIn, LogOut, Info, Shield, 
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, Sparkles,
@@ -497,6 +497,7 @@ export default function App() {
   const [featuredIndex, setFeaturedIndex] = useState<number>(0);
   const [noveltyIndex, setNoveltyIndex] = useState<number>(0);
   const [trendingIndex, setTrendingIndex] = useState<number>(0);
+  const [stageShuffleSeed, setStageShuffleSeed] = useState<number>(0);
   const [isNoveltyHovered, setIsNoveltyHovered] = useState<boolean>(false);
   const [isTrendingHovered, setIsTrendingHovered] = useState<boolean>(false);
   const [exploreAudience, setExploreAudience] = useState<string>('Todos');
@@ -2512,6 +2513,7 @@ export default function App() {
     if (!game) return;
     setDismissRotateNotice(false);
     setPortalLoaderActive(false); // O loading é nativo dentro do iframe de cada jogo!
+    setStageShuffleSeed(Date.now());
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setSelectedGame(game);
     setIsPlayingGame(true);
@@ -2944,12 +2946,41 @@ export default function App() {
     return result;
   };
 
-  // Recomendação contextual de jogos relacionados (profiling-free)
+  // Recomendação contextual de jogos relacionados para a lateral do palco (até 8 jogos)
   const getRelatedGames = (currentGame: Game) => {
-    return games
-      .filter(g => g.id !== currentGame.id && (g.category === currentGame.category || g.tags.some(t => currentGame.tags.includes(t))))
-      .slice(0, 3);
+    const related = games.filter(g => 
+      g.id !== currentGame.id && (g.category === currentGame.category || g.tags.some(t => currentGame.tags.includes(t)))
+    );
+    const remaining = games.filter(g => g.id !== currentGame.id && !related.some(r => r.id === g.id));
+    return [...related, ...remaining].slice(0, 8);
   };
+
+  // Jogos recomendados no mosaico lateral direito (fixos para o jogo ativo)
+  const rightMosaicGames: Game[] = useMemo(() => {
+    if (!selectedGame) return [];
+    return getRelatedGames(selectedGame);
+  }, [selectedGame, games]);
+
+  // Jogos do catálogo completo no mosaico inferior abaixo do palco:
+  // - Não fica restrito a nenhum filtro da home (mostra TODOS os jogos)
+  // - Exclui o jogo atual sendo jogado
+  // - Exclui os jogos que já estão no mosaico lateral direito (sem repetição!)
+  // - Ordem dinâmica/variada a cada partida
+  const stageBottomGames: Game[] = useMemo(() => {
+    if (!selectedGame) return [];
+    const excludedIds = new Set(rightMosaicGames.map((g: Game) => g.id));
+    excludedIds.add(selectedGame.id);
+
+    const available = games.filter((g: Game) => !excludedIds.has(g.id));
+
+    // Embaralhamento dinâmico baseado no seed da partida para nunca ficar na mesma ordem
+    const seed = stageShuffleSeed || selectedGame.id.charCodeAt(0) || 42;
+    return [...available].sort((a: Game, b: Game) => {
+      const hashA = ((a.slug.split('').reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) + seed * 13) % 997);
+      const hashB = ((b.slug.split('').reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0) + seed * 13) % 997);
+      return hashA - hashB;
+    });
+  }, [selectedGame, games, rightMosaicGames, stageShuffleSeed]);
 
   // Helper para renderizar a imagem de capa (foto real) ou ícone do jogo
   const renderGameCover = (game: Game) => {
@@ -4592,7 +4623,7 @@ export default function App() {
 
                   {/* LATERAL DIREITA: MOSAICO POKI DE JOGOS RECOMENDADOS (2 COLUNAS) */}
                   <div className="poki-stage-right-mosaic hidden lg:grid">
-                    {getRelatedGames(selectedGame).slice(0, 8).map((rel, i) => (
+                    {rightMosaicGames.map((rel, i) => (
                       <div 
                         key={rel.id} 
                         className={`kruuj-poki-card ${i === 1 ? 'tile-2x2' : 'tile-1x1'} ${isGameFavorited(rel) ? 'is-favorited' : ''}`}
@@ -4616,11 +4647,11 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* MOSAICO INFERIOR CONTÍNUO DE TODOS OS JOGOS (ABAIXO DO PALCO) */}
+                {/* MOSAICO INFERIOR CONTÍNUO DE TODOS OS DEMAIS JOGOS (ABAIXO DO PALCO) */}
                 <div className="poki-stage-bottom-mosaic">
                   <div className="kruuj-poki-section">
                     <div className="kruuj-poki-grid">
-                      {getFilteredGames().map((game) => (
+                      {stageBottomGames.map((game) => (
                         <div 
                           key={game.id} 
                           className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
