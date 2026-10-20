@@ -1827,6 +1827,48 @@ export default function App() {
       statusDoc: 'aprovado',
       author: 'KRUUJ Studio',
       licenseName: 'Proprietário'
+    },
+    {
+      id: '35',
+      slug: 'kruuj-truco',
+      title: 'KRUUJ TRUCO',
+      description: 'O clássico Truco Paulista com a coruja Lia de parceira! Blefe, peça truco, interprete os sinais e vença a mesa em partidas eletrizantes.',
+      category: 'Cartas',
+      subcategories: ['Truco', 'Cartas', 'Blefe', 'Estratégia', 'Duplas', 'Brasil'],
+      tags: ['truco', 'cartas', 'baralho', 'blefe', 'paulista', 'senior', 'estrategia', 'brasil'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'layers',
+      prefixUrl: '/games/kruuj-truco/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
+    },
+    {
+      id: '36',
+      slug: 'kruuj-gem-quest',
+      title: 'KRUUJ Gem Quest',
+      description: 'Emocionante aventura Match-3 de gemas e cristais mágicos! Combine 3 ou mais joias, crie prismas cósmicos, destrua caixotes e supere dezenas de níveis desafiadores.',
+      category: 'Puzzle',
+      subcategories: ['Match-3', 'Joias', 'Cristais', 'Lógica', 'Aventura', 'Casual'],
+      tags: ['match3', 'gemas', 'cristais', 'puzzle', 'joias', 'aventura', 'casual', 'relaxante'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&auto=format&fit=crop&q=60',
+      iconUrl: 'sparkles',
+      prefixUrl: '/games/kruuj-gem-quest/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: false, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
     }
   ];
 
