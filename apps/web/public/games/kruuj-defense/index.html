@@ -953,6 +953,9 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
       <div class="top-controls">
         <div class="round-badge" id="hud-round-badge">⭐ Onda 1/30</div>
+        <button class="btn-top-ctrl" id="btn-sound-toggle" onclick="window.guardiansGame.toggleAudio()" title="Som (Ativar/Desativar)">
+          <span id="sound-icon">🔊</span>
+        </button>
         <button class="btn-top-ctrl" onclick="window.guardiansGame.openModal('mainmenu')" title="Menu e Fases">
           <span>⚙️</span>
         </button>
@@ -1200,6 +1203,9 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
             <button class="btn-menu-action" onclick="window.guardiansGame.openModal('howto')">
               <span>📖</span> COMO JOGAR
             </button>
+            <button class="btn-menu-action" id="btn-menu-audio" onclick="window.guardiansGame.toggleAudio()">
+              <span id="menu-sound-icon">🔊</span> SOM & EFEITOS (<span id="menu-sound-text">LIGADO</span>)
+            </button>
             <button class="btn-menu-action" id="btn-menu-restart" style="display: none; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;" onclick="window.guardiansGame.restartGame()">
               <span>🔄</span> REINICIAR PARTIDA
             </button>
@@ -1396,9 +1402,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     class SoundManager {
       constructor() {
         this.ctx = null;
+        this.muted = false;
       }
 
       init() {
+        if (this.muted) return;
         if (!this.ctx) {
           this.ctx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -1407,7 +1415,13 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
       }
 
+      toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+      }
+
       playPop(pitch = 1.0) {
+        if (this.muted) return;
         try {
           this.init();
           const now = this.ctx.currentTime;
@@ -1427,6 +1441,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playShoot() {
+        if (this.muted) return;
         try {
           this.init();
           const now = this.ctx.currentTime;
@@ -1568,11 +1583,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         pathEdge: 'rgba(56, 232, 255, 0.45)',
         nestColor: '#ff5ca8',
         phases: [
-          { name: 'Fase 1: Órbita Estelar', targetWave: 10, layout: 0 },
-          { name: 'Fase 2: Cinturão Espacial', targetWave: 12, layout: 1 },
-          { name: 'Fase 3: Vórtice Galáctico', targetWave: 15, layout: 2 },
-          { name: 'Fase 4: Nebulosa Sombria', targetWave: 18, layout: 3 },
-          { name: 'Fase 5: O Grande Ninho', targetWave: 20, layout: 4 }
+          { name: 'Fase 1: Órbita Tripla', targetWave: 10, layoutKey: 'cosmic_0' },
+          { name: 'Fase 2: Cinturão Espacial', targetWave: 12, layoutKey: 'cosmic_1' },
+          { name: 'Fase 3: Vórtice Galáctico', targetWave: 15, layoutKey: 'cosmic_2' },
+          { name: 'Fase 4: Constelação Cruzada', targetWave: 18, layoutKey: 'cosmic_3' },
+          { name: 'Fase 5: O Grande Colapso', targetWave: 20, layoutKey: 'cosmic_4' }
         ]
       },
       {
@@ -1584,11 +1599,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         pathEdge: 'rgba(249, 115, 22, 0.55)',
         nestColor: '#f97316',
         phases: [
-          { name: 'Fase 1: Margem de Lava', targetWave: 10, layout: 0 },
-          { name: 'Fase 2: Caldeira Ardente', targetWave: 12, layout: 1 },
-          { name: 'Fase 3: Cratera de Brasas', targetWave: 15, layout: 2 },
-          { name: 'Fase 4: Geiser Flamejante', targetWave: 18, layout: 3 },
-          { name: 'Fase 5: Coração do Vulcão', targetWave: 20, layout: 4 }
+          { name: 'Fase 1: Margem de Magma', targetWave: 10, layoutKey: 'fire_0' },
+          { name: 'Fase 2: Caldeira Ardente', targetWave: 12, layoutKey: 'fire_1' },
+          { name: 'Fase 3: Fissuras de Basalto', targetWave: 15, layoutKey: 'fire_2' },
+          { name: 'Fase 4: Labirinto de Enxofre', targetWave: 18, layoutKey: 'fire_3' },
+          { name: 'Fase 5: Coração do Vulcão', targetWave: 20, layoutKey: 'fire_4' }
         ]
       },
       {
@@ -1600,14 +1615,190 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         pathEdge: 'rgba(96, 165, 250, 0.55)',
         nestColor: '#38e8ff',
         phases: [
-          { name: 'Fase 1: Vale Nevado', targetWave: 10, layout: 0 },
-          { name: 'Fase 2: Caverna de Gelo', targetWave: 12, layout: 1 },
-          { name: 'Fase 3: Geleira Eterna', targetWave: 15, layout: 2 },
-          { name: 'Fase 4: Pico Congelado', targetWave: 18, layout: 3 },
-          { name: 'Fase 5: Trono de Cristal', targetWave: 20, layout: 4 }
+          { name: 'Fase 1: Vale Boreal', targetWave: 10, layoutKey: 'ice_0' },
+          { name: 'Fase 2: Caverna de Cristal', targetWave: 12, layoutKey: 'ice_1' },
+          { name: 'Fase 3: Fenda dos Titãs', targetWave: 15, layoutKey: 'ice_2' },
+          { name: 'Fase 4: Nevasca Impenetrável', targetWave: 18, layoutKey: 'ice_3' },
+          { name: 'Fase 5: Trono do Zero Absoluto', targetWave: 20, layoutKey: 'ice_4' }
         ]
       }
     ];
+
+    // ===== 2.5 TABELA DE 15 MAPAS ÚNICOS (5 FASES DIFERENTES POR TRILHA COM DIFICULDADE PROGRESSIVA) =====
+    const UNIQUE_PHASE_MAPS = {
+      // ===== TRILHA CÓSMICA =====
+      cosmic_0: {
+        grid: [
+          { c: -1, r: 2 }, { c: 4, r: 2 }, { c: 4, r: 6 }, { c: 9, r: 6 },
+          { c: 9, r: 2 }, { c: 13, r: 2 }, { c: 13, r: 6 }, { c: 16, r: 6 }
+        ],
+        decorations: [
+          { c: 1, r: 1, id: 7 }, { c: 6, r: 4, id: 7 }, { c: 11, r: 7, id: 7 },
+          { c: 1, r: 4, id: 8 }, { c: 7, r: 1, id: 8 }, { c: 15, r: 2, id: 8 },
+          { c: 11, r: 1, id: 9 }, { c: 2, r: 7, id: 9 }, { c: 6, r: 7, id: 9 },
+          { c: 14, r: 7, id: 10 }
+        ]
+      },
+      cosmic_1: {
+        grid: [
+          { c: -1, r: 2 }, { c: 12, r: 2 }, { c: 12, r: 4 }, { c: 3, r: 4 },
+          { c: 3, r: 6 }, { c: 16, r: 6 }
+        ],
+        decorations: [
+          { c: 1, r: 1, id: 7 }, { c: 7, r: 3, id: 7 }, { c: 14, r: 5, id: 7 },
+          { c: 6, r: 1, id: 8 }, { c: 14, r: 1, id: 8 }, { c: 1, r: 5, id: 8 },
+          { c: 10, r: 5, id: 9 }, { c: 6, r: 7, id: 9 }, { c: 12, r: 7, id: 10 }
+        ]
+      },
+      cosmic_2: {
+        grid: [
+          { c: -1, r: 1 }, { c: 13, r: 1 }, { c: 13, r: 7 }, { c: 3, r: 7 },
+          { c: 3, r: 3 }, { c: 10, r: 3 }, { c: 10, r: 5 }, { c: 16, r: 5 }
+        ],
+        decorations: [
+          { c: 6, r: 5, id: 7 }, { c: 1, r: 4, id: 7 }, { c: 8, r: 2, id: 8 },
+          { c: 14, r: 4, id: 8 }, { c: 1, r: 8, id: 9 }, { c: 7, r: 8, id: 9 },
+          { c: 15, r: 2, id: 10 }
+        ]
+      },
+      cosmic_3: {
+        grid: [
+          { c: 2, r: -1 }, { c: 2, r: 6 }, { c: 6, r: 6 }, { c: 6, r: 2 },
+          { c: 10, r: 2 }, { c: 10, r: 6 }, { c: 14, r: 6 }, { c: 14, r: 9 }
+        ],
+        decorations: [
+          { c: 4, r: 1, id: 7 }, { c: 8, r: 7, id: 7 }, { c: 12, r: 1, id: 7 },
+          { c: 1, r: 7, id: 8 }, { c: 4, r: 4, id: 8 }, { c: 8, r: 4, id: 8 },
+          { c: 12, r: 4, id: 9 }, { c: 15, r: 3, id: 9 }, { c: 1, r: 2, id: 10 }
+        ]
+      },
+      cosmic_4: {
+        grid: [
+          { c: -1, r: 3 }, { c: 4, r: 3 }, { c: 4, r: 1 }, { c: 11, r: 1 },
+          { c: 11, r: 4 }, { c: 6, r: 4 }, { c: 6, r: 7 }, { c: 13, r: 7 },
+          { c: 13, r: 5 }, { c: 16, r: 5 }
+        ],
+        decorations: [
+          { c: 8, r: 2, id: 7 }, { c: 9, r: 5, id: 7 }, { c: 1, r: 1, id: 8 },
+          { c: 1, r: 6, id: 8 }, { c: 14, r: 2, id: 8 }, { c: 3, r: 5, id: 9 },
+          { c: 8, r: 8, id: 9 }, { c: 15, r: 7, id: 10 }
+        ]
+      },
+
+      // ===== TRILHA DE FOGO =====
+      fire_0: {
+        grid: [
+          { c: -1, r: 1 }, { c: 11, r: 1 }, { c: 11, r: 4 }, { c: 3, r: 4 },
+          { c: 3, r: 7 }, { c: 16, r: 7 }
+        ],
+        decorations: [
+          { c: 5, r: 2, id: 7 }, { c: 8, r: 5, id: 7 }, { c: 14, r: 3, id: 7 },
+          { c: 1, r: 3, id: 8 }, { c: 13, r: 1, id: 8 }, { c: 6, r: 8, id: 8 },
+          { c: 7, r: 3, id: 9 }, { c: 1, r: 6, id: 9 }, { c: 11, r: 6, id: 10 }
+        ]
+      },
+      fire_1: {
+        grid: [
+          { c: -1, r: 2 }, { c: 4, r: 2 }, { c: 4, r: 6 }, { c: 12, r: 6 },
+          { c: 12, r: 2 }, { c: 16, r: 2 }
+        ],
+        decorations: [
+          { c: 8, r: 4, id: 7 }, { c: 1, r: 1, id: 7 }, { c: 14, r: 4, id: 7 },
+          { c: 1, r: 4, id: 8 }, { c: 7, r: 1, id: 8 }, { c: 7, r: 7, id: 8 },
+          { c: 2, r: 7, id: 9 }, { c: 13, r: 7, id: 9 }, { c: 15, r: 1, id: 10 }
+        ]
+      },
+      fire_2: {
+        grid: [
+          { c: -1, r: 3 }, { c: 5, r: 3 }, { c: 5, r: 1 }, { c: 10, r: 1 },
+          { c: 10, r: 5 }, { c: 3, r: 5 }, { c: 3, r: 7 }, { c: 16, r: 7 }
+        ],
+        decorations: [
+          { c: 2, r: 1, id: 7 }, { c: 7, r: 3, id: 7 }, { c: 13, r: 4, id: 7 },
+          { c: 1, r: 5, id: 8 }, { c: 7, r: 6, id: 8 }, { c: 14, r: 2, id: 8 },
+          { c: 12, r: 7, id: 9 }, { c: 1, r: 8, id: 9 }, { c: 8, r: 1, id: 10 }
+        ]
+      },
+      fire_3: {
+        grid: [
+          { c: 3, r: -1 }, { c: 3, r: 5 }, { c: 7, r: 5 }, { c: 7, r: 2 },
+          { c: 12, r: 2 }, { c: 12, r: 6 }, { c: 16, r: 6 }
+        ],
+        decorations: [
+          { c: 5, r: 3, id: 7 }, { c: 9, r: 4, id: 7 }, { c: 14, r: 3, id: 7 },
+          { c: 1, r: 2, id: 8 }, { c: 10, r: 1, id: 8 }, { c: 5, r: 7, id: 8 },
+          { c: 1, r: 7, id: 9 }, { c: 14, r: 7, id: 9 }, { c: 15, r: 1, id: 10 }
+        ]
+      },
+      fire_4: {
+        grid: [
+          { c: -1, r: 4 }, { c: 2, r: 4 }, { c: 2, r: 1 }, { c: 13, r: 1 },
+          { c: 13, r: 7 }, { c: 6, r: 7 }, { c: 6, r: 4 }, { c: 16, r: 4 }
+        ],
+        decorations: [
+          { c: 9, r: 4, id: 7 }, { c: 4, r: 2, id: 7 }, { c: 11, r: 3, id: 8 },
+          { c: 4, r: 6, id: 8 }, { c: 10, r: 6, id: 8 }, { c: 1, r: 6, id: 9 },
+          { c: 15, r: 2, id: 9 }, { c: 7, r: 1, id: 10 }
+        ]
+      },
+
+      // ===== TRILHA GLACIAL =====
+      ice_0: {
+        grid: [
+          { c: -1, r: 2 }, { c: 6, r: 2 }, { c: 6, r: 6 }, { c: 11, r: 6 },
+          { c: 11, r: 2 }, { c: 16, r: 2 }
+        ],
+        decorations: [
+          { c: 2, r: 1, id: 7 }, { c: 8, r: 4, id: 7 }, { c: 13, r: 4, id: 7 },
+          { c: 2, r: 4, id: 8 }, { c: 3, r: 7, id: 8 }, { c: 14, r: 1, id: 8 },
+          { c: 8, r: 7, id: 9 }, { c: 14, r: 6, id: 9 }, { c: 9, r: 1, id: 10 }
+        ]
+      },
+      ice_1: {
+        grid: [
+          { c: -1, r: 1 }, { c: 13, r: 1 }, { c: 13, r: 4 }, { c: 4, r: 4 },
+          { c: 4, r: 7 }, { c: 16, r: 7 }
+        ],
+        decorations: [
+          { c: 8, r: 2, id: 7 }, { c: 2, r: 5, id: 7 }, { c: 10, r: 6, id: 7 },
+          { c: 6, r: 2, id: 8 }, { c: 14, r: 3, id: 8 }, { c: 2, r: 8, id: 8 },
+          { c: 8, r: 5, id: 9 }, { c: 13, r: 8, id: 9 }, { c: 15, r: 5, id: 10 }
+        ]
+      },
+      ice_2: {
+        grid: [
+          { c: 2, r: -1 }, { c: 2, r: 4 }, { c: 7, r: 4 }, { c: 7, r: 1 },
+          { c: 12, r: 1 }, { c: 12, r: 5 }, { c: 8, r: 5 }, { c: 8, r: 9 }
+        ],
+        decorations: [
+          { c: 4, r: 2, id: 7 }, { c: 10, r: 3, id: 7 }, { c: 14, r: 3, id: 7 },
+          { c: 1, r: 6, id: 8 }, { c: 5, r: 6, id: 8 }, { c: 10, r: 7, id: 8 },
+          { c: 5, r: 8, id: 9 }, { c: 14, r: 7, id: 9 }, { c: 1, r: 1, id: 10 }
+        ]
+      },
+      ice_3: {
+        grid: [
+          { c: -1, r: 3 }, { c: 4, r: 3 }, { c: 4, r: 1 }, { c: 8, r: 1 },
+          { c: 8, r: 7 }, { c: 13, r: 7 }, { c: 13, r: 4 }, { c: 16, r: 4 }
+        ],
+        decorations: [
+          { c: 1, r: 1, id: 7 }, { c: 6, r: 4, id: 7 }, { c: 11, r: 3, id: 7 },
+          { c: 2, r: 6, id: 8 }, { c: 6, r: 8, id: 8 }, { c: 11, r: 8, id: 8 },
+          { c: 14, r: 2, id: 9 }, { c: 15, r: 6, id: 9 }, { c: 10, r: 1, id: 10 }
+        ]
+      },
+      ice_4: {
+        grid: [
+          { c: -1, r: 2 }, { c: 3, r: 2 }, { c: 3, r: 6 }, { c: 12, r: 6 },
+          { c: 12, r: 2 }, { c: 7, r: 2 }, { c: 7, r: 4 }, { c: 16, r: 4 }
+        ],
+        decorations: [
+          { c: 5, r: 4, id: 7 }, { c: 10, r: 4, id: 7 }, { c: 1, r: 4, id: 7 },
+          { c: 7, r: 1, id: 8 }, { c: 7, r: 7, id: 8 }, { c: 14, r: 1, id: 8 },
+          { c: 1, r: 7, id: 9 }, { c: 14, r: 6, id: 9 }, { c: 9, r: 7, id: 10 }
+        ]
+      }
+    };
 
     // ===== 3. MAPA TILEMAP ROBUSTO (BLOONS-GRADE LAYERED ENGINE & BUFFER PRE-RENDER) =====
     class GameMap {
@@ -1618,13 +1809,13 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.rows = 9;
         this.tileSize = 60;
         this.pathWidth = 44;
-        this.layoutIndex = 0;
         this.track = THEMATIC_TRACKS[0];
+        this.currentMapKey = 'cosmic_0';
         this.waypoints = [];
         this.layers = { layer0: [], layer1: [], layer2: [] };
 
         this.initOffscreenBuffer();
-        this.setTrackAndLayout(this.track, 0);
+        this.setTrackAndLayout(this.track, 'cosmic_0');
       }
 
       initOffscreenBuffer() {
@@ -1636,77 +1827,113 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
       }
 
-      setTrackAndLayout(track, layoutIndex) {
+      setTrackAndLayout(track, layoutKeyOrIndex) {
         this.track = track;
-        this.layoutIndex = layoutIndex;
-        this.buildWaypoints();
-        this.layers = this.buildTilemapMatrices(layoutIndex);
+        let mapKey = layoutKeyOrIndex;
+        if (typeof layoutKeyOrIndex === 'number') {
+          mapKey = `${track.id}_${layoutKeyOrIndex % 5}`;
+        }
+        this.currentMapKey = mapKey;
+
+        const mapData = UNIQUE_PHASE_MAPS[mapKey] || UNIQUE_PHASE_MAPS[`${track.id}_0`] || UNIQUE_PHASE_MAPS.cosmic_0;
+
+        // Converte gridPoints em waypoints canônicos de pixels (960 x 540)
+        this.waypoints = mapData.grid.map(p => ({
+          x: p.c < 0 ? -30 : (p.c >= this.cols ? 990 : p.c * this.tileSize + 30),
+          y: p.r < 0 ? -30 : (p.r >= this.rows ? 570 : p.r * this.tileSize + 30)
+        }));
+
+        // Gera as 3 Camadas de Tiles com conexões perfeitas
+        this.layers = this.buildTilemapFromData(mapData);
         this.spritesheet = this.generateThemeSpritesheet(track);
         this.buildTilemapBuffer();
       }
 
-      buildWaypoints() {
-        this.width = 960;
-        this.height = 540;
+      buildTilemapFromData(mapData) {
+        const cols = this.cols;
+        const rows = this.rows;
 
-        switch(this.layoutIndex % 5) {
-          case 0:
-            this.waypoints = [
-              { x: -30, y: 150 },
-              { x: 270, y: 150 },
-              { x: 270, y: 390 },
-              { x: 570, y: 390 },
-              { x: 570, y: 150 },
-              { x: 810, y: 150 },
-              { x: 810, y: 390 },
-              { x: 990, y: 390 }
-            ];
-            break;
-          case 1:
-            this.waypoints = [
-              { x: -30, y: 150 },
-              { x: 750, y: 150 },
-              { x: 750, y: 270 },
-              { x: 210, y: 270 },
-              { x: 210, y: 390 },
-              { x: 990, y: 390 }
-            ];
-            break;
-          case 2:
-            this.waypoints = [
-              { x: -30, y: 90 },
-              { x: 810, y: 90 },
-              { x: 810, y: 390 },
-              { x: 210, y: 390 },
-              { x: 210, y: 210 },
-              { x: 630, y: 210 },
-              { x: 630, y: 330 },
-              { x: 990, y: 330 }
-            ];
-            break;
-          case 3:
-            this.waypoints = [
-              { x: 210, y: -30 },
-              { x: 210, y: 390 },
-              { x: 510, y: 390 },
-              { x: 510, y: 150 },
-              { x: 810, y: 150 },
-              { x: 810, y: 570 }
-            ];
-            break;
-          case 4:
-            this.waypoints = [
-              { x: -30, y: 150 },
-              { x: 270, y: 150 },
-              { x: 270, y: 90 },
-              { x: 510, y: 90 },
-              { x: 510, y: 390 },
-              { x: 750, y: 390 },
-              { x: 750, y: 270 },
-              { x: 990, y: 270 }
-            ];
-            break;
+        // Layer 0: Fundo / Terreno base
+        const l0 = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        // Layer 1: Pista com curvas matematicamente calculadas
+        const l1 = this.generatePathTiles(mapData.grid, cols, rows);
+
+        // Layer 2: Decorações com sombras projetadas
+        const l2 = Array.from({ length: rows }, () => Array(cols).fill(0));
+        if (mapData.decorations) {
+          mapData.decorations.forEach(d => {
+            if (d.c >= 0 && d.c < cols && d.r >= 0 && d.r < rows) {
+              if (l1[d.r][d.c] === 0) {
+                l2[d.r][d.c] = d.id;
+              }
+            }
+          });
         }
+
+        return { layer0: l0, layer1: l1, layer2: l2 };
+      }
+
+      generatePathTiles(gridPoints, cols = 16, rows = 9) {
+        const l1 = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        // 1. Preenche as retas horizontais (2) e verticais (1)
+        for (let i = 0; i < gridPoints.length - 1; i++) {
+          const p1 = gridPoints[i];
+          const p2 = gridPoints[i + 1];
+
+          const dc = Math.sign(p2.c - p1.c);
+          const dr = Math.sign(p2.r - p1.r);
+
+          if (dc !== 0) {
+            const minC = Math.max(0, Math.min(p1.c, p2.c));
+            const maxC = Math.min(cols - 1, Math.max(p1.c, p2.c));
+            if (p1.r >= 0 && p1.r < rows) {
+              for (let c = minC; c <= maxC; c++) {
+                if (l1[p1.r][c] === 0) l1[p1.r][c] = 2; // Horizontal
+              }
+            }
+          } else if (dr !== 0) {
+            const minR = Math.max(0, Math.min(p1.r, p2.r));
+            const maxR = Math.min(rows - 1, Math.max(p1.r, p2.r));
+            if (p1.c >= 0 && p1.c < cols) {
+              for (let r = minR; r <= maxR; r++) {
+                if (l1[r][p1.c] === 0) l1[r][p1.c] = 1; // Vertical
+              }
+            }
+          }
+        }
+
+        // 2. Insere os tiles de curva nos vértices com base na orientação exata de entrada e saída
+        for (let i = 1; i < gridPoints.length - 1; i++) {
+          const prev = gridPoints[i - 1];
+          const curr = gridPoints[i];
+          const next = gridPoints[i + 1];
+
+          if (curr.c < 0 || curr.c >= cols || curr.r < 0 || curr.r >= rows) continue;
+
+          const inC = curr.c - prev.c;
+          const inR = curr.r - prev.r;
+          const outC = next.c - curr.c;
+          const outR = next.r - curr.r;
+
+          const hasLeft = (inC > 0) || (outC < 0);
+          const hasRight = (inC < 0) || (outC > 0);
+          const hasUp = (inR > 0) || (outR < 0);
+          const hasDown = (inR < 0) || (outR > 0);
+
+          let curveTile = 0;
+          if (hasLeft && hasDown) curveTile = 3;
+          else if (hasRight && hasDown) curveTile = 4;
+          else if (hasLeft && hasUp) curveTile = 5;
+          else if (hasRight && hasUp) curveTile = 6;
+
+          if (curveTile > 0) {
+            l1[curr.r][curr.c] = curveTile;
+          }
+        }
+
+        return l1;
       }
 
       generateThemeSpritesheet(track) {
@@ -1965,110 +2192,6 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         sCtx.restore();
 
         return sheet;
-      }
-
-      buildTilemapMatrices(layoutIndex) {
-        const cols = this.cols;
-        const rows = this.rows;
-
-        const l0 = Array.from({ length: rows }, () => Array(cols).fill(0));
-        const l1 = Array.from({ length: rows }, () => Array(cols).fill(0));
-        const l2 = Array.from({ length: rows }, () => Array(cols).fill(0));
-
-        switch(layoutIndex % 5) {
-          case 0:
-            for (let c = 0; c <= 3; c++) l1[2][c] = 2;
-            l1[2][4] = 3;
-            l1[3][4] = 1; l1[4][4] = 1; l1[5][4] = 1;
-            l1[6][4] = 6;
-            for (let c = 5; c <= 8; c++) l1[6][c] = 2;
-            l1[6][9] = 5;
-            l1[5][9] = 1; l1[4][9] = 1; l1[3][9] = 1;
-            l1[2][9] = 4;
-            for (let c = 10; c <= 12; c++) l1[2][c] = 2;
-            l1[2][13] = 3;
-            l1[3][13] = 1; l1[4][13] = 1; l1[5][13] = 1;
-            l1[6][13] = 6;
-            for (let c = 14; c <= 15; c++) l1[6][c] = 2;
-
-            l2[1][1] = 7; l2[1][7] = 8; l2[1][11] = 9; l2[1][15] = 10;
-            l2[4][1] = 8; l2[4][6] = 7; l2[4][11] = 8;
-            l2[7][2] = 9; l2[7][7] = 10; l2[7][11] = 7;
-            break;
-
-          case 1:
-            for (let c = 0; c <= 11; c++) l1[2][c] = 2;
-            l1[2][12] = 3;
-            l1[3][12] = 1;
-            l1[4][12] = 5;
-            for (let c = 11; c >= 4; c--) l1[4][c] = 2;
-            l1[4][3] = 4;
-            l1[5][3] = 1;
-            l1[6][3] = 6;
-            for (let c = 4; c <= 15; c++) l1[6][c] = 2;
-
-            l2[1][3] = 7; l2[1][8] = 8; l2[1][14] = 9;
-            l2[3][1] = 10; l2[3][6] = 8; l2[5][8] = 7;
-            l2[7][1] = 9; l2[7][9] = 10; l2[7][14] = 7;
-            break;
-
-          case 2:
-            for (let c = 0; c <= 12; c++) l1[1][c] = 2;
-            l1[1][13] = 3;
-            for (let r = 2; r <= 5; r++) l1[r][13] = 1;
-            l1[6][13] = 5;
-            for (let c = 12; c >= 4; c--) l1[6][c] = 2;
-            l1[6][3] = 6;
-            for (let r = 5; r >= 4; r--) l1[r][3] = 1;
-            l1[3][3] = 4;
-            for (let c = 4; c <= 9; c++) l1[3][c] = 2;
-            l1[3][10] = 3;
-            l1[4][10] = 1;
-            l1[5][10] = 6;
-            for (let c = 11; c <= 15; c++) l1[5][c] = 2;
-
-            l2[2][5] = 7; l2[2][8] = 8;
-            l2[4][1] = 9; l2[4][6] = 10;
-            l2[7][1] = 7; l2[7][7] = 8; l2[7][14] = 9;
-            break;
-
-          case 3:
-            for (let r = 0; r <= 5; r++) l1[r][3] = 1;
-            l1[6][3] = 6;
-            for (let c = 4; c <= 7; c++) l1[6][c] = 2;
-            l1[6][8] = 5;
-            for (let r = 5; r >= 3; r--) l1[r][8] = 1;
-            l1[2][8] = 4;
-            for (let c = 9; c <= 12; c++) l1[2][c] = 2;
-            l1[2][13] = 3;
-            for (let r = 3; r <= 8; r++) l1[r][13] = 1;
-
-            l2[1][1] = 8; l2[1][6] = 7; l2[1][10] = 9;
-            l2[4][1] = 7; l2[4][5] = 10; l2[4][11] = 8;
-            l2[7][1] = 9; l2[7][6] = 8; l2[7][10] = 7;
-            break;
-
-          case 4:
-            for (let c = 0; c <= 3; c++) l1[2][c] = 2;
-            l1[2][4] = 4;
-            l1[1][4] = 6;
-            for (let c = 5; c <= 7; c++) l1[1][c] = 2;
-            l1[1][8] = 3;
-            for (let r = 2; r <= 5; r++) l1[r][8] = 1;
-            l1[6][8] = 6;
-            for (let c = 9; c <= 11; c++) l1[6][c] = 2;
-            l1[6][12] = 5;
-            for (let r = 5; r >= 4; r--) l1[r][12] = 1;
-            l1[4][12] = 4;
-            for (let c = 13; c <= 15; c++) l1[4][c] = 2;
-
-            l2[1][1] = 7; l2[1][11] = 8; l2[1][14] = 9;
-            l2[3][1] = 8; l2[3][6] = 7; l2[3][10] = 10;
-            l2[6][2] = 9; l2[6][5] = 8; l2[7][14] = 7;
-            break;
-        }
-
-        return { layer0: l0, layer1: l1, layer2: l2 };
       }
 
       buildTilemapBuffer() {
@@ -4116,7 +4239,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       applyTrackPhase() {
         const track = THEMATIC_TRACKS[this.currentTrackIndex];
         const phase = track.phases[this.currentPhaseIndex];
-        this.map.setTrackAndLayout(track, phase.layout);
+        const layoutKey = phase.layoutKey || `${track.id}_${this.currentPhaseIndex}`;
+        this.map.setTrackAndLayout(track, layoutKey);
       }
 
       // Sistema de Objetivos em Estrelas (30 = ⭐, 50 = ⭐⭐, 70 = ⭐⭐⭐, 71+ = Infinito)
@@ -4228,6 +4352,16 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       closeModal() {
         this.modalOrigin = null;
         document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
+      }
+
+      toggleAudio() {
+        const isMuted = this.sound.toggleMute();
+        const icon = document.getElementById('sound-icon');
+        if (icon) icon.textContent = isMuted ? '🔇' : '🔊';
+        const menuIcon = document.getElementById('menu-sound-icon');
+        const menuText = document.getElementById('menu-sound-text');
+        if (menuIcon) menuIcon.textContent = isMuted ? '🔇' : '🔊';
+        if (menuText) menuText.textContent = isMuted ? 'DESLIGADO' : 'LIGADO';
       }
 
       gameOver() {
