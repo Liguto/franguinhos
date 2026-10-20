@@ -1609,87 +1609,505 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
     ];
 
-    // ===== 3. MAPA E CAMINHO DOS INIMIGOS (WAYPOINTS) =====
+    // ===== 3. MAPA TILEMAP ROBUSTO (BLOONS-GRADE LAYERED ENGINE & BUFFER PRE-RENDER) =====
     class GameMap {
       constructor(canvasWidth, canvasHeight) {
-        this.width = canvasWidth;
-        this.height = canvasHeight;
+        this.width = 960;
+        this.height = 540;
+        this.cols = 16;
+        this.rows = 9;
+        this.tileSize = 60;
         this.pathWidth = 44;
         this.layoutIndex = 0;
         this.track = THEMATIC_TRACKS[0];
         this.waypoints = [];
-        this.buildWaypoints();
+        this.layers = { layer0: [], layer1: [], layer2: [] };
+
+        this.initOffscreenBuffer();
+        this.setTrackAndLayout(this.track, 0);
+      }
+
+      initOffscreenBuffer() {
+        if (typeof document !== 'undefined' && document.createElement) {
+          this.offscreenCanvas = document.createElement('canvas');
+          this.offscreenCanvas.width = this.width;
+          this.offscreenCanvas.height = this.height;
+          this.offscreenCtx = this.offscreenCanvas.getContext('2d');
+        }
       }
 
       setTrackAndLayout(track, layoutIndex) {
         this.track = track;
         this.layoutIndex = layoutIndex;
         this.buildWaypoints();
+        this.layers = this.buildTilemapMatrices(layoutIndex);
+        this.spritesheet = this.generateThemeSpritesheet(track);
+        this.buildTilemapBuffer();
       }
 
       buildWaypoints() {
-        // Resolução canônica virtual fixa de 960 x 540 (16:9).
-        // Zona segura: Y entre 90 e 380 (livre da barra superior e do dock inferior), X >= 80 (livre do botão Poki)
         this.width = 960;
         this.height = 540;
 
         switch(this.layoutIndex % 5) {
           case 0:
             this.waypoints = [
-              { x: -30, y: 130 },
-              { x: 260, y: 130 },
-              { x: 260, y: 360 },
-              { x: 580, y: 360 },
-              { x: 580, y: 150 },
-              { x: 800, y: 150 },
-              { x: 800, y: 375 },
-              { x: 990, y: 375 }
+              { x: -30, y: 150 },
+              { x: 270, y: 150 },
+              { x: 270, y: 390 },
+              { x: 570, y: 390 },
+              { x: 570, y: 150 },
+              { x: 810, y: 150 },
+              { x: 810, y: 390 },
+              { x: 990, y: 390 }
             ];
             break;
           case 1:
             this.waypoints = [
-              { x: -30, y: 120 },
-              { x: 740, y: 120 },
-              { x: 740, y: 240 },
-              { x: 220, y: 240 },
-              { x: 220, y: 375 },
-              { x: 990, y: 375 }
+              { x: -30, y: 150 },
+              { x: 750, y: 150 },
+              { x: 750, y: 270 },
+              { x: 210, y: 270 },
+              { x: 210, y: 390 },
+              { x: 990, y: 390 }
             ];
             break;
           case 2:
             this.waypoints = [
-              { x: -30, y: 105 },
-              { x: 810, y: 105 },
-              { x: 810, y: 375 },
-              { x: 190, y: 375 },
-              { x: 190, y: 230 },
-              { x: 580, y: 230 },
-              { x: 580, y: 340 },
-              { x: 990, y: 340 }
+              { x: -30, y: 90 },
+              { x: 810, y: 90 },
+              { x: 810, y: 390 },
+              { x: 210, y: 390 },
+              { x: 210, y: 210 },
+              { x: 630, y: 210 },
+              { x: 630, y: 330 },
+              { x: 990, y: 330 }
             ];
             break;
           case 3:
             this.waypoints = [
-              { x: 180, y: -30 },
-              { x: 180, y: 350 },
-              { x: 480, y: 350 },
-              { x: 480, y: 130 },
-              { x: 780, y: 130 },
-              { x: 780, y: 570 }
+              { x: 210, y: -30 },
+              { x: 210, y: 390 },
+              { x: 510, y: 390 },
+              { x: 510, y: 150 },
+              { x: 810, y: 150 },
+              { x: 810, y: 570 }
             ];
             break;
           case 4:
             this.waypoints = [
               { x: -30, y: 150 },
-              { x: 240, y: 150 },
-              { x: 240, y: 100 },
-              { x: 520, y: 100 },
-              { x: 520, y: 375 },
-              { x: 770, y: 375 },
-              { x: 770, y: 250 },
-              { x: 990, y: 250 }
+              { x: 270, y: 150 },
+              { x: 270, y: 90 },
+              { x: 510, y: 90 },
+              { x: 510, y: 390 },
+              { x: 750, y: 390 },
+              { x: 750, y: 270 },
+              { x: 990, y: 270 }
             ];
             break;
+        }
+      }
+
+      generateThemeSpritesheet(track) {
+        const sheet = typeof document !== 'undefined' && document.createElement ? document.createElement('canvas') : null;
+        if (!sheet) return null;
+        sheet.width = 11 * 60;
+        sheet.height = 60;
+        const sCtx = sheet.getContext('2d');
+        if (!sCtx) return sheet;
+
+        const ts = 60;
+
+        // TILE 0: Terreno base
+        sCtx.save();
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        if (track.id === 'cosmic') {
+          sCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          for (let i = 0; i < 16; i++) {
+            const sx = (i * 17 + 7) % 56 + 2;
+            const sy = (i * 23 + 11) % 56 + 2;
+            const sr = (i % 3 === 0) ? 1.5 : 0.8;
+            sCtx.beginPath();
+            sCtx.arc(sx, sy, sr, 0, Math.PI * 2);
+            sCtx.fill();
+          }
+        } else if (track.id === 'fire') {
+          sCtx.fillStyle = 'rgba(249, 115, 22, 0.15)';
+          for (let i = 0; i < 8; i++) {
+            sCtx.fillRect((i * 19) % 50 + 4, (i * 29) % 50 + 4, 3, 3);
+          }
+        } else {
+          sCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+          for (let i = 0; i < 12; i++) {
+            sCtx.fillRect((i * 21) % 52 + 4, (i * 17) % 52 + 4, 2, 2);
+          }
+        }
+        sCtx.restore();
+
+        // TILE 1: Pista Vertical
+        sCtx.save();
+        sCtx.translate(1 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.fillStyle = track.pathGlow;
+        sCtx.fillRect(6, 0, 48, ts);
+        sCtx.fillStyle = track.pathColor;
+        sCtx.fillRect(8, 0, 44, ts);
+        sCtx.fillStyle = track.pathEdge;
+        sCtx.fillRect(8, 0, 2.5, ts);
+        sCtx.fillRect(49.5, 0, 2.5, ts);
+        sCtx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        sCtx.fillRect(29, 6, 2, 16);
+        sCtx.fillRect(29, 38, 2, 16);
+        sCtx.restore();
+
+        // TILE 2: Pista Horizontal
+        sCtx.save();
+        sCtx.translate(2 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.fillStyle = track.pathGlow;
+        sCtx.fillRect(0, 6, ts, 48);
+        sCtx.fillStyle = track.pathColor;
+        sCtx.fillRect(0, 8, ts, 44);
+        sCtx.fillStyle = track.pathEdge;
+        sCtx.fillRect(0, 8, ts, 2.5);
+        sCtx.fillRect(0, 49.5, ts, 2.5);
+        sCtx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        sCtx.fillRect(6, 29, 16, 2);
+        sCtx.fillRect(38, 29, 16, 2);
+        sCtx.restore();
+
+        // TILE 3: Curva Esquerda-Baixo (Canto em 0, 60)
+        sCtx.save();
+        sCtx.translate(3 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.strokeStyle = track.pathGlow;
+        sCtx.lineWidth = 48;
+        sCtx.beginPath();
+        sCtx.arc(0, ts, 30, -Math.PI / 2, 0);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathColor;
+        sCtx.lineWidth = 44;
+        sCtx.beginPath();
+        sCtx.arc(0, ts, 30, -Math.PI / 2, 0);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathEdge;
+        sCtx.lineWidth = 2.5;
+        sCtx.beginPath();
+        sCtx.arc(0, ts, 52, -Math.PI / 2, 0);
+        sCtx.stroke();
+        sCtx.beginPath();
+        sCtx.arc(0, ts, 8, -Math.PI / 2, 0);
+        sCtx.stroke();
+        sCtx.restore();
+
+        // TILE 4: Curva Direita-Baixo (Canto em 60, 60)
+        sCtx.save();
+        sCtx.translate(4 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.strokeStyle = track.pathGlow;
+        sCtx.lineWidth = 48;
+        sCtx.beginPath();
+        sCtx.arc(ts, ts, 30, Math.PI, Math.PI * 1.5);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathColor;
+        sCtx.lineWidth = 44;
+        sCtx.beginPath();
+        sCtx.arc(ts, ts, 30, Math.PI, Math.PI * 1.5);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathEdge;
+        sCtx.lineWidth = 2.5;
+        sCtx.beginPath();
+        sCtx.arc(ts, ts, 52, Math.PI, Math.PI * 1.5);
+        sCtx.stroke();
+        sCtx.beginPath();
+        sCtx.arc(ts, ts, 8, Math.PI, Math.PI * 1.5);
+        sCtx.stroke();
+        sCtx.restore();
+
+        // TILE 5: Curva Esquerda-Cima (Canto em 0, 0)
+        sCtx.save();
+        sCtx.translate(5 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.strokeStyle = track.pathGlow;
+        sCtx.lineWidth = 48;
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 30, 0, Math.PI / 2);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathColor;
+        sCtx.lineWidth = 44;
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 30, 0, Math.PI / 2);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathEdge;
+        sCtx.lineWidth = 2.5;
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 52, 0, Math.PI / 2);
+        sCtx.stroke();
+        sCtx.beginPath();
+        sCtx.arc(0, 0, 8, 0, Math.PI / 2);
+        sCtx.stroke();
+        sCtx.restore();
+
+        // TILE 6: Curva Direita-Cima (Canto em 60, 0)
+        sCtx.save();
+        sCtx.translate(6 * ts, 0);
+        sCtx.fillStyle = track.bgColor;
+        sCtx.fillRect(0, 0, ts, ts);
+        sCtx.strokeStyle = track.pathGlow;
+        sCtx.lineWidth = 48;
+        sCtx.beginPath();
+        sCtx.arc(ts, 0, 30, Math.PI / 2, Math.PI);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathColor;
+        sCtx.lineWidth = 44;
+        sCtx.beginPath();
+        sCtx.arc(ts, 0, 30, Math.PI / 2, Math.PI);
+        sCtx.stroke();
+        sCtx.strokeStyle = track.pathEdge;
+        sCtx.lineWidth = 2.5;
+        sCtx.beginPath();
+        sCtx.arc(ts, 0, 52, Math.PI / 2, Math.PI);
+        sCtx.stroke();
+        sCtx.beginPath();
+        sCtx.arc(ts, 0, 8, Math.PI / 2, Math.PI);
+        sCtx.stroke();
+        sCtx.restore();
+
+        // TILE 7: Decoração 1 (Grande com sombra projetada)
+        sCtx.save();
+        sCtx.translate(7 * ts, 0);
+        sCtx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        sCtx.beginPath();
+        sCtx.ellipse(30, 48, 20, 7, 0, 0, Math.PI * 2);
+        sCtx.fill();
+
+        if (track.id === 'cosmic') {
+          sCtx.fillStyle = '#8b5cff';
+          sCtx.beginPath();
+          sCtx.moveTo(30, 8); sCtx.lineTo(46, 32); sCtx.lineTo(38, 48); sCtx.lineTo(22, 48); sCtx.lineTo(14, 32);
+          sCtx.closePath();
+          sCtx.fill();
+          sCtx.strokeStyle = '#38e8ff';
+          sCtx.lineWidth = 1.5;
+          sCtx.stroke();
+        } else if (track.id === 'fire') {
+          sCtx.fillStyle = '#262626';
+          sCtx.beginPath();
+          sCtx.moveTo(30, 10); sCtx.lineTo(44, 46); sCtx.lineTo(16, 46);
+          sCtx.closePath();
+          sCtx.fill();
+          sCtx.strokeStyle = '#ef4444';
+          sCtx.lineWidth = 1.5;
+          sCtx.stroke();
+        } else {
+          sCtx.fillStyle = '#0284c7';
+          sCtx.beginPath();
+          sCtx.moveTo(30, 8); sCtx.lineTo(46, 46); sCtx.lineTo(14, 46);
+          sCtx.closePath();
+          sCtx.fill();
+          sCtx.strokeStyle = '#bae6fd';
+          sCtx.lineWidth = 1.5;
+          sCtx.stroke();
+        }
+        sCtx.restore();
+
+        // TILE 8: Decoração 2 (Média com sombra)
+        sCtx.save();
+        sCtx.translate(8 * ts, 0);
+        sCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        sCtx.beginPath();
+        sCtx.ellipse(30, 44, 16, 6, 0, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.fillStyle = track.id === 'fire' ? '#78350f' : (track.id === 'ice' ? '#38bdf8' : '#6366f1');
+        sCtx.beginPath();
+        sCtx.arc(30, 32, 14, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        sCtx.lineWidth = 1.5;
+        sCtx.stroke();
+        sCtx.restore();
+
+        // TILE 9: Decoração 3 (Pequena)
+        sCtx.save();
+        sCtx.translate(9 * ts, 0);
+        sCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        sCtx.beginPath();
+        sCtx.ellipse(30, 40, 10, 4, 0, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.fillStyle = track.id === 'fire' ? '#f59e0b' : (track.id === 'ice' ? '#a5f3fc' : '#ec4899');
+        sCtx.beginPath();
+        sCtx.arc(26, 32, 6, 0, Math.PI * 2);
+        sCtx.arc(34, 30, 5, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.restore();
+
+        // TILE 10: Decoração 4 (Cenário de apoio)
+        sCtx.save();
+        sCtx.translate(10 * ts, 0);
+        sCtx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        sCtx.beginPath();
+        sCtx.ellipse(30, 44, 14, 5, 0, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.fillStyle = track.pathEdge;
+        sCtx.beginPath();
+        sCtx.rect(20, 24, 20, 18);
+        sCtx.fill();
+        sCtx.strokeStyle = '#fff';
+        sCtx.lineWidth = 1;
+        sCtx.stroke();
+        sCtx.restore();
+
+        return sheet;
+      }
+
+      buildTilemapMatrices(layoutIndex) {
+        const cols = this.cols;
+        const rows = this.rows;
+
+        const l0 = Array.from({ length: rows }, () => Array(cols).fill(0));
+        const l1 = Array.from({ length: rows }, () => Array(cols).fill(0));
+        const l2 = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        switch(layoutIndex % 5) {
+          case 0:
+            for (let c = 0; c <= 3; c++) l1[2][c] = 2;
+            l1[2][4] = 3;
+            l1[3][4] = 1; l1[4][4] = 1; l1[5][4] = 1;
+            l1[6][4] = 6;
+            for (let c = 5; c <= 8; c++) l1[6][c] = 2;
+            l1[6][9] = 5;
+            l1[5][9] = 1; l1[4][9] = 1; l1[3][9] = 1;
+            l1[2][9] = 4;
+            for (let c = 10; c <= 12; c++) l1[2][c] = 2;
+            l1[2][13] = 3;
+            l1[3][13] = 1; l1[4][13] = 1; l1[5][13] = 1;
+            l1[6][13] = 6;
+            for (let c = 14; c <= 15; c++) l1[6][c] = 2;
+
+            l2[1][1] = 7; l2[1][7] = 8; l2[1][11] = 9; l2[1][15] = 10;
+            l2[4][1] = 8; l2[4][6] = 7; l2[4][11] = 8;
+            l2[7][2] = 9; l2[7][7] = 10; l2[7][11] = 7;
+            break;
+
+          case 1:
+            for (let c = 0; c <= 11; c++) l1[2][c] = 2;
+            l1[2][12] = 3;
+            l1[3][12] = 1;
+            l1[4][12] = 5;
+            for (let c = 11; c >= 4; c--) l1[4][c] = 2;
+            l1[4][3] = 4;
+            l1[5][3] = 1;
+            l1[6][3] = 6;
+            for (let c = 4; c <= 15; c++) l1[6][c] = 2;
+
+            l2[1][3] = 7; l2[1][8] = 8; l2[1][14] = 9;
+            l2[3][1] = 10; l2[3][6] = 8; l2[5][8] = 7;
+            l2[7][1] = 9; l2[7][9] = 10; l2[7][14] = 7;
+            break;
+
+          case 2:
+            for (let c = 0; c <= 12; c++) l1[1][c] = 2;
+            l1[1][13] = 3;
+            for (let r = 2; r <= 5; r++) l1[r][13] = 1;
+            l1[6][13] = 5;
+            for (let c = 12; c >= 4; c--) l1[6][c] = 2;
+            l1[6][3] = 6;
+            for (let r = 5; r >= 4; r--) l1[r][3] = 1;
+            l1[3][3] = 4;
+            for (let c = 4; c <= 9; c++) l1[3][c] = 2;
+            l1[3][10] = 3;
+            l1[4][10] = 1;
+            l1[5][10] = 6;
+            for (let c = 11; c <= 15; c++) l1[5][c] = 2;
+
+            l2[2][5] = 7; l2[2][8] = 8;
+            l2[4][1] = 9; l2[4][6] = 10;
+            l2[7][1] = 7; l2[7][7] = 8; l2[7][14] = 9;
+            break;
+
+          case 3:
+            for (let r = 0; r <= 5; r++) l1[r][3] = 1;
+            l1[6][3] = 6;
+            for (let c = 4; c <= 7; c++) l1[6][c] = 2;
+            l1[6][8] = 5;
+            for (let r = 5; r >= 3; r--) l1[r][8] = 1;
+            l1[2][8] = 4;
+            for (let c = 9; c <= 12; c++) l1[2][c] = 2;
+            l1[2][13] = 3;
+            for (let r = 3; r <= 8; r++) l1[r][13] = 1;
+
+            l2[1][1] = 8; l2[1][6] = 7; l2[1][10] = 9;
+            l2[4][1] = 7; l2[4][5] = 10; l2[4][11] = 8;
+            l2[7][1] = 9; l2[7][6] = 8; l2[7][10] = 7;
+            break;
+
+          case 4:
+            for (let c = 0; c <= 3; c++) l1[2][c] = 2;
+            l1[2][4] = 4;
+            l1[1][4] = 6;
+            for (let c = 5; c <= 7; c++) l1[1][c] = 2;
+            l1[1][8] = 3;
+            for (let r = 2; r <= 5; r++) l1[r][8] = 1;
+            l1[6][8] = 6;
+            for (let c = 9; c <= 11; c++) l1[6][c] = 2;
+            l1[6][12] = 5;
+            for (let r = 5; r >= 4; r--) l1[r][12] = 1;
+            l1[4][12] = 4;
+            for (let c = 13; c <= 15; c++) l1[4][c] = 2;
+
+            l2[1][1] = 7; l2[1][11] = 8; l2[1][14] = 9;
+            l2[3][1] = 8; l2[3][6] = 7; l2[3][10] = 10;
+            l2[6][2] = 9; l2[6][5] = 8; l2[7][14] = 7;
+            break;
+        }
+
+        return { layer0: l0, layer1: l1, layer2: l2 };
+      }
+
+      buildTilemapBuffer() {
+        if (!this.offscreenCtx || !this.spritesheet) return;
+
+        const ts = this.tileSize;
+        this.offscreenCtx.clearRect(0, 0, this.width, this.height);
+
+        const drawTile = (id, c, r) => {
+          const sx = id * ts;
+          const sy = 0;
+          this.offscreenCtx.drawImage(this.spritesheet, sx, sy, ts, ts, c * ts, r * ts, ts, ts);
+        };
+
+        // CAMADA 0 (Fundo/Chão): Desenha o terreno base
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            drawTile(this.layers.layer0[r][c], c, r);
+          }
+        }
+
+        // CAMADA 1 (Pista/Caminho): Desenha a estrada com conexões e curvas suaves
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const roadId = this.layers.layer1[r][c];
+            if (roadId > 0) {
+              drawTile(roadId, c, r);
+            }
+          }
+        }
+
+        // CAMADA 2 (Decorações/Overlay): Sprites com volume e sombras projetadas
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const decoId = this.layers.layer2[r][c];
+            if (decoId >= 7) {
+              drawTile(decoId, c, r);
+            }
+          }
         }
       }
 
@@ -1697,6 +2115,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.width = 960;
         this.height = 540;
         this.buildWaypoints();
+        this.buildTilemapBuffer();
       }
 
       isPointNearPath(x, y, minDistance = 34) {
@@ -1719,37 +2138,34 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       render(ctx) {
-        ctx.save();
+        if (this.offscreenCanvas) {
+          ctx.drawImage(this.offscreenCanvas, 0, 0);
+        } else {
+          ctx.save();
+          ctx.strokeStyle = this.track.pathColor;
+          ctx.lineWidth = this.pathWidth;
+          ctx.beginPath();
+          this.waypoints.forEach((p, i) => {
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          });
+          ctx.stroke();
+          ctx.restore();
+        }
 
-        ctx.strokeStyle = this.track.pathGlow;
-        ctx.lineWidth = this.pathWidth + 6;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.beginPath();
-        this.waypoints.forEach((p, i) => {
-          if (i === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
-        });
-        ctx.stroke();
-
-        ctx.strokeStyle = this.track.pathColor;
-        ctx.lineWidth = this.pathWidth;
-        ctx.stroke();
-
-        ctx.strokeStyle = this.track.pathEdge;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
+        // Efeito dinâmico do Ninho / Portal Final
         const endPt = this.waypoints[this.waypoints.length - 1];
-        ctx.fillStyle = this.track.nestColor;
-        ctx.shadowColor = this.track.nestColor;
-        ctx.shadowBlur = 18;
-        ctx.beginPath();
-        ctx.arc(Math.min(940, endPt.x), Math.min(460, endPt.y), 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.restore();
+        if (endPt) {
+          ctx.save();
+          ctx.fillStyle = this.track.nestColor;
+          ctx.shadowColor = this.track.nestColor;
+          ctx.shadowBlur = 16;
+          ctx.beginPath();
+          ctx.arc(Math.min(940, endPt.x), Math.min(460, endPt.y), 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.restore();
+        }
       }
     }
 
@@ -3905,6 +4321,14 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.updateInspectorBox();
       }
 
+      // Agenda o salvamento de forma assíncrona desacoplada para eliminar o freeze de frame
+      scheduleSaveGameState() {
+        if (this._saveTimeout) clearTimeout(this._saveTimeout);
+        this._saveTimeout = setTimeout(() => {
+          this.saveGameState();
+        }, 150);
+      }
+
       // ===== PERSISTÊNCIA & CONTINUAR FASE ONDE PAROU =====
       saveGameState() {
         if (this.lives <= 0 || (this.round <= 1 && this.towers.length === 0)) {
@@ -4117,7 +4541,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           this.updateUI();
 
           this.checkObjectiveSuccess();
-          this.saveGameState();
+          this.scheduleSaveGameState();
 
           if (this.autoStart) {
             setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
