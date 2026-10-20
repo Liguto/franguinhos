@@ -962,7 +962,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
     <!-- Barra de Vida do Boss Titã Cósmico -->
     <div id="boss-hud">
       <div class="boss-name">
-        <span>👾 TITÃ CÓSMICO</span>
+        <span id="boss-title-text">👾 TITÃ CÓSMICO</span>
         <span id="boss-hp-text">80 / 80 HP</span>
       </div>
       <div class="boss-hp-track">
@@ -1822,8 +1822,37 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           this.color = '#8b5cff';
           this.radius = 16;
           this.isCeramic = true;
+        } else if (type === 'boss_iron') {
+          // Mini-Chefe da Onda 15: Titã de Chumbo Blindado (imune a ataques cortantes normais)
+          this.health = hpOverride || 45;
+          this.maxHp = this.health;
+          this.speed = 0.85;
+          this.reward = 90;
+          this.color = '#475569';
+          this.radius = 26;
+          this.isBoss = true;
+          this.isLead = true;
+        } else if (type === 'boss_twin') {
+          // Mini-Chefes da Onda 25: Zepelins Gêmeos Velozes
+          this.health = hpOverride || 40;
+          this.maxHp = this.health;
+          this.speed = 1.15;
+          this.reward = 60;
+          this.color = '#f59e0b';
+          this.radius = 22;
+          this.isBoss = true;
+        } else if (type === 'boss_leviathan') {
+          // Chefão Supremo da Onda 30 / 40 / 50: O Grande Leviatã Cósmico
+          this.health = hpOverride || 200;
+          this.maxHp = this.health;
+          this.speed = 0.65;
+          this.reward = 250;
+          this.color = '#3b0764';
+          this.radius = 34;
+          this.isBoss = true;
+          this.isLeviathan = true;
         } else if (type === 'boss') {
-          this.health = hpOverride || 80;
+          this.health = hpOverride || 50;
           this.maxHp = this.health;
           this.speed = 0.8;
           this.reward = 120;
@@ -1915,22 +1944,80 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         ctx.translate(this.x, this.y);
 
         if (this.isBoss) {
-          ctx.fillStyle = '#1e1b4b';
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 3;
-          ctx.shadowColor = '#ef4444';
-          ctx.shadowBlur = 15;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, this.radius * 1.3, this.radius, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
+          if (this.type === 'boss_iron') {
+            // Titã de Chumbo (Onda 15): Blindagem pesada de aço escuro com placas e rebites ciano
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 3.5;
+            ctx.shadowColor = '#38e8ff';
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, this.radius * 1.35, this.radius, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
 
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(-8, -4, 16, 8);
-          ctx.fillStyle = '#ffb020';
-          ctx.beginPath();
-          ctx.arc(6, -2, 3, 0, Math.PI * 2);
-          ctx.fill();
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(-10, -5, 20, 10);
+            ctx.fillStyle = '#38e8ff';
+            ctx.beginPath();
+            ctx.arc(0, 0, 4, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.type === 'boss_twin') {
+            // Zepelim Gêmeo Ágil (Onda 25): Dourado alaranjado aerodinâmico veloz
+            ctx.fillStyle = '#7c2d12';
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, this.radius * 1.4, this.radius * 0.9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(-6, -3, 12, 6);
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(5, -1, 3, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.type === 'boss_leviathan') {
+            // Grande Leviatã Cósmico (Onda 30): Roxo estelar profundo com borda dourada radiante
+            ctx.fillStyle = '#1e1b4b';
+            ctx.strokeStyle = '#facc15';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#c084fc';
+            ctx.shadowBlur = 22;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, this.radius * 1.45, this.radius * 1.05, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Cristais de energia cósmica
+            ctx.fillStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.arc(-8, -6, 4.5, 0, Math.PI * 2);
+            ctx.arc(8, -6, 4.5, 0, Math.PI * 2);
+            ctx.arc(0, 7, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // Zepelim Titã Padrão (Onda 10, 20...): Preto e vermelho
+            ctx.fillStyle = '#1e1b4b';
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, this.radius * 1.3, this.radius, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(-8, -4, 16, 8);
+            ctx.fillStyle = '#ffb020';
+            ctx.beginPath();
+            ctx.arc(6, -2, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
         } else {
           ctx.fillStyle = this.slowTimer > 0 ? '#38e8ff' : this.color;
           ctx.beginPath();
@@ -3043,49 +3130,122 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.spawnQueue = [];
         this.spawnTimer = 0;
 
-        // Rodadas Redondas 10, 20, 30, 40, 50, 60, 70... -> BALÃO TITÃ ZEPELIM!
-        if (r % 10 === 0) {
-          this.sound.playBossHorn();
-          // Calibração do HP do Boss:
-          // Na onda 10 (primeiro chefe): 50 base HP (Hard = 55 HP, Extreme = 68 HP)
-          // Nas ondas 20+: escala suavemente
-          const tier = r / 10;
-          const baseHp = tier === 1 ? 50 : (50 + (tier - 1) * 90);
-          const bossHp = Math.round(baseHp * (this.difficulty.bossHpMult || 1.0));
-          this.spawnQueue.push({ type: 'boss', hp: bossHp });
+        const isHard = this.difficulty.id === 'hard';
+        const isExtreme = this.difficulty.id === 'extreme';
+        const densityMult = isExtreme ? 1.20 : (isHard ? 1.05 : 1.0);
+        const bossMult = this.difficulty.bossHpMult || 1.0;
 
-          if (r === 10) {
-            // Na onda 10, escoltas equilibradas para dar desafio tático sem sufocar
-            const isHard = this.difficulty.id === 'hard';
-            const isExtreme = this.difficulty.id === 'extreme';
-            const greenEscorts = isExtreme ? 8 : (isHard ? 6 : 4);
-            const yellowEscorts = isExtreme ? 5 : (isHard ? 3 : 2);
-            for (let i = 0; i < greenEscorts; i++) this.spawnQueue.push('green');
-            for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
-          } else {
-            const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
-            const escortMult = this.difficulty.id === 'extreme' ? 1.25 : (this.difficulty.id === 'hard' ? 1.10 : 1.0);
-            const yellowEscorts = Math.round(Math.min(18, 6 + Math.floor(r / 5)) * escortMult);
-            const ceramicEscorts = Math.round(Math.min(12, 2 + Math.floor(r / 6)) * escortMult);
-            for (let i = 0; i < yellowEscorts; i++) this.spawnQueue.push('yellow');
-            for (let i = 0; i < ceramicEscorts; i++) this.spawnQueue.push('ceramic');
+        // ===== 1. CHEFÕES E MINI-CHEFES EM RODADAS CHAVES =====
+
+        // ONDA 10: Primeiro Chefe — Zepelim Titã Explorador
+        if (r === 10) {
+          this.sound.playBossHorn();
+          const bossHp = Math.round(50 * bossMult);
+          this.spawnQueue.push({ type: 'boss', hp: bossHp, title: '👾 ZEPELIM TITÃ EXPLORADOR' });
+          const greenCount = isExtreme ? 8 : (isHard ? 6 : 4);
+          const yellowCount = isExtreme ? 5 : (isHard ? 3 : 2);
+          for (let i = 0; i < greenCount; i++) this.spawnQueue.push('green');
+          for (let i = 0; i < yellowCount; i++) this.spawnQueue.push('yellow');
+          return;
+        }
+
+        // ONDA 12 (RODADA CHAVE): "Pink Rush" (Enxame de Rosas Hipersônicos)
+        if (r === 12) {
+          const pinkCount = Math.round((isExtreme ? 20 : (isHard ? 16 : 12)) * densityMult);
+          for (let i = 0; i < 4; i++) this.spawnQueue.push('yellow');
+          for (let i = 0; i < pinkCount; i++) this.spawnQueue.push('pink');
+          for (let i = 0; i < 4; i++) this.spawnQueue.push('yellow');
+          return;
+        }
+
+        // ONDA 14 (RODADA CHAVE): "Esquadrão de Chumbo" (Aviso para a Onda 15)
+        if (r === 14) {
+          const leadCount = Math.round((isExtreme ? 12 : (isHard ? 10 : 8)) * densityMult);
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('green');
+          for (let i = 0; i < leadCount; i++) this.spawnQueue.push('lead');
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('yellow');
+          return;
+        }
+
+        // ONDA 15 (MINI-CHEFÃO): "Titã de Chumbo Blindado" (Iron Titan - Imune a cortes normais!)
+        if (r === 15) {
+          this.sound.playBossHorn();
+          const bossHp = Math.round(55 * bossMult);
+          this.spawnQueue.push({ type: 'boss_iron', hp: bossHp, title: '⚙️ TITÃ DE CHUMBO BLINDADO' });
+          const escortLeads = isExtreme ? 6 : 4;
+          for (let i = 0; i < escortLeads; i++) this.spawnQueue.push('lead');
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('pink');
+          return;
+        }
+
+        // ONDA 18 (RODADA CHAVE): "Ceramic Wall" (Parede Cerâmica Compacta)
+        if (r === 18) {
+          const ceramicCount = Math.round((isExtreme ? 16 : (isHard ? 12 : 9)) * densityMult);
+          for (let i = 0; i < ceramicCount; i++) this.spawnQueue.push('ceramic');
+          for (let i = 0; i < 8; i++) this.spawnQueue.push('pink');
+          return;
+        }
+
+        // ONDA 20 (CHEFÃO): "Zepelim de Combate Pesado"
+        if (r === 20) {
+          this.sound.playBossHorn();
+          const bossHp = Math.round(115 * bossMult);
+          this.spawnQueue.push({ type: 'boss', hp: bossHp, title: '🛡️ ZEPELIM DE COMBATE PESADO' });
+          const leadCount = isExtreme ? 8 : (isHard ? 6 : 4);
+          const ceramicCount = isExtreme ? 8 : (isHard ? 6 : 4);
+          for (let i = 0; i < leadCount; i++) this.spawnQueue.push('lead');
+          for (let i = 0; i < ceramicCount; i++) this.spawnQueue.push('ceramic');
+          return;
+        }
+
+        // ONDA 22 (RODADA CHAVE): "Hyper Swarm" (Enxame de Alta Velocidade)
+        if (r === 22) {
+          const swarmCount = Math.round((isExtreme ? 28 : (isHard ? 22 : 16)) * densityMult);
+          for (let i = 0; i < swarmCount; i++) {
+            this.spawnQueue.push(i % 3 === 0 ? 'pink' : (i % 3 === 1 ? 'yellow' : 'ceramic'));
           }
           return;
         }
 
-        // Densidade calibrada para desafio tático justo em todas as dificuldades
-        const isHard = this.difficulty.id === 'hard';
-        const isExtreme = this.difficulty.id === 'extreme';
-        const densityMult = isExtreme ? 1.20 : (isHard ? 1.05 : 1.0);
+        // ONDA 25 (MINI-CHEFÕES GÊMEOS): "Zepelins Gêmeos Velozes"
+        if (r === 25) {
+          this.sound.playBossHorn();
+          const twinHp = Math.round(45 * bossMult);
+          this.spawnQueue.push({ type: 'boss_twin', hp: twinHp, title: '⚡ ZEPELIM GÊMEO ALFA' });
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('pink');
+          this.spawnQueue.push({ type: 'boss_twin', hp: twinHp, title: '⚡ ZEPELIM GÊMEO BETA' });
+          for (let i = 0; i < 6; i++) this.spawnQueue.push('yellow');
+          return;
+        }
 
+        // ONDA 28 (RODADA CHAVE): "Cerco Cósmico de Elite" (Pré-Leviatã)
+        if (r === 28) {
+          const count = Math.round((isExtreme ? 14 : (isHard ? 10 : 8)) * densityMult);
+          for (let i = 0; i < count; i++) this.spawnQueue.push('lead');
+          for (let i = 0; i < count; i++) this.spawnQueue.push('ceramic');
+          for (let i = 0; i < count; i++) this.spawnQueue.push('pink');
+          return;
+        }
+
+        // ONDA 30 E ADIANTE (CHEFÃO SUPREMO): "O Grande Leviatã Cósmico"
+        if (r === 30 || r % 10 === 0) {
+          this.sound.playBossHorn();
+          const tier = r / 10;
+          const baseHp = tier === 3 ? 200 : (200 + (tier - 3) * 120);
+          const bossHp = Math.round(baseHp * bossMult);
+          this.spawnQueue.push({ type: 'boss_leviathan', hp: bossHp, title: `🌌 GRANDE LEVIATÃ CÓSMICO (T${tier})` });
+          for (let i = 0; i < 8; i++) this.spawnQueue.push('lead');
+          for (let i = 0; i < 8; i++) this.spawnQueue.push('ceramic');
+          return;
+        }
+
+        // ===== 2. ONDAS NORMAIS ESCALONADAS =====
         const redCount = r <= 15 ? Math.round(Math.max(0, 12 - r) * densityMult) : 0;
         const blueCount = r <= 35 ? Math.round(Math.min(24, Math.max(4, 18 - Math.floor(r / 2))) * densityMult) : 0;
         const greenCount = r >= 2 && r <= 45 ? Math.round(Math.min(22, 5 + Math.floor(r * 0.8)) * densityMult) : 0;
         const yellowCount = r >= 4 ? Math.round(Math.min(26, 6 + Math.floor(r * 0.7)) * densityMult) : 0;
-        // Pinks e Leads introduzidos com respiro tático pré-onda 10
         const pinkCount = (isExtreme ? r >= 5 : (isHard ? r >= 7 : r >= 8)) ? Math.round(Math.min(18, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
         const leadCount = (isExtreme ? r >= 6 : (isHard ? r >= 8 : r >= 10)) ? Math.round(Math.min(14, 2 + Math.floor(r * 0.4)) * densityMult) : 0;
-        // Cerâmica surge após o primeiro boss
         const ceramicCount = (isExtreme ? r >= 9 : (isHard ? r >= 11 : r >= 14)) ? Math.round(Math.min(22, 2 + Math.floor(r * 0.5)) * densityMult) : 0;
 
         for (let i = 0; i < redCount; i++) this.spawnQueue.push('red');
@@ -3110,50 +3270,94 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
         if (enemy.isBoss) {
           const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
-          const isEarlyBoss = this.round <= 15;
-          const escortCount = isEarlyBoss ? 4 : (isHardOrExt ? 6 : 4);
 
-          for (let k = 0; k < escortCount; k++) {
-            let escortType;
-            if (isEarlyBoss) {
-              escortType = (k % 2 === 0 ? 'yellow' : 'green');
-            } else {
-              escortType = isHardOrExt ? (k % 2 === 0 ? 'pink' : 'lead') : 'yellow';
+          if (enemy.type === 'boss_leviathan') {
+            // O Grande Leviatã ao morrer libera 2 Zepelins menores!
+            const bossHp = Math.round(35 * (this.difficulty.bossHpMult || 1.0));
+            for (let k = 0; k < 2; k++) {
+              const subBoss = new Enemy('boss_twin', this.map.waypoints, bossHp, this.round);
+              const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 35);
+              subBoss.traveledDistance = safeDistance;
+              subBoss.targetIndex = Math.min(enemy.targetIndex, this.map.waypoints.length - 1);
+              subBoss.x = enemy.x + (k === 0 ? -15 : 15);
+              subBoss.y = enemy.y + (k === 0 ? -10 : 10);
+              this.enemies.push(subBoss);
             }
+          } else if (enemy.type === 'boss_iron') {
+            // Titã de Chumbo libera 4 balões de chumbo menores e 2 cerâmicos
+            for (let k = 0; k < 4; k++) {
+              const escort = new Enemy(k % 2 === 0 ? 'lead' : 'ceramic', this.map.waypoints, null, this.round);
+              const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 22);
+              escort.traveledDistance = safeDistance;
+              escort.targetIndex = Math.min(enemy.targetIndex, this.map.waypoints.length - 1);
+              escort.x = enemy.x + (Math.random() - 0.5) * 16;
+              escort.y = enemy.y + (Math.random() - 0.5) * 16;
+              this.enemies.push(escort);
+            }
+          } else if (enemy.type === 'boss_twin') {
+            // Zepelim Gêmeo libera 3 balões amarelos velozes
+            for (let k = 0; k < 3; k++) {
+              const escort = new Enemy('yellow', this.map.waypoints, null, this.round);
+              const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 20);
+              escort.traveledDistance = safeDistance;
+              escort.targetIndex = Math.min(enemy.targetIndex, this.map.waypoints.length - 1);
+              escort.x = enemy.x + (Math.random() - 0.5) * 16;
+              escort.y = enemy.y + (Math.random() - 0.5) * 16;
+              this.enemies.push(escort);
+            }
+          } else {
+            // Chefe Padrão
+            const isEarlyBoss = this.round <= 15;
+            const escortCount = isEarlyBoss ? 4 : (isHardOrExt ? 6 : 4);
 
-            const escort = new Enemy(escortType, this.map.waypoints);
-
-            // Espaçamento seguro na trilha para dar tempo de defesa sem vazamento instantâneo
-            const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 22);
-            escort.traveledDistance = safeDistance;
-
-            let acc = 0;
-            let targetIdx = 1;
-            let posX = this.map.waypoints[0].x;
-            let posY = this.map.waypoints[0].y;
-
-            for (let w = 0; w < this.map.waypoints.length - 1; w++) {
-              const p1 = this.map.waypoints[w];
-              const p2 = this.map.waypoints[w + 1];
-              const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-              if (acc + segLen >= safeDistance) {
-                targetIdx = w + 1;
-                const ratio = Math.max(0, Math.min(1, (safeDistance - acc) / segLen));
-                posX = p1.x + (p2.x - p1.x) * ratio;
-                posY = p1.y + (p2.y - p1.y) * ratio;
-                break;
+            for (let k = 0; k < escortCount; k++) {
+              let escortType;
+              if (isEarlyBoss) {
+                escortType = (k % 2 === 0 ? 'yellow' : 'green');
+              } else {
+                escortType = isHardOrExt ? (k % 2 === 0 ? 'pink' : 'lead') : 'yellow';
               }
-              acc += segLen;
-            }
 
-            escort.x = posX + (Math.random() - 0.5) * 16;
-            escort.y = posY + (Math.random() - 0.5) * 16;
-            escort.targetIndex = targetIdx;
-            this.enemies.push(escort);
+              const escort = new Enemy(escortType, this.map.waypoints, null, this.round);
+              const safeDistance = Math.max(0, enemy.traveledDistance - (k + 1) * 22);
+              escort.traveledDistance = safeDistance;
+
+              let acc = 0;
+              let targetIdx = 1;
+              let posX = this.map.waypoints[0].x;
+              let posY = this.map.waypoints[0].y;
+
+              for (let w = 0; w < this.map.waypoints.length - 1; w++) {
+                const p1 = this.map.waypoints[w];
+                const p2 = this.map.waypoints[w + 1];
+                const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                if (acc + segLen >= safeDistance) {
+                  targetIdx = w + 1;
+                  const ratio = Math.max(0, Math.min(1, (safeDistance - acc) / segLen));
+                  posX = p1.x + (p2.x - p1.x) * ratio;
+                  posY = p1.y + (p2.y - p1.y) * ratio;
+                  break;
+                }
+                acc += segLen;
+              }
+
+              escort.x = posX + (Math.random() - 0.5) * 16;
+              escort.y = posY + (Math.random() - 0.5) * 16;
+              escort.targetIndex = targetIdx;
+              this.enemies.push(escort);
+            }
           }
 
-          this.activeBoss = null;
-          document.getElementById('boss-hud').style.display = 'none';
+          // Atualiza HUD do Boss
+          const anyBossLeft = this.enemies.find(e => e.isAlive && e.isBoss && e !== enemy);
+          if (anyBossLeft) {
+            this.activeBoss = anyBossLeft;
+            const bossTitle = document.getElementById('boss-title-text');
+            if (bossTitle && anyBossLeft.customTitle) bossTitle.textContent = anyBossLeft.customTitle;
+          } else {
+            this.activeBoss = null;
+            document.getElementById('boss-hud').style.display = 'none';
+          }
         }
 
         this.updateInspectorBox();
