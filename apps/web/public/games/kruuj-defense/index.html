@@ -3109,13 +3109,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
       render(ctx) {
         if (this.life <= 0) return;
-        ctx.save();
         ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
       }
     }
 
@@ -3430,6 +3428,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.inspectingTower = null;
         this.mousePos = { x: -100, y: -100 };
         this.activeBoss = null;
+        this.roundEndGraceTimer = 0;
+        this.dom = null;
 
         // Configuração dos 5 Arquétipos de Corujas
         this.towerConfigs = TOWER_CONFIGS;
@@ -3438,6 +3438,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       init() {
+        this.initDOMCache();
         this.resize();
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('orientationchange', () => setTimeout(() => this.resize(), 100));
@@ -3473,6 +3474,33 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         try {
           window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-defense' }, '*');
         } catch(e) {}
+      }
+
+      initDOMCache() {
+        if (typeof document === 'undefined') return;
+        this.dom = {
+          hudMoney: document.getElementById('hud-money'),
+          hudLives: document.getElementById('hud-lives'),
+          hudRoundBadge: document.getElementById('hud-round-badge'),
+          btnDiff: document.getElementById('btn-difficulty'),
+          startBtn: document.getElementById('btn-start-round'),
+          bossHud: document.getElementById('boss-hud'),
+          bossHpBar: document.getElementById('boss-hp-bar'),
+          bossHpText: document.getElementById('boss-hp-text'),
+          bossTitleText: document.getElementById('boss-title-text'),
+          inspAvatar: document.getElementById('insp-avatar'),
+          inspName: document.getElementById('insp-name'),
+          inspRank: document.getElementById('insp-rank'),
+          inspStats: document.getElementById('insp-stats'),
+          btnUpgrade: document.getElementById('btn-upgrade'),
+          upgradeBtnText: document.getElementById('upgrade-btn-text'),
+          btnSell: document.getElementById('btn-sell'),
+          upgradeSheet: document.getElementById('floating-upgrade-sheet'),
+          shopBtns: this.towerConfigs ? this.towerConfigs.map((_, i) => {
+            const btn = document.getElementById(`shop-btn-${i}`);
+            return btn ? { btn, priceEl: btn.querySelector('.card-price') } : null;
+          }) : []
+        };
       }
 
       initBackgroundTicker() {
@@ -3952,6 +3980,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.sound.playPop(enemy.isBoss ? 0.6 : 1.0);
         this.spawnPopParticles(enemy.x, enemy.y, enemy.color);
 
+        if (!this.dom) this.initDOMCache();
+        if (this.dom && this.dom.hudMoney) {
+          this.dom.hudMoney.textContent = `$${this.money}`;
+        }
+
         if (enemy.isBoss) {
           const isHardOrExt = this.difficulty.id === 'hard' || this.difficulty.id === 'extreme';
 
@@ -4240,48 +4273,48 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       updateUI() {
-        document.getElementById('hud-money').textContent = `$${this.money}`;
-        document.getElementById('hud-lives').textContent = this.lives;
+        if (!this.dom) this.initDOMCache();
+        if (this.dom && this.dom.hudMoney) this.dom.hudMoney.textContent = `$${this.money}`;
+        if (this.dom && this.dom.hudLives) this.dom.hudLives.textContent = this.lives;
 
         // Indicador dinâmico de Meta de Estrelas
-        const starBadge = document.getElementById('hud-round-badge');
-        if (starBadge) {
+        if (this.dom && this.dom.hudRoundBadge) {
           if (this.round <= 30) {
-            starBadge.textContent = `⭐ Onda ${this.round}/30`;
+            this.dom.hudRoundBadge.textContent = `⭐ Onda ${this.round}/30`;
           } else if (this.round <= 50) {
-            starBadge.textContent = `⭐⭐ Onda ${this.round}/50`;
+            this.dom.hudRoundBadge.textContent = `⭐⭐ Onda ${this.round}/50`;
           } else if (this.round <= 70) {
-            starBadge.textContent = `⭐⭐⭐ Onda ${this.round}/70`;
+            this.dom.hudRoundBadge.textContent = `⭐⭐⭐ Onda ${this.round}/70`;
           } else {
-            starBadge.textContent = `♾️ Onda ${this.round}`;
+            this.dom.hudRoundBadge.textContent = `♾️ Onda ${this.round}`;
           }
         }
 
-        const btnDiff = document.getElementById('btn-difficulty');
-        if (btnDiff) {
-          btnDiff.textContent = `${this.difficulty.icon} ${this.difficulty.name}`;
+        if (this.dom && this.dom.btnDiff) {
+          this.dom.btnDiff.textContent = `${this.difficulty.icon} ${this.difficulty.name}`;
         }
 
-        const startBtn = document.getElementById('btn-start-round');
-        startBtn.disabled = this.isRoundRunning;
+        if (this.dom && this.dom.startBtn) {
+          this.dom.startBtn.disabled = this.isRoundRunning;
+        }
 
         this.towerConfigs.forEach((cfg, i) => {
-          const actualCost = Math.round(cfg.cost * this.difficulty.costMult);
-          const btn = document.getElementById(`shop-btn-${i}`);
-          if (btn) {
-            const priceEl = btn.querySelector('.card-price');
-            if (priceEl) priceEl.textContent = `$${actualCost}`;
+          const item = this.dom && this.dom.shopBtns ? this.dom.shopBtns[i] : null;
+          if (item && item.btn) {
+            const actualCost = Math.round(cfg.cost * this.difficulty.costMult);
+            if (item.priceEl) item.priceEl.textContent = `$${actualCost}`;
             const canAfford = this.money >= actualCost;
-            btn.disabled = !canAfford;
-            btn.classList.toggle('cant-afford', !canAfford);
-            btn.classList.toggle('selected', this.selectedShopIndex === i);
+            item.btn.disabled = !canAfford;
+            item.btn.classList.toggle('cant-afford', !canAfford);
+            item.btn.classList.toggle('selected', this.selectedShopIndex === i);
           }
         });
       }
 
       // Atualiza o Card Flutuante de Inspeção / Upgrade (Bloons TD 6)
       updateInspectorBox() {
-        const sheet = document.getElementById('floating-upgrade-sheet');
+        if (!this.dom) this.initDOMCache();
+        const sheet = this.dom ? this.dom.upgradeSheet : null;
         if (!sheet) return;
 
         if (!this.inspectingTower) {
@@ -4295,30 +4328,46 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         const nextRank = t.getNextRank ? t.getNextRank() : null;
         const stars = t.level === 1 ? '' : (t.level === 2 ? ' ⭐' : ' ⭐⭐');
 
-        document.getElementById('insp-avatar').textContent = t.icon;
-        document.getElementById('insp-name').textContent = t.name;
-        document.getElementById('insp-rank').textContent = `Patente: ${currentRank}${stars}`;
-        document.getElementById('insp-stats').textContent = `Dano: ${t.damage} • Alcance: ${t.range} • Cadência: ${Math.round(60 / (t.cooldownMax || 30) * 10) / 10} t/s`;
+        if (this.dom.inspAvatar) this.dom.inspAvatar.textContent = t.icon;
+        if (this.dom.inspName) this.dom.inspName.textContent = t.name;
+        if (this.dom.inspRank) this.dom.inspRank.textContent = `Patente: ${currentRank}${stars}`;
+        if (this.dom.inspStats) this.dom.inspStats.textContent = `Dano: ${t.damage} • Alcance: ${t.range} • Cadência: ${Math.round(60 / (t.cooldownMax || 30) * 10) / 10} t/s`;
 
-        const btnUpgrade = document.getElementById('btn-upgrade');
-        const textUpgrade = document.getElementById('upgrade-btn-text');
-        const btnSell = document.getElementById('btn-sell');
-
-        btnSell.textContent = `Vender ($${Math.floor(t.totalInvested * 0.7)})`;
+        if (this.dom.btnSell) this.dom.btnSell.textContent = `Vender ($${Math.floor(t.totalInvested * 0.7)})`;
 
         const cost = t.getUpgradeCost(this.difficulty.costMult);
         if (cost !== null && nextRank) {
-          textUpgrade.textContent = `⬆️ Evoluir para ${nextRank} ($${cost})`;
-          btnUpgrade.disabled = this.money < cost;
+          if (this.dom.upgradeBtnText) this.dom.upgradeBtnText.textContent = `⬆️ Evoluir para ${nextRank} ($${cost})`;
+          if (this.dom.btnUpgrade) this.dom.btnUpgrade.disabled = this.money < cost;
         } else {
-          textUpgrade.textContent = '👑 Patente Máxima (MAX)';
-          btnUpgrade.disabled = true;
+          if (this.dom.upgradeBtnText) this.dom.upgradeBtnText.textContent = '👑 Patente Máxima (MAX)';
+          if (this.dom.btnUpgrade) this.dom.btnUpgrade.disabled = true;
         }
       }
 
       deselectTower() {
         this.inspectingTower = null;
         this.updateInspectorBox();
+      }
+
+      // Conclui a rodada de forma limpa após o grace period das partículas de explosão
+      completeRound() {
+        this.isRoundRunning = false;
+        const baseBonus = 70 + this.round * 5;
+        const waveBonus = Math.max(10, Math.round(baseBonus * (this.difficulty.waveBonusMult || 1.0)));
+        this.money += waveBonus;
+        this.round++;
+        this.sound.playBuy();
+
+        this.updateInspectorBox();
+        this.updateUI();
+
+        this.checkObjectiveSuccess();
+        this.scheduleSaveGameState();
+
+        if (this.autoStart) {
+          setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
+        }
       }
 
       // Agenda o salvamento de forma assíncrona desacoplada para eliminar o freeze de frame
@@ -4530,22 +4579,18 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           }
         }
 
+        // 2. Fim de onda com Grace Period (espera as partículas do último estouro se dispersarem a 60 FPS sem concorrer com DOM/áudio)
         if (this.isRoundRunning && !anyGroupActive && this.enemies.length === 0) {
-          this.isRoundRunning = false;
-          const baseBonus = 70 + this.round * 5;
-          const waveBonus = Math.max(10, Math.round(baseBonus * (this.difficulty.waveBonusMult || 1.0)));
-          this.money += waveBonus;
-          this.round++;
-          this.sound.playBuy();
-          this.updateInspectorBox();
-          this.updateUI();
+          if (this.roundEndGraceTimer === undefined) this.roundEndGraceTimer = 0;
+          this.roundEndGraceTimer += timeScale;
 
-          this.checkObjectiveSuccess();
-          this.scheduleSaveGameState();
-
-          if (this.autoStart) {
-            setTimeout(() => { if (this.autoStart) this.startNextRound(); }, 400);
+          // Aguarda 18 frames (~300ms) de animação pura no Canvas antes de alterar o estado da rodada
+          if (this.roundEndGraceTimer >= 18) {
+            this.roundEndGraceTimer = 0;
+            this.completeRound();
           }
+        } else {
+          this.roundEndGraceTimer = 0;
         }
 
         this.towers.forEach(t => {
@@ -4600,6 +4645,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
             const pt = this.particles[i];
             if (pt.life > 0) pt.render(this.ctx);
           }
+          this.ctx.globalAlpha = 1.0;
 
           // Preview Holográfico Bloons TD
           const activePreviewIndex = this.draggingShopIndex !== null ? this.draggingShopIndex : this.selectedShopIndex;
