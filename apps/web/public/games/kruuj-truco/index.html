@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>KRUUJ TRUCO</title>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"><title>KRUUJ TRUCO</title>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -60,7 +60,7 @@ body{height:100%;margin:0;position:relative;background:var(--nav);color:#fff;fon
 #kl{--bg:#050b24;--purple:#8338fc;--blue:#289afd;--orange:#fda41d;--lav:#d8d4fd;--white:#f1f1f6;--navy:#1a214c;font-family:'Outfit',system-ui,sans-serif;color:var(--white)}
 /* ===== KRUUJ LOADER (copiar este bloco CSS + o HTML #kl + o JS para cada jogo) ===== */
 #kl{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s}
-#kl.out{opacity:0;visibility:hidden}
+#kl.out{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;display:none !important;}
 #kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
 #kl .ph.off{opacity:0;pointer-events:none}
 .splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both,glow 2.4s ease-in-out .9s infinite}
@@ -255,4 +255,25 @@ if (window.self !== window.top) {
   KruujLoader.start({gameName:'KRUUJ TRUCO',tagline:'Estamos arrumando a mesa do bar.',splash:2600,minTime:2500,tips:['Toque ou arraste a carta para jogar.','A Lia manda sinais no começo de cada mão.','Só peça truco quando a mão estiver boa… ou quando quiser blefar!','Manilha é a carta seguinte à vira.'],onComplete(){}});
   (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(()=>KruujLoader.finish(),600));
 }
-</script></body></html>
+</script>
+<script>
+/* KRUUJ-PROC-001 SDK Lifecycle Bridge */
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.KruujSDK) {
+    window.KruujSDK.init().then(() => {
+      window.KruujSDK.gameLoadingFinished();
+    });
+  }
+});
+window.addEventListener('pointerdown', () => {
+  if (window.KruujSDK) window.KruujSDK.gameplayStart();
+}, { once: true });
+window.addEventListener('beforeunload', () => {
+  if (window.KruujSDK) window.KruujSDK.gameplayStop();
+});
+function kruujOnGameOver() {
+  if (window.KruujSDK) window.KruujSDK.gameplayStop();
+}
+</script>
+
+</body></html>

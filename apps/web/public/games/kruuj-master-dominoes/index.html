@@ -43,7 +43,7 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation;
+      touch-action: none;
     }
 
     html, body {
@@ -510,7 +510,8 @@
       background: var(--gold-hover);
       transform: translateY(-2px);
     }
-  </style>
+  #kl.out{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;display:none !important;}
+</style>
 </head>
 <body>
 
@@ -1194,7 +1195,7 @@
         renderAll();
       } else {
         const texts = getTexts();
-        alert(boneyard.length > 0 ? texts.noMoves : texts.noMovesEmptyDeck);
+        showWinModal('Dica', boneyard.length > 0 ? texts.noMoves : texts.noMovesEmptyDeck);
       }
     };
 
@@ -1202,6 +1203,7 @@
        CONDIÇÕES DE VITÓRIA E FECHAMENTO
        ========================================================= */
     function checkWinCondition() {
+      if (window.KruujSDK) KruujSDK.gameplayStop();
       const texts = getTexts();
       if (playerHand.length === 0) {
         audio.winFanfare();
@@ -1279,25 +1281,51 @@
         }).catch(() => {});
       }
 
-      if (window.self === window.top) {
+      const isIframe = (window.self !== window.top);
+      const kl = document.getElementById('kl');
+      if (isIframe) {
+        if (kl) {
+          kl.classList.add('out');
+          kl.style.display = 'none';
+          kl.style.pointerEvents = 'none';
+        }
+        try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-master-dominoes' }, '*'); } catch(e){}
+        if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+          try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
+        }
+      } else {
         let p = 0;
         const fill = document.getElementById('kl-fill');
         const pct = document.getElementById('kl-pct');
         const interval = setInterval(() => {
-          p += 20;
+          p += 25;
           if (fill) fill.style.width = p + '%';
           if (pct) pct.textContent = p + '%';
           if (p >= 100) {
             clearInterval(interval);
-            const kl = document.getElementById('kl');
             if (kl) {
               kl.classList.add('out');
-              setTimeout(() => kl.style.display = 'none', 600);
+              kl.style.display = 'none';
+              kl.style.pointerEvents = 'none';
+            }
+            try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-master-dominoes' }, '*'); } catch(e){}
+            if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+              try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
             }
           }
-        }, 150);
+        }, 120);
       }
     });
   </script>
+
+<script>
+/* KRUUJ-PROC-001 Lifecycle Bridge */
+window.addEventListener('DOMContentLoaded', () => {
+  try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-master-dominoes' }, '*'); } catch(e){}
+  if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+    try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
+  }
+});
+</script>
 </body>
 </html>

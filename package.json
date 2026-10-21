@@ -17,7 +17,9 @@
     "start": "npm run start --workspaces --if-present",
     "prisma:generate": "npm run prisma:generate --workspace=@portal-jogos/api",
     "prisma:migrate": "npm run prisma:migrate --workspace=@portal-jogos/api",
-    "prisma:studio": "npm run prisma:studio --workspace=@portal-jogos/api"
+    "prisma:studio": "npm run prisma:studio --workspace=@portal-jogos/api",
+    "check:game": "node scripts/check-game.js",
+    "check:games": "node scripts/check-game.js --all"
   },
   "devDependencies": {
     "concurrently": "^10.0.5",

@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <title>Memory Training Neon</title>
   <style>
     * {
@@ -165,7 +165,8 @@ window.addEventListener('DOMContentLoaded', () => {
       color: #0b0c10;
       box-shadow: 0 0 20px #66fcf1;
     }
-  </style>
+    * { touch-action: none; -webkit-touch-callout: none; }
+</style>
 </head>
 <body>
 
@@ -296,6 +297,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     startBtn.addEventListener('click', startGame);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && window.KruujSDK) KruujSDK.gameplayStop();
+    });
   </script>
+
+<script>
+/* KRUUJ-PROC-001 Lifecycle Bridge */
+window.addEventListener('DOMContentLoaded', () => {
+  try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'memory-match' }, '*'); } catch(e){}
+  if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+    try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
+  }
+});
+</script>
 </body>
 </html>

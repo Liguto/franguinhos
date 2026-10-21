@@ -5,8 +5,12 @@ import {
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
   FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
   MessageSquare, Send, Compass, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile,
-  ThumbsUp, ThumbsDown, Flag
+  ThumbsUp, ThumbsDown, Flag, Code
 } from 'lucide-react';
+import { trackGameInteraction, getUserCohort } from './cohorts/cohortEngine';
+import { getDirectCampaignForCohort, DirectCampaign } from './ads/directAdsEngine';
+import { DirectAdModal } from './ads/DirectAdModal';
+import { DevelopersModal } from './developers/DevelopersModal';
 
 // Interfaces internas
 interface Game {
@@ -360,6 +364,11 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>('Tudo');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [dismissRotateNotice, setDismissRotateNotice] = useState<boolean>(false);
+
+  // Estados de KRUUJ for Developers & Direct Ads (MedSênior 60+)
+  const [isDevModalOpen, setIsDevModalOpen] = useState<boolean>(false);
+  const [activeDirectAd, setActiveDirectAd] = useState<DirectCampaign | null>(null);
+  const currentAdResponderRef = useRef<((val: boolean) => void) | null>(null);
 
   // Prevenção de rolagem indesejada por teclado (Padrão Poki / HTML5 Games)
   useEffect(() => {
@@ -2651,11 +2660,13 @@ export default function App() {
             break;
 
           case 'gameplayStart':
+            if (slug) trackGameInteraction(slug, 30);
             logEvent('gameplay_start', { gameSlug: slug });
             respond(true);
             break;
 
           case 'gameplayStop':
+            if (slug) trackGameInteraction(slug, 60);
             logEvent('gameplay_stop', { gameSlug: slug });
             respond(true);
             break;
@@ -2666,9 +2677,20 @@ export default function App() {
             const lastAd = lastCommercialTimeRef.current || 0;
             if (now - lastAd > 90000) {
               lastCommercialTimeRef.current = now;
-              setTimeout(() => {
-                respond(true);
-              }, 1800);
+              if (slug) {
+                trackGameInteraction(slug, 90);
+              }
+              const userCohort = getUserCohort();
+              const directCampaign = getDirectCampaignForCohort(userCohort.cohort);
+
+              if (directCampaign) {
+                setActiveDirectAd(directCampaign);
+                currentAdResponderRef.current = (ok: boolean) => respond(ok);
+              } else {
+                setTimeout(() => {
+                  respond(true);
+                }, 1800);
+              }
             } else {
               respond(true);
             }
@@ -5461,6 +5483,10 @@ export default function App() {
                 <FileText className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Termos de Uso</span>
               </button>
+              <button className="kruuj-footer-link-btn devs" onClick={() => setIsDevModalOpen(true)}>
+                <Code className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-amber-300 font-bold">KRUUJ for Developers</span>
+              </button>
               <button className="kruuj-footer-link-btn contact" onClick={() => setView('contact')}>
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Fale Conosco</span>
@@ -6037,6 +6063,25 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Modal de Publicidade Direta Contextualizada (MedSênior 60+) */}
+      <DirectAdModal
+        campaign={activeDirectAd}
+        isOpen={!!activeDirectAd}
+        onClose={() => {
+          setActiveDirectAd(null);
+          if (currentAdResponderRef.current) {
+            currentAdResponderRef.current(true);
+            currentAdResponderRef.current = null;
+          }
+        }}
+      />
+
+      {/* Modal KRUUJ for Developers (Poki Standard) */}
+      <DevelopersModal
+        isOpen={isDevModalOpen}
+        onClose={() => setIsDevModalOpen(false)}
+      />
     </div>
   );
 }

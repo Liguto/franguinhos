@@ -2,15 +2,289 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>KRUUJ Baby Sinfonia & Formas</title>
+  <title>KRUUJ Baby Formas & Cores Mágicas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta http-equiv="refresh" content="0; url=/games/kruuj-baby-music/">
-  <script>
-    const search = window.location.search || '';
-    window.location.replace('/games/kruuj-baby-music/' + search);
-  </script>
+  <script src="/sdk/v1/kruuj-sdk.js"></script>
+  <script src="/sdk/v1/kruuj-loader.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      -webkit-touch-callout: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090919 90%);
+      color: #fff;
+      font-family: 'Baloo 2', cursive, sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: fixed;
+      top: 14px;
+      left: 76px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .badge {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffd166;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .hint {
+      position: fixed;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      pointer-events: none;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      animation: pulse 2s infinite alternate ease-in-out;
+    }
+    @keyframes pulse { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1.02); } }
+  </style>
 </head>
-<body style="margin:0; background:#0a0e2a; color:#fff; display:grid; place-items:center; height:100vh; font-family:sans-serif;">
-  <p>Carregando KRUUJ Baby Sinfonia & Formas...</p>
+<body>
+  <div class="hud">
+    <button id="btnSoundToggle" onclick="toggleAudio()" title="Som" style="pointer-events:auto;cursor:pointer;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);border-radius:999px;padding:4px 12px;color:#fff;font-size:1.1rem;">🔊</button>
+    <div class="badge" id="score-badge">⭐ Estrelinhas: <span id="score">0</span></div>
+    <div class="badge" id="shape-name">Toque nas formas! ✨</div>
+  </div>
+  <canvas id="c"></canvas>
+  <div class="hint">Toque nas formas mágicas para ouvir e estourar! 🦉</div>
+
+  <script>
+    // Inicialização do Kruuj SDK
+    if (window.KruujSDK) {
+      window.KruujSDK.init().then(() => {
+        window.KruujSDK.gameLoadingFinished();
+        window.KruujSDK.gameplayStart();
+      });
+    }
+
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const shapeNameEl = document.getElementById('shape-name');
+
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    let score = 0;
+
+    window.addEventListener('resize', () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    // WebAudio para sininhos fofos sem autoplay violado
+    let audioCtx = null;
+    function playChime(freq = 523.25) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.6);
+      } catch(e) {}
+    }
+
+    const SHAPES = [
+      { name: 'Círculo Amarelo! 🟡', color: '#ffd166', type: 'circle', freq: 523.25 },
+      { name: 'Estrela Dourada! ⭐', color: '#ffb703', type: 'star', freq: 659.25 },
+      { name: 'Quadrado Azul! 🟦', color: '#38bdf8', type: 'square', freq: 587.33 },
+      { name: 'Coração Rosa! 💕', color: '#f472b6', type: 'heart', freq: 783.99 },
+      { name: 'Triângulo Menta! 🔺', color: '#4ade80', type: 'triangle', freq: 698.46 },
+    ];
+
+    class ShapeItem {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        this.size = Math.min(w, h) * (0.12 + Math.random() * 0.08);
+        this.x = Math.random() * (w - this.size * 2) + this.size;
+        this.y = h + this.size + Math.random() * 100;
+        this.vy = -(1.2 + Math.random() * 1.6);
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.rot = Math.random() * Math.PI * 2;
+        this.vRot = (Math.random() - 0.5) * 0.03;
+        this.scale = 1;
+        this.popped = false;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rot += this.vRot;
+        if (this.y < -this.size * 2) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.fillStyle = this.shape.color;
+        ctx.shadowColor = this.shape.color;
+        ctx.shadowBlur = 15;
+
+        const s = this.size;
+        if (this.shape.type === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, s / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.shape.type === 'square') {
+          ctx.beginPath();
+          ctx.roundRect(-s/2, -s/2, s, s, 16);
+          ctx.fill();
+        } else if (this.shape.type === 'triangle') {
+          ctx.beginPath();
+          ctx.moveTo(0, -s/2);
+          ctx.lineTo(s/2, s/2);
+          ctx.lineTo(-s/2, s/2);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Estrela / Coração
+          ctx.beginPath();
+          ctx.arc(0, 0, s / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Rostinho feliz do bebê
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-s * 0.16, -s * 0.08, s * 0.06, 0, Math.PI * 2);
+        ctx.arc(s * 0.16, -s * 0.08, s * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+        // Boquinha sorrindo
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.15, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    const items = Array.from({ length: 6 }, () => new ShapeItem());
+    const particles = [];
+
+    function pop(item) {
+      score++;
+      scoreEl.textContent = score;
+      shapeNameEl.textContent = item.shape.name;
+      playChime(item.shape.freq);
+
+      // Criar estrelinhas
+      for (let i = 0; i < 14; i++) {
+        particles.push({
+          x: item.x,
+          y: item.y,
+          vx: (Math.random() - 0.5) * 8,
+          vy: (Math.random() - 0.5) * 8,
+          color: item.shape.color,
+          life: 1,
+          size: 6 + Math.random() * 8
+        });
+      }
+      item.reset();
+
+      if (score % 20 === 0 && window.KruujSDK) {
+        window.KruujSDK.gameplayStop();
+        setTimeout(() => window.KruujSDK.gameplayStart(), 300);
+      }
+    }
+
+    function checkClick(px, py) {
+      for (const it of items) {
+        const dx = px - it.x;
+        const dy = py - it.y;
+        if (Math.hypot(dx, dy) < it.size * 0.7) {
+          pop(it);
+          break;
+        }
+      }
+    }
+
+    window.addEventListener('pointerdown', (e) => {
+      checkClick(e.clientX, e.clientY);
+    });
+
+    function loop() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const it of items) {
+        it.update();
+        it.draw();
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.025;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+
+<script>
+/* KRUUJ-PROC-001 Lifecycle Bridge */
+window.addEventListener('DOMContentLoaded', () => {
+  try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-baby-shapes' }, '*'); } catch(e){}
+  if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+    try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
+  }
+});
+</script>
 </body>
 </html>

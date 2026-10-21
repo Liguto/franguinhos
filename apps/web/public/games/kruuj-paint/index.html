@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
   <script src="/sdk/v1/kruuj-loader.js"></script><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Kruuj • Pintar</title>
 <style>
 :root{--ink:#2b1a5e;--roxo:#7c3aed;--verde:#22c55e;box-sizing:border-box;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
@@ -63,7 +63,7 @@ button{font:inherit;border:0;cursor:pointer;color:#fff;padding:0}
 </style></head>
 <body>
 <div id="app">
- <div id="top"><div class="g"><button class="rb" id="undo" aria-label="Desfazer">↶</button><button class="rb" id="redo" aria-label="Refazer">↷</button></div>
+ <div id="top"><div class="g"><button class="rb" id="undo" aria-label="Desfazer">↶</button><button class="rb" id="redo" aria-label="Refazer">↷</button><button class="rb" id="btn-sound" onclick="toggleMuteSound()" aria-label="Som">🔊</button></div>
   <div id="pill">…</div><div class="g"><button class="rb" id="done" aria-label="Concluir">✓</button></div></div>
  <div class="col" id="left"></div>
  <div id="stage"><canvas id="cv" width="900" height="900"></canvas></div>
@@ -115,7 +115,17 @@ try{done=JSON.parse(localStorage.getItem('kruuj_done2')||'[]');G=JSON.parse(loca
 const POT=c=>`<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M30 8C38 4 46 10 46 16C54 16 58 26 52 32C58 38 54 48 46 48C44 56 34 58 28 52C20 58 8 52 10 44C2 40 4 30 12 28C8 20 14 12 22 14C22 10 26 8 30 8Z" fill="${c}" stroke="#0006" stroke-width="0.7" stroke-linejoin="round"/><circle cx="53" cy="8" r="3" fill="${c}" stroke="#0006" stroke-width="0.6"/><circle cx="7" cy="53" r="2.4" fill="${c}" stroke="#0006" stroke-width="0.6"/><ellipse cx="22" cy="22" rx="6" ry="3.5" transform="rotate(-35 22 22)" fill="#fff" fill-opacity=".55"/><circle cx="38" cy="36" r="2" fill="#fff" fill-opacity=".4"/></svg>`;
 $('pal').innerHTML=COL.map(c=>`<button class="c${c===color?' on':''}" style="background:${c}" data-c="${c}" aria-label="Cor">${POT(c)}</button>`).join('');
 $('left').innerHTML=SZ.map((s,i)=>`<button class="sq${s===size?' on':''}" data-s="${s}" aria-label="Pincel"><i style="height:${2+i*3}px"></i></button>`).join('');
-function snd(f,d=.12,t='sine'){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+let isAudioMuted = false;
+function toggleMuteSound() {
+  isAudioMuted = !isAudioMuted;
+  const btn = document.getElementById('btn-sound');
+  if (btn) btn.textContent = isAudioMuted ? '🔇' : '🔊';
+  if (typeof AC !== 'undefined' && AC) {
+    if (isAudioMuted) AC.suspend();
+    else AC.resume();
+  }
+}
+function snd(f,d=.12,t='sine'){if(isAudioMuted)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.12,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 function fit(){const s=$('stage'),m=Math.max(100,Math.min(s.clientWidth,s.clientHeight)-8);cv.style.width=cv.style.height=m+'px'}
 new ResizeObserver(fit).observe($('stage'));
 function render(){ctx.fillStyle='#fff';ctx.fillRect(0,0,W,W);ctx.drawImage(P,0,0);ctx.drawImage(L,0,0)}
@@ -196,5 +206,9 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-paint' }, '*'); } catch(e){}
 });
+
+    // Hook de encerramento oficial KRUUJ-PROC-001
+    window.addEventListener('beforeunload', () => { if (window.KruujSDK) KruujSDK.gameplayStop(); });
+    function kruujStopGame() { if (window.KruujSDK) KruujSDK.gameplayStop(); }
 </script>
 </body></html>
