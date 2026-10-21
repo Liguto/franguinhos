@@ -357,7 +357,7 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
 
 export default function App() {
   // --- Estados do Portal ---
-  const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin'>('home');
+  const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>('home');
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
@@ -4328,6 +4328,71 @@ export default function App() {
                   </form>
                 </div>
               )}
+
+              {/* VIEW: DEVELOPERS */}
+              {view === 'developers' && (
+                <div className="card space-y-6 max-w-4xl text-left mx-auto">
+                  <button className="btn-secondary py-1.5 px-3 text-xs mb-2" onClick={() => setView('home')}>
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Início
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">🦉</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-2xl font-black text-white">KRUUJ for Developers</h2>
+                        <span className="text-xs font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                          Poki Standard
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400">Plataforma oficial de publicação, homologação e monetização de jogos HTML5</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 space-y-3">
+                    <h3 className="text-lg font-bold text-white">Monetize seus jogos desde a primeira partida.</h3>
+                    <p className="text-xs text-gray-300 leading-relaxed">
+                      Publique seu jogo no KRUUJ, alcance milhares de jogadores de todo o Brasil e receba 70% da receita líquida gerada por anúncios, com repasses automáticos via PIX a partir de R$ 200,00.
+                    </p>
+                    <button
+                      onClick={() => setIsDevModalOpen(true)}
+                      className="btn-primary py-2.5 px-6 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/30"
+                    >
+                      🚀 Abrir Central de Submissão & Documentação Completa
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                      <div className="text-2xl">💰</div>
+                      <h4 className="text-sm font-bold text-white">70% Revenue Share</h4>
+                      <p className="text-xs text-gray-400">Divisão transparente de receita com saques via PIX em reais.</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                      <div className="text-2xl">⚡</div>
+                      <h4 className="text-sm font-bold text-white">Validador em Segundos</h4>
+                      <p className="text-xs text-gray-400">Auditoria automatizada de qualidade com o robô check-game.js.</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                      <div className="text-2xl">🛡️</div>
+                      <h4 className="text-sm font-bold text-white">Compatível com PokiSDK</h4>
+                      <p className="text-xs text-gray-400">Se o seu jogo roda na Poki, roda no KRUUJ sem refatoração.</p>
+                    </div>
+                  </div>
+
+                  <div className="border border-white/10 rounded-xl p-4 bg-black/40 space-y-3">
+                    <h4 className="text-sm font-bold text-cyan-400">Guia Rápido de Integração (Kruuj SDK)</h4>
+                    <pre className="text-xs font-mono text-emerald-300 bg-black/60 p-3 rounded-lg overflow-x-auto border border-white/5">
+{`<!-- 1. Importação no index.html -->
+<script src="/sdk/v1/kruuj-sdk.js"></script>
+
+<!-- 2. Hooks essenciais no JS -->
+KruujSDK.init().then(() => KruujSDK.gameLoadingFinished());
+KruujSDK.gameplayStart(); // Início da partida
+KruujSDK.gameplayStop();  // Pausa / Game Over`}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -5483,7 +5548,14 @@ export default function App() {
                 <FileText className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Termos de Uso</span>
               </button>
-              <button className="kruuj-footer-link-btn devs" onClick={() => setIsDevModalOpen(true)}>
+              <button
+                className="kruuj-footer-link-btn devs"
+                onClick={() => {
+                  setView('developers');
+                  setIsDevModalOpen(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
                 <Code className="w-3.5 h-3.5 text-amber-400" />
                 <span className="text-amber-300 font-bold">KRUUJ for Developers</span>
               </button>

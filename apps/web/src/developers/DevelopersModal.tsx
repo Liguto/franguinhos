@@ -33,7 +33,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto" style={{ zIndex: 999999 }}>
       <div className="relative w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-2xl shadow-2xl text-slate-100 overflow-hidden my-8">
         
         {/* Top Header */}
