@@ -480,7 +480,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
 /* ===== KRUUJ LOADER (copiar este bloco CSS + o HTML #kl + o JS para cada jogo) ===== */
 #kl{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s}
-#kl.out{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;display:none !important;}
+#kl.out{opacity:0;visibility:hidden}
 #kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
 #kl .ph.off{opacity:0;pointer-events:none}
 .splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both,glow 2.4s ease-in-out .9s infinite}
@@ -541,9 +541,6 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
       <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Previsão de Salto">
         <span>🎯</span> <span class="status" id="helpText">MIRA: ON</span>
-      </button>
-      <button class="hud-badge hud-btn-help" id="btnSoundToggle" onclick="window.orbitGame.toggleSound()" title="Som (Ativar/Desativar)">
-        <span id="orbitSoundIcon">🔊</span> <span class="status" id="orbitSoundText">SOM: ON</span>
       </button>
       <button class="hud-badge hud-btn-help" onclick="window.orbitGame.openGuideModal()" title="Manual dos Planetas e Dicas">
         <span>📖</span> <span>GUIA</span>
@@ -663,67 +660,1530 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   </div>
 
   <script>
-// KruujLoader fornecido centralmente via /sdk/v1/kruuj-loader.js
-window.addEventListener('DOMContentLoaded', () => {
-  const isIframe = (window.self !== window.top);
-  const kl = document.getElementById('kl');
-  if (isIframe) {
-    if (kl) {
-      kl.classList.add('out');
-      kl.style.display = 'none';
-      kl.style.pointerEvents = 'none';
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    class SoundController {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.ctx = new AudioContextClass();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+
+      playLaunch() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch(e) {}
+      }
+
+      playOrbitCapture(combo = 1) {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          const notes = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+          const freq = notes[Math.min(combo - 1, notes.length - 1)] || 523.25;
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.14);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } catch(e) {}
+      }
+
+      playStarCollect() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1760, now + 0.18);
+
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } catch(e) {}
+      }
+
+      playPowerup() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(1100, now + 0.25);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch(e) {}
+      }
+
+      playPortalCheckpoint() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.35);
+          });
+        } catch(e) {}
+      }
+
+      playShieldSave() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } catch(e) {}
+      }
+
+      playWarning() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.linearRampToValueAtTime(90, now + 0.1);
+
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } catch(e) {}
+      }
+
+      playCrash() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } catch(e) {}
+      }
     }
-    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*'); } catch(e){}
-    if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
-      try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
+
+    // ===== 2. SISTEMA DE PARTÍCULAS VISUAIS =====
+    class Particle {
+      constructor(x, y, color, vx, vy, life = 1.0, radius = 3) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+        this.life = life;
+        this.maxLife = life;
+        this.radius = Math.max(0.5, radius);
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.035;
+      }
+
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.life / this.maxLife));
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, Math.max(0.2, this.radius * (this.life / this.maxLife)), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
-  } else {
-    try {
-      if (typeof KruujLoader !== 'undefined') {
-        KruujLoader.start({
-          gameName: 'KRUUJ ORBIT',
-          tagline: (typeof tD !== 'undefined' && tD.tagline ? tD.tagline : (typeof tG !== 'undefined' && tG.tagline ? tG.tagline : 'Prepare os fones, a coruja já está chegando.')),
-          tips: (typeof tD !== 'undefined' && tD.tips ? tD.tips : (typeof tG !== 'undefined' && tG.tips ? tG.tips : ['Divirta-se com os jogos oficiais da KRUUJ Studio!'])),
-          splash: 2000,
-          minTime: 2400,
-          onComplete: () => {
-            if (kl) {
-              kl.classList.add('out');
-              kl.style.display = 'none';
-              kl.style.pointerEvents = 'none';
-            }
-            try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*'); } catch(e){}
-            if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
-              try { window.KruujSDK.gameLoadingFinished(); } catch(e){}
-            }
+
+    // ===== 3. TEXTOS FLUTUANTES ANIMADOS =====
+    class FloatingText {
+      constructor(text, x, y, color = '#38e8ff', scale = 1.0) {
+        this.text = text;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.scale = scale;
+        this.life = 1.0;
+        this.vy = -1.8;
+      }
+
+      update() {
+        this.y += this.vy;
+        this.life -= 0.024;
+      }
+
+      render(ctx) {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, this.life));
+        ctx.font = `800 ${Math.round(18 * this.scale)}px 'Baloo 2', sans-serif`;
+        ctx.fillStyle = this.color;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 10;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+      }
+    }
+
+    // ===== 4. ESTRELA DOURADA COLETÁVEL =====
+    class CollectibleStar {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 11;
+        this.angle = 0;
+        this.collected = false;
+      }
+
+      update(playerPos, magnetActive) {
+        this.angle += 0.04;
+
+        if (magnetActive && !this.collected && playerPos) {
+          const dx = playerPos.x - this.x;
+          const dy = playerPos.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 260) {
+            this.x += (dx / dist) * 11;
+            this.y += (dy / dist) * 11;
+          }
+        }
+      }
+
+      render(ctx) {
+        if (this.collected) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        ctx.shadowColor = '#ffb020';
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = '#ffb020';
+
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          ctx.lineTo(Math.cos(i * Math.PI / 2) * this.radius, Math.sin(i * Math.PI / 2) * this.radius);
+          ctx.lineTo(Math.cos(i * Math.PI / 2 + Math.PI / 4) * (this.radius * 0.42), Math.sin(i * Math.PI / 2 + Math.PI / 4) * (this.radius * 0.42));
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 5. CÁPSULA DE PODER CÓSMICO =====
+    // Tipos: 'shield' (🛡️), 'magnet' (🧲), 'slowmo' (⏱️), 'jump' (⚡)
+    class PowerCapsule {
+      constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.radius = 15;
+        this.time = Math.random() * 10;
+        this.collected = false;
+
+        const meta = {
+          shield: { icon: '🛡️', color: '#38e8ff', name: 'ESCUDO' },
+          magnet: { icon: '🧲', color: '#ffb020', name: 'ÍMÃ' },
+          slowmo: { icon: '⏱️', color: '#c084fc', name: 'SLOW-MO' },
+          jump: { icon: '⚡', color: '#10b981', name: 'HIPER-SALTO' }
+        };
+        this.meta = meta[type] || meta.shield;
+      }
+
+      update() {
+        this.time += 0.05;
+      }
+
+      render(ctx) {
+        if (this.collected) return;
+        ctx.save();
+        const floatY = this.y + Math.sin(this.time) * 4;
+        ctx.translate(this.x, floatY);
+
+        ctx.fillStyle = 'rgba(13, 18, 36, 0.88)';
+        ctx.strokeStyle = this.meta.color;
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = this.meta.color;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '15px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 0;
+        ctx.fillText(this.meta.icon, 0, 1);
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 6. PLANETA COM MARGEM DE SEGURANÇA E CHECKPOINT INTEGRADO =====
+    class Planet {
+      constructor(index, x, y, type = 'standard', canvasWidth = 400) {
+        this.index = index;
+        this.type = type; // 'standard', 'fast', 'moving', 'blackhole'
+        this.time = Math.random() * 100;
+
+        // Planeta de Checkpoint (a cada 10 planetas)
+        this.isCheckpoint = (index > 0 && index % 10 === 0);
+        this.checkpointClaimed = false;
+
+        // Dimensões do núcleo e campo gravitacional
+        if (type === 'fast') {
+          this.coreRadius = 24;
+          this.gravityRadius = 60;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.058;
+        } else if (type === 'blackhole') {
+          this.coreRadius = 32;
+          this.gravityRadius = 76;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * 0.046;
+        } else {
+          this.coreRadius = 28 + Math.random() * 10;
+          this.gravityRadius = this.coreRadius + 38 + Math.random() * 6;
+          this.orbitSpeed = (Math.random() > 0.5 ? 1 : -1) * (0.034 + Math.random() * 0.012);
+        }
+
+        // Amplitude de oscilação para planetas móveis
+        this.moveAmp = (type === 'moving') ? (28 + Math.random() * 20) : 0;
+        this.moveFreq = 0.024 + Math.random() * 0.015;
+
+        // TRAVA RIGOROSA: Garante que a gravidade + amplitude NUNCA ultrapassem as laterais da tela
+        const safeMargin = 24;
+        const minX = this.gravityRadius + this.moveAmp + safeMargin;
+        const maxX = canvasWidth - (this.gravityRadius + this.moveAmp + safeMargin);
+
+        this.baseX = Math.max(minX, Math.min(maxX, x));
+        this.x = this.baseX;
+        this.y = y;
+
+        this.visited = index === 0;
+
+        // Cores temáticas
+        if (this.isCheckpoint) {
+          this.color1 = '#ffb020';
+          this.color2 = '#d97706';
+        } else if (type === 'blackhole') {
+          this.color1 = '#7c3aed';
+          this.color2 = '#090514';
+        } else if (type === 'fast') {
+          this.color1 = '#ffb020';
+          this.color2 = '#d97706';
+        } else if (type === 'moving') {
+          this.color1 = '#10b981';
+          this.color2 = '#065f46';
+        } else {
+          const standardPals = [
+            ['#38e8ff', '#0284c7'],
+            ['#8b5cff', '#581c87'],
+            ['#38bdf8', '#0369a1']
+          ];
+          const pal = standardPals[index % standardPals.length];
+          this.color1 = pal[0];
+          this.color2 = pal[1];
+        }
+
+        this.hasRing = (type !== 'blackhole' && Math.random() > 0.65);
+      }
+
+      update(canvasWidth) {
+        this.time += 1;
+        if (this.type === 'moving') {
+          this.x = this.baseX + Math.sin(this.time * this.moveFreq) * this.moveAmp;
+        }
+      }
+
+      render(ctx) {
+        ctx.save();
+
+        // 1. Linha Pontilhada ao Redor (Campo Gravitacional)
+        if (this.isCheckpoint) {
+          ctx.strokeStyle = this.checkpointClaimed ? 'rgba(56, 232, 255, 0.7)' : 'rgba(255, 176, 32, 0.7)';
+          ctx.lineWidth = 2.4;
+          ctx.setLineDash([6, 6]);
+        } else if (this.type === 'blackhole') {
+          ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([4, 6]);
+        } else {
+          ctx.strokeStyle = this.visited ? 'rgba(56, 232, 255, 0.4)' : 'rgba(255, 255, 255, 0.22)';
+          ctx.lineWidth = 1.6;
+          ctx.setLineDash([6, 8]);
+        }
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.gravityRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 2. Núcleo Visual do Planeta com Brilho Cósmico
+        ctx.shadowColor = this.color1;
+        ctx.shadowBlur = this.isCheckpoint ? 26 : (this.type === 'blackhole' ? 24 : 16);
+
+        if (this.type === 'blackhole') {
+          const grad = ctx.createRadialGradient(this.x, this.y, 4, this.x, this.y, this.coreRadius);
+          grad.addColorStop(0, '#000000');
+          grad.addColorStop(0.7, '#1e1035');
+          grad.addColorStop(1, '#a855f7');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(192, 132, 252, 0.6)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius + 3, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          const grad = ctx.createRadialGradient(
+            this.x - this.coreRadius * 0.3,
+            this.y - this.coreRadius * 0.3,
+            this.coreRadius * 0.1,
+            this.x,
+            this.y,
+            this.coreRadius
+          );
+          grad.addColorStop(0, this.color1);
+          grad.addColorStop(1, this.color2);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.coreRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.shadowBlur = 0;
+
+        // 3. Anel Planetário Opcional
+        if (this.hasRing) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.ellipse(this.x, this.y, this.coreRadius * 1.5, this.coreRadius * 0.35, 0.3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 7. PERSONAGEM (MASCOTE OFICIAL DA CORUJA KRUUJ) =====
+    class Player {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.radius = 15;
+        this.currentPlanet = null;
+        this.lastPlanet = null;
+        this.launchCooldown = 0;
+        this.flightFrames = 0;
+        this.orbitRotations = 0;
+        this.angle = -Math.PI / 2;
+        this.orbitRadius = 70;
+        this.orbitSpeed = 0.038;
+        this.trail = [];
+
+        // Poderes
+        this.hasShield = false;
+        this.hasHyperJump = false;
+        this.hyperJumpUsed = false;
+      }
+
+      enterOrbit(planet, interceptAngle) {
+        this.currentPlanet = planet;
+        this.lastPlanet = null;
+        this.launchCooldown = 0;
+        this.flightFrames = 0;
+        this.orbitRotations = 0;
+        this.hyperJumpUsed = false;
+        this.orbitRadius = planet.gravityRadius;
+        this.orbitSpeed = planet.orbitSpeed;
+        this.angle = interceptAngle;
+        this.vx = 0;
+        this.vy = 0;
+      }
+
+      updateOrbit() {
+        if (!this.currentPlanet) return;
+        this.angle += this.orbitSpeed;
+        this.orbitRotations += Math.abs(this.orbitSpeed) / (Math.PI * 2);
+        this.x = this.currentPlanet.x + Math.cos(this.angle) * this.orbitRadius;
+        this.y = this.currentPlanet.y + Math.sin(this.angle) * this.orbitRadius;
+      }
+
+      launch(launchSpeed) {
+        if (!this.currentPlanet) return;
+
+        this.lastPlanet = this.currentPlanet;
+        this.launchCooldown = 18;
+        this.flightFrames = 0;
+
+        const dir = this.orbitSpeed > 0 ? 1 : -1;
+        const tangentX = -Math.sin(this.angle) * dir;
+        const tangentY = Math.cos(this.angle) * dir;
+
+        this.vx = tangentX * launchSpeed;
+        this.vy = tangentY * launchSpeed;
+        this.currentPlanet = null;
+      }
+
+      hyperJump(speed) {
+        if (this.currentPlanet || this.hyperJumpUsed || !this.hasHyperJump) return false;
+        this.hyperJumpUsed = true;
+        this.hasHyperJump = false;
+        this.vy = -Math.abs(speed);
+        return true;
+      }
+
+      updateFlight(timeScale = 1.0) {
+        if (this.currentPlanet) return;
+        this.x += this.vx * timeScale;
+        this.y += this.vy * timeScale;
+        this.flightFrames++;
+        if (this.launchCooldown > 0) this.launchCooldown--;
+
+        this.trail.push({ x: this.x, y: this.y, alpha: 0.8 });
+        if (this.trail.length > 20) this.trail.shift();
+      }
+
+      render(ctx, combo = 1) {
+        ctx.save();
+
+        // 1. Rastro de partículas da cápsula (Protegido contra raio negativo)
+        for (let i = this.trail.length - 1; i >= 0; i--) {
+          const t = this.trail[i];
+          t.alpha -= 0.04;
+          if (t.alpha <= 0.02) {
+            this.trail.splice(i, 1);
+            continue;
+          }
+          const r = Math.max(0.5, 6 * t.alpha);
+          const trailColor = combo >= 3 ? `rgba(255, 92, 168, ${Math.max(0, Math.min(1, t.alpha))})` : `rgba(56, 232, 255, ${Math.max(0, Math.min(1, t.alpha))})`;
+          ctx.fillStyle = trailColor;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 2. Renderização da Coruja Mascote KRUUJ
+        ctx.translate(this.x, this.y);
+
+        const rot = this.currentPlanet ? (this.angle + Math.PI / 2) : Math.atan2(this.vy, this.vx);
+        ctx.rotate(rot);
+
+        // Escudo protetor de luz se ativo
+        if (this.hasShield) {
+          ctx.strokeStyle = '#38e8ff';
+          ctx.lineWidth = 2.4;
+          ctx.shadowColor = '#38e8ff';
+          ctx.shadowBlur = 12;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius + 6, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(56, 232, 255, 0.15)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Aura de propulsão cósmica
+        const auraColor = combo >= 3 ? 'rgba(255, 92, 168, 0.4)' : 'rgba(56, 232, 255, 0.3)';
+        ctx.fillStyle = auraColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Corpo da Coruja KRUUJ
+        ctx.fillStyle = '#8b5cff';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Penachos de orelha da coruja
+        ctx.fillStyle = '#6d28d9';
+        ctx.beginPath();
+        ctx.moveTo(-8, -5);
+        ctx.lineTo(-13, -16);
+        ctx.lineTo(-2, -11);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(8, -5);
+        ctx.lineTo(13, -16);
+        ctx.lineTo(2, -11);
+        ctx.closePath();
+        ctx.fill();
+
+        // Máscara e Olhos Brancos
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-4.5, -2, 4.2, 0, Math.PI * 2);
+        ctx.arc(4.5, -2, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Íris douradas
+        ctx.fillStyle = '#ffb020';
+        ctx.beginPath();
+        ctx.arc(-4.5, -2, 2.6, 0, Math.PI * 2);
+        ctx.arc(4.5, -2, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pupilas pretas
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(-4, -2, 1.4, 0, Math.PI * 2);
+        ctx.arc(5, -2, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bico dourado
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(-2.2, 2);
+        ctx.lineTo(2.2, 2);
+        ctx.lineTo(0, 5.5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Viseira neon KRUUJ
+        ctx.strokeStyle = '#38e8ff';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(0, -2, this.radius - 2, -Math.PI * 0.8, -Math.PI * 0.2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // ===== 8. GERENCIADOR DA CÂMERA VERTICAL =====
+    class Camera {
+      constructor() {
+        this.y = 0;
+        this.targetY = 0;
+        this.shake = 0;
+      }
+
+      update(playerY, viewportHeight) {
+        this.targetY = playerY - viewportHeight * 0.62;
+        this.y += (this.targetY - this.y) * 0.1;
+        if (this.shake > 0) this.shake *= 0.9;
+      }
+
+      addShake(intensity) {
+        this.shake = Math.min(25, this.shake + intensity);
+      }
+    }
+
+    // ===== i18n INTERNACIONALIZAÇÃO GLOBAL (PT, EN, ES) =====
+    const LANG = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
+
+    const I18N_ORBIT = {
+      pt: {
+        tagline: 'Prepare os fones, a coruja já está chegando.',
+        tips: ['Toque na tela no momento certo para disparar o estilingue!', 'Cada 10 planetas você alcança uma Linha de Checkpoint!', 'Colete estrelas e cápsulas de poder no vácuo espacial.'],
+        hint: 'Suba de planeta em planeta! Alcance os Checkpoints tracejados!',
+        playBtn: 'JOGAR COM 3 VIDAS 🪐',
+        playAgain: 'JOGAR NOVAMENTE 🪐',
+        aimOn: 'MIRA: ON',
+        aimOff: 'MIRA: OFF',
+        gameOverTitle: 'FIM DE VOO!',
+        gameOverDesc: (cp, sc) => `Suas 3 vidas acabaram! Você alcançou o Checkpoint ${cp} e fez ${sc} pontos!`,
+        perfect: 'PERFEITO!',
+        cpSaved: (cp) => `✨ CHECKPOINT ${cp} SALVO! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ATIVO`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ RESPAWN! Restam ${lv} vidas`,
+        shieldSaved: 'ESCUDO SALVOU VOCÊ! 🛡️',
+        hyperJump: '⚡ HIPER-SALTO!'
+      },
+      en: {
+        tagline: 'Put on your headphones, the owl is coming.',
+        tips: ['Tap the screen at the right moment to slingshot!', 'Every 10 planets you reach a Checkpoint line!', 'Collect stars and cosmic power capsules in space.'],
+        hint: 'Leap from planet to planet! Reach the dashed Checkpoints!',
+        playBtn: 'PLAY WITH 3 LIVES 🪐',
+        playAgain: 'PLAY AGAIN 🪐',
+        aimOn: 'AIM: ON',
+        aimOff: 'AIM: OFF',
+        gameOverTitle: 'FLIGHT OVER!',
+        gameOverDesc: (cp, sc) => `Your 3 lives ended! You reached Checkpoint ${cp} and scored ${sc} points!`,
+        perfect: 'PERFECT!',
+        cpSaved: (cp) => `✨ CHECKPOINT ${cp} SAVED! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ACTIVE`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ RESPAWN! ${lv} lives left`,
+        shieldSaved: 'SHIELD SAVED YOU! 🛡️',
+        hyperJump: '⚡ HYPER JUMP!'
+      },
+      es: {
+        tagline: 'Prepara los auriculares, el búho está llegando.',
+        tips: ['¡Toca la pantalla en el momento justo para impulsarte!', '¡Cada 10 planetas alcanzas una Línea de Checkpoint!', 'Recoge estrellas y cápsulas de poder en el espacio.'],
+        hint: '¡Salta de planeta en planeta! ¡Alcanza los Checkpoints!',
+        playBtn: 'JUGAR CON 3 VIDAS 🪐',
+        playAgain: 'JUGAR DE NUEVO 🪐',
+        aimOn: 'MIRA: ON',
+        aimOff: 'MIRA: OFF',
+        gameOverTitle: '¡FIN DEL VUELO!',
+        gameOverDesc: (cp, sc) => `¡Tus 3 vidas se acabaron! ¡Llegaste al Checkpoint ${cp} y conseguiste ${sc} puntos!`,
+        perfect: '¡PERFECTO!',
+        cpSaved: (cp) => `✨ ¡CHECKPOINT ${cp} GUARDADO! +250 PTS`,
+        cpActive: (cp) => `✨ CHECKPOINT ${cp} ACTIVO`,
+        cpDoor: (cp) => `🚪 CHECKPOINT ${cp}`,
+        respawn: (lv) => `❤️ ¡RESPAWN! Quedan ${lv} vidas`,
+        shieldSaved: '¡EL ESCUDO TE SALVÓ! 🛡️',
+        hyperJump: '⚡ ¡HÍPER SALTO!'
+      }
+    };
+    const tO = I18N_ORBIT[LANG] || I18N_ORBIT.en;
+
+    // ===== 9. CLASSE PRINCIPAL DO MOTOR DO JOGO =====
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.sound = new SoundController();
+        this.camera = new Camera();
+
+        this.state = 'menu';
+        this.lives = 3; // 3 VIDAS PARA O JOGADOR!
+        this.score = 0;
+        this.starsCount = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+        this.bestScore = parseInt(localStorage.getItem('kruuj_orbit_best') || '0', 10);
+        this.baseLaunchSpeed = 13.0;
+
+        // Checkpoint Atual do Jogador
+        this.lastCheckpointPlanet = null;
+        this.highestCheckpointReached = 0;
+
+        // Poder ativo
+        this.activePower = null;
+        this.powerTimer = 0;
+
+        this.guideEnabled = localStorage.getItem('kruuj_orbit_guide') !== 'false';
+
+        this.player = null;
+        this.planets = [];
+        this.starsCollectibles = [];
+        this.powerCapsules = [];
+        this.particles = [];
+        this.floatingTexts = [];
+        this.bgStars = [];
+
+        this.lastWarningTime = 0;
+
+        this.init();
+      }
+
+      init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        this.updateGuideButtonUI();
+
+        // Inicializa textos traduzidos nos elementos HTML
+        const hintEl = document.getElementById('hintBar');
+        if (hintEl) hintEl.textContent = tO.hint;
+        const btnPlayEl = document.getElementById('btnPlay');
+        if (btnPlayEl) btnPlayEl.textContent = tO.playBtn;
+
+        for (let i = 0; i < 200; i++) {
+          this.bgStars.push({
+            x: Math.random() * 2000 - 1000,
+            y: Math.random() * 4000 - 2000,
+            size: Math.random() * 2.2 + 0.5,
+            alpha: Math.random() * 0.7 + 0.3
+          });
+        }
+
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+            e.preventDefault();
+            this.handleAction();
           }
         });
-        setTimeout(() => {
-          if (typeof KruujLoader !== 'undefined' && KruujLoader.finish) KruujLoader.finish();
-          setTimeout(() => {
-            if (kl) {
-              kl.classList.add('out');
-              kl.style.display = 'none';
-              kl.style.pointerEvents = 'none';
+
+        window.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('#gameOverlay') || e.target.closest('#modalGuide') || e.target.closest('button')) return;
+          this.handleAction();
+        });
+
+        document.getElementById('bestVal').textContent = this.bestScore;
+        this.loop = this.loop.bind(this);
+        requestAnimationFrame(this.loop);
+
+        try {
+          window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*');
+        } catch(e) {}
+      }
+
+      resize() {
+        const w = window.innerWidth || document.documentElement.clientWidth;
+        const h = window.innerHeight || document.documentElement.clientHeight;
+        this.canvas.width = w;
+        this.canvas.height = h;
+      }
+
+      handleAction() {
+        if (this.state === 'play') {
+          if (this.player && this.player.currentPlanet) {
+            const speed = this.baseLaunchSpeed + Math.min(5, this.score * 0.12);
+            this.player.launch(speed);
+            this.sound.playLaunch();
+            this.spawnLaunchParticles();
+          } else if (this.player && !this.player.currentPlanet && this.player.hasHyperJump) {
+            if (this.player.hyperJump(this.baseLaunchSpeed)) {
+              this.sound.playPowerup();
+              this.floatingTexts.push(new FloatingText('⚡ HIPER-SALTO!', this.player.x, this.player.y - 20, '#10b981', 1.2));
+              this.spawnCaptureParticles(this.player.x, this.player.y, '#10b981');
+              this.clearPowerup();
             }
-          }, 500);
-        }, 2400);
-      } else {
-        if (kl) {
-          kl.classList.add('out');
-          kl.style.display = 'none';
-          kl.style.pointerEvents = 'none';
+          }
+        } else if (this.state === 'over' || this.state === 'menu') {
+          this.startGame();
         }
+      }
+
+      startGame() {
+        this.sound.init();
+        this.resize();
+        this.state = 'play';
+        this.lives = 3; // 3 Vidas Novas!
+        this.score = 0; // Só zera ao iniciar uma nova partida completa
+        this.starsCount = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+        this.particles = [];
+        this.floatingTexts = [];
+        this.planets = [];
+        this.starsCollectibles = [];
+        this.powerCapsules = [];
+        this.camera.y = 0;
+        this.highestCheckpointReached = 0;
+        this.clearPowerup();
+
+        document.getElementById('livesVal').textContent = this.lives;
+        document.getElementById('scoreVal').textContent = this.score;
+        document.getElementById('starsVal').textContent = this.starsCount;
+        document.getElementById('comboBadge').classList.remove('active');
+        document.getElementById('gameOverlay').classList.remove('active');
+        document.getElementById('hintBar').style.display = 'block';
+
+        this.generateInitialPlanets();
+
+        try {
+          window.parent.postMessage({ type: 'game_start', gameSlug: 'kruuj-orbit' }, '*');
+        } catch(e) {}
+      }
+
+      generateInitialPlanets() {
+        this.planets = [];
+        let curY = this.canvas.height * 0.74;
+
+        // Planeta 0 (Base inicial)
+        const initialPlanet = new Planet(0, this.canvas.width / 2, curY, 'standard', this.canvas.width);
+        this.planets.push(initialPlanet);
+
+        this.lastCheckpointPlanet = initialPlanet;
+
+        this.player = new Player(initialPlanet.x, initialPlanet.y);
+        this.player.enterOrbit(initialPlanet, -Math.PI / 2);
+
+        // Gera os primeiros 18 planetas da subida
+        for (let i = 1; i <= 18; i++) {
+          curY -= (185 + Math.random() * 50);
+          const px = this.canvas.width / 2 + (Math.random() * 220 - 110);
+          const type = this.choosePlanetType(i);
+          this.planets.push(new Planet(i, px, curY, type, this.canvas.width));
+
+          if (Math.random() > 0.35) {
+            this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 60 - 30), curY + 95));
+          }
+
+          if (Math.random() < 0.2) {
+            const types = ['shield', 'magnet', 'slowmo', 'jump'];
+            const chosen = types[Math.floor(Math.random() * types.length)];
+            this.powerCapsules.push(new PowerCapsule(px + (Math.random() * 70 - 35), curY + 100, chosen));
+          }
+        }
+      }
+
+      // Adiciona mais planetas dinamicamente conforme o jogador sobe
+      spawnMorePlanets() {
+        const lastP = this.planets[this.planets.length - 1];
+        let curY = lastP.y;
+        const startIndex = this.planets.length;
+
+        for (let i = startIndex; i < startIndex + 8; i++) {
+          curY -= (185 + Math.random() * 50);
+          const px = this.canvas.width / 2 + (Math.random() * 220 - 110);
+          const type = this.choosePlanetType(i);
+          this.planets.push(new Planet(i, px, curY, type, this.canvas.width));
+
+          if (Math.random() > 0.35) {
+            this.starsCollectibles.push(new CollectibleStar(px + (Math.random() * 60 - 30), curY + 95));
+          }
+
+          if (Math.random() < 0.2) {
+            const types = ['shield', 'magnet', 'slowmo', 'jump'];
+            const chosen = types[Math.floor(Math.random() * types.length)];
+            this.powerCapsules.push(new PowerCapsule(px + (Math.random() * 70 - 35), curY + 100, chosen));
+          }
+        }
+      }
+
+      choosePlanetType(index) {
+        if (index <= 2 || index % 10 === 0) return 'standard';
+        const rand = Math.random();
+
+        if (index > 6 && rand < 0.16) return 'blackhole';
+        if (rand < 0.58) return 'moving';
+        if (rand < 0.85) return 'fast';
+
+        return 'standard';
+      }
+
+      activatePowerup(type) {
+        this.activePower = type;
+        this.powerTimer = 360;
+
+        this.sound.playPowerup();
+
+        if (type === 'shield') {
+          this.player.hasShield = true;
+        } else if (type === 'jump') {
+          this.player.hasHyperJump = true;
+        }
+
+        const pill = document.getElementById('powerupPill');
+        const icon = document.getElementById('powerIcon');
+        const text = document.getElementById('powerText');
+        const names = {
+          shield: { icon: '🛡️', txt: 'ESCUDO ATIVO' },
+          magnet: { icon: '🧲', txt: 'ÍMÃ ATIVO' },
+          slowmo: { icon: '⏱️', txt: 'SLOW-MO ATIVO' },
+          jump: { icon: '⚡', txt: 'HIPER-SALTO PRONTO' }
+        };
+
+        icon.textContent = names[type].icon;
+        text.textContent = names[type].txt;
+        pill.classList.add('active');
+
+        this.floatingTexts.push(new FloatingText(names[type].txt, this.player.x, this.player.y - 25, '#38e8ff', 1.15));
+      }
+
+      clearPowerup() {
+        this.activePower = null;
+        this.powerTimer = 0;
+        if (this.player) {
+          this.player.hasShield = false;
+          this.player.hasHyperJump = false;
+        }
+        document.getElementById('powerupPill').classList.remove('active');
+      }
+
+      spawnLaunchParticles() {
+        for (let i = 0; i < 14; i++) {
+          const vx = (Math.random() - 0.5) * 5 - this.player.vx * 0.25;
+          const vy = (Math.random() - 0.5) * 5 - this.player.vy * 0.25;
+          this.particles.push(new Particle(this.player.x, this.player.y, '#38e8ff', vx, vy, 0.8, 3.5));
+        }
+      }
+
+      spawnCaptureParticles(x, y, color) {
+        for (let i = 0; i < 18; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = 2 + Math.random() * 4.5;
+          this.particles.push(new Particle(x, y, color, Math.cos(angle) * spd, Math.sin(angle) * spd, 1.0, 3));
+        }
+      }
+
+      // Trata a morte do jogador com o sistema de 3 Vidas e Respawn no Checkpoint
+      handleDeath(reason = 'crash') {
+        // Se tiver escudo ativo, absorve o erro sem perder vida!
+        if (this.player && this.player.hasShield && this.player.lastPlanet) {
+          this.player.hasShield = false;
+          this.sound.playShieldSave();
+          this.camera.addShake(10);
+          this.clearPowerup();
+
+          this.player.enterOrbit(this.player.lastPlanet, -Math.PI / 2);
+          this.floatingTexts.push(new FloatingText('ESCUDO SALVOU VOCÊ! 🛡️', this.player.x, this.player.y - 25, '#38e8ff', 1.2));
+          this.spawnCaptureParticles(this.player.x, this.player.y, '#38e8ff');
+          return;
+        }
+
+        // Perde 1 vida
+        this.lives--;
+        document.getElementById('livesVal').textContent = this.lives;
+        this.clearPowerup();
+
+        if (this.lives > 0) {
+          // Respawn suave no último checkpoint sem perder pontuação!
+          this.sound.playShieldSave();
+          this.camera.addShake(10);
+
+          const respawnTarget = this.lastCheckpointPlanet || this.planets[0];
+          this.player.enterOrbit(respawnTarget, -Math.PI / 2);
+
+          // Move a câmera suavemente para o checkpoint
+          this.camera.y = respawnTarget.y - this.canvas.height * 0.62;
+          this.camera.targetY = this.camera.y;
+
+          this.floatingTexts.push(new FloatingText(tO.respawn(this.lives), this.player.x, this.player.y - 28, '#f87171', 1.2));
+          this.spawnCaptureParticles(this.player.x, this.player.y, '#f87171');
+        } else {
+          // Game Over Definitivo (esgotou as 3 vidas)
+          this.state = 'over';
+          this.sound.playCrash();
+          this.camera.addShake(16);
+
+          this.bestScore = Math.max(this.bestScore, this.score);
+          localStorage.setItem('kruuj_orbit_best', String(this.bestScore));
+          document.getElementById('bestVal').textContent = this.bestScore;
+
+          document.getElementById('ovTitle').textContent = tO.gameOverTitle;
+          document.getElementById('ovDesc').textContent = tO.gameOverDesc(this.highestCheckpointReached, this.score);
+
+          document.getElementById('ovScore').textContent = this.score;
+          document.getElementById('ovStars').textContent = this.starsCount;
+          document.getElementById('ovCheckpoint').textContent = this.highestCheckpointReached;
+          document.getElementById('ovBest').textContent = this.bestScore;
+          document.getElementById('ovStats').style.display = 'flex';
+          document.getElementById('btnPlay').textContent = tO.playAgain;
+          document.getElementById('gameOverlay').classList.add('active');
+          document.getElementById('hintBar').style.display = 'none';
+
+          try {
+            window.parent.postMessage({ type: 'game_over', gameSlug: 'kruuj-orbit', score: this.score, bestScore: this.bestScore }, '*');
+          } catch(e) {}
+        }
+      }
+
+      openGuideModal() {
+        const modal = document.getElementById('modalGuide');
+        if (modal) modal.classList.add('active');
+      }
+
+      closeGuideModal() {
+        const modal = document.getElementById('modalGuide');
+        if (modal) modal.classList.remove('active');
+      }
+
+      toggleGuide() {
+        this.guideEnabled = !this.guideEnabled;
+        localStorage.setItem('kruuj_orbit_guide', String(this.guideEnabled));
+        this.updateGuideButtonUI();
+      }
+
+      updateGuideButtonUI() {
+        const btn = document.getElementById('btnHelpToggle');
+        const text = document.getElementById('helpText');
+        if (!btn || !text) return;
+        if (this.guideEnabled) {
+          btn.classList.remove('off');
+          text.textContent = tO.aimOn;
+          text.style.color = '#38e8ff';
+        } else {
+          btn.classList.add('off');
+          text.textContent = tO.aimOff;
+          text.style.color = '#94a3b8';
+        }
+      }
+
+      // Previsão de Trajetória Laser Guide
+      renderTrajectoryPrediction(ctx) {
+        if (!this.guideEnabled || !this.player || !this.player.currentPlanet) return;
+
+        const curP = this.player.currentPlanet;
+        const dir = this.player.orbitSpeed > 0 ? 1 : -1;
+        const tangentX = -Math.sin(this.player.angle) * dir;
+        const tangentY = Math.cos(this.player.angle) * dir;
+
+        const maxDist = 380;
+        const step = 8;
+        let hitType = 'none';
+        let targetPlanet = null;
+        let interceptX = 0;
+        let interceptY = 0;
+
+        const points = [];
+        let currX = this.player.x;
+        let currY = this.player.y;
+        points.push({ x: currX, y: currY });
+
+        for (let d = step; d <= maxDist; d += step) {
+          currX += tangentX * step;
+          currY += tangentY * step;
+          points.push({ x: currX, y: currY });
+
+          for (let planet of this.planets) {
+            const distP = Math.hypot(currX - planet.x, currY - planet.y);
+
+            if (distP <= planet.coreRadius + this.player.radius) {
+              hitType = 'crash';
+              interceptX = currX;
+              interceptY = currY;
+              break;
+            }
+
+            if (planet !== curP && distP <= planet.gravityRadius + 22 && distP >= planet.coreRadius + 6) {
+              hitType = 'target';
+              targetPlanet = planet;
+              interceptX = currX;
+              interceptY = currY;
+              break;
+            }
+          }
+
+          if (hitType !== 'none') break;
+        }
+
+        ctx.save();
+
+        let strokeColor = 'rgba(255, 255, 255, 0.28)';
+        let glowColor = 'rgba(255, 255, 255, 0)';
+        if (hitType === 'target') {
+          strokeColor = '#10b981';
+          glowColor = '#38e8ff';
+        } else if (hitType === 'crash') {
+          strokeColor = '#ef4444';
+          glowColor = '#ef4444';
+        }
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = hitType === 'target' ? 2.6 : 1.8;
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = hitType === 'target' ? 12 : 0;
+        ctx.setLineDash([5, 6]);
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.shadowBlur = 0;
+
+        if (hitType === 'target') {
+          ctx.strokeStyle = '#10b981';
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(interceptX, interceptY, 9, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(interceptX, interceptY, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (targetPlanet) {
+            ctx.strokeStyle = 'rgba(56, 232, 255, 0.6)';
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            ctx.arc(targetPlanet.x, targetPlanet.y, targetPlanet.gravityRadius, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        } else if (hitType === 'crash') {
+          ctx.fillStyle = '#ef4444';
+          ctx.font = '800 16px "Baloo 2", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('✕', interceptX, interceptY + 5);
+        }
+
+        ctx.restore();
+      }
+
+      loop() {
+        requestAnimationFrame(this.loop);
+
+        try {
+          this.ctx.fillStyle = '#070914';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+          let timeScale = 1.0;
+          if (this.activePower === 'slowmo') {
+            timeScale = 0.55;
+            this.powerTimer--;
+            if (this.powerTimer <= 0) this.clearPowerup();
+          }
+
+          this.planets.forEach(p => p.update(this.canvas.width));
+          this.powerCapsules.forEach(p => p.update());
+
+          const magnetActive = (this.activePower === 'magnet');
+          if (magnetActive) {
+            this.powerTimer--;
+            if (this.powerTimer <= 0) this.clearPowerup();
+          }
+
+          const playerPos = this.player ? { x: this.player.x, y: this.player.y } : null;
+          this.starsCollectibles.forEach(s => s.update(playerPos, magnetActive));
+
+          // Física do Jogador
+          if (this.state === 'play' && this.player) {
+            if (this.player.currentPlanet) {
+              this.player.updateOrbit();
+
+              const curP = this.player.currentPlanet;
+              if (curP.type === 'blackhole' && this.player.orbitRotations >= 10.0) {
+                this.handleDeath('blackhole');
+                return;
+              }
+
+              if (curP.type === 'blackhole' && this.player.orbitRotations >= 7.5) {
+                const now = Date.now();
+                if (now - this.lastWarningTime > 500) {
+                  this.sound.playWarning();
+                  this.lastWarningTime = now;
+                }
+              }
+            } else {
+              this.player.updateFlight(timeScale);
+
+              // Coleta de Estrelas
+              for (let star of this.starsCollectibles) {
+                if (!star.collected && Math.hypot(this.player.x - star.x, this.player.y - star.y) < (this.player.radius + star.radius + 6)) {
+                  star.collected = true;
+                  this.starsCount += 1;
+                  this.score += 10 * this.combo;
+                  document.getElementById('starsVal').textContent = this.starsCount;
+                  document.getElementById('scoreVal').textContent = this.score;
+                  this.sound.playStarCollect();
+                  this.floatingTexts.push(new FloatingText(`+${10 * this.combo} ⭐`, star.x, star.y - 10, '#ffb020', 1.1));
+                }
+              }
+
+              // Coleta de Cápsulas de Poder
+              for (let cap of this.powerCapsules) {
+                if (!cap.collected && Math.hypot(this.player.x - cap.x, this.player.y - cap.y) < (this.player.radius + cap.radius + 8)) {
+                  cap.collected = true;
+                  this.activatePowerup(cap.type);
+                }
+              }
+
+              // Checa colisão com planetas
+              for (let planet of this.planets) {
+                if (this.player.lastPlanet === planet && this.player.launchCooldown > 0) {
+                  continue;
+                }
+
+                const dx = this.player.x - planet.x;
+                const dy = this.player.y - planet.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist <= planet.coreRadius + this.player.radius) {
+                  this.handleDeath('crash');
+                  break;
+                }
+
+                if (dist <= planet.gravityRadius + 22 && dist >= planet.coreRadius + 6) {
+                  const interceptAngle = Math.atan2(dy, dx);
+                  const wasFast = (this.player.flightFrames < 50);
+
+                  this.player.enterOrbit(planet, interceptAngle);
+                  this.spawnCaptureParticles(this.player.x, this.player.y, planet.color1);
+
+                  // Se for planeta de Checkpoint, celebra o alcance da linha tracejada!
+                  if (planet.isCheckpoint && !planet.checkpointClaimed) {
+                    planet.checkpointClaimed = true;
+                    this.lastCheckpointPlanet = planet;
+                    this.highestCheckpointReached = Math.floor(planet.index / 10);
+                    this.sound.playPortalCheckpoint();
+                    this.camera.addShake(12);
+
+                    this.score += 250;
+                    this.starsCount += 15;
+                    this.floatingTexts.push(new FloatingText(`✨ CHECKPOINT ${this.highestCheckpointReached} SALVO! +250 PTS`, this.player.x, this.player.y - 35, '#ffb020', 1.3));
+                    this.spawnCaptureParticles(this.player.x, this.player.y, '#ffb020');
+                  }
+
+                  if (!planet.visited) {
+                    planet.visited = true;
+
+                    if (wasFast) {
+                      this.combo = Math.min(5, this.combo + 1);
+                      this.floatingTexts.push(new FloatingText(`PERFEITO! x${this.combo} ⚡`, this.player.x, this.player.y - 30, '#ff5ca8', 1.2));
+                    } else {
+                      this.combo = 1;
+                    }
+
+                    this.maxCombo = Math.max(this.maxCombo, this.combo);
+                    this.score += 15 * this.combo;
+
+                    document.getElementById('scoreVal').textContent = this.score;
+                    const comboEl = document.getElementById('comboBadge');
+                    const comboVal = document.getElementById('comboVal');
+                    if (this.combo > 1) {
+                      comboVal.textContent = `${this.combo}x`;
+                      comboEl.classList.add('active');
+                    } else {
+                      comboEl.classList.remove('active');
+                    }
+
+                    this.sound.playOrbitCapture(this.combo);
+
+                    // Se estiver se aproximando do topo, gera mais planetas acima continuamente
+                    const highestP = this.planets[this.planets.length - 1];
+                    if (this.player.y < highestP.y + 1100) {
+                      this.spawnMorePlanets();
+                    }
+                  }
+                  break;
+                }
+              }
+
+              if (
+                this.state === 'play' && (
+                  this.player.x < -140 || 
+                  this.player.x > this.canvas.width + 140 || 
+                  this.player.y > (this.camera.y + this.canvas.height + 150) ||
+                  this.player.flightFrames > 220
+                )
+              ) {
+                this.handleDeath('lost');
+              }
+            }
+
+            this.camera.update(this.player.y, this.canvas.height);
+          }
+
+          // 4. Renderização do Mundo com Câmera
+          this.ctx.save();
+          const shakeX = (Math.random() - 0.5) * this.camera.shake;
+          const shakeY = (Math.random() - 0.5) * this.camera.shake;
+          this.ctx.translate(shakeX, -this.camera.y + shakeY);
+
+          // Fundo estrelado
+          this.bgStars.forEach(s => {
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            this.ctx.fill();
+          });
+
+          // Renderiza Linhas Tracejadas Horizontais de Checkpoint
+          this.planets.forEach(p => {
+            if (p.isCheckpoint && p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+              this.ctx.save();
+              this.ctx.strokeStyle = p.checkpointClaimed ? 'rgba(56, 232, 255, 0.75)' : 'rgba(255, 176, 32, 0.85)';
+              this.ctx.lineWidth = 2.4;
+              this.ctx.setLineDash([8, 8]);
+              this.ctx.beginPath();
+              this.ctx.moveTo(0, p.y);
+              this.ctx.lineTo(this.canvas.width, p.y);
+              this.ctx.stroke();
+              this.ctx.setLineDash([]);
+
+              // Tag de Checkpoint centralizada na linha
+              const tagW = 150;
+              const tagH = 22;
+              const tagX = this.canvas.width / 2 - tagW / 2;
+              const tagY = p.y - tagH / 2;
+
+              this.ctx.fillStyle = 'rgba(7, 9, 20, 0.9)';
+              this.ctx.fillRect(tagX, tagY, tagW, tagH);
+              this.ctx.strokeStyle = p.checkpointClaimed ? '#38e8ff' : '#ffb020';
+              this.ctx.lineWidth = 1.4;
+              this.ctx.strokeRect(tagX, tagY, tagW, tagH);
+
+              this.ctx.fillStyle = p.checkpointClaimed ? '#38e8ff' : '#ffb020';
+              this.ctx.font = '800 11px "Baloo 2", sans-serif';
+              this.ctx.textAlign = 'center';
+              this.ctx.textBaseline = 'middle';
+              this.ctx.fillText(p.checkpointClaimed ? `✨ CHECKPOINT ${p.index / 10} ATIVO` : `🚪 CHECKPOINT ${p.index / 10}`, this.canvas.width / 2, p.y);
+              this.ctx.restore();
+            }
+          });
+
+          // Renderiza todos os planetas visíveis
+          this.planets.forEach(p => {
+            if (p.y >= this.camera.y - 250 && p.y <= this.camera.y + this.canvas.height + 250) {
+              p.render(this.ctx);
+            }
+          });
+
+          // Renderiza estrelas e cápsulas de poder
+          this.starsCollectibles.forEach(s => {
+            if (s.y >= this.camera.y - 200 && s.y <= this.camera.y + this.canvas.height + 200) {
+              s.render(this.ctx);
+            }
+          });
+
+          this.powerCapsules.forEach(p => {
+            if (p.y >= this.camera.y - 200 && p.y <= this.camera.y + this.canvas.height + 200) {
+              p.render(this.ctx);
+            }
+          });
+
+          // Previsão de Trajetória Laser Guide
+          if (this.state === 'play' && this.player) {
+            this.renderTrajectoryPrediction(this.ctx);
+          }
+
+          // Partículas
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            const pt = this.particles[i];
+            pt.update();
+            if (pt.life <= 0) {
+              this.particles.splice(i, 1);
+            } else {
+              pt.render(this.ctx);
+            }
+          }
+
+          // Textos Flutuantes
+          for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+            const ft = this.floatingTexts[i];
+            ft.update();
+            if (ft.life <= 0) {
+              this.floatingTexts.splice(i, 1);
+            } else {
+              ft.render(this.ctx);
+            }
+          }
+
+          // Renderiza Coruja Mascote KRUUJ
+          if (this.state === 'play' && this.player) {
+            this.player.render(this.ctx, this.combo);
+          }
+
+          this.ctx.restore();
+        } catch(err) {
+          console.error('KRUUJ Orbit render error:', err);
+        }
+      }
+    }
+
+    // Instanciação Global
+    window.addEventListener('DOMContentLoaded', () => {
+      window.orbitGame = new Game();
+    });
+  </script>
+
+<script>
+// KruujLoader fornecido centralmente via /sdk/v1/kruuj-loader.js
+
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    KruujLoader.start({
+      gameName: 'KRUUJ ORBIT',
+      tagline: tO.tagline,
+      tips: tO.tips,
+      splash: 2200,
+      minTime: 3000,
+      onComplete: () => {
         try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*'); } catch(e){}
       }
-    } catch(e) {
-      if (kl) {
-        kl.classList.add('out');
-        kl.style.display = 'none';
-        kl.style.pointerEvents = 'none';
-      }
-      try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*'); } catch(err){}
-    }
+    });
+    setTimeout(() => KruujLoader.finish(), 2800);
+  } catch(e) {
+    const kl = document.getElementById('kl');
+    if (kl) kl.style.display = 'none';
+    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-orbit' }, '*'); } catch(err){}
   }
 });
 </script>

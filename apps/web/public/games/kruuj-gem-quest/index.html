@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>KRUUJ – Gem Quest</title>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#050b24;--purple:#8338fc;--blue:#289afd;--orange:#fda41d;--lav:#d8d4fd;--white:#f1f1f6;--navy:#1a214c;color-scheme:dark;box-sizing:border-box}
@@ -17,7 +17,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 body{background:radial-gradient(ellipse at 50% 15%,#1d2d86,var(--bg) 70%)}
 /* ===== KRUUJ LOADER (copiar este bloco CSS + o HTML #kl + o JS para cada jogo) ===== */
 #kl{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s}
-#kl.out{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;display:none !important;}
+#kl.out{opacity:0;visibility:hidden}
 #kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
 #kl .ph.off{opacity:0;pointer-events:none}
 .splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both,glow 2.4s ease-in-out .9s infinite}
@@ -558,31 +558,6 @@ if (window.self !== window.top) {
   KruujLoader.start({gameName:'GEM QUEST',tagline:'Charging the crystals…',tips:['Match 4 to forge a line crystal.','Match 5 to create a Color Prism!','L and T shapes make bombs.','Combine two specials for a huge blast.','Break crates by matching next to them.'],splash:3400,minTime:3500,onComplete(){document.getElementById('kl').style.display='none';show('map')}});
   KruujLoader.finish();
 }
-
-    // Hook de encerramento oficial KRUUJ-PROC-001
-    window.addEventListener('beforeunload', () => { if (window.KruujSDK) KruujSDK.gameplayStop(); });
-    function kruujStopGame() { if (window.KruujSDK) KruujSDK.gameplayStop(); }
 </script>
-
-<script>
-/* KRUUJ-PROC-001 SDK Lifecycle Bridge */
-window.addEventListener('DOMContentLoaded', () => {
-  if (window.KruujSDK) {
-    window.KruujSDK.init().then(() => {
-      window.KruujSDK.gameLoadingFinished();
-    });
-  }
-});
-window.addEventListener('pointerdown', () => {
-  if (window.KruujSDK) window.KruujSDK.gameplayStart();
-}, { once: true });
-window.addEventListener('beforeunload', () => {
-  if (window.KruujSDK) window.KruujSDK.gameplayStop();
-});
-function kruujOnGameOver() {
-  if (window.KruujSDK) window.KruujSDK.gameplayStop();
-}
-</script>
-
 </body>
 </html>

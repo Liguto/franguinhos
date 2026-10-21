@@ -6,6 +6,35 @@
 (function(window, document) {
   'use strict';
 
+  const isIframe = (window.self !== window.top);
+
+  // 0. Supressão imediata no Portal KRUUJ (o portal já executa o KruujPortalLoader de 3.0s no parent)
+  if (isIframe) {
+    if (!document.getElementById('kruuj-iframe-kl-suppress')) {
+      const suppressStyle = document.createElement('style');
+      suppressStyle.id = 'kruuj-iframe-kl-suppress';
+      suppressStyle.textContent = '#kl, #kl.out { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }';
+      (document.head || document.documentElement).appendChild(suppressStyle);
+    }
+    const dismissIframeKl = () => {
+      const kl = document.getElementById('kl');
+      if (kl) {
+        kl.classList.add('out');
+        kl.style.display = 'none';
+        kl.style.pointerEvents = 'none';
+      }
+      try { window.parent.postMessage({ type: 'game_loaded' }, '*'); } catch(e) {}
+      if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+        try { window.KruujSDK.gameLoadingFinished(); } catch(e) {}
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', dismissIframeKl);
+    } else {
+      dismissIframeKl();
+    }
+  }
+
   // 1. Google Font Outfit
   if (!document.getElementById('kruuj-outfit-font')) {
     const fontLink = document.createElement('link');
@@ -24,7 +53,7 @@
 :root{--kl-bg:#050b24;--kl-purple:#8338fc;--kl-blue:#289afd;--kl-orange:#fda41d;--kl-lav:#d8d4fd;--kl-white:#f1f1f6;--kl-navy:#1a214c}
 #kl{position:fixed;inset:0;z-index:999999;background:radial-gradient(ellipse at 50% 40%,#101a52 0%,var(--kl-bg) 65%);display:grid;place-items:center;padding:env(safe-area-inset-top,0) 24px env(safe-area-inset-bottom,0);transition:opacity .6s ease,visibility .6s;font-family:'Outfit',system-ui,sans-serif;color:var(--kl-white);box-sizing:border-box}
 #kl *,#kl *::before,#kl *::after{box-sizing:inherit}
-#kl.out{opacity:0;visibility:hidden;pointer-events:none}
+#kl.out{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;display:none !important;}
 #kl .ph{grid-area:1/1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;transition:opacity .5s ease}
 #kl .ph.off{opacity:0;pointer-events:none}
 #kl .splash .owl{width:min(34vw,150px);aspect-ratio:1;border-radius:50%;animation:kl-pop .9s cubic-bezier(.2,1.3,.4,1) both,kl-glow 2.4s ease-in-out .9s infinite}
@@ -107,6 +136,7 @@
     const kl = $('kl');
     if (kl) {
       kl.classList.add('out');
+      kl.style.pointerEvents = 'none';
       await wait(650);
       kl.style.display = 'none';
     }
@@ -122,6 +152,22 @@
   }
 
   async function start(c) {
+    if (isIframe) {
+      const kl = document.getElementById('kl');
+      if (kl) {
+        kl.classList.add('out');
+        kl.style.display = 'none';
+        kl.style.pointerEvents = 'none';
+      }
+      if (c && typeof c.onComplete === 'function') {
+        try { c.onComplete(); } catch(e) {}
+      }
+      try { window.parent.postMessage({ type: 'game_loaded' }, '*'); } catch(e) {}
+      if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
+        try { window.KruujSDK.gameLoadingFinished(); } catch(e) {}
+      }
+      return;
+    }
     if (started) return;
     started = true;
 
@@ -215,6 +261,7 @@
 
   // Auto-inicialização caso o script do jogo não chame KruujLoader.start explicitamente
   function autoInit() {
+    if (isIframe) return;
     setTimeout(() => {
       if (!started && !closing) {
         KruujLoader.start();
