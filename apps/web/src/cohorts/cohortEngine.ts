@@ -63,6 +63,7 @@ const GAME_AFFINITY_MAP: Record<string, { senior: number; arcade: number; kids: 
   'snake-retro': { senior: 2, arcade: 7, kids: 2, casual: 5 },
   'memory-match': { senior: 5, arcade: 2, kids: 4, casual: 5 },
   'kruuj-gem-quest': { senior: 3, arcade: 4, kids: 2, casual: 8 },
+  'kruuj-pizza-empire': { senior: 3, arcade: 6, kids: 3, casual: 9 },
   'kruuj-match': { senior: 4, arcade: 3, kids: 2, casual: 8 },
   'kruuj-neon-blocks': { senior: 4, arcade: 4, kids: 1, casual: 8 },
   'kruuj-penalty': { senior: 3, arcade: 6, kids: 3, casual: 6 },

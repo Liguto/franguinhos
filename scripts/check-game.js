@@ -136,6 +136,11 @@ class ValidationReport {
  */
 function getAllFiles(dirPath, arrayOfFiles = []) {
   if (!fs.existsSync(dirPath)) return arrayOfFiles;
+  const stat = fs.statSync(dirPath);
+  if (stat.isFile()) {
+    arrayOfFiles.push(dirPath);
+    return arrayOfFiles;
+  }
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -156,18 +161,20 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
  */
 function validateGame(gameDir) {
   const resolvedDir = path.resolve(gameDir);
-  const slug = path.basename(resolvedDir);
+  const exists = fs.existsSync(resolvedDir);
+  const isFile = exists && fs.statSync(resolvedDir).isFile();
+  const slug = isFile ? path.basename(resolvedDir, path.extname(resolvedDir)) : path.basename(resolvedDir);
   const report = new ValidationReport(resolvedDir, slug);
 
-  if (!fs.existsSync(resolvedDir)) {
+  if (!exists) {
     report.addIssue({
       severity: 'S0',
       section: '5.1 Estrutura e inicialização',
-      title: 'Diretório do jogo não encontrado',
+      title: 'Diretório ou arquivo do jogo não encontrado',
       file: resolvedDir,
       line: 1,
       snippet: resolvedDir,
-      solution: `Verifique se o caminho especificado está correto. Esperado pasta com os arquivos do jogo.`,
+      solution: `Verifique se o caminho especificado está correto. Esperado pasta ou arquivo do jogo.`,
     });
     return report;
   }
@@ -178,8 +185,36 @@ function validateGame(gameDir) {
   // --------------------------------------------------------------------------
   // 1. CHECAGEM DE ARQUIVOS BÁSICOS E ENTRADA (INDEX.HTML, README, LICENSES, CHANGELOG)
   // --------------------------------------------------------------------------
-  const indexPath = path.join(resolvedDir, 'index.html');
-  if (!fs.existsSync(indexPath)) {
+  const baseDir = isFile ? path.dirname(resolvedDir) : resolvedDir;
+  let indexPath = isFile ? resolvedDir : path.join(resolvedDir, 'index.html');
+
+  if (isFile) {
+    const ext = path.extname(resolvedDir).toLowerCase();
+    if (ext !== '.html' && ext !== '.htm') {
+      report.addIssue({
+        severity: 'S0',
+        section: '5.1 & 6 Padrão de pacote HTML5',
+        title: 'Arquivo fornecido não é um arquivo HTML',
+        file: path.basename(resolvedDir),
+        line: 1,
+        snippet: resolvedDir,
+        solution: `O validador espera uma pasta contendo "index.html" ou um arquivo ".html" direto.`,
+      });
+      return report;
+    }
+
+    if (path.basename(resolvedDir).toLowerCase() !== 'index.html') {
+      report.addIssue({
+        severity: 'S0',
+        section: '5.1 & 6 Padrão de pacote HTML5',
+        title: 'Arquivo principal deve ser nomeado como "index.html"',
+        file: path.basename(resolvedDir),
+        line: 1,
+        snippet: path.basename(resolvedDir),
+        solution: `Renomeie "${path.basename(resolvedDir)}" para "index.html" na raiz da pasta do jogo para publicação no catálogo KRUUJ.`,
+      });
+    }
+  } else if (!fs.existsSync(indexPath)) {
     report.addIssue({
       severity: 'S0',
       section: '5.1 & 6 Padrão de pacote HTML5',
@@ -193,9 +228,9 @@ function validateGame(gameDir) {
   }
   report.qa.f_abre_sem_erros = true;
 
-  const readmePath = path.join(resolvedDir, 'README.md');
-  const licensesPath = path.join(resolvedDir, 'LICENSES.md');
-  const changelogPath = path.join(resolvedDir, 'CHANGELOG.md');
+  const readmePath = path.join(baseDir, 'README.md');
+  const licensesPath = path.join(baseDir, 'LICENSES.md');
+  const changelogPath = path.join(baseDir, 'CHANGELOG.md');
 
   const hasReadme = fs.existsSync(readmePath);
   const hasLicenses = fs.existsSync(licensesPath);
@@ -248,7 +283,7 @@ function validateGame(gameDir) {
   for (const file of allFiles) {
     const stat = fs.statSync(file);
     totalBytes += stat.size;
-    const relFile = path.relative(resolvedDir, file);
+    const relFile = path.relative(baseDir, file);
     const ext = path.extname(file).toLowerCase();
 
     if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'].includes(ext)) {
@@ -332,7 +367,7 @@ function validateGame(gameDir) {
   for (const cFile of codeFiles) {
     const content = fs.readFileSync(cFile, 'utf-8');
     const lines = content.split('\n');
-    const relFile = path.relative(resolvedDir, cFile);
+    const relFile = path.relative(baseDir, cFile);
 
     lines.forEach((line, idx) => {
       for (const pattern of forbiddenPathPatterns) {
@@ -369,7 +404,7 @@ function validateGame(gameDir) {
     }
     const cleanPath = rawUrl.split('?')[0].split('#')[0];
     if (!cleanPath) continue;
-    const resolvedAsset = path.resolve(resolvedDir, cleanPath);
+    const resolvedAsset = path.resolve(baseDir, cleanPath);
     if (!fs.existsSync(resolvedAsset)) {
       brokenAssets++;
       report.addIssue({
@@ -392,7 +427,7 @@ function validateGame(gameDir) {
 
     const content = fs.readFileSync(cFile, 'utf-8');
     const lines = content.split('\n');
-    const relFile = path.relative(resolvedDir, cFile);
+    const relFile = path.relative(baseDir, cFile);
 
     lines.forEach((line, idx) => {
       const trimmed = line.trim();
@@ -594,7 +629,7 @@ function validateGame(gameDir) {
     /AudioContext|webkitAudioContext|new\s+Audio\(|SoundManager|SoundController|<audio|\.play\s*\(/i.test(indexContent);
 
   if (hasAudioUsage) {
-    const hasMuteControl = /(?:id|class|name|title|onclick|data-[\w-]+)=["'][^"']*(?:sound|audio|mute|som|snd|sfx)[^"']*["']|\b(toggleAudio|toggleMute|toggleSound|setVolume|applyVol|vmus|vsfx|isMuted|muted\s*=|desligar\s+som|ligar\s+som|silenciar|mutar|sons\s+ligados|sound\s+on)\b/i.test(indexContent);
+    const hasMuteControl = /(?:id|class|name|title|onclick|data-[\w-]+)=["'][^"']*(?:sound|audio|mute|som|snd|sfx)[^"']*["']|\b(toggleAudio|toggleMute|toggleSound|setVolume|setVol|applyVol|vmus|vsfx|isMuted|muted\s*=|desligar\s+som|ligar\s+som|silenciar|mutar|sons\s+ligados|sound\s+on)\b/i.test(indexContent);
 
     if (!hasMuteControl) {
       report.addIssue({

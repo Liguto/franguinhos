@@ -840,6 +840,30 @@ export const REAL_18_GAMES = [
     author: 'KRUUJ Studio',
     licenseName: 'Proprietário',
     contractNumber: 'CON-2026-053'
+  },
+  {
+    title: 'KRUUJ Pizza Empire',
+    slug: 'kruuj-pizza-empire',
+    description: 'Gerencie sua própria pizzaria neste viciante tycoon arcade! Prepare massas no forno, anote pedidos no balcão, atenda clientes, contrate funcionários e expanda seu império!',
+    category: 'Casual',
+    subcategories: 'Tycoon,Gestão,Culinária,Simulação,Arcade,Casual',
+    tags: 'pizza,tycoon,restaurante,culinaria,gestao,simulador,arcade,casual',
+    ageRating: 'Livre',
+    bannerUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=60',
+    iconUrl: '🍕',
+    prefixUrl: '/games/kruuj-pizza-empire/',
+    version: '1.0.0',
+    mouse: true,
+    teclado: true,
+    toque: true,
+    gamepad: false,
+    orientation: 'both',
+    statusTechnical: 'aprovado',
+    statusEditorial: 'publicado',
+    statusDoc: 'aprovado',
+    author: 'KRUUJ Studio',
+    licenseName: 'Proprietário',
+    contractNumber: 'CON-2026-054'
   }
 ];
 

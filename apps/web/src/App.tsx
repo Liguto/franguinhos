@@ -1879,6 +1879,27 @@ export default function App() {
       statusDoc: 'aprovado',
       author: 'KRUUJ Studio',
       licenseName: 'Proprietário'
+    },
+    {
+      id: '37',
+      slug: 'kruuj-pizza-empire',
+      title: 'KRUUJ Pizza Empire',
+      description: 'Gerencie sua própria pizzaria neste viciante tycoon arcade! Prepare massas no forno, anote pedidos no balcão, atenda clientes, contrate funcionários e expanda seu império!',
+      category: 'Casual',
+      subcategories: ['Tycoon', 'Gestão', 'Culinária', 'Simulação', 'Arcade', 'Casual'],
+      tags: ['pizza', 'tycoon', 'restaurante', 'culinaria', 'gestao', 'simulador', 'arcade', 'casual'],
+      ageRating: 'Livre',
+      bannerUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=60',
+      iconUrl: '🍕',
+      prefixUrl: '/games/kruuj-pizza-empire/',
+      version: '1.0.0',
+      controls: { mouse: true, teclado: true, toque: true, gamepad: false },
+      orientation: 'both',
+      statusTechnical: 'aprovado',
+      statusEditorial: 'publicado',
+      statusDoc: 'aprovado',
+      author: 'KRUUJ Studio',
+      licenseName: 'Proprietário'
     }
   ];
 
@@ -3274,6 +3295,7 @@ export default function App() {
     <div className={`flex flex-col min-h-screen ${agePreference === 'educacional' ? 'theme-edu' : agePreference === 'terceira_idade' ? 'theme-senior' : ''}`}>
       
       {/* --- TOPBAR KRUUJ OFICIAL (DESKTOP & MOBILE) --- */}
+      {view !== 'developers' && (
       <header className="kruuj-topbar">
         {isMobileSearchOpen ? (
           <div className="kruuj-mobile-search-overlay">
@@ -3405,10 +3427,10 @@ export default function App() {
           </div>
         )}
       </header>
-      
+      )}
 
       {/* --- LATERAL SQUARE ADS STACK (Widescreen Only) --- */}
-      {consentOptions.advertising && (
+      {consentOptions.advertising && view !== 'developers' && (
         <>
           <div className="side-ads-wrapper-left">
             <div className="side-square-ad"></div>
@@ -3428,16 +3450,15 @@ export default function App() {
 
 
       {/* --- CONTEÚDO PRINCIPAL --- */}
-      <main className="kruuj-main-stage">
-        
-        {/* MASTER TOP LEADERBOARD AD (Maior Visibilidade - CPM Máximo) */}
-        {consentOptions.advertising && view !== 'developers' && (
-          <div className="ad-slot-leaderboard mt-0 mb-8"></div>
-        )}
+      {view === 'developers' ? (
+        <DevelopersPage onBackToGames={() => { setView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+      ) : (
+        <main className="kruuj-main-stage">
+          {consentOptions.advertising && (
+            <div className="ad-slot-leaderboard mt-0 mb-8"></div>
+          )}
 
-        {view === 'developers' ? (
-          <DevelopersPage onBackToGames={() => { setView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
-        ) : ['home', 'explore', 'favorites', 'profile', 'details', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
+          {['home', 'explore', 'favorites', 'profile', 'details', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
           <div className="kruuj-layout-framework">
             
             {/* SIDEBAR COMPACTA DA ESQUERDA (DESKTOP) */}
@@ -5475,9 +5496,11 @@ export default function App() {
           </>
         )}
       </main>
+      )}
 
 
       {/* --- NOVO FOOTER KRUUJ COM LOGO OFICIAL E MASCOTE ESPIANDO --- */}
+      {view !== 'developers' && (
       <footer className="kruuj-footer">
         <div className="kruuj-footer-content">
           <div className="flex flex-col gap-2">
@@ -5525,9 +5548,10 @@ export default function App() {
           <img src="/kruuj-mascote.png" alt="Mascote KRUUJ" className="kruuj-footer-mascot-peeking" />
         </div>
       </footer>
+      )}
 
       {/* --- MOBILE BOTTOM NAVIGATION BAR (Oculta durante gameplay para desobstruir os controles do jogo) --- */}
-      {!selectedGame && (
+      {!selectedGame && view !== 'developers' && (
         <nav className="kruuj-bottom-bar">
           <button 
             className={`kruuj-bottom-btn ${view === 'home' ? 'active' : ''}`}
