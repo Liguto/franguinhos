@@ -356,6 +356,172 @@ const AdaptivePokiCluster: React.FC<AdaptivePokiClusterProps> = ({
   );
 };
 
+// Mapa central de Vídeos de Preview MP4 Oficiais do Catálogo
+const GAME_PREVIEWS: Record<string, string> = {
+  'kruujio': '/previews/kruujio.mp4',
+  'kruuj-defense': '/previews/kruuj-defense.mp4',
+  'kruuj-overdrive': '/previews/kruuj-overdrive.mp4',
+  'kruuj-pizza-empire': '/previews/kruuj-pizza-empire.mp4',
+  'kruuj-penalty': '/previews/kruuj-penalty.mp4'
+};
+
+interface PokiGameCardProps {
+  game: Game;
+  tileClass: string;
+  isFavorited: boolean;
+  onPlay: (game: Game) => void;
+  onToggleFavorite?: (id: string) => void;
+  isMobile: boolean;
+  renderCover: (game: Game, isWide?: boolean) => React.ReactNode;
+  formatCatName: (cat: string) => string;
+}
+
+const PokiGameCard: React.FC<PokiGameCardProps> = ({
+  game,
+  tileClass,
+  isFavorited,
+  onPlay,
+  onToggleFavorite,
+  isMobile,
+  renderCover,
+  formatCatName
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoSrc = GAME_PREVIEWS[game.slug];
+  const isLargeTile = tileClass === 'tile-2x2' || tileClass === 'tile-2x1';
+  const shouldAutoPlayMobile = isMobile && isLargeTile && !!videoSrc;
+
+  useEffect(() => {
+    if (!isMobile && videoRef.current) {
+      if (isHovered) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isHovered, isMobile]);
+
+  return (
+    <div
+      className={`kruuj-poki-card ${tileClass} ${isFavorited ? 'is-favorited' : ''}`}
+      onClick={() => onPlay(game)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      title={`Jogar ${game.title}`}
+    >
+      <div className="kruuj-poki-thumb">
+        {renderCover(game, tileClass === 'tile-2x1')}
+
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            autoPlay={shouldAutoPlayMobile}
+            preload={isLargeTile ? 'auto' : 'none'}
+            className={`kruuj-card-video-preview ${(isHovered || shouldAutoPlayMobile) ? 'visible' : ''}`}
+          />
+        )}
+
+        <div className="kruuj-poki-overlay">
+          <div className="kruuj-poki-play-icon">
+            <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+          </div>
+        </div>
+
+        {onToggleFavorite && (
+          <button
+            className={`kruuj-poki-like-btn ${isFavorited ? 'favorited' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite(game.id);
+            }}
+            title={isFavorited ? 'Remover dos favoritos' : 'Favoritar'}
+          >
+            <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+          </button>
+        )}
+      </div>
+      <div className="kruuj-poki-meta">
+        <span className="kruuj-poki-title">{game.title}</span>
+        <span className="kruuj-poki-cat">{formatCatName(game.category)}</span>
+      </div>
+    </div>
+  );
+};
+
+interface ShelfGameCardProps {
+  game: Game;
+  isFavorited: boolean;
+  onPlay: (game: Game) => void;
+  onToggleFavorite: (id: string) => void;
+  isMobile: boolean;
+  renderCover: (game: Game) => React.ReactNode;
+}
+
+const ShelfGameCard: React.FC<ShelfGameCardProps> = ({
+  game,
+  isFavorited,
+  onPlay,
+  onToggleFavorite,
+  isMobile,
+  renderCover
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoSrc = GAME_PREVIEWS[game.slug];
+
+  useEffect(() => {
+    if (!isMobile && videoRef.current) {
+      if (isHovered) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [isHovered, isMobile]);
+
+  return (
+    <div
+      className="kruuj-game-card-clean"
+      onClick={() => onPlay(game)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="kruuj-game-thumb">
+        {renderCover(game)}
+
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            loop
+            playsInline
+            className={`kruuj-card-video-preview ${isHovered ? 'visible' : ''}`}
+          />
+        )}
+
+        <button
+          className="kruuj-game-like-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite(game.id);
+          }}
+        >
+          <Heart className={`w-3.5 h-3.5 ${isFavorited ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+        </button>
+      </div>
+      <div className="kruuj-game-title-clean">{game.title}</div>
+    </div>
+  );
+};
+
 export default function App() {
   // --- Estados do Portal ---
   const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>('home');
@@ -1469,8 +1635,8 @@ export default function App() {
       subcategories: ['Esporte', 'Futebol', '3D', 'Competitivo'],
       tags: ['futebol', 'penalti', 'esporte', '3d', 'kruuj', 'chute'],
       ageRating: 'Livre',
-      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
-      iconUrl: 'award',
+      bannerUrl: '/icons/kruuj-penalty.png',
+      iconUrl: '/icons/kruuj-penalty.png',
       prefixUrl: '/games/kruuj-penalty/',
       version: '1.0.0',
       controls: { mouse: true, teclado: false, toque: true, gamepad: false },
@@ -1889,8 +2055,8 @@ export default function App() {
       subcategories: ['Tycoon', 'Gestão', 'Culinária', 'Simulação', 'Arcade', 'Casual'],
       tags: ['pizza', 'tycoon', 'restaurante', 'culinaria', 'gestao', 'simulador', 'arcade', 'casual'],
       ageRating: 'Livre',
-      bannerUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=60',
-      iconUrl: '🍕',
+      bannerUrl: '/icons/kruuj-pizza-empire.png',
+      iconUrl: '/icons/kruuj-pizza-empire.png',
       prefixUrl: '/games/kruuj-pizza-empire/',
       version: '1.0.0',
       controls: { mouse: true, teclado: true, toque: true, gamepad: false },
@@ -3209,7 +3375,7 @@ export default function App() {
       subtitle: 'Sinta a tensão do futebol e cobre pênaltis com física 3D ultrarrealista!',
       tag: 'MAIS JOGADO',
       slug: 'kruuj-penalty',
-      bannerUrl: 'https://images.unsplash.com/photo-1518605368461-1e1252281146?w=800&auto=format&fit=crop&q=60',
+      bannerUrl: '/icons/kruuj-penalty.png',
       category: 'Esporte / Futebol'
     }
   ];
@@ -3570,22 +3736,15 @@ export default function App() {
                       </div>
                       <div className="kruuj-shelf-row">
                         {getFilteredGames().map(game => (
-                          <div 
-                            key={game.id} 
-                            className="kruuj-game-card-clean"
-                            onClick={() => handlePlayGame(game)}
-                          >
-                            <div className="kruuj-game-thumb">
-                              {renderGameCover(game)}
-                              <button
-                                className="kruuj-game-like-btn"
-                                onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                              >
-                                <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                              </button>
-                            </div>
-                            <div className="kruuj-game-title-clean">{game.title}</div>
-                          </div>
+                          <ShelfGameCard
+                            key={game.id}
+                            game={game}
+                            isFavorited={isGameFavorited(game)}
+                            onPlay={handlePlayGame}
+                            onToggleFavorite={handleToggleFavorite}
+                            isMobile={isMobileMode}
+                            renderCover={renderGameCover}
+                          />
                         ))}
                       </div>
                     </div>
@@ -3849,32 +4008,17 @@ export default function App() {
 
                           <div className="kruuj-poki-grid" style={{ marginTop: '16px' }}>
                             {getFilteredGames().map(game => (
-                              <div 
-                                key={game.id} 
-                                className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
-                                title={`Jogar ${game.title}`}
-                              >
-                                <div className="kruuj-poki-thumb">
-                                  {renderGameCover(game)}
-                                  <div className="kruuj-poki-overlay">
-                                    <div className="kruuj-poki-play-icon">
-                                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                                    </div>
-                                  </div>
-                                  <button
-                                    className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
-                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                    title={isGameFavorited(game) ? 'Remover dos favoritos' : 'Favoritar'}
-                                  >
-                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-                                  </button>
-                                </div>
-                                <div className="kruuj-poki-meta">
-                                  <span className="kruuj-poki-title">{game.title}</span>
-                                  <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
-                                </div>
-                              </div>
+                              <PokiGameCard
+                                key={game.id}
+                                game={game}
+                                tileClass={getTileClass(game.slug)}
+                                isFavorited={isGameFavorited(game)}
+                                onPlay={handlePlayGame}
+                                onToggleFavorite={handleToggleFavorite}
+                                isMobile={isMobileMode}
+                                renderCover={renderGameCover}
+                                formatCatName={formatCategoryName}
+                              />
                             ))}
                           </div>
                         </section>
@@ -3882,32 +4026,17 @@ export default function App() {
                         <div className="kruuj-poki-section">
                           <div className="kruuj-poki-grid">
                             {getFilteredGames().map((game) => (
-                              <div 
-                                key={game.id} 
-                                className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                                onClick={() => handlePlayGame(game)}
-                                title={`Jogar ${game.title}`}
-                              >
-                                <div className="kruuj-poki-thumb">
-                                  {renderGameCover(game)}
-                                  <div className="kruuj-poki-overlay">
-                                    <div className="kruuj-poki-play-icon">
-                                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                                    </div>
-                                  </div>
-                                  <button
-                                    className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
-                                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                                    title={isGameFavorited(game) ? 'Remover dos favoritos' : 'Favoritar'}
-                                  >
-                                    <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-                                  </button>
-                                </div>
-                                <div className="kruuj-poki-meta">
-                                  <span className="kruuj-poki-title">{game.title}</span>
-                                  <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
-                                </div>
-                              </div>
+                              <PokiGameCard
+                                key={game.id}
+                                game={game}
+                                tileClass={getTileClass(game.slug)}
+                                isFavorited={isGameFavorited(game)}
+                                onPlay={handlePlayGame}
+                                onToggleFavorite={handleToggleFavorite}
+                                isMobile={isMobileMode}
+                                renderCover={renderGameCover}
+                                formatCatName={formatCategoryName}
+                              />
                             ))}
                           </div>
                         </div>
@@ -3987,23 +4116,15 @@ export default function App() {
                   <div className="pt-4 border-t border-white/5">
                     <div className="kruuj-shelf-row">
                       {getFilteredGames().map(game => (
-                        <div 
-                          key={game.id} 
-                          className="kruuj-game-card-clean"
-                          onClick={() => handlePlayGame(game)}
-                        >
-                          <div className="kruuj-game-thumb">
-                            {renderGameCover(game)}
-                            <button
-                              className="kruuj-game-like-btn"
-                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                            >
-                              <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
-                            </button>
-                          </div>
-                          <div className="kruuj-game-title-clean">{game.title}</div>
-                          <span className="text-[10px] text-gray-400 font-medium">{formatCategoryName(game.category)}</span>
-                        </div>
+                        <ShelfGameCard
+                          key={game.id}
+                          game={game}
+                          isFavorited={isGameFavorited(game)}
+                          onPlay={handlePlayGame}
+                          onToggleFavorite={handleToggleFavorite}
+                          isMobile={isMobileMode}
+                          renderCover={renderGameCover}
+                        />
                       ))}
                     </div>
                   </div>
@@ -4719,25 +4840,16 @@ export default function App() {
                   {/* LATERAL DIREITA: MOSAICO POKI DE JOGOS RECOMENDADOS (2 COLUNAS) */}
                   <div className="poki-stage-right-mosaic hidden lg:grid">
                     {rightMosaicGames.map((rel, i) => (
-                      <div 
-                        key={rel.id} 
-                        className={`kruuj-poki-card ${i === 1 ? 'tile-2x2' : 'tile-1x1'} ${isGameFavorited(rel) ? 'is-favorited' : ''}`}
-                        onClick={() => handlePlayGame(rel)}
-                        title={`Ver ${rel.title}`}
-                      >
-                        <div className="kruuj-poki-thumb">
-                          {renderGameCover(rel)}
-                          <div className="kruuj-poki-overlay">
-                            <div className="kruuj-poki-play-icon">
-                              <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="kruuj-poki-meta">
-                          <span className="kruuj-poki-title">{rel.title}</span>
-                          <span className="kruuj-poki-cat">{formatCategoryName(rel.category)}</span>
-                        </div>
-                      </div>
+                      <PokiGameCard
+                        key={rel.id}
+                        game={rel}
+                        tileClass={i === 1 ? 'tile-2x2' : 'tile-1x1'}
+                        isFavorited={isGameFavorited(rel)}
+                        onPlay={handlePlayGame}
+                        isMobile={isMobileMode}
+                        renderCover={renderGameCover}
+                        formatCatName={formatCategoryName}
+                      />
                     ))}
                   </div>
                 </div>
@@ -4747,32 +4859,17 @@ export default function App() {
                   <div className="kruuj-poki-section">
                     <div className="kruuj-poki-grid">
                       {stageBottomGames.map((game) => (
-                        <div 
-                          key={game.id} 
-                          className={`kruuj-poki-card ${getTileClass(game.slug)} ${isGameFavorited(game) ? 'is-favorited' : ''}`}
-                          onClick={() => handlePlayGame(game)}
-                          title={`Ver ${game.title}`}
-                        >
-                          <div className="kruuj-poki-thumb">
-                            {renderGameCover(game)}
-                            <div className="kruuj-poki-overlay">
-                              <div className="kruuj-poki-play-icon">
-                                <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                              </div>
-                            </div>
-                            <button
-                              className={`kruuj-poki-like-btn ${isGameFavorited(game) ? 'favorited' : ''}`}
-                              onClick={(e) => { e.stopPropagation(); handleToggleFavorite(game.id); }}
-                              title="Favoritar"
-                            >
-                              <Heart className={`w-3.5 h-3.5 ${isGameFavorited(game) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-                            </button>
-                          </div>
-                          <div className="kruuj-poki-meta">
-                            <span className="kruuj-poki-title">{game.title}</span>
-                            <span className="kruuj-poki-cat">{formatCategoryName(game.category)}</span>
-                          </div>
-                        </div>
+                        <PokiGameCard
+                          key={game.id}
+                          game={game}
+                          tileClass={getTileClass(game.slug)}
+                          isFavorited={isGameFavorited(game)}
+                          onPlay={handlePlayGame}
+                          onToggleFavorite={handleToggleFavorite}
+                          isMobile={isMobileMode}
+                          renderCover={renderGameCover}
+                          formatCatName={formatCategoryName}
+                        />
                       ))}
                     </div>
                   </div>
