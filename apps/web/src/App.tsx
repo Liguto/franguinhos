@@ -393,7 +393,9 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
   const shouldAutoPlayMobile = isMobile && isLargeTile && !!videoSrc;
 
   useEffect(() => {
-    if (!isMobile && videoRef.current) {
+    if (isMobile && shouldAutoPlayMobile && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    } else if (!isMobile && videoRef.current) {
       if (isHovered) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().catch(() => {});
@@ -401,7 +403,7 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
         videoRef.current.pause();
       }
     }
-  }, [isHovered, isMobile]);
+  }, [isHovered, isMobile, shouldAutoPlayMobile]);
 
   return (
     <div
