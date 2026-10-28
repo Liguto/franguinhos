@@ -4587,21 +4587,6 @@ export default function App() {
                       />
                       )}
 
-                      {/* AVISO ANIMADO DE ROTAÇÃO RECOMENDADA (ESTILO POKI.COM) */}
-                      {isMobileMode && !dismissRotateNotice && selectedGame.orientation === 'landscape' && window.innerHeight > window.innerWidth && (
-                        <div className="kruuj-rotate-hint-banner">
-                          <span>📱↷</span>
-                          <span>
-                            {currentLang === 'en' 
-                              ? 'Rotate phone to landscape for best experience' 
-                              : currentLang === 'es' 
-                              ? 'Gira tu celular para una mejor experiencia' 
-                              : 'Gire o celular na horizontal para a melhor experiência'}
-                          </span>
-                          <button onClick={() => setDismissRotateNotice(true)} className="kruuj-rotate-hint-close">✕</button>
-                        </div>
-                      )}
-
                       {/* JOGO EM EXECUÇÃO REAL AO VIVO (PADRÃO POKI.COM) */}
                       <div className="poki-stage-iframe-container" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
                         {isPhysicalGame(selectedGame.slug) ? (
@@ -4649,8 +4634,8 @@ export default function App() {
                       </div>
 
                       
-                      {/* TELA DE ORIENTAÇÃO INTELIGENTE POKI (GIRAR DISPOSITIVO QUANDO INCOMPATÍVEL) */}
-                      {isMobileMode && selectedGame && selectedGame.orientation !== 'both' && (
+                      {/* TELA DE ORIENTAÇÃO INTELIGENTE POKI (APENAS APÓS O CLIQUE EM JOGAR SE A ORIENTAÇÃO FOR INCOMPATÍVEL) */}
+                      {isMobileMode && hasStartedPlayingInStage && selectedGame && selectedGame.orientation !== 'both' && (
                         (selectedGame.orientation === 'landscape' && (deviceOrientation === 'portrait' || window.innerHeight > window.innerWidth)) ||
                         (selectedGame.orientation === 'portrait' && (deviceOrientation === 'landscape' || window.innerWidth > window.innerHeight))
                       ) && (
@@ -4667,10 +4652,10 @@ export default function App() {
                             </h3>
                             <p className="text-xs text-slate-300 max-w-xs">
                               {currentLang === 'en'
-                                ? `"${selectedGame.title}" was designed for the best experience in ${selectedGame.orientation} mode.`
+                                ? `"${selectedGame.title}" requires ${selectedGame.orientation} mode to play. Rotate your phone to start!`
                                 : currentLang === 'es'
-                                ? `"${selectedGame.title}" fue diseñado para la mejor experiencia en modo ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'}.`
-                                : `"${selectedGame.title}" foi projetado para a melhor experiência na posição ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'}.`
+                                ? `"${selectedGame.title}" requiere modo ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'} para jugar. ¡Gira tu celular para comenzar!`
+                                : `"${selectedGame.title}" exige a tela na ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'} para jogar. Gire o celular para começar!`
                               }
                             </p>
                             <button 
@@ -4679,10 +4664,11 @@ export default function App() {
                                 if (document.fullscreenElement) {
                                   document.exitFullscreen().catch(() => {});
                                 }
+                                setHasStartedPlayingInStage(false);
                                 setIsMobileFullscreen(false);
                               }}
                             >
-                              {currentLang === 'en' ? 'Voltar ao Palco' : currentLang === 'es' ? 'Volver al Escenario' : 'Voltar ao Palco'}
+                              {currentLang === 'en' ? 'Back to Stage' : currentLang === 'es' ? 'Volver al Escenario' : 'Voltar ao Palco'}
                             </button>
                           </div>
                         </div>
