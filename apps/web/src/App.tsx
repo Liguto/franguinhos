@@ -3863,7 +3863,7 @@ export default function App() {
 
                             <div className="kruuj-banner-top-row">
                               <span className="kruuj-featured-badge kruuj-badge-novelty">
-                                <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> NOVIDADE DA SEMANA
+                                <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> {isMobileMode ? 'DESTAQUE' : 'NOVIDADE DA SEMANA'}
                               </span>
                               <span className="kruuj-banner-subtag">
                                 {noveltyGames[noveltyIndex]?.tag}
