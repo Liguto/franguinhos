@@ -4432,7 +4432,7 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
 /* 1. Hero Card: Boas-vindas + Mascote */

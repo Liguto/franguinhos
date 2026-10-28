@@ -3591,81 +3591,139 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      {/* 1. Grid de Banners Duplos Oficiais: NOVIDADE DA SEMANA & EM ALTA */}
-                      <div className="kruuj-dual-banners-grid">
-                        {/* Banner 1: NOVIDADE DA SEMANA */}
+                      {/* 1. Seletor de 6 Categorias (Públicos) em Pílulas 3D (No Topo da Home) */}
+                      <div className="kruuj-categories-grid">
                         <div 
-                          className="kruuj-featured-banner-card kruuj-banner-novelty"
-                          style={{
-                            backgroundImage: `linear-gradient(to top, rgba(5, 11, 36, 0.96) 0%, rgba(5, 11, 36, 0.74) 48%, rgba(5, 11, 36, 0.2) 85%, rgba(5, 11, 36, 0.05) 100%), url('${noveltyGames[noveltyIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
-                          }}
-                          onClick={() => {
-                            const cur = noveltyGames[noveltyIndex];
-                            const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
-                            handlePlayGame(matched);
-                          }}
-                          onMouseEnter={() => setIsNoveltyHovered(true)}
-                          onMouseLeave={() => setIsNoveltyHovered(false)}
+                          className={`kruuj-cat-pill kruuj-cat-baby ${agePreference === 'bebes' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'bebes' ? 'geral' : 'bebes')}
                         >
-                          <button 
-                            className="kruuj-featured-arrow-left"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevNovelty();
+                          <div className="kruuj-cat-icon">🐱</div>
+                          <span className="kruuj-cat-title">Baby</span>
+                          <span className="kruuj-cat-sub">0 a 3 anos</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-kids ${agePreference === 'educacional' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'educacional' ? 'geral' : 'educacional')}
+                        >
+                          <div className="kruuj-cat-icon">👦</div>
+                          <span className="kruuj-cat-title">Kids</span>
+                          <span className="kruuj-cat-sub">4 a 12 anos</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-play ${agePreference === 'geral' ? 'active' : ''}`}
+                          onClick={() => setAgePreference('geral')}
+                        >
+                          <div className="kruuj-cat-icon">🎮</div>
+                          <span className="kruuj-cat-title">Play</span>
+                          <span className="kruuj-cat-sub">Todas as idades</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-family ${agePreference === 'family' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'family' ? 'geral' : 'family')}
+                        >
+                          <div className="kruuj-cat-icon">👨‍👩‍👧</div>
+                          <span className="kruuj-cat-title">Family</span>
+                          <span className="kruuj-cat-sub">Jogue junto</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-senior ${agePreference === 'terceira_idade' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'terceira_idade' ? 'geral' : 'terceira_idade')}
+                        >
+                          <div className="kruuj-cat-icon">👵</div>
+                          <span className="kruuj-cat-title">60+</span>
+                          <span className="kruuj-cat-sub">Mente ativa</span>
+                        </div>
+
+                        <div 
+                          className={`kruuj-cat-pill kruuj-cat-edu ${agePreference === 'edu' ? 'active' : ''}`}
+                          onClick={() => setAgePreference(agePreference === 'edu' ? 'geral' : 'edu')}
+                        >
+                          <div className="kruuj-cat-icon">🎓</div>
+                          <span className="kruuj-cat-title">Edu</span>
+                          <span className="kruuj-cat-sub">Aprender jogando</span>
+                        </div>
+                      </div>
+
+                      {/* 2. Grid de Banners Duplos Oficiais: NOVIDADE DA SEMANA & EM ALTA (Apenas quando nenhum filtro de público estiver ativo) */}
+                      {agePreference === 'geral' && (
+                        <div className="kruuj-dual-banners-grid">
+                          {/* Banner 1: NOVIDADE DA SEMANA */}
+                          <div 
+                            className="kruuj-featured-banner-card kruuj-banner-novelty"
+                            style={{
+                              backgroundImage: `linear-gradient(to top, rgba(5, 11, 36, 0.96) 0%, rgba(5, 11, 36, 0.74) 48%, rgba(5, 11, 36, 0.2) 85%, rgba(5, 11, 36, 0.05) 100%), url('${noveltyGames[noveltyIndex]?.bannerUrl || '/banners/welcome.jpg'}')`,
                             }}
-                            title="Anterior"
+                            onClick={() => {
+                              const cur = noveltyGames[noveltyIndex];
+                              const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                              handlePlayGame(matched);
+                            }}
+                            onMouseEnter={() => setIsNoveltyHovered(true)}
+                            onMouseLeave={() => setIsNoveltyHovered(false)}
                           >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
+                            <button 
+                              className="kruuj-featured-arrow-left"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                prevNovelty();
+                              }}
+                              title="Anterior"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
 
-                          <div className="kruuj-banner-top-row">
-                            <span className="kruuj-featured-badge kruuj-badge-novelty">
-                              <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> NOVIDADE DA SEMANA
-                            </span>
-                            <span className="kruuj-banner-subtag">
-                              {noveltyGames[noveltyIndex]?.tag}
-                            </span>
-                          </div>
-
-                          <div className="kruuj-banner-card-body">
-                            <h3 className="kruuj-banner-card-title">
-                              {noveltyGames[noveltyIndex]?.title}
-                            </h3>
-                            <p className="kruuj-banner-card-desc">
-                              {noveltyGames[noveltyIndex]?.subtitle}
-                            </p>
-                            <div className="kruuj-banner-card-footer">
-                              <button 
-                                className="kruuj-featured-play-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const cur = noveltyGames[noveltyIndex];
-                                  const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
-                                  handlePlayGame(matched);
-                                }}
-                              >
-                                <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
-                              </button>
-                              <span className="kruuj-banner-category-chip">
-                                {noveltyGames[noveltyIndex]?.category}
+                            <div className="kruuj-banner-top-row">
+                              <span className="kruuj-featured-badge kruuj-badge-novelty">
+                                <Sparkles className="w-3.5 h-3.5 text-cyan-300" /> NOVIDADE DA SEMANA
+                              </span>
+                              <span className="kruuj-banner-subtag">
+                                {noveltyGames[noveltyIndex]?.tag}
                               </span>
                             </div>
-                          </div>
 
-                          <button 
-                            className="kruuj-featured-arrow-right"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextNovelty();
-                            }}
-                            title="Próximo"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
+                            <div className="kruuj-banner-card-body">
+                              <h3 className="kruuj-banner-card-title">
+                                {noveltyGames[noveltyIndex]?.title}
+                              </h3>
+                              <p className="kruuj-banner-card-desc">
+                                {noveltyGames[noveltyIndex]?.subtitle}
+                              </p>
+                              <div className="kruuj-banner-card-footer">
+                                <button 
+                                  className="kruuj-featured-play-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const cur = noveltyGames[noveltyIndex];
+                                    const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                                    handlePlayGame(matched);
+                                  }}
+                                >
+                                  <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                                </button>
+                                <span className="kruuj-banner-category-chip">
+                                  {noveltyGames[noveltyIndex]?.category}
+                                </span>
+                              </div>
+                            </div>
 
-                          <div className="kruuj-featured-card-dots">
-                            {noveltyGames.map((_, i) => (
-                              <span 
+                            <button 
+                              className="kruuj-featured-arrow-right"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextNovelty();
+                              }}
+                              title="Próximo"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+
+                            <div className="kruuj-featured-card-dots">
+                              {noveltyGames.map((_, i) => (
+                                <span 
                                 key={i} 
                                 className={`kruuj-dot ${noveltyIndex === i ? 'active' : ''}`}
                                 onClick={(e) => {
@@ -3761,67 +3819,11 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-
-                      {/* 2. Seletor de 6 Categorias (Públicos) em Pílulas 3D */}
-                      <div className="kruuj-categories-grid">
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-baby ${agePreference === 'bebes' ? 'active' : ''}`}
-                          onClick={() => setAgePreference(agePreference === 'bebes' ? 'geral' : 'bebes')}
-                        >
-                          <div className="kruuj-cat-icon">🐱</div>
-                          <span className="kruuj-cat-title">Baby</span>
-                          <span className="kruuj-cat-sub">0 a 3 anos</span>
-                        </div>
-
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-kids ${agePreference === 'educacional' ? 'active' : ''}`}
-                          onClick={() => setAgePreference(agePreference === 'educacional' ? 'geral' : 'educacional')}
-                        >
-                          <div className="kruuj-cat-icon">👦</div>
-                          <span className="kruuj-cat-title">Kids</span>
-                          <span className="kruuj-cat-sub">4 a 12 anos</span>
-                        </div>
-
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-play ${agePreference === 'geral' ? 'active' : ''}`}
-                          onClick={() => setAgePreference('geral')}
-                        >
-                          <div className="kruuj-cat-icon">🎮</div>
-                          <span className="kruuj-cat-title">Play</span>
-                          <span className="kruuj-cat-sub">Todas as idades</span>
-                        </div>
-
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-family ${agePreference === 'family' ? 'active' : ''}`}
-                          onClick={() => setAgePreference(agePreference === 'family' ? 'geral' : 'family')}
-                        >
-                          <div className="kruuj-cat-icon">👨‍👩‍👧</div>
-                          <span className="kruuj-cat-title">Family</span>
-                          <span className="kruuj-cat-sub">Jogue junto</span>
-                        </div>
-
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-senior ${agePreference === 'terceira_idade' ? 'active' : ''}`}
-                          onClick={() => setAgePreference(agePreference === 'terceira_idade' ? 'geral' : 'terceira_idade')}
-                        >
-                          <div className="kruuj-cat-icon">👵</div>
-                          <span className="kruuj-cat-title">60+</span>
-                          <span className="kruuj-cat-sub">Mente ativa</span>
-                        </div>
-
-                        <div 
-                          className={`kruuj-cat-pill kruuj-cat-edu ${agePreference === 'edu' ? 'active' : ''}`}
-                          onClick={() => setAgePreference(agePreference === 'edu' ? 'geral' : 'edu')}
-                        >
-                          <div className="kruuj-cat-icon">🎓</div>
-                          <span className="kruuj-cat-title">Edu</span>
-                          <span className="kruuj-cat-sub">Aprender jogando</span>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Se houver uma categoria específica selecionada (Baby, Kids, Family, 60+, Edu), exibe a lista filtrada */}
                       {agePreference !== 'geral' ? (
-                        <section className="kruuj-shelf-section" style={{ marginTop: '20px' }}>
+                        <section className="kruuj-shelf-section">
                           <div className="kruuj-shelf-header" style={{ alignItems: 'center' }}>
                             <div>
                               <h3 className="kruuj-shelf-title" style={{ fontSize: '1.25rem' }}>
@@ -3877,7 +3879,7 @@ export default function App() {
                           </div>
                         </section>
                       ) : (
-                        <div className="kruuj-poki-section" style={{ marginTop: '16px' }}>
+                        <div className="kruuj-poki-section">
                           <div className="kruuj-poki-grid">
                             {getFilteredGames().map((game) => (
                               <div 
