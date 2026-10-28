@@ -580,10 +580,10 @@ body.playing-game-mode, html.playing-game-mode {
     transition: opacity 0.45s ease, filter 0.45s ease;
   }
 
-  /* Modo Fantasma Inteligente: Translúcido quando o jogador estiver em ação */
+  /* Modo Fantasma Inteligente: Mantido sempre visível e nítido para nunca sumir */
   .kruuj-poki-top-cluster.idle-ghost {
-    opacity: 0.35 !important;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4)) !important;
+    opacity: 0.95 !important;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
   }
 
   .kruuj-poki-top-cluster.idle-ghost:hover,
@@ -1234,9 +1234,12 @@ body.playing-game-mode, html.playing-game-mode {
     margin-left: 2px !important;
   }
 
-  /* No modo retrato no celular, o botão flutuante não deve ficar por cima do topo do jogo a menos que travado */
-  .poki-stage-player-wrapper .kruuj-poki-top-cluster:not(.screen-locked) {
-    display: none !important;
+  /* Botão flutuante KRUUJ sempre visível e acessível no mobile */
+  .poki-stage-player-wrapper .kruuj-poki-top-cluster {
+    display: flex !important;
+    position: fixed !important;
+    left: 0 !important;
+    z-index: 100000000 !important;
   }
 
   /* Mosaico de Jogos Abaixo do Palco no Mobile (2 Colunas Perfeitas) */

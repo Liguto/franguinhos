@@ -4403,19 +4403,16 @@ export default function App() {
                     >
                       {/* Loader oficial rodando nativamente dentro do iframe do próprio jogo */}
 
-                      {((isMobileMode && isMobileFullscreen) || isScreenLocked) && (
+                      {(isMobileMode || isScreenLocked) && (
                         <AdaptivePokiCluster
                           isScreenLocked={isScreenLocked}
                         isBabyMode={agePreference === 'bebes' || selectedGame.category === 'Bebês'}
                         onExit={() => {
-                          if (isMobileMode && isMobileFullscreen) {
-                            if (document.fullscreenElement) {
-                              document.exitFullscreen().catch(() => {});
-                            }
-                            setIsMobileFullscreen(false);
-                          } else {
-                            triggerExitGame();
+                          if (document.fullscreenElement) {
+                            document.exitFullscreen().catch(() => {});
                           }
+                          setIsMobileFullscreen(false);
+                          triggerExitGame();
                         }}
                         onLock={() => {
                           setIsScreenLocked(true);
@@ -4504,9 +4501,9 @@ export default function App() {
 
                       
                       {/* TELA DE ORIENTAÇÃO INTELIGENTE POKI (GIRAR DISPOSITIVO QUANDO INCOMPATÍVEL) */}
-                      {isMobileMode && isMobileFullscreen && selectedGame && selectedGame.orientation !== 'both' && (
-                        (selectedGame.orientation === 'landscape' && deviceOrientation === 'portrait') ||
-                        (selectedGame.orientation === 'portrait' && deviceOrientation === 'landscape')
+                      {isMobileMode && selectedGame && selectedGame.orientation !== 'both' && (
+                        (selectedGame.orientation === 'landscape' && (deviceOrientation === 'portrait' || window.innerHeight > window.innerWidth)) ||
+                        (selectedGame.orientation === 'portrait' && (deviceOrientation === 'landscape' || window.innerWidth > window.innerHeight))
                       ) && (
                         <div className="poki-rotate-shield">
                           <div className="poki-rotate-card">
