@@ -6752,87 +6752,104 @@ html, body {
 
 
 /* ==========================================================================
-   POKI MOBILE FULLSCREEN OVERLAY & ACTIVE STAGE (EXCLUSIVO MOBILE)
+   POKI PRE-PLAY STAGE OVERLAY & VIDEO LOOP (DESKTOP & MOBILE)
    ========================================================================== */
 
-/* Overlay com Botão Flutuante de Play no Palco Mobile (Padrão Poki.com) */
-.mobile-stage-play-overlay {
+/* Overlay de Pré-Play no Palco com Vídeo ou Banner em Looping Contínuo */
+.poki-stage-preplay-overlay {
   position: absolute;
   inset: 0;
-  z-index: 50;
-  display: none;
+  z-index: 55;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  overflow: hidden;
+  border-radius: inherit;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+  background: #050b24;
+  animation: fadeIn 0.3s ease;
 }
 
-@media (max-width: 768px), (pointer: coarse) {
-  .mobile-stage-play-overlay {
-    display: flex !important;
-  }
+.poki-stage-video-loop,
+.poki-stage-banner-loop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: inherit;
+  pointer-events: none;
 }
 
-@media (min-width: 769px) and (hover: hover) and (pointer: fine) {
-  .mobile-stage-play-overlay {
-    display: none !important;
-  }
+.poki-stage-preplay-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(5, 11, 36, 0.25) 0%, rgba(5, 11, 36, 0.65) 60%, rgba(5, 11, 36, 0.92) 100%);
+  pointer-events: none;
 }
 
-.mobile-stage-play-badge {
+.poki-stage-preplay-cta {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   transform: scale(1);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.mobile-stage-play-overlay:active .mobile-stage-play-badge {
-  transform: scale(0.92);
+.poki-stage-preplay-overlay:hover .poki-stage-preplay-cta {
+  transform: scale(1.06);
 }
 
-.mobile-stage-play-circle {
-  width: 72px;
-  height: 72px;
+.poki-stage-preplay-overlay:active .poki-stage-preplay-cta {
+  transform: scale(0.94);
+}
+
+.poki-stage-play-btn-circle {
+  width: clamp(68px, 11vw, 88px);
+  height: clamp(68px, 11vw, 88px);
   border-radius: 50%;
   background: linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #6366f1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 30px rgba(56, 189, 248, 0.65), 0 8px 25px rgba(0, 0, 0, 0.5);
-  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.7), 0 8px 25px rgba(0, 0, 0, 0.6);
+  border: 3.5px solid rgba(255, 255, 255, 0.95);
   animation: pokiPlayPulse 1.8s infinite;
+  transition: box-shadow 0.3s ease;
 }
 
-@keyframes pokiPlayPulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5), 0 4px 15px rgba(0, 0, 0, 0.4);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 35px rgba(56, 189, 248, 0.85), 0 8px 30px rgba(0, 0, 0, 0.6);
-    transform: scale(1.06);
-  }
+.poki-stage-preplay-overlay:hover .poki-stage-play-btn-circle {
+  box-shadow: 0 0 55px rgba(56, 189, 248, 0.95), 0 10px 32px rgba(0, 0, 0, 0.7);
 }
 
-.mobile-stage-play-label {
-  font-family: var(--font-family);
-  font-size: 0.92rem;
+.poki-stage-play-btn-text {
+  font-size: clamp(14px, 2.2vw, 18px);
   font-weight: 900;
+  letter-spacing: 0.08em;
   color: #ffffff;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
   background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 6px 18px;
+  padding: 6px 20px;
   border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.poki-stage-preplay-subtitle {
+  font-size: clamp(11px, 1.8vw, 13px);
+  font-weight: 600;
+  color: #94a3b8;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* Estado de Tela Cheia Ativa no Mobile (Padrão Poki: 100vw x 100dvh total) */

@@ -1000,6 +1000,7 @@ export default function App() {
   const [showAdOverlay, setShowAdOverlay] = useState<boolean>(false);
   const [adCountdown, setAdCountdown] = useState<number>(3);
   const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
+  const [hasStartedPlayingInStage, setHasStartedPlayingInStage] = useState<boolean>(false);
   const [portalLoaderActive, setPortalLoaderActive] = useState<boolean>(true);
 
   // --- Histórico de Jogos Recentes (Requisito de MVP) ---
@@ -2673,6 +2674,7 @@ export default function App() {
     setSelectedGame(null);
     setIsPlayingGame(false);
     setIsMobileFullscreen(false);
+    setHasStartedPlayingInStage(false);
     setShowParentGate(false);
 
     // Liberar trava de tela se houver
@@ -2754,6 +2756,7 @@ export default function App() {
     if (!game) return;
     setDismissRotateNotice(false);
     setPortalLoaderActive(false); // O loading é nativo dentro do iframe de cada jogo!
+    setHasStartedPlayingInStage(false);
     setStageShuffleSeed(Date.now());
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setSelectedGame(game);
@@ -2813,6 +2816,27 @@ export default function App() {
         console.warn('Wake Lock request failed', err);
       }
     }
+  };
+
+  // Disparo para sair do loop de pré-play do palco e iniciar a gameplay ativa
+  const handleStartGameInStage = () => {
+    setHasStartedPlayingInStage(true);
+    if (isMobileMode) {
+      setIsMobileFullscreen(true);
+      handleManualFullscreen();
+      if (selectedGame && selectedGame.orientation && selectedGame.orientation !== 'both') {
+        if (typeof screen !== 'undefined' && (screen as any).orientation && (screen as any).orientation.lock) {
+          try {
+            (screen as any).orientation.lock(selectedGame.orientation).catch(() => {});
+          } catch(e) {}
+        }
+      }
+    }
+    try {
+      gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
+      gameIframeRef.current?.contentWindow?.postMessage('resize', '*');
+      gameIframeRef.current?.focus();
+    } catch(e) {}
   };
 
   // Ouvinte global para mensagens do iframe dos jogos (save states em nuvem e telemetria)
@@ -4733,33 +4757,41 @@ export default function App() {
                           </div>
                         )}
 
-                        {/* BOTÃO FLUTUANTE DE PLAY NO PALCO MOBILE (PADRÃO POKI MOBILE) */}
-                      {!isMobileFullscreen && (
+                      {/* OVERLAY DE PRÉ-PLAY COM VÍDEO/BANNER EM LOOP CONTÍNUO (ATÉ CLICAR EM JOGAR) */}
+                      {!hasStartedPlayingInStage && (
                         <div 
-                          className="mobile-stage-play-overlay"
-                          onClick={() => {
-                            setIsMobileFullscreen(true);
-        handleManualFullscreen();
-        if (selectedGame && selectedGame.orientation && selectedGame.orientation !== 'both') {
-          if (typeof screen !== 'undefined' && (screen as any).orientation && (screen as any).orientation.lock) {
-            try {
-              (screen as any).orientation.lock(selectedGame.orientation).catch(() => {});
-            } catch(e) {}
-          }
-        }
-                            try {
-                              gameIframeRef.current?.contentWindow?.postMessage({ type: 'KRUUJ_RESUME_AUDIO' }, '*');
-                              gameIframeRef.current?.contentWindow?.postMessage('resize', '*');
-                              gameIframeRef.current?.focus();
-                            } catch(e) {}
-                          }}
-                          title="Toque para jogar em tela cheia"
+                          className="poki-stage-preplay-overlay"
+                          onClick={handleStartGameInStage}
+                          title="Clique para Jogar"
                         >
-                          <div className="mobile-stage-play-badge">
-                            <div className="mobile-stage-play-circle">
-                              <Play className="w-8 h-8 fill-white text-white ml-1" />
+                          {GAME_PREVIEWS[selectedGame.slug] ? (
+                            <video
+                              src={GAME_PREVIEWS[selectedGame.slug]}
+                              autoPlay
+                              muted
+                              loop
+                              playsInline
+                              className="poki-stage-video-loop"
+                            />
+                          ) : (
+                            <img
+                              src={selectedGame.bannerUrl || selectedGame.iconUrl}
+                              alt={selectedGame.title}
+                              className="poki-stage-banner-loop"
+                            />
+                          )}
+                          <div className="poki-stage-preplay-gradient" />
+
+                          <div className="poki-stage-preplay-cta">
+                            <div className="poki-stage-play-btn-circle">
+                              <Play className="w-10 h-10 fill-white text-white ml-1" />
                             </div>
-                            <span className="mobile-stage-play-label">{t.playNow}</span>
+                            <span className="poki-stage-play-btn-text">
+                              {currentLang === 'en' ? 'PLAY NOW' : currentLang === 'es' ? 'JUGAR AHORA' : 'JOGAR AGORA'}
+                            </span>
+                            <span className="poki-stage-preplay-subtitle">
+                              {selectedGame.title}
+                            </span>
                           </div>
                         </div>
                       )}
