@@ -6295,11 +6295,14 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     display: none; /* Remove o subtítulo extenso no mobile para manter formato retangular delicado */
   }
 
-  /* 3. Grid de Banners no Mobile (Exibe apenas 1 Banner Hero Único e Compacto para despoluir a navegação) */
+  /* 3. Grid de Banners no Mobile (Banner Hero Único completando 100% da largura horizontal da tela) */
   .kruuj-dual-banners-grid {
     grid-template-columns: 1fr !important;
     gap: 0 !important;
-    margin-bottom: 14px !important;
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    width: calc(100% + 24px) !important;
+    margin-bottom: 16px !important;
   }
 
   /* Oculta o segundo banner no mobile, mantendo apenas 1 banner limpo de destaque */
@@ -6308,12 +6311,16 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   }
 
   .kruuj-featured-banner-card {
+    width: 100% !important;
+    max-width: 100% !important;
     aspect-ratio: 16 / 9 !important;
-    min-height: 150px !important;
-    max-height: 195px !important;
-    padding: 14px 16px 14px !important;
-    border-radius: 18px !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+    min-height: 160px !important;
+    max-height: 215px !important;
+    padding: 16px 20px 14px !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   }
 
   .kruuj-banner-card-title {
