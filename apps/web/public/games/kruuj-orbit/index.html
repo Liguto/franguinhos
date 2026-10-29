@@ -178,19 +178,71 @@
 
     @media (max-width: 768px) {
       .hud {
-        top: 10px;
-        left: 68px !important;
-        right: 8px !important;
+        top: 10px !important;
+        left: 68px !important; /* Desvio do cluster magnético Poki */
+        right: 10px !important;
+        gap: 4px !important;
+      }
+
+      .hud-group {
+        gap: 4px !important;
+      }
+
+      /* Oculta os textos descritivos dos botões de controle no mobile, exibindo ícones táteis elegantes */
+      .hud-btn-label {
+        display: none !important;
+      }
+
+      .hud-stat-label {
+        display: none !important;
+      }
+
+      .record-badge {
+        display: none !important; /* O recorde já é detalhado no menu de pausa e game over */
+      }
+
+      .hud-btn-help {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        justify-content: center !important;
+        font-size: 0.9rem !important;
       }
 
       .hud-badge {
-        padding: 3px 8px !important;
-        font-size: 0.76rem !important;
-        gap: 3px !important;
+        padding: 4px 8px !important;
+        font-size: 0.74rem !important;
+        border-radius: 9999px !important;
       }
 
       .powerup-pill {
-        top: 50px;
+        top: 48px !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .hud {
+        left: 64px !important;
+        right: 6px !important;
+        gap: 2px !important;
+      }
+
+      .hud-group {
+        gap: 2px !important;
+      }
+
+      .hud-btn-help {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        font-size: 0.8rem !important;
+      }
+
+      .hud-badge {
+        padding: 3px 6px !important;
+        font-size: 0.70rem !important;
       }
     }
 
@@ -546,27 +598,28 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
   <!-- HUD Superior com Vidas, Score, Recorde, Estrelas, Multiplicador de Combo, Toggle de Som e Mira -->
   <div class="hud">
-    <div class="hud-group">
+    <div class="hud-group hud-stats-group">
       <!-- Sistema de 3 Vidas -->
-      <div class="hud-badge lives-badge" id="livesBadge">❤️ <span id="livesVal">3</span></div>
-      <div class="hud-badge">SCORE: <span id="scoreVal">0</span></div>
+      <div class="hud-badge lives-badge" id="livesBadge" title="Vidas">❤️ <span id="livesVal">3</span></div>
+      <div class="hud-badge score-badge" id="scoreBadge" title="Pontuação"><span class="hud-stat-label">SCORE: </span><span id="scoreVal">0</span></div>
+      <div class="hud-badge star-badge" id="starsBadge" title="Estrelas">⭐ <span id="starsVal">0</span></div>
       <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
-      <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Previsão de Salto">
-        <span>🎯</span> <span class="status" id="helpText">MIRA: ON</span>
+      <div class="hud-badge record-badge" id="recordBadge"><span class="hud-stat-label">RECORDE: </span><span id="bestVal" style="color: var(--gold);">0</span></div>
+    </div>
+    
+    <div class="hud-group hud-controls-group">
+      <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Mira">
+        <span>🎯</span> <span class="status hud-btn-label" id="helpText">MIRA: ON</span>
       </button>
       <button class="hud-badge hud-btn-help" id="btnAudioToggle" onclick="window.orbitGame.toggleAudio()" title="Ativar ou Desativar Som (Tecla M)">
-        <span id="audioIcon">🔊</span> <span class="status" id="audioText">SOM: ON</span>
+        <span id="audioIcon">🔊</span> <span class="status hud-btn-label" id="audioText">SOM: ON</span>
       </button>
       <button class="hud-badge hud-btn-help" id="btnPauseToggle" onclick="window.orbitGame.togglePause()" title="Pausar / Abrir Menu (Tecla P ou ESC)">
-        <span>⏸️</span> <span>MENU</span>
+        <span>⏸️</span> <span class="hud-btn-label">MENU</span>
       </button>
-      <button class="hud-badge hud-btn-help" onclick="window.orbitGame.openGuideModal()" title="Manual dos Planetas e Dicas">
-        <span>📖</span> <span>GUIA</span>
+      <button class="hud-badge hud-btn-help" onclick="window.orbitGame.openGuideModal()" title="Manual dos Planetas">
+        <span>📖</span> <span class="hud-btn-label">GUIA</span>
       </button>
-    </div>
-    <div class="hud-group">
-      <div class="hud-badge star-badge">⭐ <span id="starsVal">0</span></div>
-      <div class="hud-badge" style="font-size: 0.88rem;">RECORDE: <span id="bestVal" style="color: var(--gold);">0</span></div>
     </div>
   </div>
 
