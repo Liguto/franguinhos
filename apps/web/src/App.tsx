@@ -450,7 +450,6 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
       </div>
       <div className="kruuj-poki-meta">
         <span className="kruuj-poki-title">{game.title}</span>
-        <span className="kruuj-poki-cat">{formatCatName(game.category)}</span>
       </div>
     </div>
   );
@@ -526,7 +525,12 @@ const ShelfGameCard: React.FC<ShelfGameCardProps> = ({
 
 export default function App() {
   // --- Estados do Portal ---
-  const [view, setView] = useState<'home' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>('home');
+  const [view, setView] = useState<'home' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('view=developers')) {
+      return 'developers';
+    }
+    return 'home';
+  });
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
@@ -3067,6 +3071,11 @@ export default function App() {
   }, [user, token, selectedGame]);
 
   const handleManualFullscreen = () => {
+    // No mobile, utilizamos Fullscreen Virtual CSS (100vw x 100dvh) para evitar o warning nativo do navegador ("to exit fullscreen drag from top")
+    if (isMobileMode) {
+      setIsMobileFullscreen(true);
+      return;
+    }
     const target = document.getElementById('game-fullscreen-target') || document.querySelector('.iframe-container');
     if (!document.fullscreenElement && target) {
       if (target.requestFullscreen) {
@@ -3701,7 +3710,7 @@ export default function App() {
 
                 <button 
                   className="kruuj-sidebar-sublink hover:text-amber-300"
-                  onClick={() => { setSelectedGame(null); setView('developers'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  onClick={() => { window.open('/?view=developers', '_blank'); }}
                 >
                   <Code className="w-3.5 h-3.5 text-amber-400" />
                   <span>Para Criadores</span>
@@ -3845,22 +3854,21 @@ export default function App() {
                               <p className="kruuj-banner-card-desc">
                                 {noveltyGames[noveltyIndex]?.subtitle}
                               </p>
-                              <div className="kruuj-banner-card-footer">
-                                <button 
-                                  className="kruuj-featured-play-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const cur = noveltyGames[noveltyIndex];
-                                    const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
-                                    handlePlayGame(matched);
-                                  }}
-                                >
-                                  <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
-                                </button>
-                                <span className="kruuj-banner-category-chip">
-                                  {noveltyGames[noveltyIndex]?.category}
-                                </span>
-                              </div>
+                            </div>
+
+                            {/* Botão Jogar Agora Centralizado no Meio do Banner para não cobrir o mascote no canto */}
+                            <div className="kruuj-banner-center-action">
+                              <button 
+                                className="kruuj-featured-play-btn kruuj-play-btn-center"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const cur = noveltyGames[noveltyIndex];
+                                  const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                                  handlePlayGame(matched);
+                                }}
+                              >
+                                <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                              </button>
                             </div>
 
                             <button 
@@ -3929,22 +3937,21 @@ export default function App() {
                             <p className="kruuj-banner-card-desc">
                               {trendingFeaturedGames[trendingIndex]?.subtitle}
                             </p>
-                            <div className="kruuj-banner-card-footer">
-                              <button 
-                                className="kruuj-featured-play-btn kruuj-play-btn-trending"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const cur = trendingFeaturedGames[trendingIndex];
-                                  const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
-                                  handlePlayGame(matched);
-                                }}
-                              >
-                                <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
-                              </button>
-                              <span className="kruuj-banner-category-chip">
-                                {trendingFeaturedGames[trendingIndex]?.category}
-                              </span>
-                            </div>
+                          </div>
+
+                          {/* Botão Jogar Agora Centralizado no Meio do Banner para não cobrir o mascote no canto */}
+                          <div className="kruuj-banner-center-action">
+                            <button 
+                              className="kruuj-featured-play-btn kruuj-play-btn-trending kruuj-play-btn-center"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const cur = trendingFeaturedGames[trendingIndex];
+                                const matched = games.find(g => g.slug === cur.slug) || defaultGamesCatalog.find(g => g.slug === cur.slug) || defaultGamesCatalog[0];
+                                handlePlayGame(matched);
+                              }}
+                            >
+                              <Play className="w-3.5 h-3.5 fill-current" /> {t.playNow}
+                            </button>
                           </div>
 
                           <button 
@@ -5519,9 +5526,7 @@ export default function App() {
               <button
                 className="kruuj-footer-link-btn devs"
                 onClick={() => {
-                  setSelectedGame(null);
-                  setView('developers');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.open('/?view=developers', '_blank');
                 }}
               >
                 <Code className="w-3.5 h-3.5 text-amber-400" />
@@ -5594,56 +5599,68 @@ export default function App() {
         </div>
       )}
 
-      {/* --- PRIVACY COOKIE CONSENT BANNER (LGPD) --- */}
+      {/* --- PRIVACY & CONSENT MODAL (POP-UP GRANDE E CENTRALIZADO NO MEIO DA TELA) --- */}
       {showConsentBanner && (
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-[#0c0d14]/95 border-t border-cyan-500/20 z-[9999] flex flex-wrap md:flex-nowrap justify-between items-center gap-6 backdrop-blur-md">
-          <div className="space-y-2 max-w-4xl text-left">
-            <h4 className="font-extrabold text-sm text-cyan-300 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-cyan-400" /> Preferências de Privacidade (LGPD)
-            </h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Usamos apenas cookies e eventos essenciais para a sua conta e favoritos. Opcionalmente, você pode aceitar a coleta de eventos analíticos agregados anônimos para nos ajudar a melhorar o portal e receber anúncios não personalizados voltados ao desenvolvimento local.
-            </p>
-            <div className="flex gap-6 pt-1 text-[11px]">
-              <label className="flex items-center gap-2 text-cyan-400">
-                <input type="checkbox" checked disabled /> Essenciais (Ativo)
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-gray-300 hover:text-white">
+        <div className="fixed inset-0 z-[100000000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="glass-panel max-w-xl w-full p-8 md:p-10 rounded-3xl bg-[#0c1024] border border-cyan-500/30 shadow-2xl text-center space-y-6">
+            <div className="w-16 h-16 bg-cyan-950/60 border border-cyan-500/40 rounded-2xl flex items-center justify-center mx-auto text-cyan-400 shadow-lg shadow-cyan-500/20">
+              <Shield className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-white tracking-wide">
+                Privacidade & Condições de Uso (LGPD)
+              </h3>
+              <p className="text-xs text-gray-300 leading-relaxed max-w-md mx-auto">
+                Bem-vindo ao <strong>KRUUJ Games</strong>. Respeitamos a sua privacidade: coletamos apenas o essencial para salvar seus favoritos e pontuações. Você escolhe se deseja apoiar o projeto com métricas anônimas e anúncios seguros.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-left">
+              <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/20">
+                <span className="block text-xs font-bold text-cyan-300">✓ Essenciais</span>
+                <span className="text-[10px] text-gray-400">Saves locais e favoritos</span>
+              </div>
+              <label className="p-3 rounded-xl bg-white/[0.02] border border-white/10 cursor-pointer hover:border-cyan-500/30 flex flex-col justify-between">
+                <div>
+                  <span className="block text-xs font-bold text-gray-200">📊 Métricas</span>
+                  <span className="text-[10px] text-gray-400">Estatísticas anônimas</span>
+                </div>
                 <input 
                   type="checkbox" 
+                  className="mt-2 accent-cyan-400"
                   checked={consentOptions.analytics} 
                   onChange={(e) => setConsentOptions({...consentOptions, analytics: e.target.checked})}
-                /> Analytics
+                />
               </label>
-              <label className="flex items-center gap-2 cursor-pointer text-gray-300 hover:text-white">
+              <label className="p-3 rounded-xl bg-white/[0.02] border border-white/10 cursor-pointer hover:border-cyan-500/30 flex flex-col justify-between">
+                <div>
+                  <span className="block text-xs font-bold text-gray-200">🎁 Anúncios</span>
+                  <span className="text-[10px] text-gray-400">Vidas extras e boosts</span>
+                </div>
                 <input 
                   type="checkbox" 
+                  className="mt-2 accent-cyan-400"
                   checked={consentOptions.advertising} 
                   onChange={(e) => setConsentOptions({...consentOptions, advertising: e.target.checked})}
-                /> Publicidade
+                />
               </label>
             </div>
-          </div>
-          
-          <div className="flex gap-3 w-full md:w-auto justify-end">
-            <button 
-              className="btn-secondary py-2 px-5 text-xs"
-              onClick={() => saveConsent(false, false)}
-            >
-              Rejeitar Tudo
-            </button>
-            <button 
-              className="btn-primary py-2 px-5 text-xs"
-              onClick={() => saveConsent(consentOptions.analytics, consentOptions.advertising)}
-            >
-              Confirmar Escolhas
-            </button>
-            <button 
-              className="btn-primary py-2 px-5 text-xs bg-cyan-400 text-bg-primary"
-              onClick={() => saveConsent(true, true)}
-            >
-              Aceitar Tudo
-            </button>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button 
+                className="btn-secondary py-3 px-5 text-xs font-bold rounded-xl flex-1"
+                onClick={() => saveConsent(false, false)}
+              >
+                Apenas Essenciais
+              </button>
+              <button 
+                className="btn-primary py-3 px-6 text-sm font-black rounded-xl flex-1 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 shadow-lg shadow-cyan-500/25"
+                onClick={() => saveConsent(true, true)}
+              >
+                ACEITAR E JOGAR 🚀
+              </button>
+            </div>
           </div>
         </div>
       )}
