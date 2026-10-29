@@ -1603,30 +1603,179 @@ body.playing-game-mode, html.playing-game-mode {
   margin: 24px 0;
 }
 
-/* --- SLEEK MOBILE-ONLY PWA TOAST --- */
-.pwa-toast {
+/* --- BANNER DE INSTALAÇÃO PWA MOBILE (HOME SCREEN) --- */
+.kruuj-pwa-install-banner {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: calc(100% - 48px);
-  max-width: 360px;
-  z-index: 9000;
-  padding: 16px;
-  border-radius: 16px;
-  background: rgba(18, 22, 38, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(138, 43, 226, 0.3);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  bottom: 76px; /* Posicionado confortavelmente acima da bottom-bar do celular */
+  left: 14px;
+  right: 14px;
+  z-index: 9999999;
+  background: rgba(13, 18, 36, 0.96);
+  border: 1.5px solid rgba(56, 232, 255, 0.4);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 232, 255, 0.25);
+  border-radius: 20px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  animation: slideUpToast 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpToast {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 769px) {
+  .kruuj-pwa-install-banner {
+    bottom: 24px;
+    left: auto;
+    right: 24px;
+    max-width: 390px;
+  }
+}
+
+.kruuj-pwa-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.kruuj-pwa-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(56, 232, 255, 0.3);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.kruuj-pwa-banner-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kruuj-pwa-banner-text h4 {
+  font-size: 0.90rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kruuj-pwa-banner-text p {
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  margin: 2px 0 0;
+  line-height: 1.3;
+}
+
+.kruuj-pwa-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.kruuj-pwa-install-btn {
+  background: linear-gradient(135deg, #0284c7 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  padding: 9px 15px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(56, 232, 255, 0.35);
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+}
+
+.kruuj-pwa-install-btn:active {
+  transform: scale(0.95);
+}
+
+.kruuj-pwa-dismiss-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.kruuj-pwa-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Modal Especial para iOS / iPhone */
+.kruuj-ios-modal {
+  max-width: 420px;
+  width: 100%;
+  padding: 26px;
+  border-radius: 26px;
+  background: #0c1024;
+  border: 1.5px solid rgba(56, 232, 255, 0.35);
+  text-align: left;
+}
+
+.kruuj-ios-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.kruuj-ios-steps {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-@media (min-width: 768px) {
-  .pwa-toast {
-    display: none !important; /* Esconder completamente no desktop PC */
-  }
+.kruuj-ios-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.kruuj-ios-step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(56, 232, 255, 0.2);
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* --- MULTI-COLUMN PREMIUM FOOTER --- */

@@ -1007,6 +1007,83 @@ export default function App() {
   const [hasStartedPlayingInStage, setHasStartedPlayingInStage] = useState<boolean>(false);
   const [portalLoaderActive, setPortalLoaderActive] = useState<boolean>(true);
 
+  // --- Suporte Oficial PWA (Instalação na Tela Inicial / Home Screen) ---
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
+  const [showPwaInstallBanner, setShowPwaInstallBanner] = useState<boolean>(false);
+  const [showIosInstallModal, setShowIosInstallModal] = useState<boolean>(false);
+  const [isPwaInstalled, setIsPwaInstalled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(display-mode: standalone)').matches ||
+             (navigator as any).standalone === true ||
+             localStorage.getItem('kruuj_pwa_installed') === 'true';
+    }
+    return false;
+  });
+
+  const isIOSDevice = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+  useEffect(() => {
+    const dismissedTime = localStorage.getItem('kruuj_pwa_dismissed');
+    const isRecentlyDismissed = dismissedTime && (Date.now() - parseInt(dismissedTime, 10)) < 7 * 24 * 60 * 60 * 1000;
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+      if (!isRecentlyDismissed && !isPwaInstalled) {
+        setShowPwaInstallBanner(true);
+      }
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredInstallPrompt(null);
+      setShowPwaInstallBanner(false);
+      setIsPwaInstalled(true);
+      localStorage.setItem('kruuj_pwa_installed', 'true');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (isIOSDevice && !isPwaInstalled && !isRecentlyDismissed) {
+      const timer = setTimeout(() => {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+        if (!standalone) {
+          setShowPwaInstallBanner(true);
+        }
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, [isPwaInstalled, isIOSDevice]);
+
+  const handleInstallClick = async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      try {
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          setIsPwaInstalled(true);
+          setShowPwaInstallBanner(false);
+          localStorage.setItem('kruuj_pwa_installed', 'true');
+        }
+      } catch (err) {}
+      setDeferredInstallPrompt(null);
+    } else if (isIOSDevice) {
+      setShowIosInstallModal(true);
+    } else {
+      alert('Para instalar o KRUUJ na sua tela inicial, toque no menu do seu navegador (três pontinhos ⋮) e selecione "Instalar aplicativo" ou "Adicionar à tela inicial".');
+    }
+  };
+
+  const dismissPwaBanner = () => {
+    setShowPwaInstallBanner(false);
+    localStorage.setItem('kruuj_pwa_dismissed', String(Date.now()));
+  };
+
   // --- Histórico de Jogos Recentes (Requisito de MVP) ---
   interface RecentPlay {
     id: string;
@@ -3071,19 +3148,17 @@ export default function App() {
   }, [user, token, selectedGame]);
 
   const handleManualFullscreen = () => {
-    // No mobile, utilizamos Fullscreen Virtual CSS (100vw x 100dvh) para evitar o warning nativo do navegador ("to exit fullscreen drag from top")
-    if (isMobileMode) {
-      setIsMobileFullscreen(true);
-      return;
-    }
-    const target = document.getElementById('game-fullscreen-target') || document.querySelector('.iframe-container');
+    setIsMobileFullscreen(true);
+    const target = document.getElementById('game-fullscreen-target') || document.documentElement;
     if (!document.fullscreenElement && target) {
       if (target.requestFullscreen) {
         target.requestFullscreen().catch(() => {});
       } else if ((target as any).webkitRequestFullscreen) {
         (target as any).webkitRequestFullscreen();
+      } else if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
       }
-    } else {
+    } else if (document.fullscreenElement) {
       // SÓ permite sair do fullscreen se o lockscreen estiver DESATIVADO!
       if (!isScreenLocked && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
@@ -4525,48 +4600,6 @@ export default function App() {
                           </div>
                         )}
                       </div>
-
-                      
-                      {/* TELA DE ORIENTAÇÃO INTELIGENTE POKI (APENAS APÓS O CLIQUE EM JOGAR SE A ORIENTAÇÃO FOR INCOMPATÍVEL) */}
-                      {isMobileMode && hasStartedPlayingInStage && selectedGame && selectedGame.orientation !== 'both' && (
-                        (selectedGame.orientation === 'landscape' && (deviceOrientation === 'portrait' || window.innerHeight > window.innerWidth)) ||
-                        (selectedGame.orientation === 'portrait' && (deviceOrientation === 'landscape' || window.innerWidth > window.innerHeight))
-                      ) && (
-                        <div className="poki-rotate-shield">
-                          <div className="poki-rotate-card">
-                            <div className="poki-rotate-icon-anim">
-                              <Smartphone className="w-12 h-12 text-cyan-400 animate-phone-rotate" />
-                            </div>
-                            <h3 className="text-xl font-black text-white tracking-wide">
-                              {selectedGame.orientation === 'landscape'
-                                ? (currentLang === 'en' ? 'Rotate phone to Landscape' : currentLang === 'es' ? 'Gira tu celular a Horizontal' : 'Gire o celular na Horizontal')
-                                : (currentLang === 'en' ? 'Rotate phone to Portrait' : currentLang === 'es' ? 'Gira tu celular a Vertical' : 'Gire o celular na Vertical')
-                              }
-                            </h3>
-                            <p className="text-xs text-slate-300 max-w-xs">
-                              {currentLang === 'en'
-                                ? `"${selectedGame.title}" requires ${selectedGame.orientation} mode to play. Rotate your phone to start!`
-                                : currentLang === 'es'
-                                ? `"${selectedGame.title}" requiere modo ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'} para jugar. ¡Gira tu celular para comenzar!`
-                                : `"${selectedGame.title}" exige a tela na ${selectedGame.orientation === 'landscape' ? 'horizontal' : 'vertical'} para jogar. Gire o celular para começar!`
-                              }
-                            </p>
-                            <button 
-                              className="btn-secondary py-1.5 px-4 text-xs font-bold rounded-full mt-2"
-                              onClick={() => {
-                                if (document.fullscreenElement) {
-                                  document.exitFullscreen().catch(() => {});
-                                }
-                                setHasStartedPlayingInStage(false);
-                                setIsMobileFullscreen(false);
-                              }}
-                            >
-                              {currentLang === 'en' ? 'Back to Stage' : currentLang === 'es' ? 'Volver al Escenario' : 'Voltar ao Palco'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
 
                         {/* PARENT GATE EMBUTIDO NO PLAYER PARA SUPORTE TOTAL A FULLSCREEN */}
                         {showParentGate && (
@@ -6135,6 +6168,70 @@ export default function App() {
         isOpen={isDevModalOpen}
         onClose={() => setIsDevModalOpen(false)}
       />
+
+      {/* --- BANNER DE INSTALAÇÃO DO KRUUJ (PWA HOME SCREEN) --- */}
+      {showPwaInstallBanner && !isPwaInstalled && view !== 'playing' && (
+        <div className="kruuj-pwa-install-banner">
+          <div className="kruuj-pwa-banner-content">
+            <img src="/kruuj-avatar.png" alt="KRUUJ" className="kruuj-pwa-banner-icon" />
+            <div className="kruuj-pwa-banner-text">
+              <h4>Instalar KRUUJ no Celular</h4>
+              <p>Adicione à tela inicial para jogar em tela cheia sem barras do navegador!</p>
+            </div>
+          </div>
+          <div className="kruuj-pwa-banner-actions">
+            <button className="kruuj-pwa-install-btn" onClick={handleInstallClick}>
+              📲 INSTALAR
+            </button>
+            <button className="kruuj-pwa-dismiss-btn" onClick={dismissPwaBanner} title="Fechar">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- GUIA DE INSTALAÇÃO PARA IPHONE / IPAD (IOS SAFARI) --- */}
+      {showIosInstallModal && (
+        <div className="modal-backdrop" onClick={() => setShowIosInstallModal(false)} style={{ zIndex: 1000000000 }}>
+          <div className="glass-panel kruuj-ios-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="kruuj-ios-modal-header">
+              <img src="/kruuj-avatar.png" alt="KRUUJ" className="w-12 h-12 rounded-2xl border border-cyan-400/30 object-cover" />
+              <div>
+                <h3 className="text-lg font-black text-white">Instalar KRUUJ no seu iPhone</h3>
+                <p className="text-xs text-cyan-300">Atalho nativo na Tela de Início</p>
+              </div>
+            </div>
+
+            <div className="kruuj-ios-steps">
+              <div className="kruuj-ios-step-item">
+                <span className="kruuj-ios-step-num">1</span>
+                <p className="text-xs text-gray-200">
+                  No Safari, toque no botão <strong>Compartilhar</strong> (<span className="text-cyan-400 font-bold">⎋</span> na barra inferior do navegador).
+                </p>
+              </div>
+              <div className="kruuj-ios-step-item">
+                <span className="kruuj-ios-step-num">2</span>
+                <p className="text-xs text-gray-200">
+                  Role a lista e selecione <strong>"Adicionar à Tela de Início"</strong> (<span className="text-cyan-400 font-bold">⊞</span>).
+                </p>
+              </div>
+              <div className="kruuj-ios-step-item">
+                <span className="kruuj-ios-step-num">3</span>
+                <p className="text-xs text-gray-200">
+                  Toque em <strong>"Adicionar"</strong> no canto superior direito. Pronto! O app KRUUJ será criado na sua tela inicial em tela cheia!
+                </p>
+              </div>
+            </div>
+
+            <button 
+              className="btn-primary w-full py-3 justify-center text-sm font-black rounded-xl mt-5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white shadow-lg shadow-cyan-500/25"
+              onClick={() => { setShowIosInstallModal(false); dismissPwaBanner(); }}
+            >
+              ENTENDI, VOU ADICIONAR 🚀
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
