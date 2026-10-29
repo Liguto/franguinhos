@@ -4,7 +4,7 @@ import {
   Settings, HelpCircle, ArrowLeft, Star, Volume2, ShieldAlert, Sparkles,
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
   FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
-  MessageSquare, Send, Compass, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile,
+  MessageSquare, Send, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile,
   ThumbsUp, ThumbsDown, Flag, Code
 } from 'lucide-react';
 import { trackGameInteraction, getUserCohort } from './cohorts/cohortEngine';
@@ -526,7 +526,7 @@ const ShelfGameCard: React.FC<ShelfGameCardProps> = ({
 
 export default function App() {
   // --- Estados do Portal ---
-  const [view, setView] = useState<'home' | 'explore' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>('home');
+  const [view, setView] = useState<'home' | 'favorites' | 'profile' | 'details' | 'playing' | 'privacy' | 'terms' | 'contact' | 'report' | 'admin' | 'developers'>('home');
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [categories, setCategories] = useState<string[]>(['Tudo', 'Arcade', 'Memória', 'Ação', 'Educacional', 'Corrida', 'Puzzle', 'Aventura']);
@@ -3132,83 +3132,59 @@ export default function App() {
   // Garante que a categoria seja exibida com nomenclatura moderna e respeitosa
   const formatCategoryName = (cat: string) => (cat === 'Terceira Idade' ? 'Sênior Play' : cat);
 
-  // Filtragem de Jogos baseada nas preferências ativas e filtros dimensionais de exploração
+  // Filtragem de Jogos baseada nas preferências ativas e busca (Home)
   const getFilteredGames = () => {
     let result = [...games];
 
-    // Se estiver na tela Explorar, aplica os filtros da proposta oficial
-    if (view === 'explore') {
-      if (exploreAudience !== 'Todos') {
-        if (exploreAudience === 'Baby') result = result.filter(g => g.category === 'Bebês' || g.tags.includes('bebes'));
-        else if (exploreAudience === 'Kids') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('kids') || g.tags.includes('infantil'));
-        else if (exploreAudience === 'Play') result = result.filter(g => g.ageRating === 'Livre' || g.ageRating === '10+');
-        else if (exploreAudience === 'Family') result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
-        else if (exploreAudience === '60+') result = result.filter(g => g.category === 'Sênior Play' || g.category === 'Terceira Idade' || g.tags.includes('mente') || g.tags.includes('zen') || g.tags.includes('senior'));
-        else if (exploreAudience === 'Edu') result = result.filter(g => g.category === 'Educacional' || g.tags.includes('educacional'));
-      }
+    // 1. Filtragem por Preferência de Conteúdo (Home)
+    if (agePreference === 'bebes') {
+      result = result.filter(g => 
+        g.category === 'Bebês' || 
+        g.tags.some(t => ['bebes', 'bebe', 'ludico', 'cores'].includes(t.toLowerCase())) || 
+        g.slug === 'bubble-pop' || 
+        g.slug === 'memory-match'
+      );
+    } else if (agePreference === 'educacional') { // Kids
+      result = result.filter(g => 
+        g.category === 'Educacional' || 
+        g.category === 'Infantil' || 
+        g.category === 'Memória' || 
+        g.tags.some(t => ['kids', 'infantil', 'desenho', 'crianca', 'cores'].includes(t.toLowerCase())) || 
+        g.slug === 'math-run' || 
+        g.slug === 'memory-match'
+      );
+    } else if (agePreference === 'family') {
+      result = result.filter(g => 
+        g.category === 'Família' || 
+        g.tags.some(t => ['familia', 'casual', 'coop', 'amigos'].includes(t.toLowerCase())) || 
+        g.category === 'Corrida' || 
+        g.slug === 'kruujio'
+      );
+    } else if (agePreference === 'terceira_idade') { // 60+
+      result = result.filter(g => 
+        g.category === 'Sênior Play' || 
+        g.category === 'Terceira Idade' || 
+        g.category === 'Memória' || 
+        g.category === 'Puzzle' || 
+        g.tags.some(t => ['mente', 'zen', 'cerebro', 'raciocinio', 'tabuleiro', 'memoria', 'senior', '60+'].includes(t.toLowerCase())) || 
+        g.slug === 'sudoku-zen' || 
+        g.slug === 'kruujdoku'
+      );
+    } else if (agePreference === 'edu') {
+      result = result.filter(g => 
+        g.category === 'Educacional' || 
+        g.tags.some(t => ['educacional', 'educativo', 'aprendizado', 'matematica', 'logica', 'escola'].includes(t.toLowerCase())) || 
+        g.slug === 'math-run' || 
+        g.slug === 'kruujdoku'
+      );
+    }
 
-      if (exploreGenre !== 'Todos') {
-        result = result.filter(g => g.category === exploreGenre || g.subcategories.includes(exploreGenre) || g.tags.includes(exploreGenre.toLowerCase()));
-      }
-
-      if (exploreMoment !== 'Todos') {
-        if (exploreMoment === '5 minutos') result = result.filter(g => g.category === 'Arcade' || g.tags.includes('casual'));
-        else if (exploreMoment === 'Relaxar') result = result.filter(g => g.tags.includes('relaxante') || g.tags.includes('zen') || g.category === 'Bebês');
-        else if (exploreMoment === 'Desafio') result = result.filter(g => g.category === 'Ação' || g.category === 'Corrida');
-        else if (exploreMoment === 'Jogar junto') result = result.filter(g => g.category === 'Família' || g.tags.includes('familia'));
-        else if (exploreMoment === 'Exercitar a mente') result = result.filter(g => g.category === 'Memória' || g.category === 'Puzzle' || g.tags.includes('mente'));
-      }
-    } else {
-      // 1. Filtragem por Preferência de Conteúdo (Home)
-      if (agePreference === 'bebes') {
-        result = result.filter(g => 
-          g.category === 'Bebês' || 
-          g.tags.some(t => ['bebes', 'bebe', 'ludico', 'cores'].includes(t.toLowerCase())) || 
-          g.slug === 'bubble-pop' || 
-          g.slug === 'memory-match'
-        );
-      } else if (agePreference === 'educacional') { // Kids
-        result = result.filter(g => 
-          g.category === 'Educacional' || 
-          g.category === 'Infantil' || 
-          g.category === 'Memória' || 
-          g.tags.some(t => ['kids', 'infantil', 'desenho', 'crianca', 'cores'].includes(t.toLowerCase())) || 
-          g.slug === 'math-run' || 
-          g.slug === 'memory-match'
-        );
-      } else if (agePreference === 'family') {
-        result = result.filter(g => 
-          g.category === 'Família' || 
-          g.tags.some(t => ['familia', 'casual', 'coop', 'amigos'].includes(t.toLowerCase())) || 
-          g.category === 'Corrida' || 
-          g.slug === 'kruujio'
-        );
-      } else if (agePreference === 'terceira_idade') { // 60+
-        result = result.filter(g => 
-          g.category === 'Sênior Play' || 
-          g.category === 'Terceira Idade' || 
-          g.category === 'Memória' || 
-          g.category === 'Puzzle' || 
-          g.tags.some(t => ['mente', 'zen', 'cerebro', 'raciocinio', 'tabuleiro', 'memoria', 'senior', '60+'].includes(t.toLowerCase())) || 
-          g.slug === 'sudoku-zen' || 
-          g.slug === 'kruujdoku'
-        );
-      } else if (agePreference === 'edu') {
-        result = result.filter(g => 
-          g.category === 'Educacional' || 
-          g.tags.some(t => ['educacional', 'educativo', 'aprendizado', 'matematica', 'logica', 'escola'].includes(t.toLowerCase())) || 
-          g.slug === 'math-run' || 
-          g.slug === 'kruujdoku'
-        );
-      }
-
-      // 2. Filtragem por Categoria
-      if (activeCategory !== 'Tudo') {
-        result = result.filter(g => {
-          const mappedCat = getMappedCategory(g.category);
-          return mappedCat === activeCategory;
-        });
-      }
+    // 2. Filtragem por Categoria
+    if (activeCategory !== 'Tudo') {
+      result = result.filter(g => {
+        const mappedCat = getMappedCategory(g.category);
+        return mappedCat === activeCategory;
+      });
     }
 
     // 3. Filtragem por Busca
@@ -3500,7 +3476,7 @@ export default function App() {
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                if (view !== 'home' && view !== 'explore') {
+                if (view !== 'home') {
                   setView('home');
                 }
               }}
@@ -3537,7 +3513,7 @@ export default function App() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  if (view !== 'home' && view !== 'explore') {
+                  if (view !== 'home') {
                     setView('home');
                   }
                 }}
@@ -3650,7 +3626,7 @@ export default function App() {
             <div className="ad-slot-leaderboard mt-0 mb-8"></div>
           )}
 
-          {['home', 'explore', 'favorites', 'profile', 'details', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
+          {['home', 'favorites', 'profile', 'details', 'privacy', 'terms', 'contact', 'report'].includes(view) ? (
           <div className="kruuj-layout-framework">
             
             {/* SIDEBAR COMPACTA DA ESQUERDA (DESKTOP) */}
@@ -3662,14 +3638,6 @@ export default function App() {
               >
                 <Gamepad2 className="w-4 h-4" />
                 <span>{t.navHome}</span>
-              </button>
-
-              <button 
-                className={`kruuj-sidebar-btn ${view === 'explore' ? 'active' : ''}`}
-                onClick={() => { setView('explore'); setSelectedGame(null); }}
-              >
-                <Compass className="w-4 h-4" />
-                <span>{t.navExplore}</span>
               </button>
 
               <button 
@@ -4070,91 +4038,6 @@ export default function App() {
                     </>
                   )}
                 </>
-              )}
-
-              {/* VIEW: EXPLORAR / CATEGORIAS */}
-              {view === 'explore' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                      <Compass className="w-6 h-6 text-cyan-400" /> Explorar Catálogo
-                    </h2>
-                    <span className="text-xs text-gray-400 font-semibold">
-                      {getFilteredGames().length} jogos disponíveis
-                    </span>
-                  </div>
-
-                  {/* Filtro: Público */}
-                  <div className="kruuj-filter-group">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Público</span>
-                    <div className="kruuj-filter-chips">
-                      {['Todos', 'Baby', 'Kids', 'Play', 'Family', '60+', 'Edu'].map(aud => (
-                        <button
-                          key={aud}
-                          className={`kruuj-chip ${exploreAudience === aud ? 'active' : ''}`}
-                          onClick={() => setExploreAudience(aud)}
-                        >
-                          {aud === 'Baby' && '🐱 '}
-                          {aud === 'Kids' && '👦 '}
-                          {aud === 'Play' && '🎮 '}
-                          {aud === 'Family' && '👨‍👩‍👧 '}
-                          {aud === '60+' && '👵 '}
-                          {aud === 'Edu' && '🎓 '}
-                          {aud}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Filtro: Tipo de Jogo */}
-                  <div className="kruuj-filter-group">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tipo de jogo</span>
-                    <div className="kruuj-filter-chips">
-                      {['Todos', 'Ação', 'Corrida', 'Arcade', 'Puzzle', 'Memória', 'Educacional', 'Família'].map(genre => (
-                        <button
-                          key={genre}
-                          className={`kruuj-chip ${exploreGenre === genre ? 'active' : ''}`}
-                          onClick={() => setExploreGenre(genre)}
-                        >
-                          {genre}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Filtro: Momento */}
-                  <div className="kruuj-filter-group">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Momento</span>
-                    <div className="kruuj-filter-chips">
-                      {['Todos', '5 minutos', 'Relaxar', 'Desafio', 'Jogar junto', 'Exercitar a mente'].map(mom => (
-                        <button
-                          key={mom}
-                          className={`kruuj-chip ${exploreMoment === mom ? 'active' : ''}`}
-                          onClick={() => setExploreMoment(mom)}
-                        >
-                          {mom}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Grid de Resultados */}
-                  <div className="pt-4 border-t border-white/5">
-                    <div className="kruuj-shelf-row">
-                      {getFilteredGames().map(game => (
-                        <ShelfGameCard
-                          key={game.id}
-                          game={game}
-                          isFavorited={isGameFavorited(game)}
-                          onPlay={handlePlayGame}
-                          onToggleFavorite={handleToggleFavorite}
-                          isMobile={isMobileMode}
-                          renderCover={renderGameCover}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
               )}
 
               {/* VIEW: PERFIL & COMUNIDADE */}
@@ -5675,14 +5558,6 @@ export default function App() {
           >
             <Gamepad2 className="w-5 h-5" />
             <span>{t.navHome}</span>
-          </button>
-
-          <button 
-            className={`kruuj-bottom-btn ${view === 'explore' ? 'active' : ''}`}
-            onClick={() => { setView('explore'); setSelectedGame(null); }}
-          >
-            <Compass className="w-5 h-5" />
-            <span>{t.navExplore}</span>
           </button>
 
           <button 

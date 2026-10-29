@@ -4506,16 +4506,16 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   animation: float 4s ease-in-out infinite;
 }
 
-/* 2. Seletor de 6 Categorias (Públicos) em Pílulas 3D */
+/* 2. Seletor de 6 Categorias (Públicos) em Pílulas 3D — Compacto & Refinado */
 .kruuj-categories-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  gap: 10px;
 }
 
 .kruuj-cat-pill {
-  border-radius: 20px;
-  padding: 16px 10px;
+  border-radius: 14px;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4523,21 +4523,21 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   text-align: center;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
 
 .kruuj-cat-pill:hover {
-  transform: translateY(-5px) scale(1.02);
+  transform: translateY(-3px) scale(1.02);
   filter: brightness(1.15);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
 .kruuj-cat-pill.active {
   outline: 3px solid #ffffff;
   outline-offset: 2px;
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .kruuj-cat-baby {
@@ -4565,23 +4565,23 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 }
 
 .kruuj-cat-icon {
-  font-size: 1.8rem;
-  margin-bottom: 4px;
+  font-size: 1.35rem;
+  margin-bottom: 2px;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .kruuj-cat-title {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   font-weight: 900;
   color: #ffffff;
   line-height: 1.1;
 }
 
 .kruuj-cat-sub {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* 3. Grid de Banners Duplos (Novidade da Semana & Em Alta — Proporção Quadrada / 4:3) */
@@ -6270,25 +6270,25 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     object-fit: contain;
   }
 
-  /* 2. Categorias: Pílulas retangulares compactas em 3 colunas */
+  /* 2. Categorias: Pílulas retangulares compactas em 3 colunas — Delicado */
   .kruuj-categories-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 6px;
   }
 
   .kruuj-cat-pill {
-    padding: 8px 6px;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 6px 4px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
   }
 
   .kruuj-cat-icon {
-    font-size: 1.25rem;
-    margin-bottom: 2px;
+    font-size: 1.1rem;
+    margin-bottom: 1px;
   }
 
   .kruuj-cat-title {
-    font-size: 0.76rem;
+    font-size: 0.70rem;
   }
 
   .kruuj-cat-sub {
