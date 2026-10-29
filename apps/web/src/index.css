@@ -4700,23 +4700,25 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
 .kruuj-banner-center-action {
   position: absolute;
-  top: 50%;
+  bottom: 22px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   z-index: 6;
   pointer-events: auto;
 }
 
 .kruuj-play-btn-center {
   margin-top: 0 !important;
-  padding: 8px 20px !important;
+  padding: 8px 22px !important;
   font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
   border-radius: 9999px !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.45) !important;
 }
 
 .kruuj-play-btn-center:hover {
-  transform: scale(1.08) !important;
+  transform: scale(1.06) !important;
 }
 
 .kruuj-banner-card-footer {
@@ -6370,6 +6372,19 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
 
   .kruuj-banner-category-chip {
     display: none; /* No mobile, foca no botão jogar para economizar espaço horizontal */
+  }
+
+  .kruuj-banner-center-action {
+    bottom: 18px !important;
+  }
+
+  .kruuj-play-btn-center {
+    padding: 7px 18px !important;
+    font-size: 0.76rem !important;
+  }
+
+  .kruuj-featured-card-dots {
+    bottom: 5px !important;
   }
 
   /* 3. Banner Carrossel Destaque: Panorâmico suave e compacto */
