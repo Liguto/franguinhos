@@ -3149,6 +3149,10 @@ export default function App() {
 
   const handleManualFullscreen = () => {
     setIsMobileFullscreen(true);
+    // No mobile, utilizamos Fullscreen Virtual CSS (100vw x 100dvh) para evitar o warning nativo do navegador ("to exit fullscreen drag from top")
+    if (isMobileMode || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+      return;
+    }
     const target = document.getElementById('game-fullscreen-target') || document.documentElement;
     if (!document.fullscreenElement && target) {
       if (target.requestFullscreen) {

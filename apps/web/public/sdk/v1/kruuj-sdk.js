@@ -6,6 +6,20 @@
 (function (window) {
   'use strict';
 
+  // Neutraliza requestFullscreen em iframes no mobile para evitar a notificação do Android Chrome
+  if (typeof window !== 'undefined' && window.self !== window.top && typeof Element !== 'undefined') {
+    try {
+      Element.prototype.requestFullscreen = function () {
+        return Promise.resolve();
+      };
+      if (Element.prototype.webkitRequestFullscreen) {
+        Element.prototype.webkitRequestFullscreen = function () {
+          return Promise.resolve();
+        };
+      }
+    } catch (e) {}
+  }
+
   let isInitialized = false;
   let isGameplayActive = false;
   const pendingRequests = new Map();
