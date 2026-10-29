@@ -1,11 +1,13 @@
 // Service Worker oficial do KRUUJ Studio (PWA Cache & Offline Support)
-const CACHE_NAME = 'kruuj-v1';
+const CACHE_NAME = 'kruuj-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
   '/kruuj-avatar.png',
   '/kruuj-mascote.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
   '/kruuj-logo.png'
 ];
 
