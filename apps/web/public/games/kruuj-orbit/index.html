@@ -329,6 +329,18 @@
       transform: scale(1.04);
     }
 
+    .btn-danger-exit {
+      background: rgba(239, 68, 68, 0.12) !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      color: #fca5a5 !important;
+    }
+
+    .btn-danger-exit:hover {
+      background: rgba(239, 68, 68, 0.28) !important;
+      border-color: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
     /* Modal de Manual Cósmico / Como Jogar */
     .modal-backdrop {
       position: fixed;
@@ -532,7 +544,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
   <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD Superior com Vidas, Score, Recorde, Estrelas, Multiplicador de Combo e Toggle de Mira -->
+  <!-- HUD Superior com Vidas, Score, Recorde, Estrelas, Multiplicador de Combo, Toggle de Som e Mira -->
   <div class="hud">
     <div class="hud-group">
       <!-- Sistema de 3 Vidas -->
@@ -541,6 +553,12 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       <div class="hud-badge combo-badge" id="comboBadge">🔥 <span id="comboVal">1x</span></div>
       <button class="hud-badge hud-btn-help" id="btnHelpToggle" onclick="window.orbitGame.toggleGuide()" title="Alternar Guia de Previsão de Salto">
         <span>🎯</span> <span class="status" id="helpText">MIRA: ON</span>
+      </button>
+      <button class="hud-badge hud-btn-help" id="btnAudioToggle" onclick="window.orbitGame.toggleAudio()" title="Ativar ou Desativar Som (Tecla M)">
+        <span id="audioIcon">🔊</span> <span class="status" id="audioText">SOM: ON</span>
+      </button>
+      <button class="hud-badge hud-btn-help" id="btnPauseToggle" onclick="window.orbitGame.togglePause()" title="Pausar / Abrir Menu (Tecla P ou ESC)">
+        <span>⏸️</span> <span>MENU</span>
       </button>
       <button class="hud-badge hud-btn-help" onclick="window.orbitGame.openGuideModal()" title="Manual dos Planetas e Dicas">
         <span>📖</span> <span>GUIA</span>
@@ -584,9 +602,11 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; justify-content: center;">
-      <button class="btn-action" id="btnPlay" onclick="window.orbitGame.startGame()">JOGAR COM 3 VIDAS 🪐</button>
-      <button class="btn-secondary-guide" onclick="window.orbitGame.openGuideModal()">📖 MANUAL DE PLANETAS</button>
+    <div style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; max-width: 480px;">
+      <button class="btn-action" id="btnPlay" onclick="window.orbitGame.resumeOrStartGame()">JOGAR COM 3 VIDAS 🪐</button>
+      <button class="btn-secondary-guide" id="ovAudioBtn" onclick="window.orbitGame.toggleAudio()" title="Ativar ou desativar áudio">🔊 SOM: ATIVADO</button>
+      <button class="btn-secondary-guide" onclick="window.orbitGame.openGuideModal()">📖 MANUAL</button>
+      <button class="btn-secondary-guide btn-danger-exit" onclick="window.orbitGame.exitGame()" title="Sair do jogo e voltar ao portal">← VOLTAR AO PORTAL</button>
     </div>
   </div>
 
@@ -660,10 +680,23 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
   </div>
 
   <script>
-    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) =====
+    // ===== 1. GERENCIADOR DE ÁUDIO SINTÉTICO (WEBAUDIO) COM CONTROLE DE MUTE =====
     class SoundController {
       constructor() {
         this.ctx = null;
+        this.muted = localStorage.getItem('kruuj_orbit_muted') === 'true';
+      }
+
+      setMuted(val) {
+        this.muted = val;
+        try {
+          localStorage.setItem('kruuj_orbit_muted', val ? 'true' : 'false');
+        } catch(e) {}
+      }
+
+      toggleMuted() {
+        this.setMuted(!this.muted);
+        return this.muted;
       }
 
       init() {
@@ -677,6 +710,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playLaunch() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -700,6 +734,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playOrbitCapture(combo = 1) {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -725,6 +760,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playStarCollect() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -747,6 +783,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playPowerup() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -769,6 +806,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playPortalCheckpoint() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -789,6 +827,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playShieldSave() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -808,6 +847,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playWarning() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -830,6 +870,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
       }
 
       playCrash() {
+        if (this.muted) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -1480,6 +1521,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.updateGuideButtonUI();
+        this.updateAudioButtonUI();
 
         // Inicializa textos traduzidos nos elementos HTML
         const hintEl = document.getElementById('hintBar');
@@ -1497,9 +1539,26 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
 
         window.addEventListener('keydown', (e) => {
-          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+          if (e.code === 'KeyM') {
+            this.toggleAudio();
+          } else if (e.code === 'KeyP' || e.code === 'Escape') {
+            this.togglePause();
+          } else if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
             e.preventDefault();
             this.handleAction();
+          }
+        });
+
+        window.addEventListener('message', (e) => {
+          if (!e.data || typeof e.data !== 'object') return;
+          if (e.data.type === 'KRUUJ_RESUME_AUDIO') {
+            this.sound.init();
+          } else if (e.data.type === 'KRUUJ_MUTE') {
+            this.sound.setMuted(true);
+            this.updateAudioButtonUI();
+          } else if (e.data.type === 'KRUUJ_UNMUTE') {
+            this.sound.setMuted(false);
+            this.updateAudioButtonUI();
           }
         });
 
@@ -1541,6 +1600,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
           }
         } else if (this.state === 'over' || this.state === 'menu') {
           this.startGame();
+        } else if (this.state === 'pause') {
+          this.resumeOrStartGame();
         }
       }
 
@@ -1791,6 +1852,74 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
         }
       }
 
+      toggleAudio() {
+        const isMuted = this.sound.toggleMuted();
+        this.updateAudioButtonUI();
+        return !isMuted;
+      }
+
+      updateAudioButtonUI() {
+        const isMuted = this.sound.muted;
+        const btn = document.getElementById('btnAudioToggle');
+        const txt = document.getElementById('audioText');
+        const icon = document.getElementById('audioIcon');
+        const ovBtn = document.getElementById('ovAudioBtn');
+
+        if (txt) txt.textContent = isMuted ? 'SOM: OFF' : 'SOM: ON';
+        if (icon) icon.textContent = isMuted ? '🔇' : '🔊';
+        if (btn) {
+          if (isMuted) {
+            btn.classList.add('off');
+          } else {
+            btn.classList.remove('off');
+          }
+        }
+        if (ovBtn) {
+          ovBtn.textContent = isMuted ? '🔇 SOM: MUTADO' : '🔊 SOM: ATIVADO';
+        }
+      }
+
+      togglePause() {
+        if (this.state === 'play') {
+          this.state = 'pause';
+          document.getElementById('ovTitle').textContent = 'JOGO PAUSADO ⏸️';
+          document.getElementById('ovDesc').textContent = 'A coruja cósmica está aguardando em órbita segura. Retome quando estiver pronto!';
+          document.getElementById('ovScore').textContent = this.score;
+          document.getElementById('ovStars').textContent = this.starsCount;
+          document.getElementById('ovCheckpoint').textContent = this.highestCheckpointReached;
+          document.getElementById('ovBest').textContent = this.bestScore;
+          document.getElementById('ovStats').style.display = 'flex';
+          document.getElementById('btnPlay').textContent = 'CONTINUAR PARTIDA ▶';
+          document.getElementById('gameOverlay').classList.add('active');
+          document.getElementById('hintBar').style.display = 'none';
+        } else if (this.state === 'pause') {
+          this.resumeOrStartGame();
+        }
+      }
+
+      resumeOrStartGame() {
+        if (this.state === 'pause') {
+          this.state = 'play';
+          document.getElementById('gameOverlay').classList.remove('active');
+          document.getElementById('hintBar').style.display = 'block';
+        } else {
+          this.startGame();
+        }
+      }
+
+      exitGame() {
+        try {
+          window.parent.postMessage({ type: 'KRUUJ_EXIT_GAME' }, '*');
+          window.parent.postMessage({ type: 'game_exit', gameSlug: 'kruuj-orbit' }, '*');
+        } catch(e) {}
+        this.state = 'menu';
+        document.getElementById('ovTitle').textContent = 'KRUUJ ORBIT';
+        document.getElementById('ovDesc').textContent = 'Salto Gravitacional Contínuo! Você tem 3 Vidas (❤️). A cada 10 planetas você alcança uma Linha de Checkpoint tracejada.';
+        document.getElementById('ovStats').style.display = 'none';
+        document.getElementById('btnPlay').textContent = 'JOGAR COM 3 VIDAS 🪐';
+        document.getElementById('gameOverlay').classList.add('active');
+      }
+
       // Previsão de Trajetória Laser Guide
       renderTrajectoryPrediction(ctx) {
         if (!this.guideEnabled || !this.player || !this.player.currentPlanet) return;
@@ -1899,6 +2028,10 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--white);font-fami
 
       loop() {
         requestAnimationFrame(this.loop);
+
+        if (this.state === 'pause') {
+          return;
+        }
 
         try {
           this.ctx.fillStyle = '#070914';
