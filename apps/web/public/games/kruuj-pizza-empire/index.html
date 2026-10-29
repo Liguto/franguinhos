@@ -45,9 +45,7 @@ button:focus-visible{outline:3px solid #f2b632;outline-offset:2px}
 #joy{display:none;position:absolute;left:18px;bottom:18px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.22);border:3px solid rgba(255,255,255,.55);touch-action:none}
 #kn{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(200,55,45,.9);border:3px solid #fff;pointer-events:none}
 @media(pointer:coarse){#wrap:not(.menu) #joy{display:block}#eb{width:72px;height:72px;right:18px;bottom:24px}}
-#rot{display:none;position:fixed;inset:0;z-index:99;background:#1d1612;color:#f6e9d8;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px;font-size:1.2rem}#rot p{margin:0}
-#rot .ph{font-size:4rem;animation:rt 2.4s ease-in-out infinite}@keyframes rt{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
-@media(pointer:coarse) and (orientation:portrait){#rot{display:flex}}@media(prefers-reduced-motion:reduce){#rot .ph,#open.pulse{animation:none}}
+#rot{display:none !important}
 #hm{position:absolute;top:10px;right:10px;z-index:2;min-width:0;padding:9px 14px;background:var(--panel);color:var(--ink);border:2px solid var(--line);box-shadow:0 3px 0 rgba(0,0,0,.25)}
 #ov.lt{background:rgba(20,10,6,.1)}.lb{background:var(--line);color:var(--ink);min-width:0}.lb.sel{background:var(--grn);color:#fff}
 .mm input[type=range]{width:150px;padding:0;margin:0;border:0;accent-color:var(--red)}
@@ -123,7 +121,6 @@ body{background:#050b24;font-family:'Outfit','Fredoka',system-ui,sans-serif}
 
 <div id="wrap"><canvas id="c" width="800" height="460"></canvas><div id="hud"><img id="hudOwl" alt=""><div><span id="t-day"></span><b id="d"></b></div><div><span id="st"></span><b id="h"></b></div><div class="mn"><span id="t-mon"></span><b id="m"></b></div></div><button id="eb" aria-label="Interagir">E</button><button id="hm" onclick="pauseGame()"></button><button id="open" onclick="openDay()"></button><div id="tip" hidden></div><div id="tutb" hidden></div><div id="joy"><div id="kn"></div></div><div id="ov" hidden></div></div>
 
-<div id="rot"><div class="ph">📱</div><b>KRUUJ Pizza Empire</b><p id="rotT"></p></div>
 <script>
 const KruujLoader=(()=>{
   const $=id=>document.getElementById(id);

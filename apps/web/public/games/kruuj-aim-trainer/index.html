@@ -404,7 +404,7 @@
       if (S.phase === 'playing' || S.phase === 'countdown') updHud();
       const tm = touchMode(), act = S.phase === 'playing' || S.phase === 'countdown';
       if (tb.hidden === (tm && (act || editing))) tb.hidden = !tb.hidden;
-      rotEl.hidden = !(tm && act && root.clientHeight > root.clientWidth);
+      rotEl.hidden = true;
       fxs.forEach(f => { if (f.age < .25) { f.age += dt; const k = f.age / .25; f.m.scale.setScalar(f.r * (1 + k * 1.6)); f.m.material.opacity = Math.max(0, .8 * (1 - k)); if (k >= 1) f.m.visible = false; } });
       if (flashT > 0 && (flashT -= dt) <= 0) xh.classList.remove('h', 'm');
       if (st.fps) H.bl.textContent = Math.round(fps) + ' FPS' + tr('h_mouse') + tr(document.pointerLockElement === cv ? 'h_cap' : 'h_free'); else H.bl.textContent = '';
