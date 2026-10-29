@@ -7365,28 +7365,54 @@ html, body {
     font-size: 0.74rem !important;
   }
 
-  /* Subnav Mobile Tátil com Barra Fixada Suave */
-  .kruuj-dev-mobile-nav {
-    display: flex !important;
-    gap: 6px !important;
-    overflow-x: auto !important;
-    padding: 10px 12px !important;
-    background: #080d1d !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-    position: sticky !important;
-    top: 52px !important;
-    z-index: 90 !important;
+  /* Cápsula de Abas Segmentada no Mobile (Contida, elegante e sem atravessar a tela) */
+  .kruuj-dev-segmented-wrap {
+    width: 100%;
+    max-width: 480px;
+    margin: 18px auto 0;
+    padding: 0 16px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
   }
 
-  .kruuj-dev-mobile-nav::-webkit-scrollbar {
-    display: none !important;
+  .kruuj-dev-segmented-capsule {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    background: rgba(14, 21, 45, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 4px;
+    border-radius: 9999px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
   }
 
-  .kruuj-dev-mobile-nav .kruuj-dev-tab-item {
-    padding: 7px 14px !important;
-    font-size: 0.72rem !important;
+  .kruuj-dev-segmented-btn {
+    padding: 8px 2px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+
+  .kruuj-dev-segmented-btn:hover {
+    color: #ffffff;
+  }
+
+  .kruuj-dev-segmented-btn.active {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
   }
 
   /* Hero Mobile */

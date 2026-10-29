@@ -263,33 +263,35 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       </section>
 
       {/* =========================================================================
-          3. SUB-NAV MOBILE (TÁTIL & STICKY)
+          3. SELETOR DE ABAS MOBILE (CÁPSULA SEGMENTADA CONTIDA, SEM ATRAVESSAR A TELA)
           ========================================================================= */}
-      <div className="kruuj-dev-mobile-nav lg:hidden">
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`kruuj-dev-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
-        >
-          Visão Geral
-        </button>
-        <button
-          onClick={() => setActiveTab('sdk')}
-          className={`kruuj-dev-tab-item ${activeTab === 'sdk' ? 'active' : ''}`}
-        >
-          SDK Docs
-        </button>
-        <button
-          onClick={() => setActiveTab('validator')}
-          className={`kruuj-dev-tab-item ${activeTab === 'validator' ? 'active' : ''}`}
-        >
-          Validador CLI
-        </button>
-        <button
-          onClick={() => setActiveTab('submit')}
-          className={`kruuj-dev-tab-item ${activeTab === 'submit' ? 'active' : ''}`}
-        >
-          Submeter Jogo
-        </button>
+      <div className="kruuj-dev-segmented-wrap lg:hidden">
+        <div className="kruuj-dev-segmented-capsule">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`kruuj-dev-segmented-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          >
+            Visão Geral
+          </button>
+          <button
+            onClick={() => setActiveTab('sdk')}
+            className={`kruuj-dev-segmented-btn ${activeTab === 'sdk' ? 'active' : ''}`}
+          >
+            SDK
+          </button>
+          <button
+            onClick={() => setActiveTab('validator')}
+            className={`kruuj-dev-segmented-btn ${activeTab === 'validator' ? 'active' : ''}`}
+          >
+            Validador
+          </button>
+          <button
+            onClick={() => setActiveTab('submit')}
+            className={`kruuj-dev-segmented-btn ${activeTab === 'submit' ? 'active' : ''}`}
+          >
+            Publicar
+          </button>
+        </div>
       </div>
 
       {/* =========================================================================
