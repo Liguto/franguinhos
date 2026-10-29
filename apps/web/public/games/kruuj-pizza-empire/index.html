@@ -120,6 +120,7 @@ body{background:#050b24;font-family:'Outfit','Fredoka',system-ui,sans-serif}
 </div>
 
 <div id="wrap"><canvas id="c" width="800" height="460"></canvas><div id="hud"><img id="hudOwl" alt=""><div><span id="t-day"></span><b id="d"></b></div><div><span id="st"></span><b id="h"></b></div><div class="mn"><span id="t-mon"></span><b id="m"></b></div></div><button id="eb" aria-label="Interagir">E</button><button id="hm" onclick="pauseGame()"></button><button id="open" onclick="openDay()"></button><div id="tip" hidden></div><div id="tutb" hidden></div><div id="joy"><div id="kn"></div></div><div id="ov" hidden></div></div>
+<div id="rot" style="display:none !important;"><p id="rotT"></p></div>
 
 <script>
 const KruujLoader=(()=>{
@@ -603,7 +604,7 @@ function lampD(f){const L=S.dec.light,pts=f.big?[[f.x,f.y-40],[f.x,f.y+30]]:[[f.
     if(L==1){g.fillStyle='#f2b632';g.beginPath();g.moveTo(x-9,ly+9);g.lineTo(x-4,ly);g.lineTo(x+4,ly);g.lineTo(x+9,ly+9);g.closePath();g.fill();g.strokeStyle='#8a5a1a';g.lineWidth=1.2;g.stroke();ci(x,ly+10,2.5,'#fff4c8')}
     else{g.fillStyle='rgba(255,230,160,.2)';g.beginPath();g.arc(x,ly+5,12,0,7);g.fill();ci(x,ly+5,7,'#fff4c8');g.strokeStyle=L==3?'#e9c27a':'#b9a878';g.lineWidth=1.5;g.beginPath();g.arc(x,ly+5,7,0,7);g.stroke();rb(x-3,ly-3,6,4,1,L==3?'#e9c27a':'#8a7a5a')}})}
 function applyLang(){document.documentElement.lang=SET.lang=='en'?'en':'pt-BR';document.title=tr('title');
-  $('rotT').textContent=tr('rot');$('t-day').textContent=tr('day');$('t-mon').textContent=tr('money');$('open').textContent='🍕 '+tr('openb');$('hm').textContent='☰ '+tr('menu');}
+  const rEl=$('rotT');if(rEl)rEl.textContent=tr('rot');$('t-day').textContent=tr('day');$('t-mon').textContent=tr('money');$('open').textContent='🍕 '+tr('openb');$('hm').textContent='☰ '+tr('menu');}
 function startGame(isNew){ph='prep';t=0;menuOn=false;paused=false;tutMsg={until:0};cam.i=0;fixTut();rebuild();if(S.tut===0)setupTut();P.x=110;P.y=400;P.sx=S.skin;P.mu=S.skin=='m';P.pl=1;
   $('wrap').classList.remove('menu');$('ov').hidden=true;$('open').hidden=false;$('tip').hidden=true;save()}
 function showMenu(){ph='menu';menuOn=false;paused=false;$('wrap').classList.add('menu');const d=readSave();
