@@ -5216,18 +5216,6 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   opacity: 1 !important;
 }
 
-/* Compensação de Zoom para eliminar faixas pretas laterais de vídeos exportados com pillarbox */
-.poki-stage-video-loop[src*="defense"],
-.kruuj-card-video-preview[src*="defense"] {
-  transform: scale(1.36) !important;
-  object-fit: cover !important;
-}
-
-.kruuj-poki-card:hover .kruuj-card-video-preview[src*="defense"],
-.kruuj-game-card-clean:hover .kruuj-card-video-preview[src*="defense"] {
-  transform: scale(1.46) !important;
-}
-
 .kruuj-poki-overlay {
   position: absolute;
   inset: 0;

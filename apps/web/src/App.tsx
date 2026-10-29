@@ -3246,13 +3246,15 @@ export default function App() {
   }, [selectedGame, games, rightMosaicGames, stageShuffleSeed]);
 
   // Helper para renderizar a imagem de capa (foto real) ou ícone do jogo
-  const renderGameCover = (game: Game) => {
-    const validImage = 
-      (game.iconUrl && (game.iconUrl.startsWith('/') || game.iconUrl.startsWith('http')))
-        ? game.iconUrl
-        : ((game.bannerUrl && (game.bannerUrl.startsWith('http') || game.bannerUrl.startsWith('/'))) 
-          ? game.bannerUrl 
-          : null);
+  const renderGameCover = (game: Game, isWide?: boolean) => {
+    // Para cards horizontais / largos (como tile-2x1), prioriza o banner widescreen oficial para preencher 100% da tile sem barras
+    const validImage = isWide
+      ? ((game.bannerUrl && (game.bannerUrl.startsWith('/') || game.bannerUrl.startsWith('http')))
+          ? game.bannerUrl
+          : (game.iconUrl && (game.iconUrl.startsWith('/') || game.iconUrl.startsWith('http')) ? game.iconUrl : null))
+      : ((game.iconUrl && (game.iconUrl.startsWith('/') || game.iconUrl.startsWith('http')))
+          ? game.iconUrl
+          : (game.bannerUrl && (game.bannerUrl.startsWith('/') || game.bannerUrl.startsWith('http')) ? game.bannerUrl : null));
 
     if (validImage) {
       return (
@@ -3260,6 +3262,7 @@ export default function App() {
           src={validImage} 
           alt={game.title} 
           className="w-full h-full object-cover transition duration-300 group-hover:scale-105" 
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           loading="lazy"
         />
       );
