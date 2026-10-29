@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   ArrowLeft, Code, Sparkles, Shield, Zap, DollarSign, Check, Copy, 
   Terminal, Download, Rocket, Cpu, CheckCircle2, FileCode, Users, 
-  ExternalLink, ChevronRight, Layers, Smartphone
+  ExternalLink, ChevronRight, Layers, Smartphone, Play, Sliders
 } from 'lucide-react';
 
 interface DevelopersPageProps {
@@ -14,6 +14,12 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Simulador de Repasse Financeiro (70/30)
+  const [monthlyPlays, setMonthlyPlays] = useState<number>(150000);
+  const estimatedCpm = 38.00; // CPM médio combinado (Diretos + Programática)
+  const grossRevenue = (monthlyPlays / 1000) * estimatedCpm;
+  const developerShare = grossRevenue * 0.70;
 
   // Form State
   const [formData, setFormData] = useState({
@@ -42,95 +48,94 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#080E1A] text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="kruuj-dev-portal">
       
       {/* =========================================================================
-          1. HEADER DEDICADO DO DEVELOPER HUB (Padrão Stripe / Poki Devs)
+          1. HEADER DO DEVELOPER HUB (Padrão Stripe / Poki for Developers)
           ========================================================================= */}
-      <header className="sticky top-0 z-50 bg-[#0A1020]/95 backdrop-blur-xl border-b border-indigo-500/20 px-4 sm:px-8 py-3.5 transition-all shadow-lg shadow-black/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <header className="kruuj-dev-header">
+        <div className="kruuj-dev-header-inner">
           
           {/* Logo & Voltar */}
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="kruuj-dev-brand">
             <button
               onClick={onBackToGames}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-extrabold transition-all border border-white/10 hover:border-white/20 hover:-translate-x-0.5"
+              className="kruuj-dev-back-btn"
+              title="Voltar ao portal principal"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Voltar ao Catálogo</span>
+              <ArrowLeft style={{ width: 14, height: 14 }} />
+              <span>Voltar ao Portal</span>
             </button>
 
-            <div className="h-5 w-px bg-white/10 hidden sm:block" />
+            <div style={{ height: '20px', width: '1px', background: 'rgba(255,255,255,0.12)' }} />
 
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl filter drop-shadow">🦉</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <img 
+                src="/kruuj-mascote.png" 
+                alt="KRUUJ Mascote" 
+                style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(99,102,241,0.5))' }} 
+              />
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-sm sm:text-base tracking-wider text-white">KRUUJ</span>
-                  <span className="text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm tracking-wide">
-                    Developers
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '0.05em', color: '#ffffff' }}>KRUUJ</span>
+                  <span style={{ 
+                    fontSize: '0.65rem', 
+                    fontWeight: 900, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.08em',
+                    padding: '2px 8px', 
+                    borderRadius: '9999px', 
+                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    color: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(99,102,241,0.35)'
+                  }}>
+                    FOR DEVELOPERS
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>SDK v1.0 • Poki Standard Ativo</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.65rem', color: '#34d399', fontWeight: 700 }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} />
+                  <span>KruujSDK v1.0 • Poki-Grade Homologado</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Seletor de Abas Desktop (Pill Switcher) */}
-          <nav className="hidden lg:flex items-center gap-1 bg-[#0E1528] p-1.5 rounded-full border border-slate-800 text-xs font-extrabold shadow-inner">
+          {/* Navegação entre Abas (Desktop) */}
+          <nav className="kruuj-dev-tabs-nav">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                activeTab === 'overview'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              className={`kruuj-dev-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
             >
               Visão Geral & 70/30
             </button>
             <button
               onClick={() => setActiveTab('sdk')}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                activeTab === 'sdk'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              className={`kruuj-dev-tab-item ${activeTab === 'sdk' ? 'active' : ''}`}
             >
               Documentação do SDK
             </button>
             <button
               onClick={() => setActiveTab('validator')}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                activeTab === 'validator'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              className={`kruuj-dev-tab-item ${activeTab === 'validator' ? 'active' : ''}`}
             >
-              Robô Validador
+              Robô Validador CLI
             </button>
             <button
               onClick={() => setActiveTab('submit')}
-              className={`px-4 py-1.5 rounded-full transition-all ${
-                activeTab === 'submit'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
+              className={`kruuj-dev-tab-item ${activeTab === 'submit' ? 'active' : ''}`}
             >
-              Submeter Jogo
+              Publicar Jogo
             </button>
           </nav>
 
-          {/* CTA Principal */}
-          <div className="flex items-center gap-2">
+          {/* Botão de Ação Direta */}
+          <div>
             <button
               onClick={() => setActiveTab('submit')}
-              className="px-4 sm:px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white text-xs font-black tracking-wide shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
+              className="kruuj-dev-cta-btn"
             >
-              <Rocket className="w-3.5 h-3.5" />
-              <span>Publicar Jogo</span>
+              <Rocket style={{ width: 15, height: 15 }} />
+              <span>Submeter Jogo</span>
             </button>
           </div>
 
@@ -138,229 +143,282 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       </header>
 
       {/* =========================================================================
-          2. HERO SECTION DE ALTO IMPACTO (BENTO GRID + GRADIENTE CÓSMICO)
+          2. HERO SECTION DE ALTO IMPACTO COM GLOW CÓSMICO
           ========================================================================= */}
-      <section className="relative overflow-hidden pt-12 pb-16 px-4 sm:px-8 border-b border-indigo-500/10">
-        {/* Glows de Fundo */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/2 right-10 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <section className="kruuj-dev-hero">
+        <div className="kruuj-dev-hero-glow" />
 
-        <div className="max-w-5xl mx-auto space-y-8 relative z-10 text-center">
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1000px', margin: '0 auto' }}>
           
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-xs font-black uppercase tracking-widest shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>ECOSSISTEMA OFICIAL KRUUJ • REVENUE SHARE 70/30 • PIX EM REAIS</span>
+          <div className="kruuj-dev-pill-badge">
+            <Sparkles style={{ width: 14, height: 14, color: '#818cf8' }} />
+            <span>ECOSSISTEMA OFICIAL KRUUJ • REVENUE SHARE 70/30 • REPASSES VIA PIX</span>
           </div>
 
-          <h1 className="text-3xl sm:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
-            Publique seus jogos web para <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">milhões de jogadores</span>.
+          <h1 className="kruuj-dev-hero-title">
+            Publique seus jogos web para <span className="kruuj-dev-hero-gradient-text">milhões de jogadores</span>.
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-            A forma mais rápida e lucrativa de monetizar jogos HTML5 no Brasil. Sem taxas abusivas de entrada, com <b>70% de repasse líquido direto no seu PIX</b>, padrão PokiSDK nativo e homologação automatizada em segundos.
+          <p className="kruuj-dev-hero-desc">
+            A plataforma mais rápida, justa e lucrativa para criadores e estúdios HTML5 no Brasil. 
+            Sem taxas de entrada, com <b>70% de repasse líquido direto no seu PIX</b>, compatibilidade com o padrão PokiSDK e homologação automatizada em segundos.
           </p>
 
           {/* BENTO GRID DE 4 KPIS */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto pt-4">
+          <div className="kruuj-dev-kpi-grid">
             
-            <div className="p-4 rounded-2xl bg-[#0E1528]/80 border border-indigo-500/20 backdrop-blur-md text-left space-y-1 shadow-lg hover:border-indigo-500/40 transition-all">
-              <div className="text-xs font-bold text-slate-400">Divisão de Anúncios</div>
-              <div className="text-2xl sm:text-3xl font-black text-indigo-400">70% Líquido</div>
-              <div className="text-[11px] text-slate-400 leading-snug">Você recebe 70% de toda a receita de publicidade do seu jogo.</div>
+            <div className="kruuj-dev-kpi-card">
+              <div className="kruuj-dev-kpi-label">Divisão de Anúncios</div>
+              <div className="kruuj-dev-kpi-val" style={{ color: '#818cf8' }}>70% Líquido</div>
+              <div className="kruuj-dev-kpi-desc">Você recebe 70% de toda a receita de publicidade gerada pelo seu jogo no portal.</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0E1528]/80 border border-emerald-500/20 backdrop-blur-md text-left space-y-1 shadow-lg hover:border-emerald-500/40 transition-all">
-              <div className="text-xs font-bold text-slate-400">Repasses Nacionais</div>
-              <div className="text-2xl sm:text-3xl font-black text-emerald-400">Via PIX</div>
-              <div className="text-[11px] text-slate-400 leading-snug">Saques automáticos em reais a partir de R$ 200,00 sem taxas.</div>
+            <div className="kruuj-dev-kpi-card">
+              <div className="kruuj-dev-kpi-label">Repasse Sem Burocracia</div>
+              <div className="kruuj-dev-kpi-val" style={{ color: '#34d399' }}>Via PIX</div>
+              <div className="kruuj-dev-kpi-desc">Saques mensais em Reais (BRL) direto na sua conta bancária sem IOF ou taxas de câmbio.</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0E1528]/80 border border-amber-500/20 backdrop-blur-md text-left space-y-1 shadow-lg hover:border-amber-500/40 transition-all">
-              <div className="text-xs font-bold text-slate-400">Validador de Código</div>
-              <div className="text-2xl sm:text-3xl font-black text-amber-400">&lt; 10s</div>
-              <div className="text-[11px] text-slate-400 leading-snug">Robô CLI próprio que audita e emite selo de aprovação instantâneo.</div>
+            <div className="kruuj-dev-kpi-card">
+              <div className="kruuj-dev-kpi-label">Auditoria Técnica</div>
+              <div className="kruuj-dev-kpi-val" style={{ color: '#fbbf24' }}>&lt; 10s</div>
+              <div className="kruuj-dev-kpi-desc">Robô validador de compliance emite o relatório de homologação de forma instantânea.</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#0E1528]/80 border border-cyan-500/20 backdrop-blur-md text-left space-y-1 shadow-lg hover:border-cyan-500/40 transition-all">
-              <div className="text-xs font-bold text-slate-400">Padrão de Mercado</div>
-              <div className="text-2xl sm:text-3xl font-black text-cyan-400">100% Poki</div>
-              <div className="text-[11px] text-slate-400 leading-snug">Se o seu jogo já funciona na Poki, roda no KRUUJ sem alterações.</div>
+            <div className="kruuj-dev-kpi-card">
+              <div className="kruuj-dev-kpi-label">Compatibilidade Total</div>
+              <div className="kruuj-dev-kpi-val" style={{ color: '#38bdf8' }}>100% Poki</div>
+              <div className="kruuj-dev-kpi-desc">Se o seu jogo roda na Poki ou no CrazyGames, ele roda no KRUUJ sem nenhuma alteração.</div>
             </div>
 
+          </div>
+
+          {/* SIMULADOR INTERATIVO DE REPASSE (70/30) */}
+          <div className="kruuj-dev-sim-box">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sliders style={{ width: 20, height: 20, color: '#818cf8' }} />
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                  Simulador de Ganhos com Repasse 70/30
+                </h3>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>
+                CPM Médio Estimado: <b style={{ color: '#38bdf8' }}>R$ 38,00</b>
+              </span>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
+                <span style={{ color: '#94a3b8', fontWeight: 600 }}>Partidas jogadas por mês:</span>
+                <span style={{ color: '#ffffff', fontWeight: 900, fontSize: '1.05rem' }}>{monthlyPlays.toLocaleString('pt-BR')} partidas</span>
+              </div>
+              <input 
+                type="range" 
+                min="10000" 
+                max="1000000" 
+                step="10000" 
+                value={monthlyPlays} 
+                onChange={(e) => setMonthlyPlays(Number(e.target.value))}
+                className="kruuj-dev-sim-slider"
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#64748b', marginTop: '4px' }}>
+                <span>10.000</span>
+                <span>250.000</span>
+                <span>500.000</span>
+                <span>1.000.000 partidas</span>
+              </div>
+            </div>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '14px', 
+              background: 'rgba(6, 10, 24, 0.7)', 
+              padding: '20px', 
+              borderRadius: '16px', 
+              border: '1px solid rgba(255, 255, 255, 0.08)' 
+            }}>
+              <div>
+                <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Receita Bruta Gerada</span>
+                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#cbd5e1', marginTop: '4px' }}>
+                  {grossRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.72rem', color: '#34d399', textTransform: 'uppercase', fontWeight: 700 }}>Seu Repasse Líquido (70%)</span>
+                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
+                  {developerShare.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.75rem', color: '#818cf8', background: 'rgba(99, 102, 241, 0.12)', padding: '8px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                  ⚡ Transferência direta via PIX todo dia 15 sem retenções.
+                </span>
+              </div>
+            </div>
           </div>
 
         </div>
       </section>
 
       {/* =========================================================================
-          3. SELETOR DE ABAS MOBILE & SUB-NAV
+          3. SUB-NAV MOBILE
           ========================================================================= */}
-      <div className="lg:hidden px-4 pt-4 pb-2 bg-[#0A1020] border-b border-slate-800">
-        <div className="flex gap-2 overflow-x-auto pb-1 text-xs font-bold scrollbar-none">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-              activeTab === 'overview' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400'
-            }`}
-          >
-            Visão Geral & 70/30
-          </button>
-          <button
-            onClick={() => setActiveTab('sdk')}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-              activeTab === 'sdk' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400'
-            }`}
-          >
-            SDK Docs
-          </button>
-          <button
-            onClick={() => setActiveTab('validator')}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-              activeTab === 'validator' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400'
-            }`}
-          >
-            Robô Validador CLI
-          </button>
-          <button
-            onClick={() => setActiveTab('submit')}
-            className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-              activeTab === 'submit' ? 'bg-indigo-600 text-white shadow' : 'bg-slate-900 text-slate-400'
-            }`}
-          >
-            Submeter Jogo
-          </button>
-        </div>
+      <div style={{ 
+        display: 'flex', 
+        gap: '8px', 
+        overflowX: 'auto', 
+        padding: '14px 16px', 
+        background: '#090e1f', 
+        borderBottom: '1px solid rgba(255,255,255,0.08)' 
+      }} className="lg:hidden scrollbar-none">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`kruuj-dev-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
+        >
+          Visão Geral
+        </button>
+        <button
+          onClick={() => setActiveTab('sdk')}
+          className={`kruuj-dev-tab-item ${activeTab === 'sdk' ? 'active' : ''}`}
+        >
+          SDK Docs
+        </button>
+        <button
+          onClick={() => setActiveTab('validator')}
+          className={`kruuj-dev-tab-item ${activeTab === 'validator' ? 'active' : ''}`}
+        >
+          Validador CLI
+        </button>
+        <button
+          onClick={() => setActiveTab('submit')}
+          className={`kruuj-dev-tab-item ${activeTab === 'submit' ? 'active' : ''}`}
+        >
+          Submeter Jogo
+        </button>
       </div>
 
       {/* =========================================================================
           4. CONTEÚDO PRINCIPAL DAS ABAS
           ========================================================================= */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-10">
+      <main style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', padding: '40px 24px', flex: 1 }}>
 
         {/* -----------------------------------------------------------------------
             ABA 1: VISÃO GERAL & PARCERIA 70/30
             ----------------------------------------------------------------------- */}
         {activeTab === 'overview' && (
-          <div className="space-y-10 text-left">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', textAlign: 'left' }}>
             
             {/* Como funciona o fluxo de receita */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               
-              <div className="p-6 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-3.5 hover:border-indigo-500/40 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl font-black">
-                  <DollarSign className="w-6 h-6" />
+              <div style={{ 
+                background: 'rgba(13, 20, 42, 0.75)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)', 
+                borderRadius: '24px', 
+                padding: '28px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
+              }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                  <DollarSign style={{ width: 24, height: 24 }} />
                 </div>
-                <h3 className="text-lg font-black text-white">Monetização de Alto CPM</h3>
-                <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                  Seus jogos exibem anúncios no momento certo (intersticiais de pausa, game over e rewarded ads voluntários). A KRUUJ combina leilões globais com anunciantes diretos de alto valor (como MedSênior a CPM de até R$ 38,00).
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
+                  Monetização com Alta Conversão
+                </h3>
+                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  A KRUUJ combina leilões de anúncios programáticos globais (Google AdX, Magnite) com patrocinadores diretos de alta renda (como planos de saúde MedSênior na vertical 60+ a CPM de até R$ 38,00), maximizando sua receita por partida.
                 </p>
               </div>
 
-              <div className="p-6 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-3.5 hover:border-cyan-500/40 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl font-black">
-                  <Zap className="w-6 h-6" />
+              <div style={{ 
+                background: 'rgba(13, 20, 42, 0.75)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)', 
+                borderRadius: '24px', 
+                padding: '28px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
+              }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                  <Zap style={{ width: 24, height: 24 }} />
                 </div>
-                <h3 className="text-lg font-black text-white">Compatível com PokiSDK</h3>
-                <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                  Se seu estúdio já publica na Poki ou no CrazyGames, o jogo já está 100% pronto. Nosso SDK espelha os comandos <code className="text-cyan-300">gameLoadingFinished</code>, <code className="text-cyan-300">gameplayStart</code> e <code className="text-cyan-300">commercialBreak</code> sem refatoração.
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
+                  Padrão PokiSDK Nativo
+                </h3>
+                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  Zero esforço de migração: se o seu jogo já foi compilado para a Poki, CrazyGames ou GamePix, ele roda diretamente no KRUUJ Studio sem alterar uma única linha de código. O objeto <code style={{ color: '#38bdf8' }}>window.PokiSDK</code> é emulado nativamente.
                 </p>
               </div>
 
-              <div className="p-6 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-3.5 hover:border-pink-500/40 transition-all shadow-xl">
-                <div className="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl font-black">
-                  <Shield className="w-6 h-6" />
+              <div style={{ 
+                background: 'rgba(13, 20, 42, 0.75)', 
+                border: '1px solid rgba(255, 255, 255, 0.1)', 
+                borderRadius: '24px', 
+                padding: '28px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
+              }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                  <Shield style={{ width: 24, height: 24 }} />
                 </div>
-                <h3 className="text-lg font-black text-white">Proteção e LGPD First-Party</h3>
-                <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                  Zero coleta de dados sensíveis ou CPF de usuários. Os jogos rodam em contêineres sandbox seguros, protegendo os direitos autorais da sua obra e garantindo conformidade jurídica completa.
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
+                  Segurança Jurídica & LGPD
+                </h3>
+                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                  Seu código roda isolado em sandbox de alta segurança. Os contratos de publishing são transparentes, sem cessão de propriedade intelectual — o jogo permanece 100% sob a propriedade do seu estúdio.
                 </p>
               </div>
 
             </div>
 
-            {/* Comparativo de Plataformas */}
-            <div className="rounded-3xl bg-[#0A1020] border border-indigo-500/20 p-6 sm:p-8 space-y-6 shadow-2xl">
-              <div>
-                <h3 className="text-lg sm:text-xl font-black text-white">Por que publicar na KRUUJ?</h3>
-                <p className="text-xs text-slate-400">Veja o comparativo frente a lojas tradicionais e portais internacionais:</p>
+            {/* Pipeline de Publicação em 4 Passos */}
+            <div style={{ 
+              background: 'rgba(10, 15, 34, 0.9)', 
+              border: '1px solid rgba(99, 102, 241, 0.25)', 
+              borderRadius: '28px', 
+              padding: '36px',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.5)'
+            }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                  Como Publicar seu Jogo no KRUUJ (Pipeline em 4 Passos)
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '6px' }}>
+                  Da sua máquina para a vitrine em menos de 24 horas:
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 space-y-2">
-                  <div className="font-black text-indigo-400 text-sm">KRUUJ for Developers</div>
-                  <div className="text-slate-300">• <b>70% de repasse líquido</b></div>
-                  <div className="text-slate-300">• Pagamento via <b>PIX em Reais</b></div>
-                  <div className="text-slate-300">• Saque mínimo de <b>R$ 200,00</b></div>
-                  <div className="text-slate-300">• Validador de código em <b>10 segundos</b></div>
-                  <div className="text-slate-300">• Suporte técnico nativo em português</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                
+                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#6366f1', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>1</div>
+                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Integre o KruujSDK</b>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+                    Adicione a tag script e chame <code style={{ color: '#818cf8' }}>gameLoadingFinished()</code> e <code style={{ color: '#818cf8' }}>gameplayStart()</code>.
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-slate-400">
-                  <div className="font-bold text-slate-300 text-sm">Lojas Tradicionais (App Store / Play)</div>
-                  <div>• Taxa de inscrição anual/única ($25 a $99)</div>
-                  <div>• Repasse menor (70% ou 85% pós taxas)</div>
-                  <div>• Retenção de câmbio e IOF internacional</div>
-                  <div>• Processos manuais de revisão de dias</div>
+                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#06b6d4', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>2</div>
+                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Rode o Validador</b>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+                    Execute <code style={{ color: '#38bdf8' }}>node check-game.js</code> para auditar tamanho, viewport e áudio em 10s.
+                  </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-slate-400">
-                  <div className="font-bold text-slate-300 text-sm">Portais Genéricos</div>
-                  <div>• Divisão opaca de 50% ou menor</div>
-                  <div>• Pagamento via Wire / PayPal com taxas</div>
-                  <div>• Demora de aprovação e sem suporte</div>
-                  <div>• CPM baixo sem anúncios diretos</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Requisitos Obrigatórios do Processo 001 */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-base sm:text-lg font-black text-white">Checklist de Homologação (KRUUJ-PROC-001)</h3>
-                  <p className="text-xs text-slate-400">Antes de submeter, garanta que seu jogo cumpre as 4 regras de ouro:</p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('validator')}
-                  className="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-bold transition-all border border-indigo-500/20 flex items-center gap-1.5 w-fit"
-                >
-                  <Terminal className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Testar com o Validador</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
-                <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <b className="text-white">Pacote Autocontido (máx 18 MB):</b>
-                    <p className="text-slate-400 leading-normal">Imagens em WebP, áudios comprimidos (128kbps) e caminhos relativos de assets.</p>
-                  </div>
+                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ec4899', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>3</div>
+                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Envie o ZIP</b>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+                    Submeta o arquivo build através do formulário com seu e-mail e chave PIX cadastrada.
+                  </p>
                 </div>
 
-                <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <b className="text-white">Mobile First & Sem Scroll:</b>
-                    <p className="text-slate-400 leading-normal">Viewport travado (<code className="text-indigo-300">user-scalable=no</code>) e CSS com <code className="text-indigo-300">touch-action: none</code>.</p>
-                  </div>
+                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>4</div>
+                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Receba 70% no PIX</b>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+                    Seu jogo entra no ar no mosaico Bento Grid e os repasses mensais caem direto na sua conta.
+                  </p>
                 </div>
 
-                <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <b className="text-white">Áudio com Botão de Mute:</b>
-                    <p className="text-slate-400 leading-normal">Sem autoplay na abertura da página e com botão de silenciar som acessível na interface.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800/80">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <b className="text-white">Zona de Segurança Mobile (68px):</b>
-                    <p className="text-slate-400 leading-normal">Afaste botões vitais do canto superior esquerdo para não colidir com o botão de retorno do portal.</p>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -371,138 +429,106 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
             ABA 2: DOCUMENTAÇÃO DO KRUUJ SDK
             ----------------------------------------------------------------------- */}
         {activeTab === 'sdk' && (
-          <div className="space-y-8 text-left">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', textAlign: 'left' }}>
             
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-black uppercase tracking-wider">
-                <Code className="w-3.5 h-3.5" />
-                <span>INTEGRAÇÃO TÉCNICA EM 4 PASSOS</span>
+            <div>
+              <div className="kruuj-dev-pill-badge">
+                <Code style={{ width: 14, height: 14, color: '#38bdf8' }} />
+                <span>GUIA TÉCNICO OFICIAL DE INTEGRAÇÃO</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">Manual do Desenvolvedor — KRUUJ SDK</h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-                O SDK do KRUUJ roda dentro do iframe do seu jogo e cuida da comunicação com o portal, sincronização de loading e exibição de comerciais.
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', margin: '8px 0' }}>
+                Documentação do KruujSDK & PokiBridge
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, maxWidth: '650px' }}>
+                O KruujSDK gerencia o ciclo de vida do jogo no portal, sincroniza o término de carregamento e dispara quebras comerciais sem travar o áudio.
               </p>
             </div>
 
-            {/* Passo 1 */}
-            <div className="rounded-3xl bg-[#0E1528] border border-slate-800 overflow-hidden shadow-xl">
-              <div className="px-6 py-4 bg-[#0A1020] border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+            {/* Código 1: Importação */}
+            <div className="kruuj-dev-code-editor">
+              <div className="kruuj-dev-code-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="kruuj-dev-code-dots">
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
                   </div>
-                  <span className="text-xs font-bold text-slate-300">Passo 1: Importação no index.html</span>
+                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>index.html — Inclusão no &lt;head&gt;</span>
                 </div>
                 <button
                   onClick={() => handleCopy('<script src="/sdk/v1/kruuj-sdk.js"></script>', 'sdk1')}
-                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-extrabold flex items-center gap-1.5 transition-all border border-white/10"
+                  className="kruuj-dev-back-btn"
+                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
                 >
-                  {copiedCode === 'sdk1' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedCode === 'sdk1' ? 'Copiado!' : 'Copiar'}</span>
+                  {copiedCode === 'sdk1' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
+                  <span>{copiedCode === 'sdk1' ? 'Copiado!' : 'Copiar Script'}</span>
                 </button>
               </div>
-              <div className="p-6 space-y-2">
-                <p className="text-xs text-slate-400">Adicione a tag no &lt;head&gt; do seu jogo antes dos scripts de gameplay:</p>
-                <pre className="text-xs font-mono text-emerald-300 bg-[#060812] p-4 rounded-2xl border border-slate-900 overflow-x-auto">
-{`<script src="/sdk/v1/kruuj-sdk.js"></script>`}
-                </pre>
+              <div className="kruuj-dev-code-body">
+                <span style={{ color: '#64748b' }}>&lt;!-- Importe o SDK oficial no cabeçalho antes de qualquer script do jogo --&gt;</span><br />
+                <span style={{ color: '#f43f5e' }}>&lt;script</span> <span style={{ color: '#38bdf8' }}>src</span>=<span style={{ color: '#34d399' }}>"/sdk/v1/kruuj-sdk.js"</span><span style={{ color: '#f43f5e' }}>&gt;&lt;/script&gt;</span>
               </div>
             </div>
 
-            {/* Passo 2 */}
-            <div className="rounded-3xl bg-[#0E1528] border border-slate-800 overflow-hidden shadow-xl">
-              <div className="px-6 py-4 bg-[#0A1020] border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+            {/* Código 2: Inicialização */}
+            <div className="kruuj-dev-code-editor">
+              <div className="kruuj-dev-code-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="kruuj-dev-code-dots">
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
                   </div>
-                  <span className="text-xs font-bold text-slate-300">Passo 2: Notificar Fim do Carregamento (Loading Finished)</span>
+                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>game.js — Fim do Carregamento (Loading Finished)</span>
                 </div>
                 <button
-                  onClick={() => handleCopy(`KruujSDK.init().then(() => {\n  KruujSDK.gameLoadingFinished();\n});`, 'sdk2')}
-                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-extrabold flex items-center gap-1.5 transition-all border border-white/10"
+                  onClick={() => handleCopy("KruujSDK.init().then(() => {\n  KruujSDK.gameLoadingFinished();\n});", 'sdk2')}
+                  className="kruuj-dev-back-btn"
+                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
                 >
-                  {copiedCode === 'sdk2' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === 'sdk2' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
                   <span>{copiedCode === 'sdk2' ? 'Copiado!' : 'Copiar'}</span>
                 </button>
               </div>
-              <div className="p-6 space-y-2">
-                <p className="text-xs text-slate-400">Assim que imagens, sons e o Canvas estiverem prontos:</p>
-                <pre className="text-xs font-mono text-cyan-300 bg-[#060812] p-4 rounded-2xl border border-slate-900 overflow-x-auto">
-{`KruujSDK.init().then(() => {
-  KruujSDK.gameLoadingFinished(); // Libera a tela do portal
-});`}
-                </pre>
+              <div className="kruuj-dev-code-body">
+                <span style={{ color: '#64748b' }}>// Assim que texturas, áudios e Canvas estiverem prontos para jogar:</span><br />
+                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>init</span>().<span style={{ color: '#38bdf8' }}>then</span>(() =&gt; &#123;<br />
+                &nbsp;&nbsp;<span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameLoadingFinished</span>(); <span style={{ color: '#64748b' }}>// Desativa o loader de abertura do portal</span><br />
+                &#125;);
               </div>
             </div>
 
-            {/* Passo 3 */}
-            <div className="rounded-3xl bg-[#0E1528] border border-slate-800 overflow-hidden shadow-xl">
-              <div className="px-6 py-4 bg-[#0A1020] border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+            {/* Código 3: Partida & Anúncios */}
+            <div className="kruuj-dev-code-editor">
+              <div className="kruuj-dev-code-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="kruuj-dev-code-dots">
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
+                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
                   </div>
-                  <span className="text-xs font-bold text-slate-300">Passo 3: Início e Encerramento de Partidas (Analytics)</span>
+                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>game.js — Início de Partida e Comerciais (70/30)</span>
                 </div>
                 <button
-                  onClick={() => handleCopy(`// Quando o jogador clica em "JOGAR" ou começa a partida:\nKruujSDK.gameplayStart();\n\n// Quando ocorre Game Over, Vitória ou Pausa:\nKruujSDK.gameplayStop();`, 'sdk3')}
-                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-extrabold flex items-center gap-1.5 transition-all border border-white/10"
+                  onClick={() => handleCopy("// 1. Ao iniciar a gameplay:\nKruujSDK.gameplayStart();\n\n// 2. No Game Over ou Pausa:\nKruujSDK.gameplayStop();\n\n// 3. Exibir anúncio recompensado para reviver:\nKruujSDK.rewardedBreak(() => {\n  pauseAudio();\n}).then((rewardGiven) => {\n  resumeAudio();\n  if (rewardGiven) {\n    player.lives = 3;\n  }\n});", 'sdk3')}
+                  className="kruuj-dev-back-btn"
+                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
                 >
-                  {copiedCode === 'sdk3' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === 'sdk3' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
                   <span>{copiedCode === 'sdk3' ? 'Copiado!' : 'Copiar'}</span>
                 </button>
               </div>
-              <div className="p-6 space-y-2">
-                <p className="text-xs text-slate-400">É assim que calculamos o tempo jogado para auditoria e repasse financeiro:</p>
-                <pre className="text-xs font-mono text-slate-200 bg-[#060812] p-4 rounded-2xl border border-slate-900 overflow-x-auto">
-{`// Quando o jogador clica em "JOGAR" ou começa a partida:
-KruujSDK.gameplayStart();
-
-// Quando ocorre Game Over, Vitória ou Pausa:
-KruujSDK.gameplayStop();`}
-                </pre>
-              </div>
-            </div>
-
-            {/* Passo 4 */}
-            <div className="rounded-3xl bg-[#0E1528] border border-slate-800 overflow-hidden shadow-xl">
-              <div className="px-6 py-4 bg-[#0A1020] border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-300">Passo 4: Vídeos Recompensados para Reviver (Rewarded Ads)</span>
-                </div>
-                <button
-                  onClick={() => handleCopy(`function assistirVideoParaReviver() {\n  KruujSDK.rewardedBreak(() => {\n    // Pausar sons do jogo enquanto o comercial é assistido\n  }).then((sucesso) => {\n    if (sucesso) {\n      jogador.vidas = 3; // Recompensa concedida!\n    }\n  });\n}`, 'sdk4')}
-                  className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-extrabold flex items-center gap-1.5 transition-all border border-white/10"
-                >
-                  {copiedCode === 'sdk4' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedCode === 'sdk4' ? 'Copiado!' : 'Copiar'}</span>
-                </button>
-              </div>
-              <div className="p-6 space-y-2">
-                <p className="text-xs text-slate-400">Ofereça vidas ou moedas extras com anúncios voluntários de alta conversão:</p>
-                <pre className="text-xs font-mono text-purple-300 bg-[#060812] p-4 rounded-2xl border border-slate-900 overflow-x-auto">
-{`function assistirVideoParaReviver() {
-  KruujSDK.rewardedBreak(() => {
-    // Pausar sons do jogo enquanto o comercial é assistido
-  }).then((sucesso) => {
-    if (sucesso) {
-      jogador.vidas = 3; // Recompensa concedida!
-    }
-  });
-}`}
-                </pre>
+              <div className="kruuj-dev-code-body">
+                <span style={{ color: '#64748b' }}>// 1. Quando o jogador começa a partida (para telemetria e tempo jogado):</span><br />
+                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameplayStart</span>();<br /><br />
+                <span style={{ color: '#64748b' }}>// 2. No Game Over, Vitória ou Pausa de Fase:</span><br />
+                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameplayStop</span>();<br /><br />
+                <span style={{ color: '#64748b' }}>// 3. Recompensa opcional para reviver (Rewarded Ad de alta monetização):</span><br />
+                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>rewardedBreak</span>(() =&gt; &#123; <span style={{ color: '#64748b' }}>/* Pausar sons */</span> &#125;).<span style={{ color: '#38bdf8' }}>then</span>((<span style={{ color: '#f59e0b' }}>rewardGiven</span>) =&gt; &#123;<br />
+                &nbsp;&nbsp;<span style={{ color: '#f43f5e' }}>if</span> (rewardGiven) &#123;<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;player.lives = <span style={{ color: '#38bdf8' }}>3</span>; <span style={{ color: '#64748b' }}>// Recompensa liberada!</span><br />
+                &nbsp;&nbsp;&#125;<br />
+                &#125;);
               </div>
             </div>
 
@@ -513,60 +539,77 @@ KruujSDK.gameplayStop();`}
             ABA 3: ROBÔ VALIDADOR LOCAL (CLI)
             ----------------------------------------------------------------------- */}
         {activeTab === 'validator' && (
-          <div className="space-y-8 text-left">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-black uppercase tracking-wider">
-                <Terminal className="w-3.5 h-3.5" />
-                <span>AUDITORIA TÉCNICA OFICIAL KRUUJ-PROC-001</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', textAlign: 'left' }}>
+            
+            <div>
+              <div className="kruuj-dev-pill-badge">
+                <Terminal style={{ width: 14, height: 14, color: '#fbbf24' }} />
+                <span>HOMOLOGAÇÃO AUTOMATIZADA EM 10 SEGUNDOS</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">Robô Validador Automatizado (CLI)</h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
-                Não perca tempo esperando dias por aprovação. Nosso robô roda localmente na sua máquina em segundos e aponta com precisão qualquer ponto de melhoria antes do envio.
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', margin: '8px 0' }}>
+                Robô Validador de Compliance (CLI)
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, maxWidth: '650px' }}>
+                Audite seu jogo localmente antes de enviar. O script oficial verifica tamanho do pacote, viewport mobile, colisão de botões e ausência de vulnerabilidades de segurança.
               </p>
             </div>
 
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-6 shadow-xl">
+            <div style={{ 
+              background: 'rgba(14, 21, 45, 0.8)', 
+              border: '1px solid rgba(255, 255, 255, 0.1)', 
+              borderRadius: '24px', 
+              padding: '32px',
+              boxShadow: '0 12px 36px rgba(0,0,0,0.45)' 
+            }}>
               
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-black">1</span>
-                  <h3 className="text-sm font-black text-white">Baixe o script oficial para sua pasta de trabalho</h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  O arquivo <code>check-game.js</code> possui zero dependências externas. Tudo o que você precisa é ter o Node.js instalado.
+              <div style={{ marginBottom: '24px' }}>
+                <b style={{ color: '#ffffff', fontSize: '1rem', display: 'block', marginBottom: '6px' }}>1. Baixe o Script Oficial</b>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: 0 }}>
+                  Script em Node.js com zero dependências externas.
                 </p>
-                <a
-                  href="/scripts/check-game.js"
-                  download="check-game.js"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold tracking-wide transition-all shadow-lg shadow-indigo-600/30"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Baixar check-game.js (Script Oficial)</span>
-                </a>
+                <div style={{ marginTop: '14px' }}>
+                  <a
+                    href="/scripts/check-game.js"
+                    download="check-game.js"
+                    className="kruuj-dev-cta-btn"
+                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' }}
+                  >
+                    <Download style={{ width: 15, height: 15 }} />
+                    <span>Baixar check-game.js (Versão Oficial)</span>
+                  </a>
+                </div>
               </div>
 
-              <div className="h-px bg-slate-800" />
+              <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '24px 0' }} />
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-black">2</span>
-                  <h3 className="text-sm font-black text-white">Execute no CMD ou Terminal apontando para seu jogo</h3>
+              <div>
+                <b style={{ color: '#ffffff', fontSize: '1rem', display: 'block', marginBottom: '6px' }}>2. Execute o Teste no seu Terminal</b>
+                <div className="kruuj-dev-code-editor" style={{ marginTop: '12px', marginBottom: '16px' }}>
+                  <div className="kruuj-dev-code-body" style={{ color: '#34d399' }}>
+                    $ node check-game.js ./pasta-do-seu-jogo
+                  </div>
                 </div>
-                <pre className="text-xs font-mono text-emerald-300 bg-[#060812] p-4 rounded-2xl border border-slate-900 overflow-x-auto">
-node check-game.js ./pasta-do-seu-jogo
-                </pre>
-                <div className="p-4 rounded-2xl bg-black/40 border border-slate-800 text-xs text-slate-300 space-y-1.5">
-                  <b className="text-indigo-400">O que o robô audita em menos de 10 segundos:</b>
-                  <p>• Integridade do <code className="text-slate-200">index.html</code> e ausência de caminhos locais absolutos (ex: <code className="text-slate-200">C:\</code>).</p>
-                  <p>• Bloqueio de vulnerabilidades (<code className="text-slate-200">eval()</code>, <code className="text-slate-200">document.write()</code> e modais <code className="text-slate-200">alert()</code>).</p>
-                  <p>• Viewport mobile com <code className="text-slate-200">user-scalable=no</code> e trava de rolagem via <code className="text-slate-200">touch-action: none</code>.</p>
-                  <p>• Respeito à zona de exclusão de 68px do botão Poki no canto superior esquerdo.</p>
-                  <p>• Verificação de integridade de assets (garante que nenhum arquivo dê erro 404).</p>
-                  <p>• Presença dos métodos obrigatórios do KruujSDK e botão de silenciar áudio.</p>
+
+                <div style={{ 
+                  background: 'rgba(6, 10, 24, 0.6)', 
+                  border: '1px solid rgba(255, 255, 255, 0.08)', 
+                  borderRadius: '16px', 
+                  padding: '20px',
+                  fontSize: '0.82rem',
+                  lineHeight: 1.7,
+                  color: '#cbd5e1'
+                }}>
+                  <b style={{ color: '#fbbf24', display: 'block', marginBottom: '8px' }}>O que o Robô audita automaticamente:</b>
+                  <div>✓ Pacote autocontido de no máximo 18 MB com caminhos relativos.</div>
+                  <div>✓ Viewport mobile com <code style={{ color: '#818cf8' }}>user-scalable=no</code> e sem rolagem de página.</div>
+                  <div>✓ Desvio de segurança de 68px no topo para não colidir com o botão flutuante KRUUJ.</div>
+                  <div>✓ Inicialização correta de <code style={{ color: '#818cf8' }}>KruujSDK.gameLoadingFinished()</code>.</div>
+                  <div>✓ Áudio compatível com WebAudio sem bloqueio de autoplay em navegadores modernos.</div>
                 </div>
               </div>
 
             </div>
+
           </div>
         )}
 
@@ -574,129 +617,145 @@ node check-game.js ./pasta-do-seu-jogo
             ABA 4: SUBMETER JOGO
             ----------------------------------------------------------------------- */}
         {activeTab === 'submit' && (
-          <div className="max-w-2xl mx-auto text-left">
+          <div style={{ maxWidth: '680px', margin: '0 auto', textAlign: 'left' }}>
             {submitSuccess ? (
-              <div className="p-10 rounded-3xl bg-[#0E1528] border border-indigo-500/30 text-center space-y-5 shadow-2xl">
-                <div className="text-6xl animate-bounce">🎉</div>
-                <h3 className="text-2xl font-black text-white">Jogo Enviado para Homologação!</h3>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
-                  Recebemos a submissão de <b>{formData.title}</b>. O robô validador está analisando o pacote e nossa equipe editorial enviará o link de publicação e o contrato de repasse 70/30 no e-mail <b>{formData.email}</b>.
+              <div style={{ 
+                background: 'rgba(14, 21, 45, 0.85)', 
+                border: '1px solid rgba(52, 211, 153, 0.3)', 
+                borderRadius: '28px', 
+                padding: '48px 32px', 
+                textAlign: 'center',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.5)'
+              }}>
+                <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🚀</div>
+                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', marginBottom: '10px' }}>
+                  Jogo Enviado para Homologação!
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto 24px' }}>
+                  Recebemos os dados de <b>{formData.title}</b>. O robô validador está checando os arquivos e nossa equipe de curadoria entrará em contato pelo e-mail <b>{formData.email}</b> em até 24 horas.
                 </p>
                 <button
                   onClick={() => { setSubmitSuccess(false); onBackToGames(); }}
-                  className="px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs transition-all shadow-lg shadow-indigo-600/30"
+                  className="kruuj-dev-cta-btn"
                 >
-                  Voltar ao Catálogo KRUUJ
+                  Voltar ao Portal Principal
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="p-8 sm:p-10 rounded-3xl bg-[#0E1528] border border-slate-800 space-y-6 shadow-2xl">
-                <div>
-                  <h2 className="text-2xl font-black text-white">Submeta seu Jogo para Publicação</h2>
-                  <p className="text-xs text-slate-400 mt-1">Preencha a ficha técnica para darmos início ao cadastro e ativação de anúncios.</p>
+              <form onSubmit={handleSubmit} className="kruuj-dev-form-card">
+                <div style={{ marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                    Ficha Técnica de Homologação
+                  </h2>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '4px' }}>
+                    Preencha os dados do seu jogo para cadastrarmos na vitrine e gerarmos o contrato 70/30.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Título do Jogo *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Título Oficial *</label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Cyber Runner 2099"
+                      placeholder="Ex: Neon Cyber Overdrive"
                       value={formData.title}
                       onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-600"
+                      className="kruuj-dev-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Slug Provisório (URL) *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Slug Provisório (URL) *</label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex: cyber-runner"
+                      placeholder="Ex: neon-cyber"
                       value={formData.slug}
                       onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-600"
+                      className="kruuj-dev-input"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Estúdio ou Desenvolvedor *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Estúdio ou Desenvolvedor *</label>
                     <input
                       type="text"
                       required
                       placeholder="Ex: Pixel Wave Studios"
                       value={formData.author}
                       onChange={e => setFormData({ ...formData, author: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-600"
+                      className="kruuj-dev-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">E-mail de Contato *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>E-mail de Contato *</label>
                     <input
                       type="email"
                       required
                       placeholder="contato@estudio.com.br"
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-600"
+                      className="kruuj-dev-input"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Chave PIX para Repasses 70% *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Chave PIX para Repasses 70% *</label>
                     <input
                       type="text"
                       required
-                      placeholder="CPF, CNPJ, E-mail ou Telefone"
+                      placeholder="CPF, CNPJ, E-mail ou Aleatória"
                       value={formData.pixKey}
                       onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all placeholder:text-slate-600"
+                      className="kruuj-dev-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">Categoria Principal</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Categoria no Portal</label>
                     <select
                       value={formData.category}
                       onChange={e => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-4 py-3 rounded-2xl bg-[#060812] border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none transition-all"
+                      className="kruuj-dev-input"
                     >
                       <option>Raciocínio & Sênior Play</option>
                       <option>Ação & Arcade</option>
                       <option>Puzzle & Match</option>
                       <option>Casual & Família</option>
-                      <option>Infantil / Educativo</option>
+                      <option>Infantil & Educativo</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Upload Box Estilo SaaS */}
-                <div className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-3xl p-8 text-center cursor-pointer transition-all bg-[#060812]/70 group">
-                  <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">📦</div>
-                  <p className="text-xs sm:text-sm font-black text-white">Arraste a build do seu jogo (.ZIP) aqui</p>
-                  <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
-                    O pacote deve conter index.html, README.md, CHANGELOG.md e LICENSES.md (máximo 18 MB).
+                {/* Caixa de Upload Drag & Drop */}
+                <div className="kruuj-dev-upload-box" style={{ marginBottom: '24px' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📦</div>
+                  <b style={{ color: '#ffffff', fontSize: '0.95rem', display: 'block', marginBottom: '4px' }}>
+                    Arraste a build do seu jogo (.ZIP) aqui
+                  </b>
+                  <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
+                    O arquivo ZIP deve conter index.html na raiz com assets em caminhos relativos (máximo 18 MB).
                   </p>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-2">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                   <button
                     type="button"
                     onClick={onBackToGames}
-                    className="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
+                    className="kruuj-dev-back-btn"
+                    style={{ padding: '10px 20px' }}
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-7 py-3 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white text-xs font-black tracking-wide transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                    className="kruuj-dev-cta-btn"
                   >
-                    {submitting ? 'Auditoria em andamento...' : 'Enviar Jogo para Homologação'}
+                    {submitting ? 'Auditoria em andamento...' : 'Enviar Jogo para Homologação 🚀'}
                   </button>
                 </div>
               </form>
@@ -707,18 +766,25 @@ node check-game.js ./pasta-do-seu-jogo
       </main>
 
       {/* =========================================================================
-          5. FOOTER CORPORATIVO EXCLUSIVO DO DEVELOPER HUB
+          5. FOOTER CORPORATIVO DO DEVELOPER HUB
           ========================================================================= */}
-      <footer className="border-t border-slate-800/80 bg-[#060812] py-8 px-4 sm:px-8 text-center text-xs text-slate-400 space-y-3">
-        <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-bold">
-          <button onClick={() => setActiveTab('overview')} className="hover:text-indigo-400 transition-colors">Modelo 70/30</button>
-          <button onClick={() => setActiveTab('sdk')} className="hover:text-indigo-400 transition-colors">Kruuj SDK</button>
-          <button onClick={() => setActiveTab('validator')} className="hover:text-indigo-400 transition-colors">Validador CLI</button>
-          <button onClick={() => setActiveTab('submit')} className="hover:text-indigo-400 transition-colors">Publicar Jogo</button>
-          <button onClick={onBackToGames} className="text-indigo-400 hover:underline">← Voltar ao Catálogo</button>
+      <footer style={{ 
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)', 
+        background: '#04060c', 
+        padding: '30px 24px', 
+        textAlign: 'center', 
+        fontSize: '0.75rem', 
+        color: '#64748b' 
+      }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px', fontWeight: 700, marginBottom: '14px' }}>
+          <button onClick={() => setActiveTab('overview')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Modelo 70/30</button>
+          <button onClick={() => setActiveTab('sdk')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>KruujSDK Docs</button>
+          <button onClick={() => setActiveTab('validator')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Validador CLI</button>
+          <button onClick={() => setActiveTab('submit')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Submeter Jogo</button>
+          <button onClick={onBackToGames} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer' }}>← Voltar ao Portal</button>
         </div>
-        <p className="text-[11px] text-slate-400">
-          KRUUJ Studio Brasil • Plataforma de Jogos Web & Rede de Desenvolvedores Independentes • Suporte: <span className="text-slate-300 font-mono">devs@kruuj.com</span>
+        <p style={{ margin: 0 }}>
+          KRUUJ Studio Brasil • Plataforma de Jogos Web & Rede de Desenvolvedores Independentes • Suporte a Criadores: <span style={{ color: '#818cf8', fontFamily: 'monospace' }}>devs@kruuj.com</span>
         </p>
       </footer>
 
