@@ -3908,6 +3908,20 @@ export default function App() {
                             onMouseEnter={() => setIsNoveltyHovered(true)}
                             onMouseLeave={() => setIsNoveltyHovered(false)}
                           >
+                            {/* Vídeo de Preview com Reprodução Automática no Computador */}
+                            {GAME_PREVIEWS[noveltyGames[noveltyIndex]?.slug] && !isMobileMode && (
+                              <video
+                                key={`novelty-vid-${noveltyGames[noveltyIndex]?.slug}`}
+                                src={GAME_PREVIEWS[noveltyGames[noveltyIndex]?.slug]}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                className="kruuj-banner-video-bg"
+                              />
+                            )}
+                            <div className="kruuj-banner-gradient-overlay" />
+
                             <button 
                               className="kruuj-featured-arrow-left"
                               onClick={(e) => {
@@ -3937,7 +3951,7 @@ export default function App() {
                               </p>
                             </div>
 
-                            {/* Botão Jogar Agora Centralizado no Meio do Banner para não cobrir o mascote no canto */}
+                            {/* Botão Jogar Agora na Parte Inferior Direita do Banner */}
                             <div className="kruuj-banner-center-action">
                               <button 
                                 className="kruuj-featured-play-btn kruuj-play-btn-center"
@@ -3991,6 +4005,20 @@ export default function App() {
                           onMouseEnter={() => setIsTrendingHovered(true)}
                           onMouseLeave={() => setIsTrendingHovered(false)}
                         >
+                          {/* Vídeo de Preview com Reprodução Automática no Computador */}
+                          {GAME_PREVIEWS[trendingFeaturedGames[trendingIndex]?.slug] && !isMobileMode && (
+                            <video
+                              key={`trending-vid-${trendingFeaturedGames[trendingIndex]?.slug}`}
+                              src={GAME_PREVIEWS[trendingFeaturedGames[trendingIndex]?.slug]}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="kruuj-banner-video-bg"
+                            />
+                          )}
+                          <div className="kruuj-banner-gradient-overlay" />
+
                           <button 
                             className="kruuj-featured-arrow-left"
                             onClick={(e) => {
@@ -4020,7 +4048,7 @@ export default function App() {
                             </p>
                           </div>
 
-                          {/* Botão Jogar Agora Centralizado no Meio do Banner para não cobrir o mascote no canto */}
+                          {/* Botão Jogar Agora na Parte Inferior Direita do Banner */}
                           <div className="kruuj-banner-center-action">
                             <button 
                               className="kruuj-featured-play-btn kruuj-play-btn-trending kruuj-play-btn-center"
@@ -5588,7 +5616,13 @@ export default function App() {
             </div>
           </div>
 
-          <img src="/kruuj-mascote.png" alt="Mascote KRUUJ" className="kruuj-footer-mascot-peeking" />
+          <div className="kruuj-footer-mascot-pill" title="KRUUJ Studio — Portal Oficial de Jogos Web">
+            <img src="/kruuj-mascote-transp.png" alt="Mascote KRUUJ" className="kruuj-footer-mascot-img" />
+            <div className="kruuj-footer-mascot-info">
+              <span className="kruuj-footer-mascot-title">KRUUJ Studio</span>
+              <span className="kruuj-footer-mascot-sub">Jogos Web Instantâneos</span>
+            </div>
+          </div>
         </div>
       </footer>
       )}

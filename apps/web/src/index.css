@@ -4789,6 +4789,30 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   box-shadow: 0 16px 42px rgba(251, 146, 60, 0.25);
 }
 
+.kruuj-banner-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+  animation: fadeInBanner 0.4s ease-out;
+}
+
+@keyframes fadeInBanner {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.kruuj-banner-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5, 11, 36, 0.96) 0%, rgba(5, 11, 36, 0.68) 48%, rgba(5, 11, 36, 0.22) 85%, rgba(5, 11, 36, 0.05) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
 .kruuj-banner-top-row {
   display: flex;
   align-items: center;
@@ -6196,16 +6220,50 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
   gap: 20px;
 }
 
-.kruuj-footer-mascot-peeking {
-  position: absolute;
-  right: 40px;
-  bottom: -6px;
-  height: 70px;
-  max-height: 70px;
-  width: auto;
+.kruuj-footer-mascot-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 16px 8px 10px;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.kruuj-footer-mascot-pill:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 4px 25px rgba(139, 92, 246, 0.25);
+  transform: translateY(-2px);
+}
+
+.kruuj-footer-mascot-img {
+  width: 42px;
+  height: 42px;
   object-fit: contain;
-  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.4));
-  pointer-events: none;
+  filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.5));
+}
+
+.kruuj-footer-mascot-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kruuj-footer-mascot-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.kruuj-footer-mascot-sub {
+  font-size: 0.68rem;
+  color: #94a3b8;
 }
 
 /* Links Estilizados em Pílulas no Footer */
@@ -6816,11 +6874,14 @@ box-shadow: 0 0 20px rgba(255, 0, 127, 0.5) !important;
     gap: 14px;
   }
 
-  .kruuj-footer-mascot-peeking {
-    right: 14px;
-    bottom: -4px;
-    height: 50px;
-    max-height: 50px;
+  .kruuj-footer-mascot-pill {
+    padding: 6px 14px 6px 8px;
+    margin-top: 8px;
+  }
+
+  .kruuj-footer-mascot-img {
+    width: 34px;
+    height: 34px;
   }
 
   .kruuj-footer-links {
