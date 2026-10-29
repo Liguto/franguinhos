@@ -7365,54 +7365,126 @@ html, body {
     font-size: 0.74rem !important;
   }
 
-  /* Cápsula de Abas Segmentada no Mobile (Contida, elegante e sem atravessar a tela) */
-  .kruuj-dev-segmented-wrap {
-    width: 100%;
-    max-width: 480px;
-    margin: 18px auto 0;
-    padding: 0 16px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-  }
-
-  .kruuj-dev-segmented-capsule {
-    width: 100%;
+  /* ==========================================================================
+     KRUUJ DEV TABS NAVIGATOR (Bento Mini-Cards Grid)
+     ========================================================================== */
+  .kruuj-dev-tab-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 3px;
-    background: rgba(14, 21, 45, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 4px;
-    border-radius: 9999px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    gap: 12px;
+    max-width: 920px;
+    margin: 24px auto 0;
+    padding: 0 16px;
+    box-sizing: border-box;
+    width: 100%;
   }
 
-  .kruuj-dev-segmented-btn {
-    padding: 8px 2px;
-    border-radius: 9999px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: #94a3b8;
-    border: none;
-    background: transparent;
+  .kruuj-dev-tab-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(14, 21, 46, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     cursor: pointer;
-    transition: all 0.22s ease;
-    text-align: center;
+    text-align: left;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+  }
+
+  .kruuj-dev-tab-card:hover {
+    background: rgba(20, 29, 62, 0.9);
+    border-color: rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+  }
+
+  .kruuj-dev-tab-card.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.18) 100%);
+    border: 1.5px solid #818cf8;
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.35), 0 6px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .kruuj-dev-tab-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+  }
+
+  .kruuj-dev-tab-card.active .kruuj-dev-tab-icon-box {
+    transform: scale(1.08);
+  }
+
+  .kruuj-dev-tab-texts {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .kruuj-dev-tab-title {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.2;
     white-space: nowrap;
-    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .kruuj-dev-segmented-btn:hover {
-    color: #ffffff;
+  .kruuj-dev-tab-sub {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .kruuj-dev-segmented-btn.active {
-    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    color: #ffffff;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+  .kruuj-dev-tab-card.active .kruuj-dev-tab-sub {
+    color: #c7d2fe;
+  }
+
+  @media (max-width: 768px) {
+    .kruuj-dev-tab-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+      margin: 16px auto 0 !important;
+      padding: 0 12px !important;
+      max-width: 480px !important;
+    }
+
+    .kruuj-dev-tab-card {
+      padding: 10px 12px !important;
+      border-radius: 14px !important;
+      gap: 10px !important;
+    }
+
+    .kruuj-dev-tab-icon-box {
+      width: 32px !important;
+      height: 32px !important;
+    }
+
+    .kruuj-dev-tab-title {
+      font-size: 0.78rem !important;
+    }
+
+    .kruuj-dev-tab-sub {
+      font-size: 0.62rem !important;
+    }
   }
 
   /* Hero Mobile */

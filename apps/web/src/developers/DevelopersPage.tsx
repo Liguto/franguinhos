@@ -263,35 +263,60 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       </section>
 
       {/* =========================================================================
-          3. SELETOR DE ABAS MOBILE (CÁPSULA SEGMENTADA CONTIDA, SEM ATRAVESSAR A TELA)
+          3. NAVEGADOR DE ABAS VISUAL (BENTO MINI-CARDS GRID)
           ========================================================================= */}
-      <div className="kruuj-dev-segmented-wrap lg:hidden">
-        <div className="kruuj-dev-segmented-capsule">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`kruuj-dev-segmented-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          >
-            Visão Geral
-          </button>
-          <button
-            onClick={() => setActiveTab('sdk')}
-            className={`kruuj-dev-segmented-btn ${activeTab === 'sdk' ? 'active' : ''}`}
-          >
-            SDK
-          </button>
-          <button
-            onClick={() => setActiveTab('validator')}
-            className={`kruuj-dev-segmented-btn ${activeTab === 'validator' ? 'active' : ''}`}
-          >
-            Validador
-          </button>
-          <button
-            onClick={() => setActiveTab('submit')}
-            className={`kruuj-dev-segmented-btn ${activeTab === 'submit' ? 'active' : ''}`}
-          >
-            Publicar
-          </button>
-        </div>
+      <div className="kruuj-dev-tab-grid">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`kruuj-dev-tab-card ${activeTab === 'overview' ? 'active' : ''}`}
+        >
+          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
+            <DollarSign style={{ width: 18, height: 18 }} />
+          </div>
+          <div className="kruuj-dev-tab-texts">
+            <span className="kruuj-dev-tab-title">Visão Geral</span>
+            <span className="kruuj-dev-tab-sub">70% no PIX</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('sdk')}
+          className={`kruuj-dev-tab-card ${activeTab === 'sdk' ? 'active' : ''}`}
+        >
+          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+            <Code style={{ width: 18, height: 18 }} />
+          </div>
+          <div className="kruuj-dev-tab-texts">
+            <span className="kruuj-dev-tab-title">KruujSDK</span>
+            <span className="kruuj-dev-tab-sub">Guia & Docs</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('validator')}
+          className={`kruuj-dev-tab-card ${activeTab === 'validator' ? 'active' : ''}`}
+        >
+          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
+            <Terminal style={{ width: 18, height: 18 }} />
+          </div>
+          <div className="kruuj-dev-tab-texts">
+            <span className="kruuj-dev-tab-title">Validador</span>
+            <span className="kruuj-dev-tab-sub">Auditoria CLI</span>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('submit')}
+          className={`kruuj-dev-tab-card ${activeTab === 'submit' ? 'active' : ''}`}
+        >
+          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
+            <Rocket style={{ width: 18, height: 18 }} />
+          </div>
+          <div className="kruuj-dev-tab-texts">
+            <span className="kruuj-dev-tab-title">Publicar Jogo</span>
+            <span className="kruuj-dev-tab-sub">Enviar Build</span>
+          </div>
+        </button>
       </div>
 
       {/* =========================================================================
