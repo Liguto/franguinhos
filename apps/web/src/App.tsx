@@ -362,7 +362,10 @@ const GAME_PREVIEWS: Record<string, string> = {
   'kruuj-defense': '/previews/kruuj-defense.mp4',
   'kruuj-overdrive': '/previews/kruuj-overdrive.mp4',
   'kruuj-pizza-empire': '/previews/kruuj-pizza-empire.mp4',
-  'kruuj-penalty': '/previews/kruuj-penalty.mp4'
+  'kruuj-penalty': '/previews/kruuj-penalty.mp4',
+  'kruuj-orbit': '/previews/kruuj-orbit.mp4',
+  'kruujdoku': '/previews/kruujdoku.mp4',
+  'rocket-rise': '/previews/rocket-rise.mp4'
 };
 
 interface PokiGameCardProps {
@@ -1552,7 +1555,7 @@ export default function App() {
       tags: ['kruujdoku', 'sudoku', 'corujas', 'puzzle', 'mente', 'raciocinio', 'zen'],
       ageRating: 'Livre',
       bannerUrl: '/banners/kruujdoku.jpg',
-      iconUrl: '/icons/kruujdoku.png',
+      iconUrl: '/icons/kruujdoku.jpg',
       prefixUrl: '/games/kruujdoku/',
       version: '1.0.0',
       controls: { mouse: true, teclado: true, toque: true, gamepad: false },
@@ -1594,7 +1597,7 @@ export default function App() {
       tags: ['orbit', 'kruuj', 'espaco', 'arcade', 'gravidade', 'corujas', 'salto', 'kids'],
       ageRating: 'Livre',
       bannerUrl: '/banners/kruuj-orbit.jpg',
-      iconUrl: '/icons/kruuj-orbit.png',
+      iconUrl: '/icons/kruuj-orbit.jpg',
       prefixUrl: '/games/kruuj-orbit/',
       version: '1.0.0',
       controls: { mouse: true, teclado: true, toque: true, gamepad: false },
