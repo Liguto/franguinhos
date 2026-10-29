@@ -265,56 +265,128 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       {/* =========================================================================
           3. NAVEGADOR DE ABAS VISUAL (BENTO MINI-CARDS GRID)
           ========================================================================= */}
-      <div className="kruuj-dev-tab-grid">
+      <div 
+        className="kruuj-dev-tab-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px',
+          maxWidth: '960px',
+          margin: '32px auto 0',
+          padding: '0 16px',
+          width: '100%',
+          boxSizing: 'border-box'
+        }}
+      >
         <button
+          type="button"
           onClick={() => setActiveTab('overview')}
           className={`kruuj-dev-tab-card ${activeTab === 'overview' ? 'active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            borderRadius: '16px',
+            background: activeTab === 'overview' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
+            border: activeTab === 'overview' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: activeTab === 'overview' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
         >
-          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
+          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
             <DollarSign style={{ width: 18, height: 18 }} />
           </div>
-          <div className="kruuj-dev-tab-texts">
-            <span className="kruuj-dev-tab-title">Visão Geral</span>
-            <span className="kruuj-dev-tab-sub">70% no PIX</span>
+          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Visão Geral</span>
+            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'overview' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>70% no PIX</span>
           </div>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab('sdk')}
           className={`kruuj-dev-tab-card ${activeTab === 'sdk' ? 'active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            borderRadius: '16px',
+            background: activeTab === 'sdk' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
+            border: activeTab === 'sdk' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: activeTab === 'sdk' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
         >
-          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
             <Code style={{ width: 18, height: 18 }} />
           </div>
-          <div className="kruuj-dev-tab-texts">
-            <span className="kruuj-dev-tab-title">KruujSDK</span>
-            <span className="kruuj-dev-tab-sub">Guia & Docs</span>
+          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>KruujSDK</span>
+            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'sdk' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Guia & Docs</span>
           </div>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab('validator')}
           className={`kruuj-dev-tab-card ${activeTab === 'validator' ? 'active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            borderRadius: '16px',
+            background: activeTab === 'validator' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
+            border: activeTab === 'validator' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: activeTab === 'validator' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
         >
-          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
+          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
             <Terminal style={{ width: 18, height: 18 }} />
           </div>
-          <div className="kruuj-dev-tab-texts">
-            <span className="kruuj-dev-tab-title">Validador</span>
-            <span className="kruuj-dev-tab-sub">Auditoria CLI</span>
+          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Validador</span>
+            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'validator' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Auditoria CLI</span>
           </div>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveTab('submit')}
           className={`kruuj-dev-tab-card ${activeTab === 'submit' ? 'active' : ''}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            borderRadius: '16px',
+            background: activeTab === 'submit' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
+            border: activeTab === 'submit' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: activeTab === 'submit' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            outline: 'none',
+            boxSizing: 'border-box'
+          }}
         >
-          <div className="kruuj-dev-tab-icon-box" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
+          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
             <Rocket style={{ width: 18, height: 18 }} />
           </div>
-          <div className="kruuj-dev-tab-texts">
-            <span className="kruuj-dev-tab-title">Publicar Jogo</span>
-            <span className="kruuj-dev-tab-sub">Enviar Build</span>
+          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Publicar Jogo</span>
+            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'submit' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Enviar Build</span>
           </div>
         </button>
       </div>
