@@ -64,21 +64,22 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
               title="Voltar ao portal principal"
             >
               <ArrowLeft style={{ width: 14, height: 14 }} />
-              <span>Voltar ao Portal</span>
+              <span className="kruuj-dev-back-label">Voltar ao Portal</span>
             </button>
 
             <div style={{ height: '20px', width: '1px', background: 'rgba(255,255,255,0.12)' }} />
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img 
                 src="/kruuj-mascote.png" 
                 alt="KRUUJ Mascote" 
+                className="kruuj-dev-brand-img"
                 style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(99,102,241,0.5))' }} 
               />
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '0.05em', color: '#ffffff' }}>KRUUJ</span>
-                  <span style={{ 
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span className="kruuj-dev-brand-title" style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '0.05em', color: '#ffffff' }}>KRUUJ</span>
+                  <span className="kruuj-dev-brand-badge" style={{ 
                     fontSize: '0.65rem', 
                     fontWeight: 900, 
                     textTransform: 'uppercase', 
@@ -92,9 +93,9 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
                     FOR DEVELOPERS
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.65rem', color: '#34d399', fontWeight: 700 }}>
+                <div className="kruuj-dev-brand-sub" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.65rem', color: '#34d399', fontWeight: 700 }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} />
-                  <span>KruujSDK v1.0 • Poki-Grade Homologado</span>
+                  <span>KruujSDK v1.0 • Poki-Grade</span>
                 </div>
               </div>
             </div>
@@ -229,7 +230,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
               </div>
             </div>
 
-            <div style={{ 
+            <div className="kruuj-dev-sim-grid" style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
               gap: '14px', 
@@ -262,16 +263,9 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       </section>
 
       {/* =========================================================================
-          3. SUB-NAV MOBILE
+          3. SUB-NAV MOBILE (TÁTIL & STICKY)
           ========================================================================= */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '8px', 
-        overflowX: 'auto', 
-        padding: '14px 16px', 
-        background: '#090e1f', 
-        borderBottom: '1px solid rgba(255,255,255,0.08)' 
-      }} className="lg:hidden scrollbar-none">
+      <div className="kruuj-dev-mobile-nav lg:hidden">
         <button
           onClick={() => setActiveTab('overview')}
           className={`kruuj-dev-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
@@ -301,7 +295,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       {/* =========================================================================
           4. CONTEÚDO PRINCIPAL DAS ABAS
           ========================================================================= */}
-      <main style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', padding: '40px 24px', flex: 1 }}>
+      <main className="kruuj-dev-main-content" style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', padding: '40px 24px', flex: 1, boxSizing: 'border-box' }}>
 
         {/* -----------------------------------------------------------------------
             ABA 1: VISÃO GERAL & PARCERIA 70/30
@@ -310,7 +304,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
           <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', textAlign: 'left' }}>
             
             {/* Como funciona o fluxo de receita */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            <div className="kruuj-dev-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
               
               <div style={{ 
                 background: 'rgba(13, 20, 42, 0.75)', 

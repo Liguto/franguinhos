@@ -7319,26 +7319,178 @@ html, body {
   transform: translateY(-2px);
 }
 
+/* Responsive Styles for Developer Portal */
 @media (max-width: 900px) {
-  .kruuj-dev-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .kruuj-dev-tabs-nav {
     display: none;
   }
 }
 
-@media (max-width: 600px) {
-  .kruuj-dev-kpi-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .kruuj-dev-header {
+    padding: 10px 14px !important;
   }
+
+  .kruuj-dev-header-inner {
+    gap: 8px !important;
+  }
+
+  .kruuj-dev-back-label {
+    display: none !important;
+  }
+
+  .kruuj-dev-back-btn {
+    padding: 8px 10px !important;
+  }
+
+  .kruuj-dev-brand-img {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .kruuj-dev-brand-title {
+    font-size: 0.88rem !important;
+  }
+
+  .kruuj-dev-brand-badge {
+    display: none !important; /* Esconde selo longo no mobile para caber os botões */
+  }
+
+  .kruuj-dev-brand-sub {
+    font-size: 0.60rem !important;
+  }
+
+  .kruuj-dev-cta-btn {
+    padding: 8px 14px !important;
+    font-size: 0.74rem !important;
+  }
+
+  /* Subnav Mobile Tátil com Barra Fixada Suave */
+  .kruuj-dev-mobile-nav {
+    display: flex !important;
+    gap: 6px !important;
+    overflow-x: auto !important;
+    padding: 10px 12px !important;
+    background: #080d1d !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    position: sticky !important;
+    top: 52px !important;
+    z-index: 90 !important;
+  }
+
+  .kruuj-dev-mobile-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .kruuj-dev-mobile-nav .kruuj-dev-tab-item {
+    padding: 7px 14px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Hero Mobile */
   .kruuj-dev-hero {
-    padding: 36px 16px 30px;
+    padding: 32px 16px 26px !important;
   }
+
+  .kruuj-dev-pill-badge {
+    font-size: 0.62rem !important;
+    padding: 4px 10px !important;
+    margin-bottom: 12px !important;
+    line-height: 1.3 !important;
+  }
+
   .kruuj-dev-hero-title {
-    font-size: 1.85rem;
+    font-size: 1.65rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 12px !important;
   }
+
+  .kruuj-dev-hero-desc {
+    font-size: 0.84rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 22px !important;
+  }
+
+  /* KPIs em Grid 2x2 harmonioso no smartphone */
+  .kruuj-dev-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .kruuj-dev-kpi-card {
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .kruuj-dev-kpi-label {
+    font-size: 0.66rem !important;
+  }
+
+  .kruuj-dev-kpi-val {
+    font-size: 1.4rem !important;
+  }
+
+  .kruuj-dev-kpi-desc {
+    font-size: 0.66rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Simulador Mobile */
+  .kruuj-dev-sim-box {
+    padding: 18px 14px !important;
+    border-radius: 18px !important;
+    margin-top: 24px !important;
+  }
+
+  .kruuj-dev-sim-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 14px !important;
+  }
+
+  /* Conteúdo Principal */
+  .kruuj-dev-main-content {
+    padding: 24px 14px !important;
+  }
+
+  .kruuj-dev-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Código Mobile */
+  .kruuj-dev-code-editor {
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .kruuj-dev-code-header {
+    padding: 10px 14px !important;
+  }
+
+  .kruuj-dev-code-body {
+    padding: 14px !important;
+    font-size: 0.72rem !important;
+    line-height: 1.5 !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Formulário Mobile */
   .kruuj-dev-form-card {
-    padding: 24px 18px;
+    padding: 20px 14px !important;
+    border-radius: 20px !important;
+  }
+
+  .kruuj-dev-input {
+    font-size: 16px !important; /* Previne auto-zoom no iOS Safari */
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+  }
+
+  .kruuj-dev-upload-box {
+    padding: 24px 14px !important;
+    border-radius: 16px !important;
   }
 }
