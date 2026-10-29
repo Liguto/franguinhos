@@ -3553,7 +3553,7 @@ export default function App() {
     <div className={`flex flex-col min-h-screen ${agePreference === 'educacional' ? 'theme-edu' : agePreference === 'terceira_idade' ? 'theme-senior' : ''}`}>
       
       {/* --- TOPBAR KRUUJ OFICIAL (DESKTOP & MOBILE) --- */}
-      {view !== 'developers' && (
+      {view !== 'developers' && view !== 'playing' && (
       <header className="kruuj-topbar">
         {isMobileSearchOpen ? (
           <div className="kruuj-mobile-search-overlay">
@@ -3688,7 +3688,7 @@ export default function App() {
       )}
 
       {/* --- LATERAL SQUARE ADS STACK (Widescreen Only) --- */}
-      {consentOptions.advertising && view !== 'developers' && (
+      {consentOptions.advertising && view !== 'developers' && view !== 'playing' && (
         <>
           <div className="side-ads-wrapper-left">
             <div className="side-square-ad"></div>
@@ -5545,7 +5545,7 @@ export default function App() {
 
 
       {/* --- NOVO FOOTER KRUUJ COM LOGO OFICIAL E MASCOTE ESPIANDO --- */}
-      {view !== 'developers' && (
+      {view !== 'developers' && view !== 'playing' && (
       <footer className="kruuj-footer">
         <div className="kruuj-footer-content">
           <div className="flex flex-col gap-2">

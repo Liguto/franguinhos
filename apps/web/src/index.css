@@ -564,6 +564,11 @@ body.playing-game-mode, html.playing-game-mode {
     overscroll-behavior: none !important;
   }
 
+  /* Liberação total de RAM e GPU móvel: oculta mosaico inferior durante gameplay ativa */
+  body.playing-game-mode .poki-stage-bottom-mosaic {
+    display: none !important;
+  }
+
   /* Cluster Flutuante Superior Poki Adaptativo com Drag Magnético e Ghost Mode */
   .kruuj-poki-top-cluster {
     display: flex !important;
