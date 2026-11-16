@@ -6,6 +6,8 @@
 (function(window, document) {
   'use strict';
 
+  const isIframe = (typeof window !== 'undefined' && window.self !== window.top);
+
   // 1. Google Font Outfit
   if (!document.getElementById('kruuj-outfit-font')) {
     const fontLink = document.createElement('link');
@@ -123,30 +125,13 @@
   }
 
   async function start(c) {
-    if (isIframe) {
-      const kl = document.getElementById('kl');
-      if (kl) {
-        kl.classList.add('out');
-        kl.style.display = 'none';
-        kl.style.pointerEvents = 'none';
-      }
-      if (c && typeof c.onComplete === 'function') {
-        try { c.onComplete(); } catch(e) {}
-      }
-      try { window.parent.postMessage({ type: 'game_loaded' }, '*'); } catch(e) {}
-      if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
-        try { window.KruujSDK.gameLoadingFinished(); } catch(e) {}
-      }
-      return;
-    }
     if (started) return;
     started = true;
 
     const defaultTips = [
       'Prepare os fones, a coruja já está chegando.',
       'Dica: use fones de ouvido para imersão estéreo.',
-      'Colete recordes e desbloqueie conquistas na KRUUJ Studio!',
-      'Gire o celular na horizontal para jogar em tela cheia!'
+      'Colete recordes e desbloqueie conquistas na KRUUJ Studio!'
     ];
 
     let detectedName = 'KRUUJ Studio';
@@ -232,7 +217,6 @@
 
   // Auto-inicialização caso o script do jogo não chame KruujLoader.start explicitamente
   function autoInit() {
-    if (isIframe) return;
     setTimeout(() => {
       if (!started && !closing) {
         KruujLoader.start();
