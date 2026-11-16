@@ -390,15 +390,41 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
   formatCatName
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isInCenterView, setIsInCenterView] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoSrc = GAME_PREVIEWS[game.slug];
   const isLargeTile = tileClass === 'tile-2x2' || tileClass === 'tile-2x1';
-  const shouldAutoPlayMobile = isMobile && isLargeTile && !!videoSrc;
+
+  // Opção 2: IntersectionObserver inteligente no mobile
+  // Apenas 1 único vídeo decodifica e reproduz por vez (aquele que estiver no centro da tela)
+  useEffect(() => {
+    if (!isMobile || !isLargeTile || !videoSrc || !cardRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInCenterView(entry.isIntersecting);
+      },
+      {
+        root: null,
+        // Foca na faixa central de 60% da tela mobile (-20% superior e -20% inferior)
+        rootMargin: '-20% 0px -20% 0px',
+        threshold: 0.6
+      }
+    );
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [isMobile, isLargeTile, videoSrc]);
 
   useEffect(() => {
-    if (isMobile && shouldAutoPlayMobile && videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    } else if (!isMobile && videoRef.current) {
+    if (isMobile) {
+      if (isInCenterView && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      } else if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    } else if (videoRef.current) {
       if (isHovered) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().catch(() => {});
@@ -406,10 +432,11 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
         videoRef.current.pause();
       }
     }
-  }, [isHovered, isMobile, shouldAutoPlayMobile]);
+  }, [isHovered, isMobile, isInCenterView]);
 
   return (
     <div
+      ref={cardRef}
       className={`kruuj-poki-card ${tileClass} ${isFavorited ? 'is-favorited' : ''}`}
       onClick={() => onPlay(game)}
       onMouseEnter={() => setIsHovered(true)}
@@ -422,13 +449,13 @@ const PokiGameCard: React.FC<PokiGameCardProps> = ({
         {videoSrc && (
           <video
             ref={videoRef}
-            src={videoSrc}
+            src={(!isMobile || isInCenterView) ? videoSrc : undefined}
+            data-src={videoSrc}
             muted
             loop
             playsInline
-            autoPlay={shouldAutoPlayMobile}
-            preload={isLargeTile ? 'auto' : 'none'}
-            className={`kruuj-card-video-preview ${(isHovered || shouldAutoPlayMobile) ? 'visible' : ''}`}
+            preload="none"
+            className={`kruuj-card-video-preview ${(isHovered || (isMobile && isInCenterView)) ? 'visible' : ''}`}
           />
         )}
 
@@ -507,6 +534,7 @@ const ShelfGameCard: React.FC<ShelfGameCardProps> = ({
             muted
             loop
             playsInline
+            preload="none"
             className={`kruuj-card-video-preview ${isHovered ? 'visible' : ''}`}
           />
         )}
