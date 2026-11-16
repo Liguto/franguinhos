@@ -20,7 +20,7 @@ Sua missão é desenvolver, refatorar, otimizar e homologar jogos HTML5 e manter
 ## 🏛️ ARQUITETURA DO PROJETO
 
 - **Monorepo:** NPM Workspaces
-  - `apps/web/`: Portal público de jogos (React 18 + Vite + TypeScript + Vanilla CSS). Porta `3000`. Deploy na Vercel (`https://franguinhos-web.vercel.app`).
+  - `apps/web/`: Portal público de jogos (React 18 + Vite + TypeScript + Vanilla CSS). Porta `3000`. Deploy na Vercel (`https://kruuj-web.vercel.app`).
   - `apps/api/`: Backend REST (Express + TypeScript + Prisma Client). Porta `4000`. Sincronização automática com Supabase PostgreSQL.
   - `apps/admin/`: Cockpit Administrativo e Workflow Jurídico. Porta `3001`.
   - `packages/shared/`: Tipos, interfaces de domínio e DTOs compartilhados.

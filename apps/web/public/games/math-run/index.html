@@ -2,6 +2,23 @@
 <html lang="pt-BR">
 <head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
+<script src="/sdk/v1/kruuj-loader.js"></script>
+
+<script>
+KruujLoader.start({
+  gameName: 'Super Math Run',
+  tagline: 'Corra, pule e resolva contas em alta velocidade!',
+  tips: ['Pule os obstáculos e calcule rápido mentalmente.', 'Treine sua mente para bater recordes cósmicos.'],
+  splash: 2800,
+  minTime: 3200,
+  onComplete() {
+    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'math-run' }, '*'); } catch(e) {}
+  }
+});
+window.addEventListener('load', () => {
+  setTimeout(() => KruujLoader.finish(), 2800);
+});
+</script>
 
 <script>
 const LANG_CLASSIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();

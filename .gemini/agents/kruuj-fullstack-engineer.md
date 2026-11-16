@@ -22,7 +22,7 @@ Sua função é manter, evoluir e implementar todas as melhorias de layout, comp
 ### 1. Frontend (`apps/web/`)
 - **Stack:** React 18 + TypeScript + Vite + Vanilla CSS / Tailwind utilities.
 - **Porta Local:** `3000`.
-- **Produção:** Deploy contínuo na Vercel (`https://franguinhos-web.vercel.app`), conectado à branch `main`.
+- **Produção:** Deploy contínuo na Vercel (`https://kruuj-web.vercel.app`, com redirect de `franguinhos-web.vercel.app`), conectado à branch `main`.
 - **Arquivo Central:** `apps/web/src/App.tsx` (gerencia rotas de tela, estados globais de navegação, catálogo estático, Bento Grid e player).
 - **Estilos Globais:** `apps/web/src/index.css` (temas escuro/neon, resets e regras de responsividade).
 - **SDK Público:** `apps/web/public/sdk/v1/kruuj-sdk.js` (biblioteca de integração de jogos com bridge PokiSDK).

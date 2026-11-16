@@ -187,14 +187,24 @@ function confetti(){const f=$('fx'),x=f.getContext('2d'),K=['#ef4444','#fb923c',
  let k=0;(function A(){x.clearRect(0,0,f.width,f.height);Q.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.w+=.05)*2;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.r,p.r*1.4)});if(++k<260)requestAnimationFrame(A);else x.clearRect(0,0,f.width,f.height)})()}
 fit();load(pick());
 </script><script>
-window.addEventListener('DOMContentLoaded', () => {
-  if (window.KruujSDK) {
-    window.KruujSDK.init().then(() => {
-      window.KruujSDK.gameLoadingFinished();
-      window.KruujSDK.gameplayStart();
-    }).catch(() => {});
+KruujLoader.start({
+  gameName: 'KRUUJ Baby Paint',
+  tagline: 'Livre sua criatividade colorindo com a corujinha!',
+  tips: ['Escolha as cores na paleta e pinte os desenhos.', 'Toque nas formas para preencher com magia!'],
+  splash: 2800,
+  minTime: 3200,
+  onComplete() {
+    if (window.KruujSDK) {
+      window.KruujSDK.init().then(() => {
+        window.KruujSDK.gameLoadingFinished();
+        window.KruujSDK.gameplayStart();
+      }).catch(() => {});
+    }
+    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-paint' }, '*'); } catch(e){}
   }
-  try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-paint' }, '*'); } catch(e){}
+});
+window.addEventListener('load', () => {
+  setTimeout(() => KruujLoader.finish(), 2800);
 });
 </script>
 </body></html>

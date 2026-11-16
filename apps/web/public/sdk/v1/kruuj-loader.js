@@ -6,35 +6,6 @@
 (function(window, document) {
   'use strict';
 
-  const isIframe = (window.self !== window.top);
-
-  // 0. Supressão imediata no Portal KRUUJ (o portal já executa o KruujPortalLoader de 3.0s no parent)
-  if (isIframe) {
-    if (!document.getElementById('kruuj-iframe-kl-suppress')) {
-      const suppressStyle = document.createElement('style');
-      suppressStyle.id = 'kruuj-iframe-kl-suppress';
-      suppressStyle.textContent = '#kl, #kl.out { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }';
-      (document.head || document.documentElement).appendChild(suppressStyle);
-    }
-    const dismissIframeKl = () => {
-      const kl = document.getElementById('kl');
-      if (kl) {
-        kl.classList.add('out');
-        kl.style.display = 'none';
-        kl.style.pointerEvents = 'none';
-      }
-      try { window.parent.postMessage({ type: 'game_loaded' }, '*'); } catch(e) {}
-      if (window.KruujSDK && typeof window.KruujSDK.gameLoadingFinished === 'function') {
-        try { window.KruujSDK.gameLoadingFinished(); } catch(e) {}
-      }
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', dismissIframeKl);
-    } else {
-      dismissIframeKl();
-    }
-  }
-
   // 1. Google Font Outfit
   if (!document.getElementById('kruuj-outfit-font')) {
     const fontLink = document.createElement('link');

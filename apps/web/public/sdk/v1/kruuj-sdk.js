@@ -73,14 +73,6 @@
   const KruujSDK = {
     // 1. Inicialização Resiliente (Resolve mesmo com AdBlockers)
     init: function () {
-      if (window.self !== window.top) {
-        const kl = document.getElementById('kl');
-        if (kl) {
-          kl.classList.add('out');
-          kl.style.display = 'none';
-          kl.style.pointerEvents = 'none';
-        }
-      }
       return sendToParent('init')
         .then(() => {
           isInitialized = true;

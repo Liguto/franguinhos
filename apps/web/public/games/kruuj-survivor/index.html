@@ -745,18 +745,17 @@ window.KruujPlat=KruujPlat;
 <script>
   var kLang = KruujSurvivor.lang(), kTxt = KruujSurvivor.loaderText(kLang), kruujSurvivor = null;
   KruujLoader.start({ el: document.getElementById('kl'), gameName: 'KRUUJ Survivor', tagline: kTxt.tag, tips: kTxt.tips, label: kTxt.label,
-    onComplete: function () { KruujPlat.loaded(); kruujSurvivor = KruujSurvivor.create(document.getElementById('kruuj-survivor'), { lang: kLang }); } });
+    onComplete: function () { 
+      KruujPlat.loaded(); 
+      try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-survivor' }, '*'); } catch(e) {}
+      kruujSurvivor = KruujSurvivor.create(document.getElementById('kruuj-survivor'), { lang: kLang }); 
+    } 
+  });
   // O jogo só é criado depois que a tela de carregamento termina. A barra segue o carregamento real da página.
   KruujLoader.setProgress(.25);
   function kDone() { KruujLoader.setProgress(.8); KruujLoader.finish(); }
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { KruujLoader.setProgress(.55); }, function () {});
   if (document.readyState === 'complete') kDone(); else window.addEventListener('load', kDone);
-</script>
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'kruuj-survivor' }, '*'); } catch(e) {}
-});
 </script>
 </body>
 </html>

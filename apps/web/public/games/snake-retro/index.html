@@ -2,6 +2,23 @@
 <html lang="pt-BR">
 <head>
 <script src="/sdk/v1/kruuj-sdk.js"></script>
+<script src="/sdk/v1/kruuj-loader.js"></script>
+
+<script>
+KruujLoader.start({
+  gameName: 'Snake Retro Arcade',
+  tagline: 'O clássico retrô futurista arcade em neon.',
+  tips: ['Use as setas ou deslize o dedo para virar a cobrinha.', 'Colete os blocos luminosos sem bater nas paredes!'],
+  splash: 2800,
+  minTime: 3200,
+  onComplete() {
+    try { window.parent.postMessage({ type: 'game_loaded', gameSlug: 'snake-retro' }, '*'); } catch(e) {}
+  }
+});
+window.addEventListener('load', () => {
+  setTimeout(() => KruujLoader.finish(), 2800);
+});
+</script>
 
 <script>
 const LANG_CLASSIC = (new URLSearchParams(window.location.search).get('lang') || 'pt').toLowerCase();
