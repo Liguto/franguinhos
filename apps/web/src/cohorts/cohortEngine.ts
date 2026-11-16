@@ -67,6 +67,9 @@ const GAME_AFFINITY_MAP: Record<string, { senior: number; arcade: number; kids: 
   'kruuj-match': { senior: 4, arcade: 3, kids: 2, casual: 8 },
   'kruuj-neon-blocks': { senior: 4, arcade: 4, kids: 1, casual: 8 },
   'kruuj-penalty': { senior: 3, arcade: 6, kids: 3, casual: 6 },
+  'kruuj-poker': { senior: 8, arcade: 2, kids: 0, casual: 6 },
+  'kruuj-survivor': { senior: 1, arcade: 10, kids: 0, casual: 4 },
+  'kruuj-2048': { senior: 8, arcade: 2, kids: 1, casual: 7 },
 };
 
 const STORAGE_KEY = 'kruuj_cohort_affinity_v1';
