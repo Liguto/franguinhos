@@ -27,15 +27,18 @@ app.use(express.json());
 // Injetar middleware global de autenticação
 app.use(authMiddleware);
 
-// Rota de Health Check
-app.get('/health', (req, res) => {
+// Rota de Health Check (acessível via /health ou /api/health)
+const healthHandler = (req: express.Request, res: express.Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date(),
     service: 'Portal de Jogos API',
     version: '1.0.0'
   });
-});
+};
+
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 // Registrar rotas da API
 app.use('/api/auth', authRouter);
