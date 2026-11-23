@@ -14,7 +14,10 @@ interface SubmissionEmailData {
 }
 
 export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<boolean> {
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'luizfreitasduarte@gmail.com';
+  // Lê as variáveis do ambiente de produção (Render / .env)
+  const primaryEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'luizduarte_@live.com';
+  const apiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM || 'KRUUJ Studio <onboarding@resend.dev>';
   const subject = `[KRUUJ Studio] 🎮 Nova Submissão de Jogo: "${data.title}" por ${data.author}`;
 
   const htmlContent = `
@@ -92,7 +95,7 @@ export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<bo
         </div>
 
         <div class="footer">
-          KRUUJ Studio — Plataforma de Jogos Instantâneos Poki-Grade<br>
+          KRUUJ Studio — Plataforma Oficial de Jogos Instantâneos<br>
           Este e-mail é uma notificação automática gerada pela rota de submissão do portal.
         </div>
       </div>
@@ -101,28 +104,49 @@ export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<bo
   `;
 
   // 1. Tentar envio via Resend API (se RESEND_API_KEY estiver configurada)
-  if (process.env.RESEND_API_KEY) {
+  if (apiKey) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM || 'KRUUJ Studio <onboarding@resend.dev>',
-          to: [adminEmail],
+          from: fromEmail,
+          to: [primaryEmail],
           subject,
           html: htmlContent
         })
       });
 
       if (res.ok) {
-        console.log(`[Email] Notificação de submissão enviada via Resend para ${adminEmail}`);
+        console.log(`[Email] Notificação de submissão enviada via Resend para ${primaryEmail}`);
         return true;
       } else {
         const errorData = await res.json();
         console.warn('[Email] Erro resposta Resend:', errorData);
+
+        // Se deu erro de sandbox por restrição de destinatário, envia com segurança para luizduarte_@live.com
+        if (primaryEmail !== 'luizduarte_@live.com') {
+          const retryRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: fromEmail,
+              to: ['luizduarte_@live.com'],
+              subject,
+              html: htmlContent
+            })
+          });
+          if (retryRes.ok) {
+            console.log(`[Email] Notificação entregue com sucesso via fallback do Resend para luizduarte_@live.com`);
+            return true;
+          }
+        }
       }
     } catch (e: any) {
       console.warn('[Email] Falha ao enviar via Resend API:', e.message);
@@ -142,24 +166,17 @@ export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<bo
 
       await transporter.sendMail({
         from: `"KRUUJ Studio" <${process.env.SMTP_USER}>`,
-        to: adminEmail,
+        to: primaryEmail,
         subject,
         html: htmlContent
       });
 
-      console.log(`[Email] Notificação de submissão enviada via SMTP para ${adminEmail}`);
+      console.log(`[Email] Notificação de submissão enviada via SMTP para ${primaryEmail}`);
       return true;
     } catch (e: any) {
       console.warn('[Email] Falha ao enviar via SMTP:', e.message);
     }
   }
-
-  // 3. Fallback de Log do Servidor
-  console.log(`[Email Log] Notificação pronta para ${adminEmail} (Aguardando configuração de SMTP_USER/PASS ou RESEND_API_KEY no Render):
-- Jogo: ${data.title}
-- Autor: ${data.author} (${data.email})
-- Contrato: ${data.contractNumber}
-- ZIP: ${data.zipUrl}`);
 
   return false;
 }
