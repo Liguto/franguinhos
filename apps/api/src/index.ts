@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs';
 import { authMiddleware } from './middleware/auth';
 import { authRouter } from './routes/auth';
 import { gamesRouter } from './routes/games';
@@ -39,6 +41,13 @@ const healthHandler = (req: express.Request, res: express.Response) => {
 
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
+
+// Servir arquivos estáticos de builds e uploads
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsDir));
 
 // Registrar rotas da API
 app.use('/api/auth', authRouter);

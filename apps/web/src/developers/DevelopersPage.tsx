@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   ArrowLeft, Code, Sparkles, Shield, Zap, DollarSign, Check, Copy, 
   Terminal, Download, Rocket, Cpu, CheckCircle2, FileCode, Users, 
-  ExternalLink, ChevronRight, Layers, Smartphone, Play, AlertCircle, FileText
+  ExternalLink, ChevronRight, Layers, Smartphone, Play, AlertCircle, FileText,
+  Upload, X, Link as LinkIcon
 } from 'lucide-react';
 
 interface DevelopersPageProps {
@@ -15,6 +16,11 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [contractProtocol, setContractProtocol] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Upload do ZIP do Computador ou Link
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'link'>('file');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -54,6 +60,23 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.name.toLowerCase().endsWith('.zip')) {
+        setErrorMessage('Por favor, selecione um arquivo no formato .zip.');
+        return;
+      }
+      setSelectedFile(file);
+      setErrorMessage(null);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isChecklistComplete) {
@@ -61,31 +84,69 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
       return;
     }
 
+    if (uploadMethod === 'file' && !selectedFile) {
+      setErrorMessage('Por favor, selecione o arquivo .zip do jogo do seu computador.');
+      return;
+    }
+
+    if (uploadMethod === 'link' && !formData.zipUrl.trim()) {
+      setErrorMessage('Por favor, informe o link de download do arquivo .zip.');
+      return;
+    }
+
     setSubmitting(true);
     setErrorMessage(null);
 
     try {
-      const response = await fetch('/api/games/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          author: formData.author,
-          email: formData.email,
-          description: formData.description,
-          category: formData.category,
-          orientation: formData.orientation,
-          controls: {
-            mouse: formData.supportsMouse,
-            teclado: formData.supportsKeyboard,
-            toque: formData.supportsTouch,
-            platformSupport: formData.platformSupport
-          },
-          zipUrl: formData.zipUrl,
-          pixKey: formData.pixKey || 'Pendente (Opcional)',
-          checklist
-        })
-      });
+      let response: Response;
+
+      if (uploadMethod === 'file' && selectedFile) {
+        // Envio direto do arquivo ZIP multipart/form-data
+        const body = new FormData();
+        body.append('zipFile', selectedFile);
+        body.append('title', formData.title);
+        body.append('author', formData.author);
+        body.append('email', formData.email);
+        body.append('description', formData.description);
+        body.append('category', formData.category);
+        body.append('orientation', formData.orientation);
+        body.append('controls', JSON.stringify({
+          mouse: formData.supportsMouse,
+          teclado: formData.supportsKeyboard,
+          toque: formData.supportsTouch,
+          platformSupport: formData.platformSupport
+        }));
+        body.append('pixKey', formData.pixKey || 'Pendente (Opcional)');
+        body.append('checklist', JSON.stringify(checklist));
+
+        response = await fetch('/api/games/submit', {
+          method: 'POST',
+          body
+        });
+      } else {
+        // Envio via link URL
+        response = await fetch('/api/games/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: formData.title,
+            author: formData.author,
+            email: formData.email,
+            description: formData.description,
+            category: formData.category,
+            orientation: formData.orientation,
+            controls: {
+              mouse: formData.supportsMouse,
+              teclado: formData.supportsKeyboard,
+              toque: formData.supportsTouch,
+              platformSupport: formData.platformSupport
+            },
+            zipUrl: formData.zipUrl,
+            pixKey: formData.pixKey || 'Pendente (Opcional)',
+            checklist
+          })
+        });
+      }
 
       const data = await response.json();
 
@@ -293,7 +354,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
                   Submeter Novo Jogo para Análise
                 </h2>
                 <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: 0 }}>
-                  Preencha os dados e anexe o arquivo ZIP do jogo. O envio é revisado pelos administradores antes de ir ao ar.
+                  Preencha os dados e suba o arquivo ZIP do seu jogo diretamente do computador.
                 </p>
               </div>
 
@@ -433,38 +494,153 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Categoria do Jogo
+              {/* CATEGORIA */}
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                  Categoria do Jogo
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                >
+                  <option value="Arcade">Arcade</option>
+                  <option value="Ação">Ação & Tiro</option>
+                  <option value="Cartas">Cartas & Tabuleiro</option>
+                  <option value="Puzzle">Puzzle & Raciocínio</option>
+                  <option value="Casual">Casual & Família</option>
+                  <option value="Bebês">Bebês & Infantil</option>
+                </select>
+              </div>
+
+              {/* UPLOAD DO ARQUIVO ZIP (DIRETO DO PC OU LINK) */}
+              <div style={{ 
+                background: 'rgba(30, 41, 59, 0.4)', 
+                border: '1.5px dashed rgba(56, 232, 255, 0.4)', 
+                borderRadius: '18px', 
+                padding: '20px', 
+                marginBottom: '18px' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                  <label style={{ fontSize: '0.84rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                    <Upload style={{ width: 18, height: 18, color: '#38e8ff' }} />
+                    <span>Arquivo do Jogo (.zip) *</span>
                   </label>
-                  <select
-                    value={formData.category}
-                    onChange={e => setFormData({ ...formData, category: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
-                  >
-                    <option value="Arcade">Arcade</option>
-                    <option value="Ação">Ação & Tiro</option>
-                    <option value="Cartas">Cartas & Tabuleiro</option>
-                    <option value="Puzzle">Puzzle & Raciocínio</option>
-                    <option value="Casual">Casual & Família</option>
-                    <option value="Bebês">Bebês & Infantil</option>
-                  </select>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setUploadMethod('file')}
+                      style={{ 
+                        padding: '4px 12px', 
+                        borderRadius: '8px', 
+                        fontSize: '0.72rem', 
+                        fontWeight: 700, 
+                        border: 'none', 
+                        cursor: 'pointer',
+                        background: uploadMethod === 'file' ? '#38e8ff' : 'rgba(255,255,255,0.06)',
+                        color: uploadMethod === 'file' ? '#040817' : '#94a3b8'
+                      }}
+                    >
+                      Subir do Computador
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadMethod('link')}
+                      style={{ 
+                        padding: '4px 12px', 
+                        borderRadius: '8px', 
+                        fontSize: '0.72rem', 
+                        fontWeight: 700, 
+                        border: 'none', 
+                        cursor: 'pointer',
+                        background: uploadMethod === 'link' ? '#38e8ff' : 'rgba(255,255,255,0.06)',
+                        color: uploadMethod === 'link' ? '#040817' : '#94a3b8'
+                      }}
+                    >
+                      Colar Link
+                    </button>
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Link do Arquivo ZIP do Jogo (.zip) *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="Link de download: Google Drive, WeTransfer, GitHub ou Dropbox"
-                    value={formData.zipUrl}
-                    onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
-                  />
-                </div>
+                {uploadMethod === 'file' ? (
+                  <div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept=".zip,application/zip"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
+
+                    {selectedFile ? (
+                      <div style={{ 
+                        background: 'rgba(56, 232, 255, 0.08)', 
+                        border: '1px solid rgba(56, 232, 255, 0.3)', 
+                        borderRadius: '12px', 
+                        padding: '14px 18px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        gap: '12px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '1.6rem' }}>📦</span>
+                          <div>
+                            <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.88rem' }}>
+                              {selectedFile.name}
+                            </div>
+                            <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>
+                              Tamanho: {formatFileSize(selectedFile.size)} • Pronto para envio
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                          style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <X style={{ width: 14, height: 14 }} />
+                          <span>Remover</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{ 
+                          textAlign: 'center', 
+                          padding: '24px 16px', 
+                          cursor: 'pointer',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          borderRadius: '12px',
+                          border: '1px dashed rgba(255, 255, 255, 0.15)'
+                        }}
+                      >
+                        <div style={{ fontSize: '2.2rem', marginBottom: '8px' }}>📂</div>
+                        <div style={{ fontWeight: 800, color: '#38e8ff', fontSize: '0.9rem', marginBottom: '4px' }}>
+                          Clique aqui para selecionar o arquivo .zip do seu computador
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                          O arquivo .zip deve conter o <code>index.html</code> e os assets do jogo (máximo 60 MB).
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="url"
+                      placeholder="https://drive.google.com/... ou link direto do .zip"
+                      value={formData.zipUrl}
+                      onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                    />
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
+                      Pode ser um link público do Google Drive, Dropbox, WeTransfer ou GitHub Release.
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: '24px' }}>

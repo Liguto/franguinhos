@@ -2,6 +2,38 @@ import { Router, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth';
 import { syncDatabaseWithCatalog } from '../catalogSync';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase() || '.zip';
+    const cleanName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
+    cb(null, `${Date.now()}-${cleanName}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 60 * 1024 * 1024 }, // Limite de 60 MB
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.zip' || file.mimetype.includes('zip') || file.mimetype.includes('octet-stream')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos no formato .zip são permitidos.'));
+    }
+  }
+});
 
 const router = Router();
 
@@ -185,8 +217,15 @@ router.post('/:id/favorite', requireAuth, async (req: AuthenticatedRequest, res:
 });
 
 // POST /api/games/submit - Submissão pública de novos jogos por desenvolvedores
-router.post('/submit', async (req, res) => {
-  const {
+router.post('/submit', (req, res, next) => {
+  upload.single('zipFile')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message || 'Erro ao processar o upload do arquivo ZIP.' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  let {
     title,
     author,
     email,
@@ -199,8 +238,23 @@ router.post('/submit', async (req, res) => {
     checklist
   } = req.body;
 
+  // Se o desenvolvedor enviou o arquivo .zip diretamente do computador:
+  if (req.file) {
+    const host = req.get('host') || 'franguinhos-api.onrender.com';
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    zipUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+  }
+
+  // Parse de JSON caso venham via FormData multipart
+  if (typeof checklist === 'string') {
+    try { checklist = JSON.parse(checklist); } catch(e) {}
+  }
+  if (typeof controls === 'string') {
+    try { controls = JSON.parse(controls); } catch(e) {}
+  }
+
   if (!title || !author || !email || !zipUrl) {
-    return res.status(400).json({ error: 'Título, autor, e-mail e link do arquivo ZIP são obrigatórios.' });
+    return res.status(400).json({ error: 'Título, autor, e-mail e o arquivo ZIP (ou link) são obrigatórios.' });
   }
 
   // Validação estrita do checklist de monetização futura e direitos

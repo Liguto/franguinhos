@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Rocket, DollarSign, Code, Check, Copy, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Rocket, DollarSign, Code, Check, Copy, CheckCircle2, AlertCircle, FileText, Upload, X } from 'lucide-react';
 
 interface DevelopersModalProps {
   isOpen: boolean;
@@ -12,6 +12,11 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [contractProtocol, setContractProtocol] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Upload ZIP do PC ou Link
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'link'>('file');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -53,6 +58,23 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.name.toLowerCase().endsWith('.zip')) {
+        setErrorMessage('Por favor, selecione um arquivo no formato .zip.');
+        return;
+      }
+      setSelectedFile(file);
+      setErrorMessage(null);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isChecklistComplete) {
@@ -60,31 +82,67 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
       return;
     }
 
+    if (uploadMethod === 'file' && !selectedFile) {
+      setErrorMessage('Por favor, selecione o arquivo .zip do jogo do seu computador.');
+      return;
+    }
+
+    if (uploadMethod === 'link' && !formData.zipUrl.trim()) {
+      setErrorMessage('Por favor, informe o link de download do arquivo .zip.');
+      return;
+    }
+
     setSubmitting(true);
     setErrorMessage(null);
 
     try {
-      const response = await fetch('/api/games/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          author: formData.author,
-          email: formData.email,
-          description: formData.description,
-          category: formData.category,
-          orientation: formData.orientation,
-          controls: {
-            mouse: formData.supportsMouse,
-            teclado: formData.supportsKeyboard,
-            toque: formData.supportsTouch,
-            platformSupport: formData.platformSupport
-          },
-          zipUrl: formData.zipUrl,
-          pixKey: formData.pixKey || 'Pendente (Opcional)',
-          checklist
-        })
-      });
+      let response: Response;
+
+      if (uploadMethod === 'file' && selectedFile) {
+        const body = new FormData();
+        body.append('zipFile', selectedFile);
+        body.append('title', formData.title);
+        body.append('author', formData.author);
+        body.append('email', formData.email);
+        body.append('description', formData.description);
+        body.append('category', formData.category);
+        body.append('orientation', formData.orientation);
+        body.append('controls', JSON.stringify({
+          mouse: formData.supportsMouse,
+          teclado: formData.supportsKeyboard,
+          toque: formData.supportsTouch,
+          platformSupport: formData.platformSupport
+        }));
+        body.append('pixKey', formData.pixKey || 'Pendente (Opcional)');
+        body.append('checklist', JSON.stringify(checklist));
+
+        response = await fetch('/api/games/submit', {
+          method: 'POST',
+          body
+        });
+      } else {
+        response = await fetch('/api/games/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: formData.title,
+            author: formData.author,
+            email: formData.email,
+            description: formData.description,
+            category: formData.category,
+            orientation: formData.orientation,
+            controls: {
+              mouse: formData.supportsMouse,
+              teclado: formData.supportsKeyboard,
+              toque: formData.supportsTouch,
+              platformSupport: formData.platformSupport
+            },
+            zipUrl: formData.zipUrl,
+            pixKey: formData.pixKey || 'Pendente (Opcional)',
+            checklist
+          })
+        });
+      }
 
       const data = await response.json();
 
@@ -303,6 +361,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
                   </div>
                 </div>
 
+                {/* CATEGORIA */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">Categoria Principal</label>
@@ -319,18 +378,84 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
                       <option value="Bebês">Bebês & Infantil</option>
                     </select>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Link do Arquivo ZIP do Jogo (.zip) *</label>
-                    <input
-                      type="url"
-                      required
-                      placeholder="Google Drive, WeTransfer, GitHub ou Dropbox"
-                      value={formData.zipUrl}
-                      onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
-                    />
+                {/* UPLOAD ZIP DO COMPUTADOR OU LINK */}
+                <div className="p-3.5 rounded-xl bg-slate-950/80 border border-cyan-500/40 space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-cyan-300 flex items-center gap-1.5">
+                      <Upload className="w-4 h-4" />
+                      <span>Arquivo do Jogo (.zip) *</span>
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setUploadMethod('file')}
+                        className={`px-2.5 py-1 rounded text-[10px] font-bold ${
+                          uploadMethod === 'file' ? 'bg-cyan-400 text-slate-950' : 'bg-white/10 text-slate-400'
+                        }`}
+                      >
+                        Subir do PC
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMethod('link')}
+                        className={`px-2.5 py-1 rounded text-[10px] font-bold ${
+                          uploadMethod === 'link' ? 'bg-cyan-400 text-slate-950' : 'bg-white/10 text-slate-400'
+                        }`}
+                      >
+                        Colar Link
+                      </button>
+                    </div>
                   </div>
+
+                  {uploadMethod === 'file' ? (
+                    <div>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept=".zip,application/zip"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                      {selectedFile ? (
+                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">📦</span>
+                            <div>
+                              <b className="text-white block text-xs">{selectedFile.name}</b>
+                              <span className="text-[10px] text-green-400">{formatFileSize(selectedFile.size)} • Pronto</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                            className="p-1 rounded bg-red-500/20 hover:bg-red-500/40 text-red-300"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => fileInputRef.current?.click()}
+                          className="p-4 rounded-lg border border-dashed border-cyan-500/30 hover:border-cyan-400 text-center cursor-pointer bg-white/5 transition"
+                        >
+                          <p className="font-bold text-cyan-300 text-xs">Clique para selecionar o arquivo .zip do computador</p>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">Deve conter index.html e assets na raiz (máx 60 MB)</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="url"
+                        placeholder="Link público do Google Drive, WeTransfer, etc."
+                        value={formData.zipUrl}
+                        onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
