@@ -228,6 +228,53 @@ router.put('/games/:id', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// POST /api/admin/games/:id/approve - Aprovação rápida e publicação imediata do jogo no site
+router.post('/games/:id/approve', async (req: AuthenticatedRequest, res: Response) => {
+  const gameId = req.params.id;
+
+  try {
+    const existingGame = await prisma.game.findUnique({
+      where: { id: gameId },
+      include: { contract: true }
+    });
+
+    if (!existingGame) {
+      return res.status(404).json({ error: 'Jogo não encontrado.' });
+    }
+
+    const now = new Date();
+    const updatedGame = await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        statusEditorial: 'publicado',
+        statusTechnical: 'aprovado',
+        statusDoc: 'aprovado',
+        publishedAt: now,
+        revisedAt: now
+      }
+    });
+
+    if (existingGame.contract) {
+      const approvalLog = `[${now.toISOString()}] JOGO APROVADO E PUBLICADO NO SITE pelo administrador ${req.user!.username}.\n`;
+      await prisma.contract.update({
+        where: { id: existingGame.contract.id },
+        data: {
+          auditLog: (existingGame.contract.auditLog || '') + approvalLog
+        }
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Jogo "${existingGame.title}" aprovado e publicado com sucesso no site!`,
+      game: mapDatabaseGameToShared(updatedGame)
+    });
+  } catch (error) {
+    console.error('Erro ao aprovar jogo:', error);
+    return res.status(500).json({ error: 'Erro ao aprovar o jogo.' });
+  }
+});
+
 // DELETE /api/admin/games/:id - Deletar jogo do catálogo (e seu contrato em cascata)
 router.delete('/games/:id', async (req, res) => {
   const gameId = req.params.id;

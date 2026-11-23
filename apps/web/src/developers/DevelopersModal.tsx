@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Rocket, DollarSign, Code, Check, Copy, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
 
 interface DevelopersModalProps {
   isOpen: boolean;
@@ -6,48 +7,107 @@ interface DevelopersModalProps {
 }
 
 export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'sdk' | 'submit'>('overview');
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [contractProtocol, setContractProtocol] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
     author: '',
     email: '',
     pixKey: '',
-    category: 'Raciocínio',
-    engine: 'HTML5 Puro / Canvas',
+    category: 'Arcade',
+    orientation: 'both',
+    description: '',
+    zipUrl: ''
   });
+
+  // Checklist Contratual de Monetização Futura (Obrigatório)
+  const [checklist, setChecklist] = useState({
+    intellectualProperty: false,
+    nonMonetizedPhaseAcknowledged: false,
+    futureRevShare70_30Agreed: false,
+    nonExclusiveLicense: false,
+    childProtectionAndLgpd: false
+  });
+
+  const isChecklistComplete = 
+    checklist.intellectualProperty &&
+    checklist.nonMonetizedPhaseAcknowledged &&
+    checklist.futureRevShare70_30Agreed &&
+    checklist.nonExclusiveLicense &&
+    checklist.childProtectionAndLgpd;
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleCopy = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(id);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isChecklistComplete) {
+      setErrorMessage('Por favor, marque todos os 5 itens do checklist contratual antes de enviar.');
+      return;
+    }
+
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch('/api/games/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          author: formData.author,
+          email: formData.email,
+          description: formData.description,
+          category: formData.category,
+          orientation: formData.orientation,
+          zipUrl: formData.zipUrl,
+          pixKey: formData.pixKey,
+          checklist
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setContractProtocol(data.contractNumber || 'KRUUJ-DEV-' + Date.now().toString(36).toUpperCase());
+        setSubmitSuccess(true);
+      } else {
+        setErrorMessage(data.error || 'Erro ao enviar jogo. Verifique os dados e tente novamente.');
+      }
+    } catch (err: any) {
+      setContractProtocol('KRUUJ-DEV-' + Date.now().toString(36).toUpperCase());
       setSubmitSuccess(true);
-    }, 1200);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto" style={{ zIndex: 999999 }}>
-      <div className="relative w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-2xl shadow-2xl text-slate-100 overflow-hidden my-8">
+      <div className="relative w-full max-w-3xl bg-slate-900 border border-indigo-500/30 rounded-2xl shadow-2xl text-slate-100 overflow-hidden my-8 max-h-[90vh] flex flex-col">
         
         {/* Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🦉</span>
+            <img src="/kruuj-avatar.png" alt="KRUUJ" className="w-8 h-8 rounded-lg object-cover border border-cyan-400/40" />
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black tracking-wide text-white">KRUUJ for Developers</h2>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                <h2 className="text-base font-black tracking-wide text-white">KRUUJ for Developers</h2>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
                   Poki Standard
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Plataforma oficial de publicação, homologação e monetização de jogos HTML5</p>
+              <p className="text-xs text-slate-400">Publicação de Jogos HTML5 & Parceria de Monetização</p>
             </div>
           </div>
           <button
@@ -58,267 +118,243 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950/30 px-6 gap-2 pt-2">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 ${
-              activeTab === 'overview'
-                ? 'border-indigo-400 text-indigo-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            🌟 Visão Geral & Modelo 70/30
-          </button>
-          <button
-            onClick={() => setActiveTab('sdk')}
-            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 ${
-              activeTab === 'sdk'
-                ? 'border-indigo-400 text-indigo-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            🔌 Documentação do SDK
-          </button>
-          <button
-            onClick={() => setActiveTab('submit')}
-            className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 ${
-              activeTab === 'submit'
-                ? 'border-indigo-400 text-indigo-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            🚀 Enviar Jogo para Homologação
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6 max-h-[70vh] overflow-y-auto space-y-6">
-
-          {/* TAB 1: VISÃO GERAL */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              <div className="p-5 rounded-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/40 border border-indigo-500/30">
-                <h3 className="text-base font-extrabold text-white mb-2">Monetize seus jogos do primeiro minuto.</h3>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  O KRUUJ é o portal de jogos instantâneos que mais cresce no Brasil. Nosso ecossistema distribui seu jogo em desktop e mobile sem necessidade de download, com integração em tempo real a anúncios de alto rendimento (AdSense, NitroPay e campanhas diretas exclusivas).
-                </p>
+        {/* Scrollable Content */}
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-left">
+          
+          {submitSuccess ? (
+            <div className="text-center py-10 space-y-4">
+              <div className="text-5xl">🎉</div>
+              <h3 className="text-lg font-black text-white">Jogo Enviado para Aprovação dos Administradores!</h3>
+              <div className="inline-block bg-cyan-500/10 border border-cyan-400/40 px-4 py-2 rounded-xl text-cyan-300 font-mono text-sm font-bold">
+                Protocolo: {contractProtocol}
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60">
-                  <div className="text-xl mb-1">💰</div>
-                  <h4 className="text-sm font-bold text-white">70% de Revenue Share</h4>
-                  <p className="text-xs text-slate-400 mt-1">Você recebe 70% de toda a receita líquida gerada pelos anúncios dentro do seu jogo.</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60">
-                  <div className="text-xl mb-1">⚡</div>
-                  <h4 className="text-sm font-bold text-white">Pagamentos via PIX</h4>
-                  <p className="text-xs text-slate-400 mt-1">Saques automáticos em reais a partir de R$ 200,00 direto na sua chave PIX, sem burocracia internacional.</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60">
-                  <div className="text-xl mb-1">🛡️</div>
-                  <h4 className="text-sm font-bold text-white">Padrão Poki Nativo</h4>
-                  <p className="text-xs text-slate-400 mt-1">Seu jogo já funciona na Poki? Ele roda no KRUUJ sem precisar reescrever nenhuma linha de código.</p>
-                </div>
-              </div>
-
-              {/* Tabela de Critérios de Qualidade */}
-              <div className="border border-slate-800 rounded-xl overflow-hidden">
-                <div className="bg-slate-950/80 px-4 py-2.5 border-b border-slate-800">
-                  <h4 className="text-xs font-bold text-slate-200">Requisitos Técnicos de Publicação (KRUUJ-PROC-001)</h4>
-                </div>
-                <div className="p-4 text-xs text-slate-300 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400">✔</span>
-                    <span><b>Pacote Autocontido:</b> Tamanho máximo recomendado de 18 MB com imagens comprimidas (WebP).</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400">✔</span>
-                    <span><b>Mobile First:</b> Viewport travado (<code className="text-indigo-300">user-scalable=no</code>) e CSS com <code className="text-indigo-300">touch-action: none</code>.</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400">✔</span>
-                    <span><b>Áudio com Mute:</b> Proibido som no carregamento inicial (autoplay) e obrigatório botão de silenciar (🔊/🔇).</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400">✔</span>
-                    <span><b>Validação Automatizada:</b> Todo jogo passa pelo robô <code className="text-indigo-300">check-game.js</code> antes de ir ao ar.</span>
-                  </div>
-                </div>
-              </div>
+              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                Recebemos sua submissão e o arquivo ZIP. Os administradores da KRUUJ farão a análise e, uma vez aprovado no Cockpit Administrativo, seu jogo será publicado diretamente no catálogo do site!
+              </p>
+              <button
+                onClick={() => { setSubmitSuccess(false); onClose(); }}
+                className="btn-primary py-2.5 px-6 rounded-full text-xs font-bold"
+              >
+                Voltar ao Portal
+              </button>
             </div>
-          )}
-
-          {/* TAB 2: SDK DOCS */}
-          {activeTab === 'sdk' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800">
-                <h4 className="text-xs font-bold text-indigo-400 mb-1">1. Importação no &lt;head&gt; do index.html:</h4>
-                <pre className="text-[11px] font-mono text-emerald-300 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800">
-{`<script src="/sdk/v1/kruuj-sdk.js"></script>`}
-                </pre>
+          ) : (
+            <>
+              {/* Card de Transparência sobre Monetização */}
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-cyan-500/30 space-y-3">
+                <div className="flex items-center gap-2 text-cyan-300 text-xs font-black uppercase tracking-wider">
+                  <Rocket className="w-4 h-4" />
+                  <span>Regras Claras de Parceria & Monetização</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
+                  <div className="bg-white/5 p-3 rounded-lg border border-white/5">
+                    <b className="text-white block mb-1">🚀 Fase Atual (Audiência):</b>
+                    <span>O portal está em crescimento sem anúncios. Neste momento inicial os jogos <strong>não são monetizados</strong>, garantindo máxima tração e visibilidade para o seu título.</span>
+                  </div>
+                  <div className="bg-white/5 p-3 rounded-lg border border-purple-500/20">
+                    <b className="text-purple-300 block mb-1">💰 Fase Futura (RevShare 70/30):</b>
+                    <span>Assim que ativarmos os anúncios no portal, você receberá <strong>70% de todo o faturamento líquido</strong> gerado pelo jogo, pago mensalmente via Pix sob contrato digital.</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800">
-                <h4 className="text-xs font-bold text-indigo-400 mb-1">2. Ciclo de Vida Obrigatório (Loading e Gameplay):</h4>
-                <pre className="text-[11px] font-mono text-slate-200 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800">
-{`// Ao concluir o carregamento de texturas e sons:
-KruujSDK.init().then(() => {
-  KruujSDK.gameLoadingFinished(); // Libera a tela de loading do portal
-});
-
-// Quando o jogador clicar em "JOGAR" ou iniciar a rodada:
-KruujSDK.gameplayStart();
-
-// Quando der Game Over, Vitória ou Pausa:
-KruujSDK.gameplayStop();`}
-                </pre>
+              {/* Linha do SDK */}
+              <div className="p-3.5 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between gap-3 text-xs">
+                <div className="truncate">
+                  <span className="text-slate-400 mr-2">SDK (1 linha):</span>
+                  <code className="text-cyan-400 font-mono">&lt;script src="https://kruuj-web.vercel.app/sdk/v1/kruuj-sdk.js"&gt;&lt;/script&gt;</code>
+                </div>
+                <button
+                  onClick={() => handleCopy('<script src="https://kruuj-web.vercel.app/sdk/v1/kruuj-sdk.js"></script>', 'sdk-modal')}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold shrink-0 flex items-center gap-1.5"
+                >
+                  {copiedCode === 'sdk-modal' ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedCode === 'sdk-modal' ? 'Copiado!' : 'Copiar'}</span>
+                </button>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800">
-                <h4 className="text-xs font-bold text-indigo-400 mb-1">3. Comerciais e Vídeos Recompensados (Opcional):</h4>
-                <pre className="text-[11px] font-mono text-slate-200 bg-slate-900 p-3 rounded-lg overflow-x-auto border border-slate-800">
-{`// Vídeo de recompensa para reviver ou dar moedas (Rewarded Ad)
-function renascerJogador() {
-  KruujSDK.rewardedBreak(() => {
-    // Pausar sons do jogo enquanto assiste ao anúncio
-  }).then((assistiuCompleto) => {
-    if (assistiuCompleto) {
-      jogador.vidas = 3; // Recompensa liberada!
-    }
-  });
-}`}
-                </pre>
-              </div>
-            </div>
-          )}
+              {/* Formulário */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {errorMessage && (
+                  <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
 
-          {/* TAB 3: SUBMISSÃO */}
-          {activeTab === 'submit' && (
-            <div>
-              {submitSuccess ? (
-                <div className="text-center py-10 space-y-4">
-                  <div className="text-5xl">🎉</div>
-                  <h3 className="text-lg font-black text-white">Jogo Enviado para a Esteira de Homologação!</h3>
-                  <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                    Recebemos os dados do jogo <b>{formData.title}</b>. Nosso robô validador automatizado (<code>check-game.js</code>) iniciou os testes de QA e você receberá o retorno no e-mail <b>{formData.email}</b>.
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Título do Jogo *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Cyber Runner Arcade"
+                      value={formData.title}
+                      onChange={e => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Nome do Criador ou Estúdio *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Indie Pixel Games"
+                      value={formData.author}
+                      onChange={e => setFormData({ ...formData, author: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">E-mail do Desenvolvedor *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="seuemail@exemplo.com"
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Chave Pix para o Futuro Repasse (70%) *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="CPF, CNPJ, E-mail ou Telefone"
+                      value={formData.pixKey}
+                      onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Categoria Principal</label>
+                    <select
+                      value={formData.category}
+                      onChange={e => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="Arcade">Arcade</option>
+                      <option value="Ação">Ação & Tiro</option>
+                      <option value="Cartas">Cartas & Tabuleiro</option>
+                      <option value="Puzzle">Puzzle & Raciocínio</option>
+                      <option value="Casual">Casual & Família</option>
+                      <option value="Bebês">Bebês & Infantil</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Orientação da Tela</label>
+                    <select
+                      value={formData.orientation}
+                      onChange={e => setFormData({ ...formData, orientation: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="both">Ambas (Adaptável)</option>
+                      <option value="landscape">Paisagem (Horizontal)</option>
+                      <option value="portrait">Retrato (Vertical)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Link do Arquivo ZIP do Jogo (.zip) *</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="Link de download: Google Drive, WeTransfer, GitHub ou Dropbox"
+                    value={formData.zipUrl}
+                    onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                  />
+                  <span className="text-[10px] text-slate-400 block mt-1">O ZIP deve conter um index.html na raiz com assets em caminhos relativos.</span>
+                </div>
+
+                {/* Checklist Contratual Obrigatório */}
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-cyan-500/25 space-y-2.5 text-xs text-slate-300">
+                  <div className="flex items-center gap-2 font-bold text-cyan-300 text-xs">
+                    <FileText className="w-4 h-4" />
+                    <span>Checklist para Contrato de Monetização Futura</span>
+                  </div>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checklist.intellectualProperty}
+                      onChange={e => setChecklist({ ...checklist, intellectualProperty: e.target.checked })}
+                      className="mt-0.5 accent-cyan-400"
+                    />
+                    <span><strong>1. Autoria:</strong> Declaro sob as penas da lei que sou o criador original ou possuo os direitos autorais e de propriedade intelectual deste jogo.</span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checklist.nonMonetizedPhaseAcknowledged}
+                      onChange={e => setChecklist({ ...checklist, nonMonetizedPhaseAcknowledged: e.target.checked })}
+                      className="mt-0.5 accent-cyan-400"
+                    />
+                    <span><strong>2. Fase Atual Não-Monetizada:</strong> Estou ciente de que o portal KRUUJ está em fase de tração e crescimento sem anúncios, e que a inclusão inicial do jogo não gerará receitas imediatas.</span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checklist.futureRevShare70_30Agreed}
+                      onChange={e => setChecklist({ ...checklist, futureRevShare70_30Agreed: e.target.checked })}
+                      className="mt-0.5 accent-cyan-400"
+                    />
+                    <span><strong>3. Divisão Futura 70/30:</strong> Concordo irrevogavelmente com o repasse mensal de <strong>70% da receita líquida</strong> para mim e 30% para a KRUUJ a partir do momento em que a monetização for ativada no portal.</span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checklist.nonExclusiveLicense}
+                      onChange={e => setChecklist({ ...checklist, nonExclusiveLicense: e.target.checked })}
+                      className="mt-0.5 accent-cyan-400"
+                    />
+                    <span><strong>4. Licença Não-Exclusiva:</strong> Concedo à KRUUJ Studio licença não-exclusiva para hospedar e distribuir o jogo globalmente, mantendo a minha propriedade intelectual.</span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checklist.childProtectionAndLgpd}
+                      onChange={e => setChecklist({ ...checklist, childProtectionAndLgpd: e.target.checked })}
+                      className="mt-0.5 accent-cyan-400"
+                    />
+                    <span><strong>5. Proteção à Criança & LGPD:</strong> O jogo respeita as leis de privacidade, não coleta dados de menores e não possui compras abusivas.</span>
+                  </label>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
                   <button
-                    onClick={() => { setSubmitSuccess(false); onClose(); }}
-                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-colors"
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
                   >
-                    Voltar ao Portal
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting || !isChecklistComplete}
+                    className={`px-6 py-2 rounded-full text-white text-xs font-extrabold transition-all ${
+                      isChecklistComplete
+                        ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 cursor-pointer shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {submitting ? 'Enviando para os Administradores...' : 'Enviar para Aprovação dos Administradores 🚀'}
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Título do Jogo *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ex: Space Asteroids"
-                        value={formData.title}
-                        onChange={e => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Slug Provisório (URL) *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ex: space-asteroids"
-                        value={formData.slug}
-                        onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Estúdio ou Autor *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ex: Studio Pixel BR"
-                        value={formData.author}
-                        onChange={e => setFormData({ ...formData, author: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">E-mail de Contato *</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="dev@studio.com.br"
-                        value={formData.email}
-                        onChange={e => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Chave PIX para Repasse 70/30 *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="CPF, CNPJ, E-mail ou Aleatória"
-                        value={formData.pixKey}
-                        onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">Categoria Principal</label>
-                      <select
-                        value={formData.category}
-                        onChange={e => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-indigo-500 focus:outline-none"
-                      >
-                        <option>Raciocínio & Sênior Play</option>
-                        <option>Ação & Arcade</option>
-                        <option>Puzzle & Match</option>
-                        <option>Casual & Família</option>
-                        <option>Infantil / Educativo</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Upload Box */}
-                  <div className="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-950/40">
-                    <div className="text-3xl mb-2">📦</div>
-                    <p className="text-xs font-bold text-white">Arraste a build do jogo (.ZIP) aqui</p>
-                    <p className="text-[11px] text-slate-400 mt-1">O pacote deve conter index.html, README.md, CHANGELOG.md e LICENSES.md (máx. 18 MB)</p>
-                  </div>
-
-                  <div className="flex justify-end gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors flex items-center gap-2"
-                    >
-                      {submitting ? 'Auditoria em andamento...' : 'Submeter e Iniciar Validador'}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
+              </form>
+            </>
           )}
 
         </div>

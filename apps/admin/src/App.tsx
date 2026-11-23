@@ -408,6 +408,26 @@ export default function App() {
     }
   };
 
+  // --- Aprovar e Publicar Jogo no Site ---
+  const handleApproveGame = async (gameId: string, title: string) => {
+    if (!confirm(`Deseja aprovar e publicar o jogo "${title}" no catálogo oficial do site agora?`)) return;
+    try {
+      const response = await fetch(`/api/admin/games/${gameId}/approve`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      if (response.ok) {
+        alert(`Jogo "${title}" aprovado e publicado com sucesso no site!`);
+        fetchCatalog();
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Erro ao aprovar jogo.');
+      }
+    } catch(e) {
+      alert('Erro de conexão ao aprovar jogo.');
+    }
+  };
+
   // --- Salvar Novo Jogo ou Edição ---
   const handleSaveGameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -724,7 +744,16 @@ export default function App() {
                           <td>{getEditorialBadge(item.game.statusEditorial)}</td>
                           <td>{getDocBadge(item.game.statusDoc)}</td>
                           <td>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
+                              {item.game.statusEditorial !== 'publicado' && (
+                                <button 
+                                  className="px-2 py-1 rounded bg-green-500/20 hover:bg-green-500/40 text-green-300 font-extrabold text-[11px] flex items-center gap-1 transition border border-green-500/30"
+                                  onClick={() => handleApproveGame(item.game.id, item.game.title)}
+                                  title="Aprovar e Publicar no Site Agora"
+                                >
+                                  <span>✅ Aprovar</span>
+                                </button>
+                              )}
                               <button 
                                 className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
                                 onClick={() => handleEditClick(item)}

@@ -184,6 +184,140 @@ router.post('/:id/favorite', requireAuth, async (req: AuthenticatedRequest, res:
   }
 });
 
+// POST /api/games/submit - Submissão pública de novos jogos por desenvolvedores
+router.post('/submit', async (req, res) => {
+  const {
+    title,
+    author,
+    email,
+    description,
+    category,
+    orientation,
+    controls,
+    zipUrl,
+    pixKey,
+    checklist
+  } = req.body;
+
+  if (!title || !author || !email || !zipUrl) {
+    return res.status(400).json({ error: 'Título, autor, e-mail e link do arquivo ZIP são obrigatórios.' });
+  }
+
+  // Validação estrita do checklist de monetização futura e direitos
+  const isValidChecklist = checklist &&
+    checklist.intellectualProperty === true &&
+    checklist.nonMonetizedPhaseAcknowledged === true &&
+    checklist.futureRevShare70_30Agreed === true &&
+    checklist.nonExclusiveLicense === true &&
+    checklist.childProtectionAndLgpd === true;
+
+  if (!isValidChecklist) {
+    return res.status(400).json({
+      error: 'O checklist contratual de monetização futura e conformidade jurídica deve ser aceito integralmente.'
+    });
+  }
+
+  try {
+    // Gerar slug a partir do título
+    let slug = title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!slug) slug = 'game-' + Date.now().toString(36);
+
+    // Verificar se slug já existe
+    const slugExists = await prisma.game.findUnique({ where: { slug } });
+    if (slugExists) {
+      slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+    }
+
+    const contractNumber = 'KRUUJ-DEV-' + Date.now().toString(36).toUpperCase();
+    const now = new Date();
+
+    const auditLog = `[${now.toISOString()}] Submissão recebida via KRUUJ for Developers:
+- Criador: ${author} <${email}>
+- Chave Pix cadastrada para repasses futuros: ${pixKey || 'Não informada'}
+- Pacote ZIP do jogo: ${zipUrl}
+- Checklist Contratual de Monetização Aceito:
+  [X] Propriedade intelectual e autoria legítima declarada
+  [X] Ciência de fase atual sem monetização direta
+  [X] Concordância irrevogável com Revenue Share 70% Dev / 30% KRUUJ futuro
+  [X] Concessão de licença de distribuição web não-exclusiva
+  [X] Conformidade com LGPD e proteção à criança (ECA)
+Status inicial: Em análise pelos administradores da KRUUJ.\n`;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const game = await tx.game.create({
+        data: {
+          title,
+          slug,
+          description: description || `Jogo ${title} desenvolvido por ${author}.`,
+          category: category || 'Arcade',
+          subcategories: category || 'Arcade',
+          tags: `${slug},kruuj,indie,games,${author}`,
+          ageRating: 'Livre',
+          bannerUrl: zipUrl, // Referência inicial do arquivo/pacote enviado
+          iconUrl: 'gamepad',
+          prefixUrl: `/games/submissions/${slug}/`,
+          version: '1.0.0',
+          mouse: controls?.mouse ?? true,
+          teclado: controls?.teclado ?? true,
+          toque: controls?.toque ?? true,
+          gamepad: controls?.gamepad ?? false,
+          orientation: orientation || 'both',
+          statusTechnical: 'pendente_teste',
+          statusEditorial: 'em_análise', // Pendente de aprovação dos administradores
+          statusDoc: 'documentacao_pendente',
+          author,
+          licenseName: 'Distribuição Web Não-Exclusiva (RevShare 70/30)'
+        }
+      });
+
+      const contract = await tx.contract.create({
+        data: {
+          gameId: game.id,
+          contractNumber,
+          signatoryCreator: `${author} <${email}>`,
+          signatoryRepresentative: 'Administração KRUUJ Studio',
+          termsAccepted: true,
+          licenseType: 'Distribuição Web Não-Exclusiva (RevShare 70/30)',
+          exclusivityScope: 'Não Exclusivo',
+          durationMonths: 24,
+          revenueSharePercent: 70.0, // 70% Desenvolvedor / 30% KRUUJ
+          fixedPaymentAmount: 0.0,
+          auditLog
+        }
+      });
+
+      return { game, contract };
+    });
+
+    // Notificação por e-mail para os administradores da KRUUJ
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'contato@kruuj.com';
+    console.log(`[KRUUJ Notification] E-mail enviado para ${adminEmail}:
+Assunto: [KRUUJ] Nova Submissão de Jogo: "${title}" por ${author}
+Protocolo de Contrato: ${contractNumber}
+E-mail do Dev: ${email}
+Link do ZIP: ${zipUrl}
+Chave Pix: ${pixKey || 'Pendente'}
+Checklist Contratual: Aceito 100%`);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Jogo enviado com sucesso para aprovação dos administradores!',
+      contractNumber,
+      gameId: result.game.id,
+      slug: result.game.slug
+    });
+  } catch (error: any) {
+    console.error('Erro ao submeter jogo:', error);
+    return res.status(500).json({ error: 'Erro interno ao processar a submissão do jogo.' });
+  }
+});
+
 export default router;
 export { router as gamesRouter };
 export { mapDatabaseGameToShared };

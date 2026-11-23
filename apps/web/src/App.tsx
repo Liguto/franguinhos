@@ -5,7 +5,7 @@ import {
   Smartphone, Share2, Award, Zap, Brain, Rocket, Grid, Plus, Hash, X, FileText, Lock, Maximize,
   FolderGit2, FileSignature, BarChart3, Cpu, Trash2, Edit2, Calendar, Users, DollarSign, Activity, AlertCircle, ChevronRight,
   MessageSquare, Send, ChevronLeft, Play, Flame, Trophy, Bell, Clock, Check, GraduationCap, Smile,
-  ThumbsUp, ThumbsDown, Flag, Code
+  ThumbsUp, ThumbsDown, Flag, Code, CheckCircle2
 } from 'lucide-react';
 import { trackGameInteraction, getUserCohort } from './cohorts/cohortEngine';
 import { getDirectCampaignForCohort, DirectCampaign } from './ads/directAdsEngine';
@@ -2684,6 +2684,26 @@ export default function App() {
     }
   };
 
+  const handleAdminApproveGame = async (gameId: string, title: string) => {
+    if (!confirm(`Deseja aprovar e publicar o jogo "${title}" no catálogo oficial do site agora?`)) return;
+    try {
+      const response = await fetch(`/api/admin/games/${gameId}/approve`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        alert(`Jogo "${title}" aprovado e publicado com sucesso no site!`);
+        fetchAdminCatalog();
+        fetchGames();
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Erro ao aprovar o jogo.');
+      }
+    } catch (e) {
+      alert('Erro de conexão ao aprovar o jogo.');
+    }
+  };
+
   const handleAdminUpdateRole = async (userId: string, newRole: string) => {
     try {
       const response = await fetch(`/api/admin/users/${userId}/role`, {
@@ -5056,6 +5076,16 @@ export default function App() {
                                   <td>{getDocBadge(item.game.statusDoc)}</td>
                                   <td>
                                     <div className="flex items-center justify-end gap-2">
+                                      {item.game.statusEditorial !== 'publicado' && (
+                                        <button 
+                                          className="px-2 py-1 rounded bg-green-500/20 hover:bg-green-500/40 text-green-300 font-extrabold text-[11px] flex items-center gap-1 transition border border-green-500/30"
+                                          title="Aprovar e Publicar no Site Agora"
+                                          onClick={() => handleAdminApproveGame(item.game.id, item.game.title)}
+                                        >
+                                          <CheckCircle2 className="w-3.5 h-3.5" />
+                                          <span>Aprovar</span>
+                                        </button>
+                                      )}
                                       <button 
                                         className="p-1.5 rounded bg-white/5 hover:bg-cyan-500/20 text-cyan-400 transition"
                                         title="Editar Ficha e Contrato"

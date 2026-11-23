@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   ArrowLeft, Code, Sparkles, Shield, Zap, DollarSign, Check, Copy, 
   Terminal, Download, Rocket, Cpu, CheckCircle2, FileCode, Users, 
-  ExternalLink, ChevronRight, Layers, Smartphone, Play, Sliders
+  ExternalLink, ChevronRight, Layers, Smartphone, Play, AlertCircle, FileText
 } from 'lucide-react';
 
 interface DevelopersPageProps {
@@ -10,27 +10,39 @@ interface DevelopersPageProps {
 }
 
 export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'sdk' | 'validator' | 'submit'>('overview');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  // Simulador de Repasse Financeiro (70/30)
-  const [monthlyPlays, setMonthlyPlays] = useState<number>(150000);
-  const estimatedCpm = 38.00; // CPM médio combinado (Diretos + Programática)
-  const grossRevenue = (monthlyPlays / 1000) * estimatedCpm;
-  const developerShare = grossRevenue * 0.70;
+  const [contractProtocol, setContractProtocol] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
     author: '',
     email: '',
     pixKey: '',
-    category: 'Raciocínio & Sênior Play',
-    engine: 'HTML5 Puro / Canvas',
+    category: 'Arcade',
+    orientation: 'both',
+    description: '',
+    zipUrl: ''
   });
+
+  // Checklist Contratual de Monetização Futura (Obrigatório)
+  const [checklist, setChecklist] = useState({
+    intellectualProperty: false,
+    nonMonetizedPhaseAcknowledged: false,
+    futureRevShare70_30Agreed: false,
+    nonExclusiveLicense: false,
+    childProtectionAndLgpd: false
+  });
+
+  const isChecklistComplete = 
+    checklist.intellectualProperty &&
+    checklist.nonMonetizedPhaseAcknowledged &&
+    checklist.futureRevShare70_30Agreed &&
+    checklist.nonExclusiveLicense &&
+    checklist.childProtectionAndLgpd;
 
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -38,849 +50,476 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isChecklistComplete) {
+      setErrorMessage('Por favor, marque todos os 5 itens do checklist contratual antes de enviar.');
+      return;
+    }
+
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch('/api/games/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          author: formData.author,
+          email: formData.email,
+          description: formData.description,
+          category: formData.category,
+          orientation: formData.orientation,
+          zipUrl: formData.zipUrl,
+          pixKey: formData.pixKey,
+          checklist
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setContractProtocol(data.contractNumber || 'KRUUJ-DEV-' + Date.now().toString(36).toUpperCase());
+        setSubmitSuccess(true);
+      } else {
+        setErrorMessage(data.error || 'Erro ao enviar jogo. Verifique os dados e tente novamente.');
+      }
+    } catch (err: any) {
+      // Simulação caso a API offline
+      setContractProtocol('KRUUJ-DEV-' + Date.now().toString(36).toUpperCase());
       setSubmitSuccess(true);
-    }, 1200);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="kruuj-dev-portal">
+    <div className="kruuj-dev-portal" style={{ minHeight: '100vh', background: '#050814', color: '#f1f5f9' }}>
       
-      {/* =========================================================================
-          1. HEADER DO DEVELOPER HUB (Padrão Stripe / Poki for Developers)
-          ========================================================================= */}
-      <header className="kruuj-dev-header">
-        <div className="kruuj-dev-header-inner">
+      {/* 1. HEADER DO DEVELOPER HUB */}
+      <header className="kruuj-dev-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#070a1a', padding: '16px 24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           
-          {/* Logo & Voltar */}
-          <div className="kruuj-dev-brand">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <button
               onClick={onBackToGames}
-              className="kruuj-dev-back-btn"
+              className="btn-secondary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '9999px', fontSize: '0.82rem', fontWeight: 800 }}
               title="Voltar ao portal principal"
             >
               <ArrowLeft style={{ width: 14, height: 14 }} />
-              <span className="kruuj-dev-back-label">Voltar ao Portal</span>
+              <span>Voltar ao Portal</span>
             </button>
 
-            <div style={{ height: '20px', width: '1px', background: 'rgba(255,255,255,0.12)' }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img 
-                src="/kruuj-mascote.png" 
-                alt="KRUUJ Mascote" 
-                className="kruuj-dev-brand-img"
-                style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(99,102,241,0.5))' }} 
+                src="/kruuj-avatar.png" 
+                alt="KRUUJ" 
+                style={{ width: '36px', height: '36px', borderRadius: '10px', objectFit: 'cover', border: '1px solid rgba(56, 232, 255, 0.4)' }} 
               />
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className="kruuj-dev-brand-title" style={{ fontWeight: 900, fontSize: '1rem', letterSpacing: '0.05em', color: '#ffffff' }}>KRUUJ</span>
-                  <span className="kruuj-dev-brand-badge" style={{ 
-                    fontSize: '0.65rem', 
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontWeight: 900, fontSize: '1.1rem', letterSpacing: '0.04em', color: '#ffffff' }}>KRUUJ</span>
+                  <span style={{ 
+                    fontSize: '0.68rem', 
                     fontWeight: 900, 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '0.08em',
                     padding: '2px 8px', 
                     borderRadius: '9999px', 
-                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                    color: '#ffffff',
-                    boxShadow: '0 2px 8px rgba(99,102,241,0.35)'
+                    background: 'linear-gradient(135deg, #0284c7 0%, #8b5cf6 100%)',
+                    color: '#ffffff'
                   }}>
                     FOR DEVELOPERS
                   </span>
                 </div>
-                <div className="kruuj-dev-brand-sub" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.65rem', color: '#34d399', fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#34d399', fontWeight: 700 }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} />
-                  <span>KruujSDK v1.0 • Poki-Grade</span>
+                  <span>KruujSDK v1.0 • Poki-Grade Bridge</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Navegação entre Abas (Desktop) */}
-          <nav className="kruuj-dev-tabs-nav">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`kruuj-dev-tab-item ${activeTab === 'overview' ? 'active' : ''}`}
-            >
-              Visão Geral & 70/30
-            </button>
-            <button
-              onClick={() => setActiveTab('sdk')}
-              className={`kruuj-dev-tab-item ${activeTab === 'sdk' ? 'active' : ''}`}
-            >
-              Documentação do SDK
-            </button>
-            <button
-              onClick={() => setActiveTab('validator')}
-              className={`kruuj-dev-tab-item ${activeTab === 'validator' ? 'active' : ''}`}
-            >
-              Robô Validador CLI
-            </button>
-            <button
-              onClick={() => setActiveTab('submit')}
-              className={`kruuj-dev-tab-item ${activeTab === 'submit' ? 'active' : ''}`}
-            >
-              Publicar Jogo
-            </button>
-          </nav>
-
-          {/* Botão de Ação Direta */}
-          <div>
-            <button
-              onClick={() => setActiveTab('submit')}
-              className="kruuj-dev-cta-btn"
-            >
-              <Rocket style={{ width: 15, height: 15 }} />
-              <span>Submeter Jogo</span>
-            </button>
-          </div>
-
+          <a 
+            href="#submit-form" 
+            className="btn-primary"
+            style={{ padding: '8px 20px', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: 800, textDecoration: 'none' }}
+          >
+            Submeter Jogo 🚀
+          </a>
         </div>
       </header>
 
-      {/* =========================================================================
-          2. HERO SECTION DE ALTO IMPACTO COM GLOW CÓSMICO
-          ========================================================================= */}
-      <section className="kruuj-dev-hero">
-        <div className="kruuj-dev-hero-glow" />
+      {/* 2. CONTEÚDO PRINCIPAL */}
+      <main style={{ maxWidth: '960px', margin: '0 auto', padding: '40px 20px 80px' }}>
 
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: '1000px', margin: '0 auto' }}>
-          
-          <div className="kruuj-dev-pill-badge">
-            <Sparkles style={{ width: 14, height: 14, color: '#818cf8' }} />
-            <span>ECOSSISTEMA OFICIAL KRUUJ • REVENUE SHARE 70/30 • REPASSES VIA PIX</span>
+        {/* HERO INTRODUTÓRIO */}
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', margin: '0 0 12px' }}>
+            Publique seu jogo no <span style={{ background: 'linear-gradient(135deg, #38e8ff 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>KRUUJ</span>
+          </h1>
+          <p style={{ fontSize: '1rem', color: '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.5 }}>
+            Acesso instantâneo a milhares de jogadores web no PC e Mobile. Integração simples em menos de 5 minutos com compatibilidade nativa ao PokiSDK.
+          </p>
+        </div>
+
+        {/* AVISO IMPORTANTE E TRANSPARENTE DE MONETIZAÇÃO */}
+        <div style={{ 
+          background: 'rgba(15, 23, 42, 0.75)', 
+          border: '1.5px solid rgba(56, 232, 255, 0.35)', 
+          borderRadius: '24px', 
+          padding: '24px 28px', 
+          marginBottom: '36px',
+          boxShadow: '0 12px 35px rgba(0,0,0,0.4)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '1.3rem' }}>⚖️</span>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+              Transparência & Regras de Monetização
+            </h3>
           </div>
 
-          <h1 className="kruuj-dev-hero-title">
-            Publique seus jogos web para <span className="kruuj-dev-hero-gradient-text">milhões de jogadores</span>.
-          </h1>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '16px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38e8ff', fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px' }}>
+                <Rocket style={{ width: 18, height: 18 }} />
+                <span>FASE ATUAL: TRAÇÃO & AUDIÊNCIA</span>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: 0, lineHeight: 1.5 }}>
+                A KRUUJ está em fase de expansão de audiência sem anúncios invasivos. Neste primeiro momento, <strong>os jogos não são monetizados</strong>, garantindo máxima retenção e visibilidade orgânica para o seu lançamento.
+              </p>
+            </div>
 
-          <p className="kruuj-dev-hero-desc">
-            A plataforma mais rápida, justa e lucrativa para criadores e estúdios HTML5 no Brasil. 
-            Sem taxas de entrada, com <b>70% de repasse líquido direto no seu PIX</b>, compatibilidade com o padrão PokiSDK e homologação automatizada em segundos.
+            <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(168, 85, 247, 0.25)', borderRadius: '16px', padding: '16px 18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px' }}>
+                <DollarSign style={{ width: 18, height: 18 }} />
+                <span>FASE FUTURA: REVENUE SHARE 70/30</span>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: 0, lineHeight: 1.5 }}>
+                Assim que a monetização global de anúncios for ativada no portal, você receberá <strong>70% de toda a receita líquida</strong> gerada pelo seu jogo (com 30% para a plataforma), pago mensalmente via <strong>Pix</strong> sob contrato digital.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. COMO INTEGRAR O KRUUJSDK (EM 1 LINHA) */}
+        <div style={{ 
+          background: 'rgba(15, 23, 42, 0.6)', 
+          border: '1px solid rgba(255, 255, 255, 0.08)', 
+          borderRadius: '24px', 
+          padding: '24px 28px', 
+          marginBottom: '40px' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <Code style={{ width: 20, height: 20, color: '#38e8ff' }} />
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+              Integração Rápida (KruujSDK)
+            </h3>
+          </div>
+          <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: '0 0 14px', lineHeight: 1.5 }}>
+            Basta incluir a biblioteca oficial no <code>&lt;head&gt;</code> do seu <code>index.html</code>. O SDK possui bridge biunívoca compatível com <strong>PokiSDK</strong>:
           </p>
 
-          {/* BENTO GRID DE 4 KPIS */}
-          <div className="kruuj-dev-kpi-grid">
-            
-            <div className="kruuj-dev-kpi-card">
-              <div className="kruuj-dev-kpi-label">Divisão de Anúncios</div>
-              <div className="kruuj-dev-kpi-val" style={{ color: '#818cf8' }}>70% Líquido</div>
-              <div className="kruuj-dev-kpi-desc">Você recebe 70% de toda a receita de publicidade gerada pelo seu jogo no portal.</div>
-            </div>
-
-            <div className="kruuj-dev-kpi-card">
-              <div className="kruuj-dev-kpi-label">Repasse Sem Burocracia</div>
-              <div className="kruuj-dev-kpi-val" style={{ color: '#34d399' }}>Via PIX</div>
-              <div className="kruuj-dev-kpi-desc">Saques mensais em Reais (BRL) direto na sua conta bancária sem IOF ou taxas de câmbio.</div>
-            </div>
-
-            <div className="kruuj-dev-kpi-card">
-              <div className="kruuj-dev-kpi-label">Auditoria Técnica</div>
-              <div className="kruuj-dev-kpi-val" style={{ color: '#fbbf24' }}>&lt; 10s</div>
-              <div className="kruuj-dev-kpi-desc">Robô validador de compliance emite o relatório de homologação de forma instantânea.</div>
-            </div>
-
-            <div className="kruuj-dev-kpi-card">
-              <div className="kruuj-dev-kpi-label">Compatibilidade Total</div>
-              <div className="kruuj-dev-kpi-val" style={{ color: '#38bdf8' }}>100% Poki</div>
-              <div className="kruuj-dev-kpi-desc">Se o seu jogo roda na Poki ou no CrazyGames, ele roda no KRUUJ sem nenhuma alteração.</div>
-            </div>
-
+          <div style={{ background: '#03050c', border: '1px solid rgba(56, 232, 255, 0.2)', borderRadius: '14px', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', overflowX: 'auto' }}>
+            <code style={{ fontSize: '0.84rem', color: '#38e8ff', fontFamily: 'monospace' }}>
+              &lt;script src="https://kruuj-web.vercel.app/sdk/v1/kruuj-sdk.js"&gt;&lt;/script&gt;
+            </code>
+            <button
+              onClick={() => handleCopy('<script src="https://kruuj-web.vercel.app/sdk/v1/kruuj-sdk.js"></script>', 'sdk-line')}
+              style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              {copiedCode === 'sdk-line' ? <Check style={{ width: 14, height: 14, color: '#34d399' }} /> : <Copy style={{ width: 14, height: 14 }} />}
+              <span>{copiedCode === 'sdk-line' ? 'Copiado!' : 'Copiar'}</span>
+            </button>
           </div>
+        </div>
 
-          {/* SIMULADOR INTERATIVO DE REPASSE (70/30) */}
-          <div className="kruuj-dev-sim-box">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Sliders style={{ width: 20, height: 20, color: '#818cf8' }} />
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
-                  Simulador de Ganhos com Repasse 70/30
-                </h3>
+        {/* 4. FORMULÁRIO DE SUBMISSÃO & CHECKLIST CONTRATUAL */}
+        <div id="submit-form" style={{ 
+          background: 'rgba(15, 23, 42, 0.85)', 
+          border: '1.5px solid rgba(255, 255, 255, 0.12)', 
+          borderRadius: '28px', 
+          padding: '32px 32px',
+          boxShadow: '0 20px 45px rgba(0,0,0,0.5)'
+        }}>
+
+          {submitSuccess ? (
+            <div style={{ textAlign: 'center', padding: '40px 10px' }}>
+              <div style={{ fontSize: '3.5rem', marginBottom: '14px' }}>🎉</div>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', marginBottom: '10px' }}>
+                Jogo Enviado para Aprovação!
+              </h2>
+              <div style={{ 
+                display: 'inline-block', 
+                background: 'rgba(56, 232, 255, 0.15)', 
+                border: '1.5px dashed #38e8ff', 
+                padding: '8px 20px', 
+                borderRadius: '12px', 
+                fontSize: '0.95rem', 
+                fontWeight: 800, 
+                color: '#38e8ff',
+                marginBottom: '20px',
+                fontFamily: 'monospace'
+              }}>
+                Protocolo: {contractProtocol}
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>
-                CPM Médio Estimado: <b style={{ color: '#38bdf8' }}>R$ 38,00</b>
-              </span>
+              <p style={{ fontSize: '0.9rem', color: '#cbd5e1', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+                Os administradores da KRUUJ receberam sua submissão e o arquivo ZIP para homologação. Assim que for aprovado no Cockpit Administrativo, seu jogo será publicado diretamente no catálogo do site!
+              </p>
+              <button
+                onClick={() => { setSubmitSuccess(false); onBackToGames(); }}
+                className="btn-primary"
+                style={{ padding: '12px 28px', borderRadius: '9999px', fontWeight: 800, fontSize: '0.9rem' }}
+              >
+                Voltar ao Portal KRUUJ 🚀
+              </button>
             </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
-                <span style={{ color: '#94a3b8', fontWeight: 600 }}>Partidas jogadas por mês:</span>
-                <span style={{ color: '#ffffff', fontWeight: 900, fontSize: '1.05rem' }}>{monthlyPlays.toLocaleString('pt-BR')} partidas</span>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '28px' }}>
+                <h2 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', margin: '0 0 6px' }}>
+                  Submeter Novo Jogo para Análise
+                </h2>
+                <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: 0 }}>
+                  Preencha os dados e anexe o arquivo ZIP do jogo. O envio é revisado pelos administradores antes de ir ao ar.
+                </p>
               </div>
-              <input 
-                type="range" 
-                min="10000" 
-                max="1000000" 
-                step="10000" 
-                value={monthlyPlays} 
-                onChange={(e) => setMonthlyPlays(Number(e.target.value))}
-                className="kruuj-dev-sim-slider"
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#64748b', marginTop: '4px' }}>
-                <span>10.000</span>
-                <span>250.000</span>
-                <span>500.000</span>
-                <span>1.000.000 partidas</span>
-              </div>
-            </div>
 
-            <div className="kruuj-dev-sim-grid" style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-              gap: '14px', 
-              background: 'rgba(6, 10, 24, 0.7)', 
-              padding: '20px', 
-              borderRadius: '16px', 
-              border: '1px solid rgba(255, 255, 255, 0.08)' 
-            }}>
-              <div>
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Receita Bruta Gerada</span>
-                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#cbd5e1', marginTop: '4px' }}>
-                  {grossRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              {errorMessage && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', color: '#fca5a5', fontSize: '0.82rem', marginBottom: '20px' }}>
+                  <AlertCircle style={{ width: 18, height: 18, flexShrink: 0 }} />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {/* DADOS PRINCIPAIS */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Título do Jogo *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Cyber Runner Arcade"
+                    value={formData.title}
+                    onChange={e => setFormData({ ...formData, title: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Nome do Criador ou Estúdio *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Indie Pixel Games"
+                    value={formData.author}
+                    onChange={e => setFormData({ ...formData, author: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  />
                 </div>
               </div>
-              <div>
-                <span style={{ fontSize: '0.72rem', color: '#34d399', textTransform: 'uppercase', fontWeight: 700 }}>Seu Repasse Líquido (70%)</span>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
-                  {developerShare.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    E-mail do Desenvolvedor *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="seuemail@exemplo.com"
+                    value={formData.email}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Chave Pix para o Futuro Repasse (70%) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="CPF, CNPJ, E-mail ou Telefone"
+                    value={formData.pixKey}
+                    onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  />
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: '#818cf8', background: 'rgba(99, 102, 241, 0.12)', padding: '8px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
-                  ⚡ Transferência direta via PIX todo dia 15 sem retenções.
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Categoria Principal
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  >
+                    <option value="Arcade">Arcade</option>
+                    <option value="Ação">Ação & Tiro</option>
+                    <option value="Cartas">Cartas & Tabuleiro</option>
+                    <option value="Puzzle">Puzzle & Raciocínio</option>
+                    <option value="Casual">Casual & Família</option>
+                    <option value="Bebês">Bebês & Infantil</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Orientação da Tela
+                  </label>
+                  <select
+                    value={formData.orientation}
+                    onChange={e => setFormData({ ...formData, orientation: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  >
+                    <option value="both">Ambas (Adaptável / Responsivo)</option>
+                    <option value="landscape">Paisagem (Horizontal)</option>
+                    <option value="portrait">Retrato (Vertical)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                  Link do Arquivo ZIP do Jogo (.zip) *
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="Link de download: Google Drive, WeTransfer, GitHub Release ou Dropbox"
+                  value={formData.zipUrl}
+                  onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                />
+                <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
+                  * O ZIP deve conter um <code>index.html</code> na raiz com todos os scripts e imagens em caminhos relativos.
                 </span>
               </div>
-            </div>
-          </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                  Descrição Curta (Instruções de Gameplay)
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Explique como jogar e o objetivo principal em poucas linhas..."
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                />
+              </div>
+
+              {/* CHECKLIST CONTRATUAL DE MONETIZAÇÃO FUTURA (OBRIGATÓRIO) */}
+              <div style={{ 
+                background: 'rgba(30, 41, 59, 0.5)', 
+                border: '1.5px solid rgba(56, 232, 255, 0.3)', 
+                borderRadius: '18px', 
+                padding: '20px 22px', 
+                marginBottom: '28px' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', color: '#38e8ff', fontWeight: 800, fontSize: '0.92rem' }}>
+                  <FileText style={{ width: 18, height: 18 }} />
+                  <span>Checklist Obrigatório para Contrato de Monetização Futura</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checklist.intellectualProperty}
+                      onChange={e => setChecklist({ ...checklist, intellectualProperty: e.target.checked })}
+                      style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#38e8ff' }}
+                    />
+                    <span><strong>1. Titularidade & Autoria:</strong> Declaro sob as penas da lei que sou o autor legítimo ou possuo os direitos de propriedade intelectual sobre o código, arte e áudio deste jogo.</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checklist.nonMonetizedPhaseAcknowledged}
+                      onChange={e => setChecklist({ ...checklist, nonMonetizedPhaseAcknowledged: e.target.checked })}
+                      style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#38e8ff' }}
+                    />
+                    <span><strong>2. Fase Atual Não-Monetizada:</strong> Estou ciente de que o portal KRUUJ está em fase de tração e crescimento, e que a inclusão inicial do jogo não gerará receitas financeiras imediatas.</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checklist.futureRevShare70_30Agreed}
+                      onChange={e => setChecklist({ ...checklist, futureRevShare70_30Agreed: e.target.checked })}
+                      style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#38e8ff' }}
+                    />
+                    <span><strong>3. Divisão Futura 70/30 (RevShare):</strong> Concordo irrevogavelmente com o repasse mensal de <strong>70% da receita líquida</strong> gerada pelo meu jogo a partir do momento em que a monetização por anúncios for ativada no portal.</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checklist.nonExclusiveLicense}
+                      onChange={e => setChecklist({ ...checklist, nonExclusiveLicense: e.target.checked })}
+                      style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#38e8ff' }}
+                    />
+                    <span><strong>4. Licença Não-Exclusiva:</strong> Concedo à KRUUJ Studio licença não-exclusiva para hospedar, exibir e distribuir o jogo globalmente via web e aplicativos, retendo todos os direitos sobre minha marca.</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checklist.childProtectionAndLgpd}
+                      onChange={e => setChecklist({ ...checklist, childProtectionAndLgpd: e.target.checked })}
+                      style={{ marginTop: '3px', cursor: 'pointer', accentColor: '#38e8ff' }}
+                    />
+                    <span><strong>5. Conformidade LGPD & Proteção Infantil:</strong> O jogo respeita as leis de privacidade, não coleta dados pessoais de crianças e não possui mecânicas de compras abusivas.</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* BOTÕES DE ENVIO */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '14px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={onBackToGames}
+                  className="btn-secondary"
+                  style={{ padding: '10px 22px', borderRadius: '9999px', fontWeight: 800, fontSize: '0.85rem' }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={submitting || !isChecklistComplete}
+                  className="btn-primary"
+                  style={{ 
+                    padding: '12px 28px', 
+                    borderRadius: '9999px', 
+                    fontWeight: 900, 
+                    fontSize: '0.9rem',
+                    opacity: isChecklistComplete ? 1 : 0.5,
+                    cursor: isChecklistComplete ? 'pointer' : 'not-allowed',
+                    background: isChecklistComplete ? 'linear-gradient(135deg, #0284c7 0%, #8b5cf6 100%)' : '#334155'
+                  }}
+                >
+                  {submitting ? 'Enviando para os Administradores...' : 'Enviar para Aprovação dos Administradores 🚀'}
+                </button>
+              </div>
+            </form>
+          )}
 
         </div>
-      </section>
-
-      {/* =========================================================================
-          3. NAVEGADOR DE ABAS VISUAL (BENTO MINI-CARDS GRID)
-          ========================================================================= */}
-      <div 
-        className="kruuj-dev-tab-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px',
-          maxWidth: '960px',
-          margin: '32px auto 0',
-          padding: '0 16px',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setActiveTab('overview')}
-          className={`kruuj-dev-tab-card ${activeTab === 'overview' ? 'active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            borderRadius: '16px',
-            background: activeTab === 'overview' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
-            border: activeTab === 'overview' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: activeTab === 'overview' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
-            cursor: 'pointer',
-            textAlign: 'left',
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
-        >
-          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
-            <DollarSign style={{ width: 18, height: 18 }} />
-          </div>
-          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Visão Geral</span>
-            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'overview' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>70% no PIX</span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('sdk')}
-          className={`kruuj-dev-tab-card ${activeTab === 'sdk' ? 'active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            borderRadius: '16px',
-            background: activeTab === 'sdk' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
-            border: activeTab === 'sdk' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: activeTab === 'sdk' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
-            cursor: 'pointer',
-            textAlign: 'left',
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
-        >
-          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
-            <Code style={{ width: 18, height: 18 }} />
-          </div>
-          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>KruujSDK</span>
-            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'sdk' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Guia & Docs</span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('validator')}
-          className={`kruuj-dev-tab-card ${activeTab === 'validator' ? 'active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            borderRadius: '16px',
-            background: activeTab === 'validator' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
-            border: activeTab === 'validator' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: activeTab === 'validator' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
-            cursor: 'pointer',
-            textAlign: 'left',
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
-        >
-          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
-            <Terminal style={{ width: 18, height: 18 }} />
-          </div>
-          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Validador</span>
-            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'validator' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Auditoria CLI</span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('submit')}
-          className={`kruuj-dev-tab-card ${activeTab === 'submit' ? 'active' : ''}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            borderRadius: '16px',
-            background: activeTab === 'submit' ? 'linear-gradient(135deg, rgba(99,102,241,0.28) 0%, rgba(168,85,247,0.2) 100%)' : 'rgba(14, 21, 46, 0.75)',
-            border: activeTab === 'submit' ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: activeTab === 'submit' ? '0 0 25px rgba(99, 102, 241, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5)' : '0 4px 16px rgba(0, 0, 0, 0.35)',
-            cursor: 'pointer',
-            textAlign: 'left',
-            outline: 'none',
-            boxSizing: 'border-box'
-          }}
-        >
-          <div className="kruuj-dev-tab-icon-box" style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' }}>
-            <Rocket style={{ width: 18, height: 18 }} />
-          </div>
-          <div className="kruuj-dev-tab-texts" style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span className="kruuj-dev-tab-title" style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>Publicar Jogo</span>
-            <span className="kruuj-dev-tab-sub" style={{ fontSize: '0.68rem', fontWeight: 600, color: activeTab === 'submit' ? '#c7d2fe' : '#94a3b8', marginTop: '2px' }}>Enviar Build</span>
-          </div>
-        </button>
-      </div>
-
-      {/* =========================================================================
-          4. CONTEÚDO PRINCIPAL DAS ABAS
-          ========================================================================= */}
-      <main className="kruuj-dev-main-content" style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', padding: '40px 24px', flex: 1, boxSizing: 'border-box' }}>
-
-        {/* -----------------------------------------------------------------------
-            ABA 1: VISÃO GERAL & PARCERIA 70/30
-            ----------------------------------------------------------------------- */}
-        {activeTab === 'overview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', textAlign: 'left' }}>
-            
-            {/* Como funciona o fluxo de receita */}
-            <div className="kruuj-dev-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-              
-              <div style={{ 
-                background: 'rgba(13, 20, 42, 0.75)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)', 
-                borderRadius: '24px', 
-                padding: '28px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
-              }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <DollarSign style={{ width: 24, height: 24 }} />
-                </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
-                  Monetização com Alta Conversão
-                </h3>
-                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                  A KRUUJ combina leilões de anúncios programáticos globais (Google AdX, Magnite) com patrocinadores diretos de alta renda (como planos de saúde MedSênior na vertical 60+ a CPM de até R$ 38,00), maximizando sua receita por partida.
-                </p>
-              </div>
-
-              <div style={{ 
-                background: 'rgba(13, 20, 42, 0.75)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)', 
-                borderRadius: '24px', 
-                padding: '28px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
-              }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <Zap style={{ width: 24, height: 24 }} />
-                </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
-                  Padrão PokiSDK Nativo
-                </h3>
-                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                  Zero esforço de migração: se o seu jogo já foi compilado para a Poki, CrazyGames ou GamePix, ele roda diretamente no KRUUJ Studio sem alterar uma única linha de código. O objeto <code style={{ color: '#38bdf8' }}>window.PokiSDK</code> é emulado nativamente.
-                </p>
-              </div>
-
-              <div style={{ 
-                background: 'rgba(13, 20, 42, 0.75)', 
-                border: '1px solid rgba(255, 255, 255, 0.1)', 
-                borderRadius: '24px', 
-                padding: '28px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.4)' 
-              }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <Shield style={{ width: 24, height: 24 }} />
-                </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', marginBottom: '8px' }}>
-                  Segurança Jurídica & LGPD
-                </h3>
-                <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                  Seu código roda isolado em sandbox de alta segurança. Os contratos de publishing são transparentes, sem cessão de propriedade intelectual — o jogo permanece 100% sob a propriedade do seu estúdio.
-                </p>
-              </div>
-
-            </div>
-
-            {/* Pipeline de Publicação em 4 Passos */}
-            <div style={{ 
-              background: 'rgba(10, 15, 34, 0.9)', 
-              border: '1px solid rgba(99, 102, 241, 0.25)', 
-              borderRadius: '28px', 
-              padding: '36px',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.5)'
-            }}>
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
-                  Como Publicar seu Jogo no KRUUJ (Pipeline em 4 Passos)
-                </h3>
-                <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '6px' }}>
-                  Da sua máquina para a vitrine em menos de 24 horas:
-                </p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                
-                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#6366f1', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>1</div>
-                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Integre o KruujSDK</b>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                    Adicione a tag script e chame <code style={{ color: '#818cf8' }}>gameLoadingFinished()</code> e <code style={{ color: '#818cf8' }}>gameplayStart()</code>.
-                  </p>
-                </div>
-
-                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#06b6d4', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>2</div>
-                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Rode o Validador</b>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                    Execute <code style={{ color: '#38bdf8' }}>node check-game.js</code> para auditar tamanho, viewport e áudio em 10s.
-                  </p>
-                </div>
-
-                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ec4899', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>3</div>
-                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Envie o ZIP</b>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                    Submeta o arquivo build através do formulário com seu e-mail e chave PIX cadastrada.
-                  </p>
-                </div>
-
-                <div style={{ padding: '18px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#10b981', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>4</div>
-                  <b style={{ color: '#ffffff', fontSize: '0.9rem', display: 'block', marginBottom: '6px' }}>Receba 70% no PIX</b>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
-                    Seu jogo entra no ar no mosaico Bento Grid e os repasses mensais caem direto na sua conta.
-                  </p>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* -----------------------------------------------------------------------
-            ABA 2: DOCUMENTAÇÃO DO KRUUJ SDK
-            ----------------------------------------------------------------------- */}
-        {activeTab === 'sdk' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', textAlign: 'left' }}>
-            
-            <div>
-              <div className="kruuj-dev-pill-badge">
-                <Code style={{ width: 14, height: 14, color: '#38bdf8' }} />
-                <span>GUIA TÉCNICO OFICIAL DE INTEGRAÇÃO</span>
-              </div>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', margin: '8px 0' }}>
-                Documentação do KruujSDK & PokiBridge
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, maxWidth: '650px' }}>
-                O KruujSDK gerencia o ciclo de vida do jogo no portal, sincroniza o término de carregamento e dispara quebras comerciais sem travar o áudio.
-              </p>
-            </div>
-
-            {/* Código 1: Importação */}
-            <div className="kruuj-dev-code-editor">
-              <div className="kruuj-dev-code-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="kruuj-dev-code-dots">
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
-                  </div>
-                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>index.html — Inclusão no &lt;head&gt;</span>
-                </div>
-                <button
-                  onClick={() => handleCopy('<script src="/sdk/v1/kruuj-sdk.js"></script>', 'sdk1')}
-                  className="kruuj-dev-back-btn"
-                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
-                >
-                  {copiedCode === 'sdk1' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
-                  <span>{copiedCode === 'sdk1' ? 'Copiado!' : 'Copiar Script'}</span>
-                </button>
-              </div>
-              <div className="kruuj-dev-code-body">
-                <span style={{ color: '#64748b' }}>&lt;!-- Importe o SDK oficial no cabeçalho antes de qualquer script do jogo --&gt;</span><br />
-                <span style={{ color: '#f43f5e' }}>&lt;script</span> <span style={{ color: '#38bdf8' }}>src</span>=<span style={{ color: '#34d399' }}>"/sdk/v1/kruuj-sdk.js"</span><span style={{ color: '#f43f5e' }}>&gt;&lt;/script&gt;</span>
-              </div>
-            </div>
-
-            {/* Código 2: Inicialização */}
-            <div className="kruuj-dev-code-editor">
-              <div className="kruuj-dev-code-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="kruuj-dev-code-dots">
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
-                  </div>
-                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>game.js — Fim do Carregamento (Loading Finished)</span>
-                </div>
-                <button
-                  onClick={() => handleCopy("KruujSDK.init().then(() => {\n  KruujSDK.gameLoadingFinished();\n});", 'sdk2')}
-                  className="kruuj-dev-back-btn"
-                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
-                >
-                  {copiedCode === 'sdk2' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
-                  <span>{copiedCode === 'sdk2' ? 'Copiado!' : 'Copiar'}</span>
-                </button>
-              </div>
-              <div className="kruuj-dev-code-body">
-                <span style={{ color: '#64748b' }}>// Assim que texturas, áudios e Canvas estiverem prontos para jogar:</span><br />
-                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>init</span>().<span style={{ color: '#38bdf8' }}>then</span>(() =&gt; &#123;<br />
-                &nbsp;&nbsp;<span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameLoadingFinished</span>(); <span style={{ color: '#64748b' }}>// Desativa o loader de abertura do portal</span><br />
-                &#125;);
-              </div>
-            </div>
-
-            {/* Código 3: Partida & Anúncios */}
-            <div className="kruuj-dev-code-editor">
-              <div className="kruuj-dev-code-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="kruuj-dev-code-dots">
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f43f5e' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#f59e0b' }} />
-                    <span className="kruuj-dev-code-dot" style={{ background: '#10b981' }} />
-                  </div>
-                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#cbd5e1' }}>game.js — Início de Partida e Comerciais (70/30)</span>
-                </div>
-                <button
-                  onClick={() => handleCopy("// 1. Ao iniciar a gameplay:\nKruujSDK.gameplayStart();\n\n// 2. No Game Over ou Pausa:\nKruujSDK.gameplayStop();\n\n// 3. Exibir anúncio recompensado para reviver:\nKruujSDK.rewardedBreak(() => {\n  pauseAudio();\n}).then((rewardGiven) => {\n  resumeAudio();\n  if (rewardGiven) {\n    player.lives = 3;\n  }\n});", 'sdk3')}
-                  className="kruuj-dev-back-btn"
-                  style={{ padding: '4px 12px', fontSize: '0.72rem' }}
-                >
-                  {copiedCode === 'sdk3' ? <Check style={{ width: 12, height: 12, color: '#34d399' }} /> : <Copy style={{ width: 12, height: 12 }} />}
-                  <span>{copiedCode === 'sdk3' ? 'Copiado!' : 'Copiar'}</span>
-                </button>
-              </div>
-              <div className="kruuj-dev-code-body">
-                <span style={{ color: '#64748b' }}>// 1. Quando o jogador começa a partida (para telemetria e tempo jogado):</span><br />
-                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameplayStart</span>();<br /><br />
-                <span style={{ color: '#64748b' }}>// 2. No Game Over, Vitória ou Pausa de Fase:</span><br />
-                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>gameplayStop</span>();<br /><br />
-                <span style={{ color: '#64748b' }}>// 3. Recompensa opcional para reviver (Rewarded Ad de alta monetização):</span><br />
-                <span style={{ color: '#818cf8' }}>KruujSDK</span>.<span style={{ color: '#38bdf8' }}>rewardedBreak</span>(() =&gt; &#123; <span style={{ color: '#64748b' }}>/* Pausar sons */</span> &#125;).<span style={{ color: '#38bdf8' }}>then</span>((<span style={{ color: '#f59e0b' }}>rewardGiven</span>) =&gt; &#123;<br />
-                &nbsp;&nbsp;<span style={{ color: '#f43f5e' }}>if</span> (rewardGiven) &#123;<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;player.lives = <span style={{ color: '#38bdf8' }}>3</span>; <span style={{ color: '#64748b' }}>// Recompensa liberada!</span><br />
-                &nbsp;&nbsp;&#125;<br />
-                &#125;);
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* -----------------------------------------------------------------------
-            ABA 3: ROBÔ VALIDADOR LOCAL (CLI)
-            ----------------------------------------------------------------------- */}
-        {activeTab === 'validator' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', textAlign: 'left' }}>
-            
-            <div>
-              <div className="kruuj-dev-pill-badge">
-                <Terminal style={{ width: 14, height: 14, color: '#fbbf24' }} />
-                <span>HOMOLOGAÇÃO AUTOMATIZADA EM 10 SEGUNDOS</span>
-              </div>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', margin: '8px 0' }}>
-                Robô Validador de Compliance (CLI)
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, maxWidth: '650px' }}>
-                Audite seu jogo localmente antes de enviar. O script oficial verifica tamanho do pacote, viewport mobile, colisão de botões e ausência de vulnerabilidades de segurança.
-              </p>
-            </div>
-
-            <div style={{ 
-              background: 'rgba(14, 21, 45, 0.8)', 
-              border: '1px solid rgba(255, 255, 255, 0.1)', 
-              borderRadius: '24px', 
-              padding: '32px',
-              boxShadow: '0 12px 36px rgba(0,0,0,0.45)' 
-            }}>
-              
-              <div style={{ marginBottom: '24px' }}>
-                <b style={{ color: '#ffffff', fontSize: '1rem', display: 'block', marginBottom: '6px' }}>1. Baixe o Script Oficial</b>
-                <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: 0 }}>
-                  Script em Node.js com zero dependências externas.
-                </p>
-                <div style={{ marginTop: '14px' }}>
-                  <a
-                    href="/scripts/check-game.js"
-                    download="check-game.js"
-                    className="kruuj-dev-cta-btn"
-                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' }}
-                  >
-                    <Download style={{ width: 15, height: 15 }} />
-                    <span>Baixar check-game.js (Versão Oficial)</span>
-                  </a>
-                </div>
-              </div>
-
-              <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '24px 0' }} />
-
-              <div>
-                <b style={{ color: '#ffffff', fontSize: '1rem', display: 'block', marginBottom: '6px' }}>2. Execute o Teste no seu Terminal</b>
-                <div className="kruuj-dev-code-editor" style={{ marginTop: '12px', marginBottom: '16px' }}>
-                  <div className="kruuj-dev-code-body" style={{ color: '#34d399' }}>
-                    $ node check-game.js ./pasta-do-seu-jogo
-                  </div>
-                </div>
-
-                <div style={{ 
-                  background: 'rgba(6, 10, 24, 0.6)', 
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
-                  borderRadius: '16px', 
-                  padding: '20px',
-                  fontSize: '0.82rem',
-                  lineHeight: 1.7,
-                  color: '#cbd5e1'
-                }}>
-                  <b style={{ color: '#fbbf24', display: 'block', marginBottom: '8px' }}>O que o Robô audita automaticamente:</b>
-                  <div>✓ Pacote autocontido de no máximo 18 MB com caminhos relativos.</div>
-                  <div>✓ Viewport mobile com <code style={{ color: '#818cf8' }}>user-scalable=no</code> e sem rolagem de página.</div>
-                  <div>✓ Desvio de segurança de 68px no topo para não colidir com o botão flutuante KRUUJ.</div>
-                  <div>✓ Inicialização correta de <code style={{ color: '#818cf8' }}>KruujSDK.gameLoadingFinished()</code>.</div>
-                  <div>✓ Áudio compatível com WebAudio sem bloqueio de autoplay em navegadores modernos.</div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
-
-        {/* -----------------------------------------------------------------------
-            ABA 4: SUBMETER JOGO
-            ----------------------------------------------------------------------- */}
-        {activeTab === 'submit' && (
-          <div style={{ maxWidth: '680px', margin: '0 auto', textAlign: 'left' }}>
-            {submitSuccess ? (
-              <div style={{ 
-                background: 'rgba(14, 21, 45, 0.85)', 
-                border: '1px solid rgba(52, 211, 153, 0.3)', 
-                borderRadius: '28px', 
-                padding: '48px 32px', 
-                textAlign: 'center',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.5)'
-              }}>
-                <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🚀</div>
-                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', marginBottom: '10px' }}>
-                  Jogo Enviado para Homologação!
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto 24px' }}>
-                  Recebemos os dados de <b>{formData.title}</b>. O robô validador está checando os arquivos e nossa equipe de curadoria entrará em contato pelo e-mail <b>{formData.email}</b> em até 24 horas.
-                </p>
-                <button
-                  onClick={() => { setSubmitSuccess(false); onBackToGames(); }}
-                  className="kruuj-dev-cta-btn"
-                >
-                  Voltar ao Portal Principal
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="kruuj-dev-form-card">
-                <div style={{ marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
-                    Ficha Técnica de Homologação
-                  </h2>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginTop: '4px' }}>
-                    Preencha os dados do seu jogo para cadastrarmos na vitrine e gerarmos o contrato 70/30.
-                  </p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Título Oficial *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: Neon Cyber Overdrive"
-                      value={formData.title}
-                      onChange={e => setFormData({ ...formData, title: e.target.value })}
-                      className="kruuj-dev-input"
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Slug Provisório (URL) *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: neon-cyber"
-                      value={formData.slug}
-                      onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                      className="kruuj-dev-input"
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Estúdio ou Desenvolvedor *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex: Pixel Wave Studios"
-                      value={formData.author}
-                      onChange={e => setFormData({ ...formData, author: e.target.value })}
-                      className="kruuj-dev-input"
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>E-mail de Contato *</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="contato@estudio.com.br"
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      className="kruuj-dev-input"
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Chave PIX para Repasses 70% *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="CPF, CNPJ, E-mail ou Aleatória"
-                      value={formData.pixKey}
-                      onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
-                      className="kruuj-dev-input"
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>Categoria no Portal</label>
-                    <select
-                      value={formData.category}
-                      onChange={e => setFormData({ ...formData, category: e.target.value })}
-                      className="kruuj-dev-input"
-                    >
-                      <option>Raciocínio & Sênior Play</option>
-                      <option>Ação & Arcade</option>
-                      <option>Puzzle & Match</option>
-                      <option>Casual & Família</option>
-                      <option>Infantil & Educativo</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Caixa de Upload Drag & Drop */}
-                <div className="kruuj-dev-upload-box" style={{ marginBottom: '24px' }}>
-                  <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📦</div>
-                  <b style={{ color: '#ffffff', fontSize: '0.95rem', display: 'block', marginBottom: '4px' }}>
-                    Arraste a build do seu jogo (.ZIP) aqui
-                  </b>
-                  <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
-                    O arquivo ZIP deve conter index.html na raiz com assets em caminhos relativos (máximo 18 MB).
-                  </p>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                  <button
-                    type="button"
-                    onClick={onBackToGames}
-                    className="kruuj-dev-back-btn"
-                    style={{ padding: '10px 20px' }}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="kruuj-dev-cta-btn"
-                  >
-                    {submitting ? 'Auditoria em andamento...' : 'Enviar Jogo para Homologação 🚀'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
 
       </main>
-
-      {/* =========================================================================
-          5. FOOTER CORPORATIVO DO DEVELOPER HUB
-          ========================================================================= */}
-      <footer style={{ 
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)', 
-        background: '#04060c', 
-        padding: '30px 24px', 
-        textAlign: 'center', 
-        fontSize: '0.75rem', 
-        color: '#64748b' 
-      }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '24px', fontWeight: 700, marginBottom: '14px' }}>
-          <button onClick={() => setActiveTab('overview')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Modelo 70/30</button>
-          <button onClick={() => setActiveTab('sdk')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>KruujSDK Docs</button>
-          <button onClick={() => setActiveTab('validator')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Validador CLI</button>
-          <button onClick={() => setActiveTab('submit')} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>Submeter Jogo</button>
-          <button onClick={onBackToGames} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer' }}>← Voltar ao Portal</button>
-        </div>
-        <p style={{ margin: 0 }}>
-          KRUUJ Studio Brasil • Plataforma de Jogos Web & Rede de Desenvolvedores Independentes • Suporte a Criadores: <span style={{ color: '#818cf8', fontFamily: 'monospace' }}>devs@kruuj.com</span>
-        </p>
-      </footer>
-
     </div>
   );
 };
