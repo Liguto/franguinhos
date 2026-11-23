@@ -23,7 +23,11 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
     email: '',
     pixKey: '',
     category: 'Arcade',
+    platformSupport: 'both', // 'both' | 'desktop_only' | 'mobile_only'
     orientation: 'both',
+    supportsMouse: true,
+    supportsKeyboard: true,
+    supportsTouch: true,
     description: '',
     zipUrl: ''
   });
@@ -71,8 +75,14 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
           description: formData.description,
           category: formData.category,
           orientation: formData.orientation,
+          controls: {
+            mouse: formData.supportsMouse,
+            teclado: formData.supportsKeyboard,
+            toque: formData.supportsTouch,
+            platformSupport: formData.platformSupport
+          },
           zipUrl: formData.zipUrl,
-          pixKey: formData.pixKey,
+          pixKey: formData.pixKey || 'Pendente (Opcional)',
           checklist
         })
       });
@@ -134,7 +144,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#34d399', fontWeight: 700 }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} />
-                  <span>KruujSDK v1.0 • Poki-Grade Bridge</span>
+                  <span>KruujSDK v1.0 Oficial • Padrão KRUUJ Studio</span>
                 </div>
               </div>
             </div>
@@ -159,7 +169,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
             Publique seu jogo no <span style={{ background: 'linear-gradient(135deg, #38e8ff 0%, #a855f7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>KRUUJ</span>
           </h1>
           <p style={{ fontSize: '1rem', color: '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.5 }}>
-            Acesso instantâneo a milhares de jogadores web no PC e Mobile. Integração simples em menos de 5 minutos com compatibilidade nativa ao PokiSDK.
+            Acesso instantâneo a milhares de jogadores web no PC e Mobile com a tecnologia exclusiva e ágil da KRUUJ Studio.
           </p>
         </div>
 
@@ -177,7 +187,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <span style={{ fontSize: '1.3rem' }}>⚖️</span>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
-              Transparência & Regras de Monetização
+              Transparência & Regras de Parceria
             </h3>
           </div>
 
@@ -219,7 +229,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
             </h3>
           </div>
           <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: '0 0 14px', lineHeight: 1.5 }}>
-            Basta incluir a biblioteca oficial no <code>&lt;head&gt;</code> do seu <code>index.html</code>. O SDK possui bridge biunívoca compatível com <strong>PokiSDK</strong>:
+            Basta incluir a biblioteca oficial no <code>&lt;head&gt;</code> do seu <code>index.html</code>. O KruujSDK foi projetado sob medida para carregamento instantâneo e integração direta ao portal KRUUJ:
           </p>
 
           <div style={{ background: '#03050c', border: '1px solid rgba(56, 232, 255, 0.2)', borderRadius: '14px', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', overflowX: 'auto' }}>
@@ -317,7 +327,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Indie Pixel Games"
+                    placeholder="Ex: Indie Pixel Games (ou seu nome)"
                     value={formData.author}
                     onChange={e => setFormData({ ...formData, author: e.target.value })}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
@@ -328,7 +338,7 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    E-mail do Desenvolvedor *
+                    E-mail do Desenvolvedor (ou do Responsável) *
                   </label>
                   <input
                     type="email"
@@ -342,23 +352,91 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Chave Pix para o Futuro Repasse (70%) *
+                    Chave Pix para o Futuro Repasse (70%) <span style={{ color: '#94a3b8', fontWeight: 600 }}>(Opcional no momento)</span>
                   </label>
                   <input
                     type="text"
-                    required
-                    placeholder="CPF, CNPJ, E-mail ou Telefone"
+                    placeholder="Pode ser cadastrada no futuro pelo responsável legal"
                     value={formData.pixKey}
                     onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
                   />
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
+                    * Alunos de programação, crianças ou desenvolvedores iniciantes podem deixar em branco por enquanto.
+                  </span>
+                </div>
+              </div>
+
+              {/* DETALHES DE COMPATIBILIDADE DE DISPOSITIVOS E PLATAFORMA */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Plataforma Suportada *
+                  </label>
+                  <select
+                    value={formData.platformSupport}
+                    onChange={e => setFormData({ ...formData, platformSupport: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  >
+                    <option value="both">Computador & Celular (Web + Mobile Responsivo) [Recomendado]</option>
+                    <option value="desktop_only">Apenas Computador (Requer Teclado / Mouse)</option>
+                    <option value="mobile_only">Apenas Celular / Tablet (Touchscreen)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                    Orientação da Tela
+                  </label>
+                  <select
+                    value={formData.orientation}
+                    onChange={e => setFormData({ ...formData, orientation: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  >
+                    <option value="both">Ambas (Adaptável / Qualquer Orientação)</option>
+                    <option value="landscape">Paisagem (Horizontal)</option>
+                    <option value="portrait">Retrato (Vertical)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* CONTROLES TESTADOS */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '14px', padding: '14px 16px', marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '8px' }}>
+                  Controles Funcionais Testados no seu Jogo:
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '0.82rem', color: '#fff' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={formData.supportsTouch} 
+                      onChange={e => setFormData({ ...formData, supportsTouch: e.target.checked })} 
+                      style={{ accentColor: '#38e8ff', cursor: 'pointer' }}
+                    /> 📱 Tela de Toque (Mobile Touch)
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={formData.supportsKeyboard} 
+                      onChange={e => setFormData({ ...formData, supportsKeyboard: e.target.checked })} 
+                      style={{ accentColor: '#38e8ff', cursor: 'pointer' }}
+                    /> ⌨️ Teclado (Setas / WASD / Espaço)
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={formData.supportsMouse} 
+                      onChange={e => setFormData({ ...formData, supportsMouse: e.target.checked })} 
+                      style={{ accentColor: '#38e8ff', cursor: 'pointer' }}
+                    /> 🖱️ Mouse / Cursor
+                  </label>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px', marginBottom: '18px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Categoria Principal
+                    Categoria do Jogo
                   </label>
                   <select
                     value={formData.category}
@@ -376,35 +454,17 @@ export const DevelopersPage: React.FC<DevelopersPageProps> = ({ onBackToGames })
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                    Orientação da Tela
+                    Link do Arquivo ZIP do Jogo (.zip) *
                   </label>
-                  <select
-                    value={formData.orientation}
-                    onChange={e => setFormData({ ...formData, orientation: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: '#0b1024', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
-                  >
-                    <option value="both">Ambas (Adaptável / Responsivo)</option>
-                    <option value="landscape">Paisagem (Horizontal)</option>
-                    <option value="portrait">Retrato (Vertical)</option>
-                  </select>
+                  <input
+                    type="url"
+                    required
+                    placeholder="Link de download: Google Drive, WeTransfer, GitHub ou Dropbox"
+                    value={formData.zipUrl}
+                    onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
+                  />
                 </div>
-              </div>
-
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                  Link do Arquivo ZIP do Jogo (.zip) *
-                </label>
-                <input
-                  type="url"
-                  required
-                  placeholder="Link de download: Google Drive, WeTransfer, GitHub Release ou Dropbox"
-                  value={formData.zipUrl}
-                  onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '0.85rem' }}
-                />
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
-                  * O ZIP deve conter um <code>index.html</code> na raiz com todos os scripts e imagens em caminhos relativos.
-                </span>
               </div>
 
               <div style={{ marginBottom: '24px' }}>

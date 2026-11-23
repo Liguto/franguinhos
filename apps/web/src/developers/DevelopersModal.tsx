@@ -20,7 +20,11 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
     email: '',
     pixKey: '',
     category: 'Arcade',
+    platformSupport: 'both',
     orientation: 'both',
+    supportsMouse: true,
+    supportsKeyboard: true,
+    supportsTouch: true,
     description: '',
     zipUrl: ''
   });
@@ -70,8 +74,14 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
           description: formData.description,
           category: formData.category,
           orientation: formData.orientation,
+          controls: {
+            mouse: formData.supportsMouse,
+            teclado: formData.supportsKeyboard,
+            toque: formData.supportsTouch,
+            platformSupport: formData.platformSupport
+          },
           zipUrl: formData.zipUrl,
-          pixKey: formData.pixKey,
+          pixKey: formData.pixKey || 'Pendente (Opcional)',
           checklist
         })
       });
@@ -94,7 +104,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto" style={{ zIndex: 999999 }}>
-      <div className="relative w-full max-w-3xl bg-slate-900 border border-indigo-500/30 rounded-2xl shadow-2xl text-slate-100 overflow-hidden my-8 max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-3xl bg-slate-900 border border-cyan-500/30 rounded-2xl shadow-2xl text-slate-100 overflow-hidden my-8 max-h-[90vh] flex flex-col">
         
         {/* Top Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80 shrink-0">
@@ -104,7 +114,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-black tracking-wide text-white">KRUUJ for Developers</h2>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                  Poki Standard
+                  Padrão KRUUJ Studio
                 </span>
               </div>
               <p className="text-xs text-slate-400">Publicação de Jogos HTML5 & Parceria de Monetização</p>
@@ -161,7 +171,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
               {/* Linha do SDK */}
               <div className="p-3.5 rounded-xl bg-black/60 border border-white/10 flex items-center justify-between gap-3 text-xs">
                 <div className="truncate">
-                  <span className="text-slate-400 mr-2">SDK (1 linha):</span>
+                  <span className="text-slate-400 mr-2">KruujSDK Oficial:</span>
                   <code className="text-cyan-400 font-mono">&lt;script src="https://kruuj-web.vercel.app/sdk/v1/kruuj-sdk.js"&gt;&lt;/script&gt;</code>
                 </div>
                 <button
@@ -199,7 +209,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
                     <input
                       type="text"
                       required
-                      placeholder="Ex: Indie Pixel Games"
+                      placeholder="Ex: Indie Pixel Games (ou seu nome)"
                       value={formData.author}
                       onChange={e => setFormData({ ...formData, author: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
@@ -209,7 +219,7 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">E-mail do Desenvolvedor *</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">E-mail do Desenvolvedor (ou do Responsável) *</label>
                     <input
                       type="email"
                       required
@@ -220,15 +230,76 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Chave Pix para o Futuro Repasse (70%) *</label>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">
+                      Chave Pix para Repasses 70% <span className="text-slate-500 font-normal">(Opcional no momento)</span>
+                    </label>
                     <input
                       type="text"
-                      required
-                      placeholder="CPF, CNPJ, E-mail ou Telefone"
+                      placeholder="Pode cadastrar no futuro pelo responsável legal"
                       value={formData.pixKey}
                       onChange={e => setFormData({ ...formData, pixKey: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
                     />
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Alunos e menores podem deixar em branco.</span>
+                  </div>
+                </div>
+
+                {/* DETALHES DE COMPATIBILIDADE DE DISPOSITIVOS E PLATAFORMA */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Plataforma Suportada *</label>
+                    <select
+                      value={formData.platformSupport}
+                      onChange={e => setFormData({ ...formData, platformSupport: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="both">Computador & Celular (Web + Mobile) [Recomendado]</option>
+                      <option value="desktop_only">Apenas Computador (Teclado / Mouse)</option>
+                      <option value="mobile_only">Apenas Celular / Tablet (Touchscreen)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Orientação da Tela</label>
+                    <select
+                      value={formData.orientation}
+                      onChange={e => setFormData({ ...formData, orientation: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                    >
+                      <option value="both">Ambas (Adaptável)</option>
+                      <option value="landscape">Paisagem (Horizontal)</option>
+                      <option value="portrait">Retrato (Vertical)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* CONTROLES TESTADOS */}
+                <div className="p-3 rounded-xl bg-slate-950 border border-white/5 space-y-1.5 text-xs">
+                  <label className="block text-[11px] font-bold text-slate-400">Controles Funcionais Testados no seu Jogo:</label>
+                  <div className="flex flex-wrap gap-4 text-xs text-white">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.supportsTouch} 
+                        onChange={e => setFormData({ ...formData, supportsTouch: e.target.checked })} 
+                        className="accent-cyan-400"
+                      /> 📱 Tela de Toque (Mobile Touch)
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.supportsKeyboard} 
+                        onChange={e => setFormData({ ...formData, supportsKeyboard: e.target.checked })} 
+                        className="accent-cyan-400"
+                      /> ⌨️ Teclado (Setas / WASD / Espaço)
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.supportsMouse} 
+                        onChange={e => setFormData({ ...formData, supportsMouse: e.target.checked })} 
+                        className="accent-cyan-400"
+                      /> 🖱️ Mouse / Cursor
+                    </label>
                   </div>
                 </div>
 
@@ -248,31 +319,29 @@ export const DevelopersModal: React.FC<DevelopersModalProps> = ({ isOpen, onClos
                       <option value="Bebês">Bebês & Infantil</option>
                     </select>
                   </div>
+
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">Orientação da Tela</label>
-                    <select
-                      value={formData.orientation}
-                      onChange={e => setFormData({ ...formData, orientation: e.target.value })}
+                    <label className="block text-xs font-bold text-slate-300 mb-1">Link do Arquivo ZIP do Jogo (.zip) *</label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="Google Drive, WeTransfer, GitHub ou Dropbox"
+                      value={formData.zipUrl}
+                      onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
-                    >
-                      <option value="both">Ambas (Adaptável)</option>
-                      <option value="landscape">Paisagem (Horizontal)</option>
-                      <option value="portrait">Retrato (Vertical)</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Link do Arquivo ZIP do Jogo (.zip) *</label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="Link de download: Google Drive, WeTransfer, GitHub ou Dropbox"
-                    value={formData.zipUrl}
-                    onChange={e => setFormData({ ...formData, zipUrl: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none"
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Descrição Curta (Instruções)</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Explique o objetivo do jogo em poucas linhas..."
+                    value={formData.description}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:border-cyan-500 focus:outline-none resize-none"
                   />
-                  <span className="text-[10px] text-slate-400 block mt-1">O ZIP deve conter um index.html na raiz com assets em caminhos relativos.</span>
                 </div>
 
                 {/* Checklist Contratual Obrigatório */}
