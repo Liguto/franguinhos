@@ -296,7 +296,7 @@ Status inicial: Em análise pelos administradores da KRUUJ.\n`;
     });
 
     // Notificação por e-mail para os administradores da KRUUJ
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'contato@kruuj.com';
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'luizfreitasduarte@gmail.com';
     console.log(`[KRUUJ Notification] E-mail enviado para ${adminEmail}:
 Assunto: [KRUUJ] Nova Submissão de Jogo: "${title}" por ${author}
 Protocolo de Contrato: ${contractNumber}
