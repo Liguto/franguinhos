@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthenticatedRequest, requireAuth } from '../middleware/auth';
 import { syncDatabaseWithCatalog } from '../catalogSync';
+import { sendSubmissionEmail } from '../services/emailService';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -349,15 +350,19 @@ Status inicial: Em análise pelos administradores da KRUUJ.\n`;
       return { game, contract };
     });
 
-    // Notificação por e-mail para os administradores da KRUUJ
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'luizfreitasduarte@gmail.com';
-    console.log(`[KRUUJ Notification] E-mail enviado para ${adminEmail}:
-Assunto: [KRUUJ] Nova Submissão de Jogo: "${title}" por ${author}
-Protocolo de Contrato: ${contractNumber}
-E-mail do Dev: ${email}
-Link do ZIP: ${zipUrl}
-Chave Pix: ${pixKey || 'Pendente'}
-Checklist Contratual: Aceito 100%`);
+    // Disparar envio real de notificação por e-mail para luizfreitasduarte@gmail.com
+    sendSubmissionEmail({
+      title,
+      author,
+      email,
+      pixKey,
+      zipUrl,
+      contractNumber,
+      category,
+      orientation,
+      controls,
+      description
+    }).catch(err => console.error('[Email Error] Falha ao disparar e-mail:', err));
 
     return res.status(201).json({
       success: true,
