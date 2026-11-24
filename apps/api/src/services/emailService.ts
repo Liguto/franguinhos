@@ -20,90 +20,165 @@ export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<bo
   const fromEmail = process.env.RESEND_FROM || 'KRUUJ Studio <onboarding@resend.dev>';
   const subject = `[KRUUJ Studio] 🎮 Nova Submissão de Jogo: "${data.title}" por ${data.author}`;
 
+  // Template com estilos 100% INLINE e alto contraste (compatível com Outlook, Live.com e Gmail Dark Mode)
   const htmlContent = `
     <!DOCTYPE html>
-    <html>
+    <html lang="pt-BR">
     <head>
       <meta charset="utf-8">
-      <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #050814; color: #f1f5f9; margin: 0; padding: 20px; }
-        .card { background-color: #0b1024; border: 1.5px solid #38e8ff; border-radius: 16px; padding: 28px; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .header { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px; }
-        .title { color: #ffffff; font-size: 22px; font-weight: 900; margin: 0; }
-        .badge { background: linear-gradient(135deg, #0284c7 0%, #8b5cf6 100%); color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; display: inline-block; margin-top: 8px; }
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
-        .info-table td { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .label { color: #94a3b8; font-weight: bold; width: 140px; }
-        .value { color: #f1f5f9; }
-        .cta-btn { display: inline-block; background: linear-gradient(135deg, #38e8ff 0%, #8b5cf6 100%); color: #040817; text-decoration: none; padding: 14px 32px; border-radius: 9999px; font-weight: 900; font-size: 14px; text-align: center; margin: 10px 0; }
-        .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; }
-      </style>
+      <title>Nova Submissão de Jogo - KRUUJ Studio</title>
     </head>
-    <body>
-      <div class="card">
-        <div class="header">
-          <div style="font-size: 32px; margin-bottom: 8px;">🦉</div>
-          <h1 class="title">KRUUJ for Developers</h1>
-          <span class="badge">NOVA SUBMISSÃO DE JOGO RECEBIDA</span>
-        </div>
+    <body style="margin: 0; padding: 20px; background-color: #050814; font-family: 'Segoe UI', Arial, sans-serif; color: #ffffff;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #050814; padding: 20px 0;">
+        <tr>
+          <td align="center">
+            
+            <!-- CARD PRINCIPAL -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #0c1229; border: 2px solid #38e8ff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+              
+              <!-- CABEÇALHO -->
+              <tr>
+                <td align="center" style="padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); background-color: #080d1f;">
+                  <div style="font-size: 36px; line-height: 1; margin-bottom: 10px;">🦉</div>
+                  <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px;">KRUUJ for Developers</h1>
+                  <div style="margin-top: 8px;">
+                    <span style="display: inline-block; background-color: #0284c7; color: #ffffff !important; font-size: 11px; font-weight: 900; padding: 4px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                      Nova Submissão de Jogo Recebida
+                    </span>
+                  </div>
+                </td>
+              </tr>
 
-        <table class="info-table">
-          <tr>
-            <td class="label">Título do Jogo:</td>
-            <td class="value"><strong style="color: #38e8ff; font-size: 16px;">${data.title}</strong></td>
-          </tr>
-          <tr>
-            <td class="label">Criador / Estúdio:</td>
-            <td class="value"><strong>${data.author}</strong></td>
-          </tr>
-          <tr>
-            <td class="label">E-mail de Contato:</td>
-            <td class="value"><a href="mailto:${data.email}" style="color: #38e8ff; text-decoration: none;">${data.email}</a></td>
-          </tr>
-          <tr>
-            <td class="label">Protocolo Contratual:</td>
-            <td class="value"><code style="background: rgba(168,85,247,0.2); color: #c084fc; padding: 2px 8px; border-radius: 6px; font-weight: bold;">${data.contractNumber}</code></td>
-          </tr>
-          <tr>
-            <td class="label">Categoria:</td>
-            <td class="value">${data.category}</td>
-          </tr>
-          <tr>
-            <td class="label">Orientação:</td>
-            <td class="value">${data.orientation}</td>
-          </tr>
-          <tr>
-            <td class="label">Chave Pix (Repasse 70%):</td>
-            <td class="value">${data.pixKey || 'Pendente (Opcional)'}</td>
-          </tr>
-          ${data.description ? `
-          <tr>
-            <td class="label" style="vertical-align: top;">Descrição / Gameplay:</td>
-            <td class="value">${data.description}</td>
-          </tr>
-          ` : ''}
-        </table>
+              <!-- CORPO COM DADOS -->
+              <tr>
+                <td style="padding: 24px 28px;">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); width: 140px; color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Título do Jogo:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #38e8ff !important; font-size: 16px; font-weight: 900;">
+                        ${data.title}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Criador / Autor:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #ffffff !important; font-size: 14px; font-weight: bold;">
+                        ${data.author}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        E-mail de Contato:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #38e8ff !important; font-size: 14px;">
+                        <a href="mailto:${data.email}" style="color: #38e8ff !important; text-decoration: underline; font-weight: bold;">${data.email}</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Protocolo Contrato:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #c084fc !important; font-size: 14px; font-family: monospace; font-weight: bold;">
+                        ${data.contractNumber}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Categoria:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #ffffff !important; font-size: 14px;">
+                        ${data.category}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Orientação:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #ffffff !important; font-size: 14px;">
+                        ${data.orientation}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold;">
+                        Chave Pix (70%):
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #34d399 !important; font-size: 14px; font-weight: bold;">
+                        ${data.pixKey || 'Pendente (Opcional)'}
+                      </td>
+                    </tr>
+                    ${data.description ? `
+                    <tr>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 13px; font-weight: bold; vertical-align: top;">
+                        Descrição:
+                      </td>
+                      <td style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); color: #cbd5e1 !important; font-size: 13px; line-height: 1.5;">
+                        ${data.description}
+                      </td>
+                    </tr>
+                    ` : ''}
+                  </table>
 
-        <div style="text-align: center; margin: 20px 0;">
-          <a href="${data.zipUrl}" class="cta-btn" target="_blank">
-            📦 Baixar Pacote ZIP do Jogo
-          </a>
-        </div>
+                  <!-- SEÇÃO DE DOWNLOAD DO ZIP EM ALTO CONTRASTE -->
+                  <div style="margin: 28px 0 20px; text-align: center;">
+                    <div style="font-size: 12px; font-weight: bold; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                      Arquivo ZIP do Jogo para Testes
+                    </div>
+                    
+                    <!-- BOTÃO BULLETPROOF: FUNDO CIANO VIBRANTE COM TEXTO PRETO PURO -->
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                      <tr>
+                        <td align="center" style="border-radius: 50px; background-color: #38e8ff;">
+                          <a href="${data.zipUrl}" target="_blank" style="display: inline-block; background-color: #38e8ff; color: #000000 !important; font-family: Arial, sans-serif; font-size: 15px; font-weight: 900; text-decoration: none; padding: 15px 36px; border-radius: 50px; border: 2px solid #38e8ff; text-align: center;">
+                            <span style="color: #000000 !important; font-weight: 900; letter-spacing: 0.5px;">
+                              📦 BAIXAR ARQUIVO .ZIP DO JOGO
+                            </span>
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
 
-        <div style="background: rgba(56, 232, 255, 0.05); border: 1px dashed rgba(56, 232, 255, 0.3); border-radius: 12px; padding: 14px; text-align: center; font-size: 13px; color: #cbd5e1;">
-          <strong>Ação Recomendada:</strong> Acesse o Cockpit Administrativo do KRUUJ para testar e clicar em <code>✅ Aprovar & Publicar</code> para o jogo entrar no ar.
-        </div>
+                    <!-- CAIXA COM LINK DIRETO (LEGÍVEL EM QUALQUER CLIENTE) -->
+                    <div style="margin-top: 14px; background-color: #162044; border: 1px solid #38e8ff; border-radius: 10px; padding: 12px 16px; text-align: left; word-break: break-all;">
+                      <span style="display: block; font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 4px;">Link direto para download:</span>
+                      <a href="${data.zipUrl}" target="_blank" style="color: #38e8ff !important; font-size: 13px; font-weight: bold; text-decoration: underline; font-family: monospace;">
+                        ${data.zipUrl}
+                      </a>
+                    </div>
+                  </div>
 
-        <div class="footer">
-          KRUUJ Studio — Plataforma Oficial de Jogos Instantâneos<br>
-          Este e-mail é uma notificação automática gerada pela rota de submissão do portal.
-        </div>
-      </div>
+                  <!-- AVISO DE APROVAÇÃO -->
+                  <div style="background-color: rgba(56, 232, 255, 0.08); border: 1px dashed rgba(56, 232, 255, 0.4); border-radius: 12px; padding: 14px 18px; margin-top: 20px; text-align: center;">
+                    <span style="color: #ffffff; font-size: 13px; line-height: 1.5; display: block;">
+                      ⚙️ <strong>Como Publicar:</strong> Acesse a <strong>Área Administrativa (Cockpit)</strong> do KRUUJ, confira os arquivos e clique em <strong style="color: #34d399;">✅ Aprovar & Publicar</strong> para o jogo entrar no ar no site!
+                    </span>
+                  </div>
+
+                </td>
+              </tr>
+
+              <!-- RODAPÉ -->
+              <tr>
+                <td align="center" style="padding: 16px 24px; background-color: #070b18; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <p style="margin: 0; font-size: 11px; color: #64748b; line-height: 1.4;">
+                    KRUUJ Studio — Plataforma Oficial de Jogos Instantâneos<br>
+                    Notificação automática emitida pelo sistema de submissões de desenvolvedores.
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+      </table>
     </body>
     </html>
   `;
 
-  // 1. Tentar envio via Resend API (se RESEND_API_KEY estiver configurada)
+  // 1. Tentar envio via Resend API
   if (apiKey) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
@@ -153,7 +228,7 @@ export async function sendSubmissionEmail(data: SubmissionEmailData): Promise<bo
     }
   }
 
-  // 2. Tentar envio via SMTP / Gmail (se SMTP_USER e SMTP_PASS estiverem configurados)
+  // 2. Tentar envio via SMTP / Gmail
   if (process.env.SMTP_USER && process.env.SMTP_PASS) {
     try {
       const transporter = nodemailer.createTransport({
